@@ -1,0 +1,5 @@
+- <https://codeforces.com/problemset?tags=ternary%20search>
+- 201B. Guess That Car!
+- 578C. Weakness and Poorness
+- 1716C. Robot in a Hallway
+- 1265B2. Send Boxes to Alice (Hard Version)

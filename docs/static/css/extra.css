@@ -1,0 +1,103 @@
+/* 文章 */
+.md-typeset {
+  font-size: 16px;
+}
+
+.md-typeset h2 {
+  font-size: 30px;
+}
+
+.md-typeset h3 {
+  font-size: 23px;
+}
+
+.md-typeset h4 {
+  font-size: 19px;
+  font-weight: normal;
+}
+
+:root {
+  --md-admonition-icon--seacow: url('https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/octicons/broadcast-16.svg')
+}
+
+:root {
+  --md-admonition-icon--code: url('https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/material/file-code.svg');
+
+}
+
+[data-md-color-scheme=slate] {
+  --md-seacow-color: #36373e;
+  --md-code-summary-color: #191E25;
+  --md-code-bkg-color: #FFF;
+}
+
+:root, [data-md-color-scheme=default] {
+  --md-seacow-color: white;
+  --md-code-summary-color: #e2e2e2;
+  --md-code-bkg-color: #000000;
+}
+
+.md-typeset .admonition.seacow,
+.md-typeset details.seacow {
+  background-color: var(--md-seacow-color);
+  border-color: #51D2EA;
+  border-width: 0;
+  border-left-width: 4px; 
+  box-shadow: 0 0.2rem 0.5rem #0003,0 0 0.5rem #0000001a;
+}
+.md-typeset .seacow > .admonition-title,
+.md-typeset .seacow > summary {
+  background-color: rgba(43, 155, 70, 0.1);
+}
+.md-typeset .seacow > .admonition-title::before,
+.md-typeset .seacow > summary::before {
+  background-color: #51D2EA;
+  -webkit-mask-image: var(--md-admonition-icon--seacow);
+          mask-image: var(--md-admonition-icon--seacow);
+}
+
+.md-typeset .admonition.code,
+.md-typeset details.code {
+  background-color: var(--md-seacow-color);
+  border-width: 0;
+  box-shadow: 0 0.2rem 0.5rem #0003,0 0 0.5rem #0000001a;
+}
+.md-typeset .code > .admonition-title,
+.md-typeset .code > summary {
+  background-color: var(--md-code-summary-color);
+}
+.md-typeset .code > .admonition-title::before,
+.md-typeset .code > summary::before {
+  background-color: var(--md-code-bkg-color);
+  -webkit-mask-image: var(--md-admonition-icon--code);
+          mask-image: var(--md-admonition-icon--code);
+}
+
+/* note */
+.md-typeset .admonition,
+.md-typeset details {
+  font-size: 16px;
+}
+
+.md-typeset .admonition.abstract, 
+.md-typeset details.abstract {
+  background-color: var(--md-seacow-color);
+  border-width: 0;
+  border-left-width: 4px;
+  border-color: #448aff;
+  box-shadow: 0 0.2rem 0.5rem #0003,0 0 0.5rem #0000001a;
+}
+
+.md-typeset figcaption {
+  font-style: normal;
+  color: var(--md-default-fg-color--light);
+  margin: 10px;
+}
+
+.md-typeset table:not([class]) { 
+  font-size: 16px;
+}
+
+/* note 代碼 in full size */
+details > summary + .highlight:last-child, details > summary + .tabbed-set:last-child { margin: 0 -0.6rem !important; }
+details > summary + .highlight:last-child > .highlighttable { margin: 0 !important; }

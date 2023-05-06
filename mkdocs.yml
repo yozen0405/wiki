@@ -1,0 +1,186 @@
+site_name: coffee's wiki
+site_description: 
+site_author: 
+copyright: 
+site_url: https://yozen0405.github.io/wiki/
+repo_url: 'https://github.com/yozen0405/wiki/'
+repo_name: coffee's wiki
+edit_uri: 'https://raw.githubusercontent.com/yozen0405/wiki/main/docs/'
+
+theme: 
+    name: material
+    language: zh-TW
+    search_index_only: true
+    palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material//weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      primary: indigo
+      scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+    features:
+      - announce.dismiss
+      - content.action.view
+      - content.code.annotate
+      - content.code.copy
+      # - content.tabs.link
+      - content.tooltips
+      # - header.autohide
+      # - navigation.expand
+      - navigation.footer
+      # - navigation.instant
+      # - navigation.prune
+      - navigation.tabs
+      - navigation.expand
+      # - navigation.tabs.sticky
+      - search.highlight
+      - search.share
+      - search.suggest
+      - toc.follow
+    font: 
+      text: Roboto
+      code: Roboto Mono
+
+
+
+
+plugins:
+  - search:
+      jieba_dict: user_dict.txt
+
+# 图标
+icon:
+    admonition:
+      note: octicons/tag-16
+      abstract: octicons/checklist-16
+      info: octicons/info-16
+      tip: octicons/squirrel-16
+      success: octicons/check-16
+      question: octicons/question-16
+      warning: octicons/alert-16
+      failure: octicons/x-circle-16
+      danger: octicons/zap-16
+      bug: octicons/bug-16
+      example: octicons/beaker-16
+      quote: octicons/quote-16
+
+# 扩展
+markdown_extensions:
+  - pymdownx.critic
+  - pymdownx.mark
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - abbr
+  - pymdownx.snippets
+  - def_list
+  - tables
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - meta
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.caret #下划线
+  - pymdownx.mark #文本高亮
+  - pymdownx.tilde #删除线
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - md_in_html
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true 
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - footnotes
+  - toc:
+      permalink: ¶
+      
+
+
+
+# 自定义css
+extra_css: 
+   - '//cdn.staticaly.com/gh/codeslive/cdn@main/css/imageszoom.css'
+   - static/css/extra.css
+
+extra_javascript: 
+  - static/javascripts/mathjax.js
+  - static/javascripts/open_new_tab.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+# 文档区
+nav:
+    - 簡介: 
+        - 總攬: 'index.md'
+        - 網站架設 : 
+          - 語法教學: 'main/syntax.md'
+          - 架設教學: 'main/setup.md'
+    - 程式資源 :
+      - APCS: 'cp/apcs.md'
+      - 競程:
+        - 學習資源: 'cp/resources.md'
+        - 網站資源: 'cp/learning.md'
+        - 比賽策略: 'cp/strategy.md'
+      - 比賽: 
+        - 目錄: 'cp/contest.md'
+        - TOI 資奧:
+          - TOI 初選: 'cp/contest/TOI.md'
+          - TOI 選訓模考: 'cp/contest/TOI_M.md'
+          - TOI 模擬賽: 'cp/contest/TOI_mock.md'
+        - 學科能力競賽:
+          - 校內賽: 'cp/contest/school.md'
+          - 區域賽: 'cp/contest/regional.md'
+          - 全國賽模擬賽: 'cp/contest/nhspc_mock.md'
+        - 支線比賽: 'cp/contest/other.md'
+        - 各國 OI: 'cp/contest/OI.md'
+        - 比賽晉級路線圖: 'cp/contest/path.md'
+    - 搜索算法:
+      - 二分搜: 'search/binary_search.md'
+      - 三分搜: 'search/tenary_search.md'
+    - 圖論:
+      - 並查集 DSU: 'graph/DSU.md'
+      - 二分圖: 'graph/bipartite.md'
+      - Cycle: 'graph/cycle.md'
+      - 水母圖: 'graph/functional_graph.md'
+      - topo sort: 'graph/topo_sort.md'
+      - MST: 'graph/MST.md'
+      - 連通元件圖論: 'graph/scc.md'
+    - 數學:
+        - 線性基: 'math/XOR.md'
+        - 特定數:
+          - mex: 'math/special/mex.md'
+          - 中位數: 'math/special/median.md'
+          - 平均數: 'math/special/average.md'
+    - 貪心:
+        - 經典問題: 'greedy/classic.md'
+        - 區段問題: 
+            - 區間問題: 'greedy/interval.md'
+            - 排程問題: 'greedy/interval_scheduling.md'
+            - 應用: 'greedy/interval_hard.md'
+        - 資結貪心: 'greedy/ds.md'
+        - maximum subarray: 'greedy/max_subarray.md'
+        - 其他: 'greedy/other.md'
+    - 分治與離線:
+        - 分治:
+            - 基礎技巧:  'offline/DC.md'
+            - 整體二分: 'offline/parallel-binsearch.md'
+            - CDQ 分治: 'offline/cdq.md'
+        - 離線: 'offline/offline.md'
+    
+    
