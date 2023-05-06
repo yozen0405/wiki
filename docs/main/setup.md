@@ -48,3 +48,14 @@ mkdocs serve
 
 然後上 cmd 給你的網址看就可以了
 
+## 部屬到 Github
+
+> 參考 : <https://youtu.be/Q-YA_dA8C20>
+
+```powershell
+git add .
+git commit -m 'initial commit'
+git pull
+git push origin main
+```
+
