@@ -122,13 +122,13 @@ void solve () {
 - 次小生成樹
 
 ## 最小化最大最小差
-
 - 找一顆生成樹滿足 有選到的 (權重最大Edge) 減掉 (權重最小Edge) 要**最小**
   - $\texttt{min(maxW - minW)}$
 - 有兩層最大或最小可以去枚舉內層
 - 以這題來說去枚舉 $\texttt{minW}$ 對於每個 $\texttt{minW}$ 找最小的 $\texttt{maxW}$ 讓他剛好可以形成生成樹
 
-### N = 1e3, M = 1e4, C = -1e9~1e9
+### 範圍 1
+$N = 10^3, M = 10^4, C = -10^9\sim10^9$
 
 ```cpp linenums="1"
 sort (Edges)
@@ -144,7 +144,8 @@ for (int i = 1; i <= m; i++) {
 // tot: O(nlgn + m^2)
 ```
 
-### N = 2e5, M = 2e5, C = 100
+### 範圍 2
+$N = 2\times 10^5, M = 2\times 10^5, C = 100$
 
 ```cpp linenums="1"
 sort (Edges) // {w, u, v}
@@ -163,20 +164,54 @@ for (int i = 1; i <= C; i++) {
 ### 結論
 - 利用範圍來控制 Kruskal
 
+### 例題
+
+- [宜中校內賽 2022 pE](https://sorahisa-rank.github.io/sh-ylsh/2022/problems.pdf#page=12)
+- DSU EDU 某題 (範圍1)
+
 ## 最大化最小邊
 - [TIOJ 1340](https://tioj.ck.tp.edu.tw/problems/1340)
-- [宜中校內賽 2022 pE](https://sorahisa-rank.github.io/sh-ylsh/2022/problems.pdf#page=12)
 - [ZJ j125. 4. 蓋步道](https://zerojudge.tw/ShowProblem?problemid=j125)
 
 ### 法1
 - 從小到大枚舉($\texttt{Greedy}$)
 - $\texttt{Kruskal}$ 最大生成樹
+- $O(m\log m)$
 
 ### 法2
 - 二分搜
 - $\texttt{DFS/BFS check}$ 只選邊權 $\le x$ 的是否能連通
+- $O(m\log m)$
+
+### 法 3
+
+每次取 $x=$ 剩餘的 $\text{edge}$ 的中位數，檢查圖有沒有連通
+
+- 如果連通 :  $>x$ 的 $\text{edge}$ 都用不到 (刪掉) $\rightarrow \begin{cases} \text{edge} \space少一半 \\ \text{vertex} \space不變 \end{cases}$
+- 如果連通 :   $\le x$ 的連通塊縮點 $\rightarrow \begin{cases} \text{edge} \space少一半 \\ \text{vertex} \space變少 \end{cases}$
+
+那麼時間複雜度 ?
+
+$$
+T(n,m)=T(n,\frac{m}{2})+O(n+m)
+$$
+
+若 $m < n$ 的話那一定是 $\texttt{IMPOSIIBLE}$
+
+所以時間複雜度只需考慮 $m$ 
+
+$$
+\begin{align} T (m) &= T(\frac{m}{2}) + O(m) \\ &= O(m) \end{align}
+$$
+
+
+!!! question "為何是 $O(m)$"
+	無窮等比級數 $\displaystyle a + ar + ar^2 + \dots = a\frac{1}{1-r}$ 
+
+	$\displaystyle a=n,r=\frac{1}{2}$ 我們得到 $\displaystyle n + \frac{n}{2} + \frac{n}{4} + \dots = n\frac{1}{1-\frac{1}{2}} = 2n.$
 
 ## 額外練習
+
 | 題目                                                         | 備註 |
 | ------------------------------------------------------------ | ---- |
 | [abc210E](https://atcoder.jp/contests/abc210/tasks/abc210_e) |      |

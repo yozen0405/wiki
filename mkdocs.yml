@@ -153,6 +153,7 @@ nav:
     - 搜索算法:
       - 二分搜: 'search/binary_search.md'
       - 三分搜: 'search/tenary_search.md'
+      - 雙指針: 'search/two_pointer.md'
     - 圖論:
       - 並查集 DSU: 'graph/DSU.md'
       - 二分圖: 'graph/bipartite.md'
