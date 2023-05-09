@@ -50,7 +50,7 @@
 
 | 名稱                | 網址                                                         |
 | ------------------- | ------------------------------------------------------------ |
-| 資訊之芽            | <li>[2023 教材](https://www.csie.ntu.edu.tw/~sprout/algo2023/)<br><li>[neoj](https://neoj.sprout.tw/) |
+| 資訊之芽            | <li>[2023 算法班教材](https://www.csie.ntu.edu.tw/~sprout/algo2023/)<br><li>[2023 語法班教材](  https://tw-csie-sprout.github.io/c2023/#!slides.md )<br><li>[neoj](https://neoj.sprout.tw/) |
 | 演算法筆記          | <li>[網站](https://web.ntnu.edu.tw/~algo/)                   |
 | oi wiki             | <li>[網站](https://oi-wiki.org/)<br><li>涵蓋所有主題<br>     |
 | CSDN                | <li>[網站](https://blog.csdn.net)<br><li>博客 : 題解，主題詳解 |

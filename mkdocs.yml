@@ -154,6 +154,8 @@ nav:
       - 二分搜: 'search/binary_search.md'
       - 三分搜: 'search/tenary_search.md'
       - 雙指針: 'search/two_pointer.md'
+    - 資料結構:
+      - 線段樹: 'ds/segment_tree.md'
     - 圖論:
       - 並查集 DSU: 'graph/DSU.md'
       - 二分圖: 'graph/bipartite.md'
@@ -161,6 +163,9 @@ nav:
       - 水母圖: 'graph/functional_graph.md'
       - topo sort: 'graph/topo_sort.md'
       - MST: 'graph/MST.md'
+      - Tree: 'graph/Tree.md'
+      - 最短路: 'graph/STP.md'
+      - 歐拉迴路: 'graph/euler_path.md'
       - 連通元件圖論: 'graph/scc.md'
     - 數學:
         - 線性基: 'math/XOR.md'

@@ -58,11 +58,110 @@
 		- 翻譯 : 
 			- 如果 $x$ 是 $A$ 類，那 $y$ 必須是 $C$ 類 
 			- 如果 $x$ 是 $A$ 類，那 $y$ 必須是 $A$ 類 
-		- 為什麼不用考慮 $\text{find}(x_B)=\text{find}(y_A)$ 的情況呢 ?
-			- 因為若 $(x,y)$ 之前有 $\text{merge}$ 過那他們一定三個分別在三個集合
-			- 就只要看當時 $\text{merge}$ 的時候是符合那一種 case
-			- 他是屬於一種環形結構 $A\rightarrow B \rightarrow C \rightarrow A$
+		
+		---
+		
+		<figure markdown>
+          ![Image title](./images/4.png){ width="200" }
+        </figure>
+		
+		假如今天 $1$ 吃 $2$，$2$ 吃 $3$ 關西如下圖
+		
+		<figure markdown>
+          ![Image title](./images/3.png){ width="300" }
+          <figcaption>同一 row 的必同時發生</figcaption>
+        </figure>
+		
+		
+		
+		---
+		
+		```cpp linenums="1"
+		if (flag == 1) {
+			if (check (a, b + n) || check (a, b + 2*n)) {
+				ans++;
+			}
+			else {
+				merge (a, b), merge (a + n, b + n), merge (a + 2*n, b + 2*n);
+			}
+		}
+		else {
+			if (check (a, b) || check (a, b + 2*n)) {
+				ans++;
+			}
+			else {
+				merge (a, b + n), merge (a + n, b + 2*n), merge (a + 2*n, b);
+			}
+		}
+		```
+		
+		
+		 
+		
 
+### Uva 11987
+
+???+note "[zerojudge f292. 11987 - Almost Union-Find](https://zerojudge.tw/ShowProblem?problemid=f292)"
+	有個 $n$ 物品，每個物品一開始都是自己一組
+	
+	有 $q$ 次操作，每次會是其中一種
+	
+	- $\text{Merge}(x,y):$ 將 $x,y$ 所在的兩個群體合併為同一個
+
+	- $\text{MoveGroup}(x,y):$ 將 $x$ 從他所在的群體當中移除並且加入 $y$ 所在的群體
+
+	- $\text{Sum}(x):$ 印出 $x$ 所在的群體包含的成員個數和成員編號總合
+
+	??? note "思路"
+		我們先來思考「將 $x$ 從他所在的群體當中移除」
+		
+		我們直接將 $x$ 的貢獻給扣掉，也不必真正在 DSU 裡將其刪除
+		
+		接下來思考 「並且加入 $y$ 所在的群體」
+		
+		我們可以對於 $i=1\sim n$ 維護 $t_i$ 代表目前 $i$ 真正的編號
+		
+		加入新的 group 的時候只需將 $t_i$ 變成當前沒用過的編號即可，並且可以當成是一個新的點，去執行 merge
+		
+		詳見代碼
+		
+		??? note "code"
+			```cpp linenums="1"
+            void init () {
+                for (int i = 1; i <= n; i++) {
+                    f[i] = i;
+                    t[i] = i;
+                    sum[i] = i;
+                    num[i] = 1;
+                }
+                cnt = n;
+            }
+
+            void delete (int x) {
+                sum[find (t[x])] -= x;
+                num[find (t[x])] -= 1;
+
+                t[x] = ++cnt;
+                sum[t[x]] = x;
+                num[t[x]] = 1;
+                f[t[x]] = t[x];
+            }
+
+            void merge (int x, int y) {
+                int tx = find (t[x]);
+                int ty = find (t[y]);
+                if (tx != ty) f[ty] = tx;
+                num[tx] += num[ty];
+                sum[tx] += sum[ty];
+            }
+
+            void solve (int x, int y) {
+                delete (x);
+                merge (x, y);
+            }
+            ```
+			> 參考自 : [CSDN](https://blog.csdn.net/weixin_52914088/article/details/120379127?ops_request_misc=&request_id=&biz_id=102&spm=1018.2226.3001.4187)
+			
 - DSU 判環
 - https://blog.csdn.net/boliu147258/article/details/92778897
 

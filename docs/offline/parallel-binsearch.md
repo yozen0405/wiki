@@ -191,26 +191,26 @@ $$
 	
 	??? note "思路"
 	
-        > 法 1 : 
-
-        技巧 : <a href="/wiki/graph/MST/#3" target="_blank">最大邊最小化生成樹 法3</a>
-
-        考慮找第一個出錯的地方，$\displaystyle \text{mid}=\frac{l+r}{2}=t$
-
-        檢查只用 $\le t$ 的資料聯集是否矛盾
-
-        - 若矛盾，代表 $ans\le t$，刪掉後面的，少一半
-        - 若沒矛盾，代表 $ans> t$，將前面的二分圖縮點，少一半
-
-        複雜度 : $\displaystyle T(p)=T(\frac{p}{2})+O(p\times k)\Rightarrow O(p\times k)$
-
-        > 法 2 : rollback DSU
-
-        註 : 如果資料兩兩之間可以矛盾也是可以做的
-
-        將第 $i$ 個資料的 $k$ 個 $\texttt{pair}$ 加進 DSU，判斷，roll back
-
-        複雜度 : $O(p\times k \times \log C)$
+	    > 法 1 : 
+	
+	    技巧 : <a href="/wiki/graph/MST/#3" target="_blank">最大邊最小化生成樹 法3</a>
+	
+	    考慮找第一個出錯的地方，$\displaystyle \text{mid}=\frac{l+r}{2}=t$
+	
+	    檢查只用 $\le t$ 的資料聯集是否矛盾
+	
+	    - 若矛盾，代表 $ans\le t$，刪掉後面的，少一半
+	    - 若沒矛盾，代表 $ans> t$，將前面的二分圖縮點，少一半
+	
+	    複雜度 : $\displaystyle T(p)=T(\frac{p}{2})+O(p\times k)\Rightarrow O(p\times k)$
+	
+	    > 法 2 : rollback DSU
+	
+	    註 : 如果資料兩兩之間可以矛盾也是可以做的
+	
+	    將第 $i$ 個資料的 $k$ 個 $\texttt{pair}$ 加進 DSU，判斷，roll back
+	
+	    複雜度 : $O(p\times k \times \log C)$
 
 ### Atcoder Stamp Rally
 
@@ -222,7 +222,7 @@ $$
 	回答從 $x$ 點出發和從 $y$ 點走的「點集聯集大小」至少是 $z$ 的最大邊編號最小值
 	
 	- $n,m,q \le 10^5$
-
+	
 	??? note "思路"
 		> 暴力作法
 	
@@ -231,7 +231,7 @@ $$
 		檢查如果只走 $\le t$ 的邊 : 
 		
 		- $x$ 和 $y$ 是否在同一個連通塊
-
+	
 		- 連通塊大小是否 $\ge z$
 		
 		複雜度 : $O(q\times (n+m))$
@@ -255,21 +255,20 @@ $$
 		> 方法二 : 存 $\log m$ 個 $n\text{-vertex graph}$
 		
 		<figure markdown>
-          ![Image title](./images/4.png){ width="500" }
-        </figure>
+	      ![Image title](./images/4.png){ width="500" }
+	    </figure>
 
-		
 		時間複雜度 : $O(m \log m + q)=O(m\log m)$
 		
 		空間複雜度 : $O(m \log m)$
-		
+
 ### 區間 gcd
 
 ???+note "原創 - 區間 gcd"
 	給一個正整數陣列，查詢有幾個區間的 $\gcd = 1$ 
 	
 	- $O(n\log n)$ 
-
+	
 	??? note "思路"
 		這題其實就直接 sparse table 預處理，two pointer 維護即可
 		
@@ -316,10 +315,6 @@ $$
 						g[i] = gcd (g[i], v[r[i] + 1])
 						r_i = r_i + d
 			```
-		
-		
-		
-
 
 
 ### 成大賽 身分調查
@@ -479,5 +474,9 @@ $$
 	        }
 	    }
 	    ```
+
+## 習題
+
+- [POI2011 R3 Day2 Meteors](https://loj.ac/p/2169)
 
 [^1]: 每個邊只會往一邊走，上一層用完了就可以刪掉，所以同一時間只有 $m$ 條邊在跑，每個邊只出現在一個地方 

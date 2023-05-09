@@ -22,19 +22,21 @@
 
 :root {
   --md-admonition-icon--code: url('https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/material/file-code.svg');
-
+  --md-admonition-icon--qs: url('https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/octicons/question-16.svg');
 }
 
 [data-md-color-scheme=slate] {
   --md-seacow-color: #36373e;
   --md-code-summary-color: #191E25;
   --md-code-bkg-color: #FFF;
+  --md-qs-border-width: 1px;
 }
 
 :root, [data-md-color-scheme=default] {
   --md-seacow-color: white;
   --md-code-summary-color: #e2e2e2;
   --md-code-bkg-color: #000000;
+  --md-qs-border-width: 0;
 }
 
 .md-typeset .admonition.seacow,
@@ -96,6 +98,28 @@
 
 .md-typeset table:not([class]) { 
   font-size: 16px;
+}
+
+.md-typeset .admonition.qs,
+.md-typeset details.qs {
+  border-width: var(--md-qs-border-width);
+  border-color: #A6A6A6;
+}
+
+.md-typeset .qs > .admonition-title,
+.md-typeset .qs > summary {
+  background-color: var(--md-code-summary-color);
+}
+
+.md-typeset .qs > .admonition-title::before,
+.md-typeset .qs > summary::before {
+  background-color: #B8B8B8;
+  -webkit-mask-image: var(--md-admonition-icon--qs);
+          mask-image: var(--md-admonition-icon--qs);
+}
+
+.md-typeset .qs>.admonition-title:after, .md-typeset .qs>summary:after {
+  color: #B8B8B8;
 }
 
 /* note 代碼 in full size */
