@@ -126,11 +126,15 @@ extra_javascript:
 
 # 文档区
 nav:
-    - 簡介: 
+    - 首頁: 
         - 總攬: 'index.md'
         - 網站架設 : 
           - 語法教學: 'main/syntax.md'
           - 架設教學: 'main/setup.md'
+        - vscode 下載教學: 
+          - 影片: 'main/vscode_vid.md'
+          - 網址: 'main/vscode.md'
+          - 指令與常見問題: 'main/cmd.md'
     - 程式資源 :
       - APCS: 'cp/apcs.md'
       - 競程:
@@ -188,5 +192,6 @@ nav:
             - 整體二分: 'offline/parallel-binsearch.md'
             - CDQ 分治: 'offline/cdq.md'
         - 離線: 'offline/offline.md'
+    
     
     

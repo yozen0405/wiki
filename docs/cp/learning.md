@@ -66,3 +66,9 @@ CF
 
 - <https://codeforces.com/blog/entry/55219>
 - <https://codeforces.com/blog/entry/94042>
+
+## 寫程式用的軟體
+
+- codeblock (APCS)
+- vscode
+- vim

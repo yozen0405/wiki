@@ -1,6 +1,6 @@
 <figure markdown>
   ![Image title](./images/1.png){ width="600" }
-  <figcaption>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/wiki/cp/images/1.png" target="_blank">比賽路線圖</a> by 何達睿</figcaption>
+  <figcaption><a href="/wiki/cp/images/1.png" target="_blank">比賽路線圖</a> by 何達睿</figcaption>
 </figure>
 
 備註 :
