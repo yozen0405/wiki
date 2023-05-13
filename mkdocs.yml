@@ -192,6 +192,9 @@ nav:
             - 整體二分: 'offline/parallel-binsearch.md'
             - CDQ 分治: 'offline/cdq.md'
         - 離線: 'offline/offline.md'
+    - 學校:
+      - 考試範圍: 'school/範圍.md'
+      - 地科: 'school/地科.md'
     
     
     
