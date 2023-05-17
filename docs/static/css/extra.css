@@ -26,14 +26,20 @@
 }
 
 [data-md-color-scheme=slate] {
+  --md-abt-color: rgba(0,133,242,.1);
   --md-seacow-color: #36373e;
+  --md-abt-border-color: #696969;
+  --md-abt-border-left-color: #0085f2;
   --md-code-summary-color: #191E25;
   --md-code-bkg-color: #FFF;
   --md-qs-border-width: 1px;
 }
 
 :root, [data-md-color-scheme=default] {
+  --md-abt-color: #0085F21A;
   --md-seacow-color: white;
+  --md-abt-border-left-color: #0085f2;
+  --md-abt-border-color: #cdcdcd;
   --md-code-summary-color: #e2e2e2;
   --md-code-bkg-color: #000000;
   --md-qs-border-width: 0;
@@ -83,11 +89,10 @@
 
 .md-typeset .admonition.abstract, 
 .md-typeset details.abstract {
-  background-color: var(--md-seacow-color);
-  border-width: 0;
-  border-left-width: 4px;
-  border-color: #448aff;
-  box-shadow: 0 0.2rem 0.5rem #0003,0 0 0.5rem #0000001a;
+  background-color: var(--md-abt-color);
+  border: 1px solid var(--md-abt-border-color);
+  border-left: 4px solid var(--md-abt-border-left-color);
+  box-shadow: 0;
 }
 
 .md-typeset figcaption {
