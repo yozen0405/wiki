@@ -14,6 +14,7 @@
 | [TIOJ](http://tioj.ck.tp.edu.tw/)                            | <li>考古題套題                                               |
 | [tcirc](https://judge.tcirc.tw/)                             | <li>AP325練習題                                              |
 | [TOJ](https://toj.tfcis.org/oj/proset/)                      | <font color="gray">無</font>                                 |
+| [NCTUOJ](https://oj.nctu.edu.tw/signin/)                     | <li>交大教授的一些練習題                                     |
 
 ## 部落格, 簡報
 
@@ -42,9 +43,13 @@
 | 李其樺 | <li>[部落格](https://ststone1687.github.io/)                 | <font color="gray">無</font>                            |
 | 范釗維 | <li>[部落格](https://sorahisa.github.io/)                    | <li>2020 2!                                             |
 | 曹允碩 | <li>[部落格](https://littleorange666.github.io/)             | <li>2023 1!                                             |
-| 卓育安 | <li>[hackmd](https://hackmd.io/@CYA)                         | <li>2023 1!<br><li>數奧 3!                              |
-| 黃柏澄 | <li>[hackmd](https://hackmd.io/@BoCheNGHuaNG0114)            | <li>數奧 3!                                             |
+| 卓育安 | <li>[hackmd](https://hackmd.io/@CYA)                         | <li>2023 1!<br><li>2023 數奧國手                        |
+| 黃柏澄 | <li>[hackmd](https://hackmd.io/@BoCheNGHuaNG0114)            | <li>2023 數奧 3!                                        |
 | 林品安 | <li>[部落格](https://hakkaz.github.io/about/)<br><li>[APCS 經驗分享](https://medium.com/codingbar/apcs%E8%A7%A3%E9%A1%8C%E7%AD%96%E7%95%A5-%E5%AF%A6%E4%BD%9C%E6%BB%BF%E7%B4%9A%E5%88%86%E9%AB%98%E6%89%8B%E7%B6%93%E9%A9%97%E5%88%86%E4%BA%AB-217c79c76acb) | <font color="gray">無</font>                            |
+| 張集貴 | <li>[hackmd](https://hackmd.io/@pr3pony)<br><li>[演算法資源整理](https://hackmd.io/@pr3pony/HysEHoYe8) | <li>2017 2!                                             |
+| 吳宗達 | <li>[algoseacow github](https://github.com/algo-seacow)      | <li>2016 2!                                             |
+| 葉宥辰 | <li>[hackmd](https://hackmd.io/@LittlePants)                 | <li>2022 1!                                             |
+| 黃頂軒 | <li>[部落格](https://fffelix-huang.github.io/)               | <font color="gray">無</font>                            |
 
 ## 其他網站
 
@@ -60,7 +65,8 @@
 | NHDK                | <li>[四校營隊簡報](https://github.com/HHSH-CYSH-WGSH-HSNU-Summer-Camp)<br><li>[影片清單](https://www.youtube.com/watch?v=_CWCr1hCT44&list=PL_815psSzw1FATzqwJdWaWJHGcH4F6DUz) |
 | NCKU ACM            | <li>[講義](https://hackmd.io/@nckuacm/ryLIV6BYI/%2F%40nckuacm%2FBJD15vyrI) |
 | Awesome CS Training | <li>[github](https://github.com/goodjack/awesome-cs-training)<br> |
-| ITSA                | <li>[師大教授出的題目(judge)](https://e-tutor.itsa.org.tw/e-Tutor/Question_bank.php?id=624)<br><li>需註冊帳號 |
+| ITSA                | <li>[judge](https://e-tutor.itsa.org.tw/e-Tutor/Question_bank.php?id=624)<br><li>需註冊帳號 |
+| 宜蘭高中自學平台    | <li>論壇(不一定跟程式有關)<br><li>[網站](https://josh930908.github.io/web/#/) |
 
 CF
 
@@ -72,3 +78,7 @@ CF
 - codeblock (APCS)
 - vscode
 - vim
+
+## 如何 debug
+
+- [USACO Guide debug 教學](https://usaco.guide/general/debugging-checklist?lang=cpp)

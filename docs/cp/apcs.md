@@ -1,10 +1,12 @@
+!!! yellow ""
+	:loudspeaker:&nbsp;&nbsp;宣傳 : [蘭燈之星第112期APCS程式設計培育計畫](https://www.ylsh.ilc.edu.tw/ischool/public/news_view/show.php?nid=24781)，歡迎同學踴躍報名
+	
 ## 歷屆題目
 
 ### 觀念題
 
 !!! abstract ""
 	<font color="#448aff">:octicons-info-16:</font>&nbsp;&nbsp;[考試範圍](https://hackmd.io/@algoseacow/apps-written)
-	
 
 - [2016 3 月](/wiki/cp/images/1.pdf)
 - [2016 10 月](/wiki/cp/images/2.pdf)

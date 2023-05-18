@@ -144,6 +144,7 @@ nav:
       - 比賽: 
         - 目錄: 'cp/contest.md'
         - TOI 資奧:
+          - TOI 新手同好會: 'cp/contest/TOI_easy.md'
           - TOI 初選: 'cp/contest/TOI.md'
           - TOI 選訓模考: 'cp/contest/TOI_M.md'
           - TOI 模擬賽: 'cp/contest/TOI_mock.md'
@@ -171,6 +172,7 @@ nav:
       - 最短路: 'graph/STP.md'
       - 歐拉迴路: 'graph/euler_path.md'
       - 連通元件圖論: 'graph/scc.md'
+      - 網路流: 'graph/flow.md'
     - 數學:
         - 線性基: 'math/XOR.md'
         - 特定數:

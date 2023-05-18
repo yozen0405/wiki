@@ -49,13 +49,14 @@
 
 ### 校陪
 
-| 名稱         | 網址                                                         |
-| ------------ | ------------------------------------------------------------ |
-| 附中校陪簡報 | <li>[附中資培 題單 2021](https://codeforces.com/group/3Xn3T5DO0a/contests) |
-| 板中         | <li>[板中校陪](https://sites.google.com/site/pcshic/zi-xun-pei-xun) |
-| 建中         | <li>[2022 校陪](https://tioj.ck.tp.edu.tw/articles/27)       |
-| 北一女黑魔法 | <li>[簡介](https://hackmd.io/@hhhhaura/r1KdR5avq)<br/><li>[dp & greedy](https://slides.com/fhvirus/bm-dp-greedy)<br/><li>[Geometry](https://drive.google.com/file/d/1ZIf1yeDzheYddv5SiRI6LzsD-5PxkDlJ/view)<br/><li>[基礎圖論](https://slides.com/justinlai2003/palette) |
-| 竹科實中     | <li>[C++程式語言教學講義](https://hackmd.io/@CLKO/B18yT_i5Z) |
+| 名稱              | 網址                                                         |
+| ----------------- | ------------------------------------------------------------ |
+| 附中校陪簡報      | <li>[附中資培 題單 2021](https://codeforces.com/group/3Xn3T5DO0a/contests) |
+| 板中              | <li>[板中校陪](https://sites.google.com/site/pcshic/zi-xun-pei-xun) |
+| 建中              | <li>[2022 校陪](https://tioj.ck.tp.edu.tw/articles/27)       |
+| 北一女黑魔法      | <li>[簡介](https://hackmd.io/@hhhhaura/r1KdR5avq)<br/><li>[dp & greedy](https://slides.com/fhvirus/bm-dp-greedy)<br/><li>[Geometry](https://drive.google.com/file/d/1ZIf1yeDzheYddv5SiRI6LzsD-5PxkDlJ/view)<br/><li>[基礎圖論](https://slides.com/justinlai2003/palette) |
+| 竹科實中          | <li>[C++程式語言教學講義](https://hackmd.io/@CLKO/B18yT_i5Z) |
+| 宜中(林燈盃 APCS) | <li><a href="/wiki/cp/images/林燈盃.html" target="_blank">整理</a> |
 
 ### 群組
 
@@ -85,12 +86,4 @@
 | 11 月 | NPSC (初賽)       |
 | 12 月 | 全國賽            |
 | 12 月 | NPSC (複賽)       |
-
-## 題型準備
-
-### 構造題 
-
-
-> 我寫多了資優數學題就能很精準的反應出<br>
-> <font style='font-size:12px'>--- <font style='font-size:11px'>:fontawesome-solid-user:</font> rahlin1004</font>
 

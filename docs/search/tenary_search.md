@@ -1,3 +1,4 @@
+- 凸函數，凹函數，定義
 - <https://codeforces.com/problemset?tags=ternary%20search>
 - 201B. Guess That Car!
 - 578C. Weakness and Poorness
