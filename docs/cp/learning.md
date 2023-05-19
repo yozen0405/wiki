@@ -47,9 +47,13 @@
 | 黃柏澄 | <li>[hackmd](https://hackmd.io/@BoCheNGHuaNG0114)            | <li>2023 數奧 3!                                        |
 | 林品安 | <li>[部落格](https://hakkaz.github.io/about/)<br><li>[APCS 經驗分享](https://medium.com/codingbar/apcs%E8%A7%A3%E9%A1%8C%E7%AD%96%E7%95%A5-%E5%AF%A6%E4%BD%9C%E6%BB%BF%E7%B4%9A%E5%88%86%E9%AB%98%E6%89%8B%E7%B6%93%E9%A9%97%E5%88%86%E4%BA%AB-217c79c76acb) | <font color="gray">無</font>                            |
 | 張集貴 | <li>[hackmd](https://hackmd.io/@pr3pony)<br><li>[演算法資源整理](https://hackmd.io/@pr3pony/HysEHoYe8) | <li>2017 2!                                             |
-| 吳宗達 | <li>[algoseacow github](https://github.com/algo-seacow)      | <li>2016 2!                                             |
+| 吳宗達 | <li>[algoseacow github](https://github.com/algo-seacow)<br><li>[解題日誌](https://docs.google.com/spreadsheets/d/1FYjs5OFKm9Gc9d8BRT2AtYIfwjzHXKrH8_LfG5D2NmM/edit#gid=0) | <li>2016 2!                                             |
+| 劉澈   | <li>[部落格](https://cheissmart.github.io/)                  | <li>2021 國手                                           |
 | 葉宥辰 | <li>[hackmd](https://hackmd.io/@LittlePants)                 | <li>2022 1!                                             |
 | 黃頂軒 | <li>[部落格](https://fffelix-huang.github.io/)               | <font color="gray">無</font>                            |
+| 李培綸 | <li>[部落格](https://andyli.tw/)                             | <font color="gray">無</font>                            |
+| 鍾?均  | <li>[部落格](https://cbjsprogramdiary.com/)                  | <font color="gray">無</font>                            |
+| 李尚哲 | <li>[部落格](https://mtmatt.page)                            | <font color="gray">無</font>                            |
 
 ## 其他網站
 

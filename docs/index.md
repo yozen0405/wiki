@@ -26,3 +26,10 @@ git push origin main
 <a href="/wiki/main/cp/images/1.png" target="_blank">比賽路線圖</a>
 ```
 
+## 技巧
+
+- 反著做
+- DP $f(x),g(x)$
+
+- 打到二維座標平面
+

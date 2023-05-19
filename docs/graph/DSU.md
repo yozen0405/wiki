@@ -1,11 +1,8 @@
 ## 介紹
 
 - 持久化並查集
-
 - 帶權並查集 (CF imposter)
-
 - 可撤銷並查集 (2023 成大賽 p4)
-
 - 加點技巧 (海牛 class 11 hm)
 
 ## 連結
@@ -66,7 +63,7 @@
 		- 如果 $\text{find}(x_A)=\text{find}(y_C)$ 或 $\text{find}(x_A)=\text{find}(y_A)$ 則矛盾
 		
 		---
-		
+
 		
 		他們每個 col 將會以 $A \rightarrow B \rightarrow C$ 的順序旋轉
 		所以當你知道其中一個關係的時候其實就能推得其餘的關係
@@ -90,11 +87,11 @@
 		- 當 $1$ 在 $A$ 時，$2$ 在 $B$
 		
 		- 當 $1$ 在 $B$ 時，$2$ 在 $C$
-
+	
 		- 當 $1$ 在 $C$ 時，$2$ 在 $A$
-
+	
 		可以看到 $2$ 也是繞著關係圖走一圈的，所以當你確定他其中一步時，就能確定其他步
-
+	
 		---
 		
 		```cpp linenums="1"
@@ -179,17 +176,16 @@
 	        }
 	        ```
 			> 參考自 : [CSDN](https://blog.csdn.net/weixin_52914088/article/details/120379127?ops_request_misc=&request_id=&biz_id=102&spm=1018.2226.3001.4187)
-			
+
 ???+note "[CF 1594 D. The Number of Imposters](https://codeforces.com/problemset/problem/1594/D)"
 	給定 $n$ 個點，每個點有一個未知的 $w_i\in \{0,1\}$，再給 $m$ 個關係
 	
 	- $(x,y,0):$ $w_x = w_y$
 	- $(x,y,1):$ $w_x \neq w_y$
-
+	
 	判斷最多有多少個點的 $w_i=1$
-	
-	
-	
+
+
 	??? note "思路 1"
 		考慮二分圖染色法判斷，兩個點之間有邊代表兩點的顏色不同
 		
@@ -200,189 +196,219 @@
 		注意在跑二分圖染色法時不能將多餘的 $z$ 點算進去
 	
 		??? note "code(from [acwing](https://www.acwing.com/file_system/file/content/whole/index/content/3069744/))"
-            ```cpp linenums="1"
-            #include <bits/stdc++.h>
-            using namespace std;
-            typedef long long ll;
-            typedef pair<ll, ll> pii;
-            const int N = 7e5 + 10;
-            const int M = 2e6 + 8e5 + 10;
-            int c[2];
-            int n, z;
-            int e[M], ne[M], h[N], idx;
-            int st[N];
-
-            void add(int a, int b) {
-                e[idx] = b, ne[idx] = h[a], h[a] = idx++;
-            }
-
-            void init() {
-                idx = 0;
-                for (int i = 1; i <= z; i++)
-                {
-                    h[i] = -1;
-                    st[i] = 0;
-                }
-            }
-            bool dfs(int u, int color) {
-                st[u] = color;
-                if (u <= n) // 不算入 z 點
-                    c[2 - color]++;
-
-                for (int i = h[u]; i != -1; i = ne[i]) {
-                    int j = e[i];
-                    if (!st[j]) {
-                        if (!dfs(j, 3 - color))
-                            return false;
-                    }
-                    else if (st[j] == color)
-                        return false;
-                }
-                return true;
-            }
-
-            void slove() {
-                int m;
-                cin >> n >> m;
-
-                z = n + 1;
-                for (int i = 1; i <= m; i++) {
-                    int a, b;
-                    char c[10];
-                    scanf("%d %d %s", &a, &b, c);
-
-                    if (c[0] == 'c') {
-                        add(a, z);
-                        add(z, a);
-                        add(b, z);
-                        add(z, b);
-                        z++;
-                    }
-                    else {
-                        add(a, b);
-                        add(b, a);
-                    }
-                }
-                int ans = 0;
-                int ok = true;
-                for (int i = 1; i <= n; i++) {
-                    if (!st[i]) {
-                        c[0] = 0;
-                        c[1] = 0;
-                        bool flag = dfs(i, 1);
-
-                        if (!flag) {
-                            ok = false;
-                            break;
-                        }
-
-                        ans += max(c[0], c[1]);
-                    }
-                }
-                if (!ok)
-                    ans = -1;
-
-                cout << ans << endl;
-                init ();
-            }
-
-            int main() {
-                int Q;
-                cin >> Q;
-                memset(h, -1, sizeof h);
-                while (Q--) {
-                    slove();
-                }
-                return 0;
-            }
-            ```
-            
-    ??? note "思路 2"
-    	考慮帶權並查集
-    	
-    	對於每個並查集維護並查集內每個點與 root 的距離是 $0$ 或是 $1$
-    	
-    	最後每個並查集 $\max($與 root 的距離是 $0$ 的數量 $,$ 與 root 的距離是 $1$ 的數量$)$ 
-    	
-    	??? note "code"
-            ```cpp linenums="1"
-            #include <bits/stdc++.h>
-            #define int long long
-            #define pb push_back
-            #define mk make_pair
-            #define F first
-            #define S second
-            #define pii pair<int, int>
-            using namespace std;
-
-            const int INF = 9e18;
-            const int maxn = 2e5 + 5;
-            int n, m;
-            int dis[maxn], par[maxn], cnt[maxn][2];
-
-            int find (int x) {
-                if (par[x] == x) return x;
-                else {
-                    int root = find (par[x]);
-                    dis[x] ^= dis[par[x]];
-                    par[x] = root;
-                    return root;
-                }
-            }
-
-            void solve () {
-                cin >> n >> m;
-                for (int i = 1; i <= n; i++) dis[i] = 0, par[i] = i, cnt[i][0] = 1, cnt[i][1] = 0;
-
-                string s;
-                int fg = 0;
-
-                for (int i = 1, u, v; i <= m; i++) {
-                    cin >> u >> v >> s;
-
-                    int dif;
-                    if (s[0] == 'i') dif = 1; 
-                    else dif = 0; // same
-
-                    int x = find (u), y = find (v);
-                    if (x == y) {
-                        if ((dis[u] ^ dis[v]) != dif) fg = 1;
-                    }
-                    else {
-                        dis[y] = dis[u] ^ dis[v] ^ dif;
-                        par[y] = x;
-                        cnt[x][0] += cnt[y][dis[y]];
-                        cnt[x][1] += cnt[y][dis[y] ^ 1];
-                    }
-                }
-
-                if (fg == 1) {
-                    cout << -1 << "\n";
-                    return;
-                }
-
-                int res = 0;
-                for (int i = 1; i <= n; i++) {
-                    if (find(i) == i) {
-                        res += max (cnt[i][0], cnt[i][1]);
-                    }
-                }
-                cout << res << "\n";
-            }
-
-            signed main () {
-                int t;
-                cin >> t;
-                while (t--) {
-                    solve ();
-                }
-            }
-            ```
+	        ```cpp linenums="1"
+	        #include <bits/stdc++.h>
+	        using namespace std;
+	        typedef long long ll;
+	        typedef pair<ll, ll> pii;
+	        const int N = 7e5 + 10;
+	        const int M = 2e6 + 8e5 + 10;
+	        int c[2];
+	        int n, z;
+	        int e[M], ne[M], h[N], idx;
+	        int st[N];
 	
+	        void add(int a, int b) {
+	            e[idx] = b, ne[idx] = h[a], h[a] = idx++;
+	        }
+	
+	        void init() {
+	            idx = 0;
+	            for (int i = 1; i <= z; i++)
+	            {
+	                h[i] = -1;
+	                st[i] = 0;
+	            }
+	        }
+	        bool dfs(int u, int color) {
+	            st[u] = color;
+	            if (u <= n) // 不算入 z 點
+	                c[2 - color]++;
+	
+	            for (int i = h[u]; i != -1; i = ne[i]) {
+	                int j = e[i];
+	                if (!st[j]) {
+	                    if (!dfs(j, 3 - color))
+	                        return false;
+	                }
+	                else if (st[j] == color)
+	                    return false;
+	            }
+	            return true;
+	        }
+	
+	        void slove() {
+	            int m;
+	            cin >> n >> m;
+	
+	            z = n + 1;
+	            for (int i = 1; i <= m; i++) {
+	                int a, b;
+	                char c[10];
+	                scanf("%d %d %s", &a, &b, c);
+	
+	                if (c[0] == 'c') {
+	                    add(a, z);
+	                    add(z, a);
+	                    add(b, z);
+	                    add(z, b);
+	                    z++;
+	                }
+	                else {
+	                    add(a, b);
+	                    add(b, a);
+	                }
+	            }
+	            int ans = 0;
+	            int ok = true;
+	            for (int i = 1; i <= n; i++) {
+	                if (!st[i]) {
+	                    c[0] = 0;
+	                    c[1] = 0;
+	                    bool flag = dfs(i, 1);
+	
+	                    if (!flag) {
+	                        ok = false;
+	                        break;
+	                    }
+	
+	                    ans += max(c[0], c[1]);
+	                }
+	            }
+	            if (!ok)
+	                ans = -1;
+	
+	            cout << ans << endl;
+	            init ();
+	        }
+	
+	        int main() {
+	            int Q;
+	            cin >> Q;
+	            memset(h, -1, sizeof h);
+	            while (Q--) {
+	                slove();
+	            }
+	            return 0;
+	        }
+	        ```
+	        
+	??? note "思路 2"
+		考慮帶權並查集
+		
+		對於每個並查集維護並查集內每個點與 root 的距離是 $0$ 或是 $1$
+		
+		最後每個並查集 $\max($與 root 的距離是 $0$ 的數量 $,$ 與 root 的距離是 $1$ 的數量$)$ 
+		
+		??? note "code"
+	        ```cpp linenums="1"
+	        #include <bits/stdc++.h>
+	        #define int long long
+	        #define pb push_back
+	        #define mk make_pair
+	        #define F first
+	        #define S second
+	        #define pii pair<int, int>
+	        using namespace std;
+	
+	        const int INF = 9e18;
+	        const int maxn = 2e5 + 5;
+	        int n, m;
+	        int dis[maxn], par[maxn], cnt[maxn][2];
+	
+	        int find (int x) {
+	            if (par[x] == x) return x;
+	            else {
+	                int root = find (par[x]);
+	                dis[x] ^= dis[par[x]];
+	                par[x] = root;
+	                return root;
+	            }
+	        }
+	
+	        void solve () {
+	            cin >> n >> m;
+	            for (int i = 1; i <= n; i++) dis[i] = 0, par[i] = i, cnt[i][0] = 1, cnt[i][1] = 0;
+	
+	            string s;
+	            int fg = 0;
+	
+	            for (int i = 1, u, v; i <= m; i++) {
+	                cin >> u >> v >> s;
+	
+	                int dif;
+	                if (s[0] == 'i') dif = 1; 
+	                else dif = 0; // same
+	
+	                int x = find (u), y = find (v);
+	                if (x == y) {
+	                    if ((dis[u] ^ dis[v]) != dif) fg = 1;
+	                }
+	                else {
+	                    dis[y] = dis[u] ^ dis[v] ^ dif;
+	                    par[y] = x;
+	                    cnt[x][0] += cnt[y][dis[y]];
+	                    cnt[x][1] += cnt[y][dis[y] ^ 1];
+	                }
+	            }
+	
+	            if (fg == 1) {
+	                cout << -1 << "\n";
+	                return;
+	            }
+	
+	            int res = 0;
+	            for (int i = 1; i <= n; i++) {
+	                if (find(i) == i) {
+	                    res += max (cnt[i][0], cnt[i][1]);
+	                }
+	            }
+	            cout << res << "\n";
+	        }
+	
+	        signed main () {
+	            int t;
+	            cin >> t;
+	            while (t--) {
+	                solve ();
+	            }
+	        }
+	        ```
+	        
+### 組別最大編號
+
+???+note "海牛 class11 P9"
+	有個 $n$ 物品編號依序是 $1,2,3,...,n$，每個物品一開始都是自己一組
+	
+	有 $q$ 次操作，每次會是其中一種
+	
+	- $\text{Merge}(x,y):$ 將 $x,y$ 所在的兩個群體合併為同一個
+	
+	- $\text{MoveGroup}(x,y):$ 把包含物品 $x$ 與物品 $y$ 的兩個組別合併成一個
+	
+	- $\text{GroupMax}(x):$ 求跟物品 $x$ 同一組的物品中，編號最大的物品編號
+
+	$n,q\le 2\times 10^5$
+	
+	??? note "思路"
+		維護很多個 priority_queue
+		
+        每個 pq 裡面存很多 $\texttt{pair}(x, t)$，$x$ 就是有的元素，$t$ 是時間戳記
+
+        每次 Move 不要真的把東西搬到別的 Group, 而是直接新增一個時間戳記比較大的 $(x, t')$
+
+        找最大值的時候，一直看這個 pq 的 $\max$
+        
+        如果時間戳記已經過期了就丟掉元素，一直到找到一個不是過期的元素
+
+
+
 
 - DSU 判環
 - https://blog.csdn.net/boliu147258/article/details/92778897
 - <https://www.luogu.com.cn/problem/P3430>
+- [TIOJ 只走一次](https://tioj.ck.tp.edu.tw/problems/2161)
+	- [submission](https://tioj.ck.tp.edu.tw/submissions/311160)
 
 ---
 

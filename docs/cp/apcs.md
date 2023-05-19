@@ -1,5 +1,5 @@
 !!! yellow ""
-	:loudspeaker:&nbsp;&nbsp;宣傳 : [蘭燈之星第112期APCS程式設計培育計畫](https://www.ylsh.ilc.edu.tw/ischool/public/news_view/show.php?nid=24781)，歡迎同學踴躍報名
+	:loudspeaker:&nbsp;&nbsp;[蘭燈之星第112期APCS程式設計培育計畫](https://www.ylsh.ilc.edu.tw/ischool/public/news_view/show.php?nid=24781)
 	
 ## 歷屆題目
 
@@ -73,6 +73,8 @@
 - [成大講義](https://hackmd.io/@nckuacm/ryLIV6BYI/%2F%40nckuacm%2FBJD15vyrI)
 - [從零開始](https://emanlaicepsa.github.io/)
 - [yuihuang](https://yuihuang.com/)
+- [培哥學習筆記](https://andyli.tw/)
+- [cbj's 程式日記](https://cbjsprogramdiary.com/)
 
 ## 社群
 

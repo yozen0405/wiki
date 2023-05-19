@@ -308,7 +308,179 @@
 	    
 	    給定一個 $(x_i,y_i,z_i)$ 詢問 $\begin{cases}x_j \le x_i \\ y_j \le y_i \\ z_j \le z_i \end{cases}$ 的權值總和
 
+	??? note "code"
+		```cpp linenums="1"
+		#include <algorithm>
+        #include <cassert>
+        #include <iostream>
+        #include <utility>
+        #include <vector>
+
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define lowbit(x) (x & (-x))
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int maxn = 3e5 + 5;
+
+        int n, q;
+        int ans[maxn], op[maxn];
+        int g[1005][1005], pre[1005][1005];
+
+        struct triple {
+            int a, b, c, cnt, x, id;
+            // (z, x, y), cnt, multiply, org qry idx
+        };
+
+        vector<triple> a;
+        int t = 0;
+
+        void add_event(int i, int j, int cnt, int x, int id) {
+            if (i <= 0) return;
+            if (j <= 0) return;
+            a.pb({t++, i, j, cnt, x, id});
+        }
+
+        int cmpA(const triple &A, const triple &B) {
+            if (A.a != B.a) return A.a < B.a;
+            if (A.b != B.b) return A.b < B.b;
+            return A.c < B.c;
+        }
+
+        int cmpB(const triple &A, const triple &B) {
+            if (A.b != B.b) return A.b < B.b;
+            return A.c < B.c;
+        }
+
+        struct BIT {
+            vector<int> bit;
+            int n;
+
+            void init(int _n) {
+                n = _n;
+                bit.resize(n + 1);
+            }
+
+            void add(int x, int d) {
+                assert(x != 0);
+                while (x <= n) {
+                    bit[x] += d;
+                    x += lowbit(x);
+                }
+            }
+
+            int query(int x) {
+                int ret = 0;
+                while (x > 0) {
+                    ret += bit[x];
+                    x -= lowbit(x);
+                }
+                return ret;
+            }
+        } bit;
+
+        void CDQ(int l, int r) {
+            if (l == r) return;
+            // cout << l << ' ' << r << endl;
+
+            int mid = (l + r) / 2;
+            CDQ(l, mid);
+            CDQ(mid + 1, r);
+            // sort(a.begin() + l, a.begin() + mid + 1, cmpB);
+            // sort(a.begin() + mid + 1, a.begin() + r + 1, cmpB);
+
+            int i = l;
+            for (int j = mid + 1; j <= r; j++) {
+                while (i <= mid && a[i].b <= a[j].b) {
+                    bit.add(a[i].c, a[i].cnt);
+                    i++;
+                }
+
+                ans[a[j].id] += a[j].x * bit.query(a[j].c);
+            }
+
+            for (int k = l; k < i; k++) {
+                bit.add(a[k].c, -a[k].cnt);
+            }
+
+            inplace_merge(a.begin() + l, a.begin() + mid + 1, a.begin() + r + 1, cmpB);
+        }
+
+        void solve() {
+            cin >> n >> q;
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    char c;
+                    cin >> c;
+                    if (c == '*') {
+                        g[i][j] = 1;
+                        pre[i][j]++;
+                    }
+                }
+            }
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pre[i][j] =
+                        pre[i][j] + pre[i - 1][j] + pre[i][j - 1] - pre[i - 1][j - 1];
+                    // cout << "i:" << i << ",j:" << j << ",pre:" << pre[i][j] << "\n";
+                }
+            }
+
+            for (int cs = 1; cs <= q; cs++) {
+                cin >> op[cs];
+                if (op[cs] == 1) {
+                    int i, j;
+                    cin >> i >> j;
+
+                    if (g[i][j] == 1) {
+                        add_event(i, j, -1, 0, 0);
+                        g[i][j] = 0;
+                    } else {
+                        add_event(i, j, +1, 0, 0);
+                        g[i][j] = 1;
+                    }
+                } else {
+                    int i1, i2, j1, j2;
+                    cin >> i1 >> j1 >> i2 >> j2;
+                    i1--, j1--;
+                    add_event(i2, j2, 0, +1, cs);
+                    add_event(i1, j2, 0, -1, cs);
+                    add_event(i2, j1, 0, -1, cs);
+                    add_event(i1, j1, 0, +1, cs);
+                    ans[cs] += pre[i2][j2] - pre[i1][j2] - pre[i2][j1] + pre[i1][j1];
+                }
+            }
+
+            sort(ALL(a), cmpA);
+
+            bit.init(1024);
+            CDQ(0, (int)a.size() - 1);
+
+            for (int i = 1; i <= q; i++) {
+                if (op[i] == 1) continue;
+
+                cout << ans[i] << '\n';
+            }
+        }
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+
+            solve();
+        }
+        ```
+
   
+
 
 
 
@@ -379,9 +551,10 @@
 		只是這樣可能會使得 $j=i$，就不合法了，所以**還須維護次小**
 		
 		<figure markdown>
-          ![Image title](./images/3.png){ width="400" }
-        </figure>
+	      ![Image title](./images/3.png){ width="400" }
+	    </figure>
 
-		
+
+​		
 		時間複雜度 : $O(n\log n)$
 

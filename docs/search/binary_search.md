@@ -16,3 +16,4 @@
 
 - APCSC binary search 提單
 
+- [全國賽 2019 史蒂芬與獵人](https://sorahisa-rank.github.io/nhspc-fin/2019/problems.pdf#page=10)

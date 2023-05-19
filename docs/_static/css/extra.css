@@ -27,7 +27,7 @@
 
 [data-md-color-scheme=slate] {
   --md-link-font-color: #71B3E6;
-  --md-link-hover-font-color: #95cdf8;
+  --md-link-hover-font-color: #526cfe;
   --md-ylw-font-color: rgb(198, 171, 123);
   --md-abt-color: rgba(0,133,242,.1);
   --md-ylw-color: #473D08;
@@ -123,6 +123,7 @@
   margin: 10px;
 }
 
+/*
 
 .md-typeset a{
   color: var(--md-link-font-color);
@@ -132,6 +133,11 @@
   color: var(--md-link-hover-font-color);
 }
 
+*/
+
+.md-typeset figure img {
+  display: inline;
+}
 
 .md-typeset table:not([class]) { 
   font-size: 16px;
