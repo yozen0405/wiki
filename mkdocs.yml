@@ -198,6 +198,10 @@ nav:
             - 整體二分: 'offline/parallel-binsearch.md'
             - CDQ 分治: 'offline/cdq.md'
         - 離線: 'offline/offline.md'
+    - 動態規劃:
+      - LIS: 'dp/LIS.md'
+      - 背包問題: 'dp/knapsack.md'
+      - 雜題整理: 'dp/problem.md'
     
     
     

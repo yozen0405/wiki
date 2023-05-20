@@ -1,4 +1,5 @@
 ## 換根 DP
+- 又稱全方位木 DP，solving for all roots
 
 ???+note "<a href="/wiki/graph/images/403 . 樹直徑.html" target="_blank">2023 IOIC 403 .樹直徑</a>"
 	有一棵 $N$ 個點的樹
@@ -57,9 +58,14 @@
 		
 		所以我們來看要如何預處理
 		
-		因為 $\text{dis}(x,y)$ 在每次移動只會 $\pm 1$ 
+		直接換根 dp
 		
-		所以直接換根 dp
+		<figure markdown>
+	      ![Image title](./images/17.png){ width="300" }
+	    </figure>
+	    
+	    細節與實作可參考[這篇 USACO 博客](https://usaco.guide/problems/balkan-oi-2017city-attractions/solution)
+	
 
 ???+note "[Atcoder Educational DP Contest V - Subtree](https://atcoder.jp/contests/dp/tasks/dp_v)"
 	給你一個無向圖，問說在裡面的一些點圖黑色，其他點圖白色，且在圖黑色的點要連通
@@ -78,9 +84,29 @@
 		- <https://hackmd.io/AUw7lai3S2WM7WLDvQwwtA>
 
 ???+note "[CF 461B Appleman and Tree](https://codeforces.com/problemset/problem/461/B)"
-	給一棵 $n$ 個點的樹，每個點是白色或者黑色，問有多少種方案能夠通過去掉一些邊使每個聯通塊中只有一個黑色的點
+	給一棵 $n$ 個點的樹，每個點是白色或者黑色，問有多少種方案能夠通過去掉一些邊，使每個聯通塊中只有一個黑色的點
 	
 	$n\le 10^5$
+	
+	??? note "思路"
+		$dp[u][0/1]:$ 當前 $u$ 所在的連通塊有 $0/1$ 個黑點的切邊方法數
+		
+		技巧 : 利用之前的狀態合併
+		
+		```cpp linenums="1"
+		void dfs (int u, int par) {
+	        if (a[u]) dp[u][1] = 1;
+	        else dp[u][0] = 1;
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            dfs (v, u);
+	
+	            dp[u][1] = ((dp[u][1] * (dp[v][0] + dp[v][1])) % M 
+	            			+ (dp[u][0] * dp[v][1]) % M) % M;
+	            dp[u][0] = (dp[u][0] * (dp[v][0] + dp[v][1])) % M;
+	        }
+	    }
+	    ```
 
 ???+note "[2020 TOI pB.建設人工島](https://tioj.ck.tp.edu.tw/problems/2189)"
 	給 $n$ 個點，邊有權重的樹，求嚴格次長樹直徑
@@ -175,15 +201,7 @@
 	對於每個 $i$ 求 $\min \{ d(i,k) \times k \}$
 	
 	$n\le 2000,m\le 3\times 10^4$
-
-???+note "[2021 全國賽模擬賽 pF. 地洞遊戲](https://tioj.ck.tp.edu.tw/pmisc/pre-nhspc-2021-statements/Cave.pdf)"
-	給定一棵有根樹，這棵樹不計根節點一共有 $K$ 個葉子
-	
-	每個葉子 $i$ 有一個數字 $a_i$，其中 $i$ 必定是 $a_i$ 的祖先
-	
-	建一張 $K$ 個節點的新有向圖，其中 $i \to j$ 有連邊若且唯若 $a_i$ 同時是 $i$ 和 $j$ 的祖先
-	
-	問新圖有沒有一條漢米頓路徑，如果有的話輸出任意一條。
+		
 
 ???+note "[LOJ #2780. 「BalticOI 2016 Day1」上司们](https://loj.ac/p/2780)"
 	給一顆 $n$ 個點的樹
@@ -359,9 +377,70 @@
 	
 		所以答案就是 $\sum \limits_{i=1}^{\text{depth}}\min \{2k, \text{num}_i\}$ 其中 $\text{num}_i$ 是第 $i$ 層的節點數量
 
+???+note "[洛谷 P8384 [POI2004] SZN](https://www.luogu.com.cn/problem/P8384)"
+	給一顆 $n$ 個點的樹
+	
+	問至少要用幾條不重疊的 path 才能將圖覆蓋，並且這些 path 裡面長度最長的最少可以是多少
+	
+	$n\le 10^4$
+
 
 - <https://usaco.guide/gold/all-roots?lang=cpp>
 
+## 利用 dfs 序
+
+- [CF 1065F](https://codeforces.com/problemset/problem/1065/F)
+
+???+note "[2021 全國賽模擬賽 pF. 地洞遊戲](https://tioj.ck.tp.edu.tw/pmisc/pre-nhspc-2021-statements/Cave.pdf)"
+	給定一棵 $N$ 點的有根樹，邊是由根往底下連的
+	
+	葉節點都有一條新的有向邊連接 $u\to a_u$，其中 $a_u$ 一定是 $1\to \ldots \to u$ 中的一點
+	
+	同一個葉節點不能 visit 超過一次
+	
+	從節點 $1$ 出發，問是否能 visit 所有葉節點，構造任意一組葉節點的 visit 順序
+	
+	$N \le 3\times 10^5$
+	
+	<figure markdown>
+      ![Image title](./images/18.png){ width="200" }
+      <figcaption>例如此圖的順序就是 $5\to 4\to 2$</figcaption>
+    </figure>
+
+	
+	??? note "思路"
+		[重要性質] : 若存在至少一組合法解，則必存在一組合法解使的他是某個dfs序
+		
+		[引理] : 可以發現對於定根 $u$ 來說，最多只有一個子樹，他的所有葉子走完以後無法回到 $u$ 或他的祖先
+		
+        使用樹 DP。令 $depth_v$ 為 $v$ 的深度，且令 $dp_u$ 為繞完這棵子樹後可以回到的最淺深度。轉移如下：
+
+        - 如果子樹中有至少兩個 $dp_{son}$ 都大於 $depth_u$，則其中一個繞完以後就回不了另一個了，必定無解。
+        
+        - 如果子樹中恰有一個 $dp_{son}$ 大於 $depth_u$，則這個子樹要放到最後才走，$dp_u = dp_{son}$
+        
+        - 如果子樹中沒有 $dp_{son}$ 大於 $depth_u$，則任意一個子樹都能當最後一個走到的，由於我們要深度最淺的，因此 $dp_u$ 就是所有 $dp_{son}$ 的最小值
+
+		構造的話找出就直接去 dfs，在過程中先去 dfs 合法的子樹，再去 dfs 不合法的
+		
+		合法的子樹內的順序可以任意
+		
+		```cpp
+		void dfs (int u) {
+			if (u is leaf) print (u);
+			
+			int last = -1;
+			for (auto v : G[u]) {
+				if (v is legal) dfs (v);
+				else last = v;
+			}
+			
+			if (last == -1) continue;
+			
+			dfs (last);
+		}
+		```
+		
 ## 樹上背包
 
 ???+note "[CF 440D Berland Federalization](https://codeforces.com/problemset/problem/440/D)"
@@ -567,6 +646,9 @@
 		慢慢從 leaf 開始移除，每次移除時要選擇對答案影響最小的，直到當前未移除的連通塊的邊權總和 $\le L$
 		
 		過程利用 pq 維護
+		
+???+note "[2015 全國賽 p5](https://tioj.ck.tp.edu.tw/problems/1915)"
+	
 
 ## DP
 
@@ -614,8 +696,94 @@
 
 ## Greedy
 - TOI 2022 pC
-- [BalticOI B1](https://codeforces.com/contest/1387/problem/B1)
-- [BalticOI B2](https://codeforces.com/contest/1387/problem/B1)
+???+note "[BOI 2020 B1. Village (Minimum)](https://codeforces.com/contest/1387/problem/B1)"
+	給一顆 $N$ 個點的樹
+	
+	請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$
+	
+	構造 $v_1,v_2,\ldots,v_n$，使得花費**最少**
+    
+    ??? note "思路"
+    	先考慮 leaf，leaf 一定至少需要跟他的父親交換，不然他沒其他方可交換了
+    	
+    	而交換完後在這個 leaf 的數值也就固定了
+    	
+    	也相當於我們可以直接把這個 leaf 刪掉，接下來就是子問題
+    	
+    	所以我們得到了一個 greedy 的作法
+    	
+    	每次找當前的 leaf
+    	
+    	- 如果沒有交換過，就和父節點交換，並將該 leaf 刪除，ans += 2
+    	
+    	- 如果 leaf 有交換過，只接就刪掉，ans 維持當前的數字
+    	
+    	這樣最後有可能還剩一個，隨便找一個相鄰結點再交換一次就好，一樣 ans += 2
+    	
+    	<figure markdown>
+          ![Image title](./images/19.png){ width="450" }
+          <figcaption>最後還剩一個的例子<caption>
+        </figure>
+		
+		> 參考自 : [hackmd](https://hackmd.io/@E-5gxTGiSByBOKpvsaKa_g/HJDNb1Aev)
+		
+		---
+    	
+    	實作方面不需要真的移除 leaf，利用 dfs 讓他從 leaf 開始往上處理即可
+    	
+    	詳見代碼
+    	
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #define pb push_back
+        using namespace std;
+        int n;
+        int node[100001];
+        vector<int> G[100001];
+        int ans = 0;
+
+        void dfs (int u, int par) {
+            for (auto v : G[u]) {
+                if (v != par) dfs(v, u);
+            }
+
+            if (node[u] == u) {
+                if (u == 1)
+                    swap(node[1], node[G[1][0]]);
+                else
+                    swap(node[u], node[par]);
+                ans += 2;
+            }
+        }
+
+        int main () {
+            cin >> n;
+            for (int i = 1; i < n; i++) {
+                int u, v;
+                cin >> u >> v;
+                G[u].pb(v);
+                G[v].pb(u);
+            }
+
+            for (int i = 1; i <= n; i++)
+                node[i] = i;
+
+            dfs(1, 0);
+
+            cout << ans << endl;
+            for (int i = 1; i <= n; i++)
+                cout << node[i] << ' ';
+        }
+        ```
+	
+???+note "[BOI 2020 B2. Village (Maximum)](https://codeforces.com/contest/1387/problem/B2)"
+	給一顆 $N$ 個點的樹
+	
+	請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$
+	
+	構造 $v_1,v_2,\ldots,v_n$，使得花費**最多**
 
 
 ## Prufer code
