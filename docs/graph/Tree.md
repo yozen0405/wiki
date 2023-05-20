@@ -1,11 +1,13 @@
 ## 換根 DP
 
-???+note "[2023 IOIC 403 .樹直徑](http://127.0.0.1:8000/wiki/graph/images/1.html)"
+???+note "<a href="/wiki/graph/images/403 . 樹直徑.html" target="_blank">2023 IOIC 403 .樹直徑</a>"
 	有一棵 $N$ 個點的樹
 	
 	進行如下操作**一次**：砍掉樹上的其中一條邊，再另外加上一條邊回去使其保持連通。
 	
 	可以透過這個操作讓樹直徑最小為何？
+	
+	$N\le 5\times 10^5$
 	
 	??? note "code"
 		```cpp linenums="1"
@@ -37,27 +39,142 @@
 ???+note "[CF 1029F Tree with Maximum Cost](https://codeforces.com/contest/1092/problem/F)"
 	求 $\max \limits_{v=1... n} \{\space \sum\limits_{i = 1}^{n} dist(i, v) \cdot a_i \space \}$
 	
+	$n,a_i\le 2\times 10^5$
+
 ???+note "[Balkan OI 2017 City Attractions ](https://www.acmicpc.net/problem/14875)"
-	給一顆樹，有一個人第一天在 $1$ 這個節點
+	給一 $N$ 個點的顆樹，有一個人第一天在 $1$ 這個節點
 	
 	每天他會從昨天停下來的點 $x$ 走到點 $y$
 	
 	$y$ 滿足 $y\neq x$ 且 $a_y-\text{dis}(x,y)$ 是最小的，若這樣還是有多個 $y$ 就選 index 最小的
 	
 	問第 $K$ 天會在哪個點停下
+	
+	$N\le 3\times 10^5,K\le 10^{18},a_i\le 10^9$
+	
+	??? note "思路"
+		我們只要預處理好對於每個 $x$ 他會走到的 $y$ 就可以用倍增法找第 $K$ 天的結果
+		
+		所以我們來看要如何預處理
+		
+		因為 $\text{dis}(x,y)$ 在每次移動只會 $\pm 1$ 
+		
+		所以直接換根 dp
+
+???+note "[Atcoder Educational DP Contest V - Subtree](https://atcoder.jp/contests/dp/tasks/dp_v)"
+	給你一個無向圖，問說在裡面的一些點圖黑色，其他點圖白色，且在圖黑色的點要連通
+	
+	這種圖法有幾種
+	
+	??? note "思路"
+		- <https://hackmd.io/mcmDUAthQTqKmP3nLZDXXg>
 
 ## 樹 DP
 
-???+note "[CF 461B Appleman and Tree](https://codeforces.com/problemset/problem/461/B)"
-	給出一棵樹，每個點是白色或者黑色，問有多少種方案能夠通過去掉一些邊使每個聯通塊中只有一個黑色的點
+???+note "[hackerrank kingdom division](https://www.hackerrank.com/challenges/kingdom-division/problem)"
+	給一個 tree 每個點可以圖黑色或白色，但是同一個顏色要至少兩個以上相鄰，只要至少有兩個相鄰，要分成幾個區塊都 ok
 	
+	??? note "思路"
+		- <https://hackmd.io/AUw7lai3S2WM7WLDvQwwtA>
+
+???+note "[CF 461B Appleman and Tree](https://codeforces.com/problemset/problem/461/B)"
+	給一棵 $n$ 個點的樹，每個點是白色或者黑色，問有多少種方案能夠通過去掉一些邊使每個聯通塊中只有一個黑色的點
+	
+	$n\le 10^5$
+
 ???+note "[2020 TOI pB.建設人工島](https://tioj.ck.tp.edu.tw/problems/2189)"
-	求嚴格次長樹直徑
+	給 $n$ 個點，邊有權重的樹，求嚴格次長樹直徑
+	
+	$n\le 10^5$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 1e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Eg {
+	        int v, w;
+	    };
+	
+	    struct node {
+	        int mx, sec;
+	    };
+	
+	    int n, m;
+	    vector<Eg> G[maxn];
+	    vector<node> dp(maxn);
+	    int vis[maxn];
+	    node ans;
+	
+	    void cal (int val, node &x) {
+	        if (x.mx < val) x.sec = x.mx, x.mx = val;
+	        else if (val != x.mx && x.sec < val) x.sec = val;
+	    }
+	
+	    void dfs (int u) {
+	        vis[u] = true;
+	        for (auto [v, w] : G[u]) {  
+	            if (vis[v] == 1) continue;
+	
+	            dfs (v);
+	            // ans 的轉移式
+	            cal (dp[v].mx + dp[u].mx + w, ans);
+	            cal (dp[v].mx + dp[u].sec + w, ans);
+	            cal (dp[u].mx + dp[v].sec + w, ans);
+	            // 沒有 u.sec + v.sec 因為她一定會比其他的小(成為第三名)
+	
+	            // 把 v 的鏈更新 u.mx, u.sec
+	            cal (dp[v].mx + w, dp[u]);
+	            cal (dp[v].sec + w, dp[u]);
+	        }
+	    }
+	
+	    void init() {
+	        cin >> n;
+	        int u, v, w;
+	        for (int i = 1; i <= n - 1; i++) {
+	            cin >> u >> v >> w;
+	            u++, v++;
+	            G[u].pb({v, w});
+	            G[v].pb({u, w});
+	        }
+	    }
+	
+	    void solve() {
+	        dfs (1);
+	        cout << ans.sec << "\n";
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    } 
+	    ```
 
 ## 其他類型
 
 ???+note "[2021 附中模競 II 惡地之路](https://drive.google.com/file/d/1ISO-o4DrQmbuqVVAgxeVQEO3ifMvcy01/view)"
-	給一張圖，令 $s$ 到節點 $i$ 走 $k$ 步的最短距離是 $d(i,k)$，對於每個 $i$ 求 $\min \{ d(i,k) \times k \}$
+	給一張 $n$ 點 $m$ 邊無向圖，令 $s$ 到節點 $i$ 走 $k$ 步的最短距離是 $d(i,k)$
+	
+	對於每個 $i$ 求 $\min \{ d(i,k) \times k \}$
+	
+	$n\le 2000,m\le 3\times 10^4$
 
 ???+note "[2021 全國賽模擬賽 pF. 地洞遊戲](https://tioj.ck.tp.edu.tw/pmisc/pre-nhspc-2021-statements/Cave.pdf)"
 	給定一棵有根樹，這棵樹不計根節點一共有 $K$ 個葉子
@@ -69,12 +186,150 @@
 	問新圖有沒有一條漢米頓路徑，如果有的話輸出任意一條。
 
 ???+note "[LOJ #2780. 「BalticOI 2016 Day1」上司们](https://loj.ac/p/2780)"
-	給一顆樹，每個點有一個權重 $a_i$ 
+	給一顆 $n$ 個點的樹
 	
-	對於 $u=1\sim n$，令 $u$ 的小孩是 $v$，滿足 : $\sum a_v < a_u$
+	每個點給定大小為 $k_i$ 的一些點表示第 $i$ 個點可選的父節點，每個點有一個權重 $a_i$ 
+	
+	對於 $u=1\sim n$，若 $u$ 的小孩是 $v$，則須滿足 : $\sum a_v < a_u$
 	
 	輸出 $\sum\limits_{i=1}^n a_i$ 最小可以是多少
 	
+	$n\le 5000, \sum\limits_{i=1}^n k_i \le 10^4$
+	
+	??? note "提示"
+		cost 的計算有什麼性質 ? (每個點的貢獻會被哪些點重複計算 ?)
+	
+	??? note "思路"
+		我們先觀察 cost 的計算方式
+		
+		每個點的貢獻都會被他的父親給計算到一次，父親的父親又會算到一次，...
+		
+		所以其實每個點會被重複算到的就是 $u\to\ldots \to rt$ 這條 path
+		
+		<figure markdown>
+	      ![Image title](./images/15.png){ width="200" }
+	    </figure>
+	    
+	    而每個點須滿足 $\sum a_v < a_u$ 可以看做是 $a_u = \sum a_v + 1$
+	    
+	    又可以想成這個 $+1$ 是「自己」的貢獻
+	    
+	    所以事實上每個點的貢獻就是 
+	    
+	    $1\times$ 到 root 的距離 = root 的距離 = 該節點的深度
+	    
+	    所以 cost = 所有節點的深度總和
+	    
+	    ---
+	    
+	    在來我們考慮將題目的 $k_i$ 「反向建邊」，也就是若 $v$ 的父親可以是 $u$，則建邊 $u \to v$
+	    
+	    <figure markdown>
+	      ![Image title](./images/16.png){ width="200" }
+	      <figcaption>依照題目範測反向建邊得出來的圖</figcaption>
+	    </figure>
+	    
+	    這樣的好處就是我們可以直接枚舉起點，往下遞迴，計算答案
+	    
+	    至於要怎麼最小化答案呢，因為要使深度總和最小化，代表樹應該要越寬越好
+	    
+	    也就是 BFS 的順序
+	    
+	    ---
+	    
+	    所以實作整理上就是建立反向圖，枚舉起點，BFS 計算答案，在把每個起點算出來的答案取 min
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using PQ = priority_queue<int, vector<int>, greater<int>>;
+	
+	    const int INF = 2e18;
+	    const int maxn = 5e6 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, m, ans;
+	    int dis[maxn];
+	    vector<int> G[maxn];
+	
+	    void init() {
+	        cin >> n;
+	        int u, v;
+	
+	        for (int i = 1; i <= n; i++) {
+	            cin >> m;
+	
+	            while (m--) {
+	                cin >> u;
+	                G[u].pb(i);
+	            }
+	        }
+	
+	        ans = INF;
+	    }
+	
+	    void bfs(int st) {
+	        fill(dis, dis + n + 1, 0);
+	        queue<int> q;
+	        q.push(st);
+	        dis[st] = 1;
+	
+	        while (q.size()) {
+	            int u = q.front();
+	            q.pop();
+	
+	            for (auto v : G[u]) {
+	                if (dis[v])
+	                    continue;
+	
+	                dis[v] = dis[u] + 1;
+	                q.push(v);
+	            }
+	        }
+	
+	        int cost = 0;
+	
+	        for (int i = 1; i <= n; i++) {
+	            if (dis[i] == 0)
+	                return;
+	
+	            cost += dis[i];
+	        }
+	
+	        ans = min(ans, cost);
+	    }
+	
+	    void solve() {
+	        for (int i = 1; i <= n; i++) {
+	            bfs(i);
+	        }
+	
+	        cout << ans << "\n";
+	    }
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    }
+	    ```
+
+
 ???+note "[CSES - Network Renovation](https://cses.fi/problemset/task/1704)"
 	給一顆樹，你要加一些邊使不管斷任何一條邊斷掉整張圖還是連通的
 	
@@ -84,7 +339,26 @@
 
 ???+note "[2023 TOI 模擬賽第三場 pE](http://127.0.0.1:8000/wiki/cp/contest/images/TOI-2023-3.pdf#page=11)"
 	待補
+
+???+note "[洛谷 P3441 [POI2006]MET-Subway](https://www.luogu.com.cn/problem/P3441)"
+	在一棵 $n$ 個點的樹上選出 $k$ 條可相交的 path 使得被覆蓋的點數最多，求該最大值
 	
+	$k\le n\le 10^6$
+	
+	??? note "思路"
+		假如選了 $u\to \ldots rt \to \ldots \to v$ 可以看做從 $u\to \ldots \to rt,rt\to \ldots \to v$ 的兩條 path
+		
+		所以問題就變成
+		
+		> 選 $2k$ 條 $u\to \ldots \to rt$ 的 path 使得被覆蓋的點數最多
+		
+		我們可以拆成一層一層來看，第 $i$ 層的節點數量一定 $\le$ 第 $i+1$ 層的節點數量
+		
+		- 若第 $i$ 層節點數量 $\le 2k$ 那一定可以都可以被覆蓋到
+		- 若第 $i$ 層節點數量 $> 2k$ 那我們就只能選 $2k$ 個覆蓋
+	
+		所以答案就是 $\sum \limits_{i=1}^{\text{depth}}\min \{2k, \text{num}_i\}$ 其中 $\text{num}_i$ 是第 $i$ 層的節點數量
+
 
 - <https://usaco.guide/gold/all-roots?lang=cpp>
 
@@ -193,13 +467,15 @@
 	$c_i\le n \le 10^5$
 
 ???+note "[USACO 2020 Open Gold p2. Favorite Colors](http://www.usaco.org/index.php?page=viewproblem2&cpid=1042)"
-	給一張有向圖，點編號為 $1\ldots N$，每種顏色也可以用 $1\ldots N$ 中的一個整數表示
+	給一張 $N$ 點 $M$ 邊有向圖，點編號為 $1\ldots N$，每種顏色也可以用 $1\ldots N$ 中的一個整數表示
 	
 	若 $u\to \{v_1,v_2,\ldots, v_k \}$ 的話 $\{v_1,v_2,\ldots, v_k \}$ 的顏色都要一樣
 	
 	求 $i=1\ldots N$ 的顏色分配，使得 distinct color 最大
 	
 	若有多組解，輸出字典序最小的
+	
+	$N,M\le 2\times 10^5$
 	
 	??? note "思路"
 		我們先決定好每個點是哪一組 (也就是不管字典序)，最後再從 $1\ldots N$ 依序分配
@@ -269,16 +545,18 @@
 
 ## 類 topo sort
 
-???+note "[2014 全國賽 p4](https://cs.cysh.cy.edu.tw/competition_problem_set/%E5%85%A8%E5%9C%8B103.pdf#page=7)"
+???+note "[2014 全國賽 p4](https://cs.cysh.cy.edu.tw/competition_problem_set/%E5%85%A8%E5%9C%8B103.pdf#page=9)"
 	給一顆邊有權重的樹，選一個連通塊，連通塊內所有的邊權總和不能超過 $L$
 	
 	問所有「沒被選到的點」到「有被選到的點」的最短距離最大的，最少可以是多少
 	
 	<figure markdown>
-      ![Image title](./images/14.png){ width="300" }
-    </figure>
-
+	  ![Image title](./images/14.png){ width="300" }
+	</figure>
 	
+	$n\le 10^6,L\le 2\times 10^8$
+
+
 	??? note "思路"
 		顯然我們沒辦法去直接維護要選那些邊作為連通塊會是 optimal 的
 		
@@ -289,10 +567,10 @@
 		慢慢從 leaf 開始移除，每次移除時要選擇對答案影響最小的，直到當前未移除的連通塊的邊權總和 $\le L$
 		
 		過程利用 pq 維護
-		
+
 ## DP
 
-???+note "[2014 全國賽 p3](https://cs.cysh.cy.edu.tw/competition_problem_set/%E5%85%A8%E5%9C%8B103.pdf#page=9)"
+???+note "[2014 全國賽 p3](https://cs.cysh.cy.edu.tw/competition_problem_set/%E5%85%A8%E5%9C%8B103.pdf#page=7)"
 	給 $n$ 個關卡，跟一個集合點
 	
 	關卡 $i$ 有一條有向邊連接著關卡 $i+1$，邊權是 $c_i$
@@ -302,11 +580,12 @@
 	每個關卡上都有價值 $p_i$，拿過了就會消失
 	
 	<figure markdown>
-      ![Image title](./images/13.png){ width="300" }
-    </figure>
-
+	  ![Image title](./images/13.png){ width="300" }
+	</figure>
 	
 	給你 $R$ 個士兵，一個士兵只能從集合點出發繞過一些路徑回到集合點，且走過的邊權總和不能超過 $B$，問這些士兵最大可取得的價值總合為多少
+	
+	$R\le n\le 2000,B\le 10^6$
 	
 	??? note "思路"
 		我們考慮 dp
