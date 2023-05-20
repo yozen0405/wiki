@@ -65,7 +65,7 @@
 	    </figure>
 	    
 	    細節與實作可參考[這篇 USACO 博客](https://usaco.guide/problems/balkan-oi-2017city-attractions/solution)
-	
+
 
 ???+note "[Atcoder Educational DP Contest V - Subtree](https://atcoder.jp/contests/dp/tasks/dp_v)"
 	給你一個無向圖，問說在裡面的一些點圖黑色，其他點圖白色，且在圖黑色的點要連通
@@ -201,7 +201,7 @@
 	對於每個 $i$ 求 $\min \{ d(i,k) \times k \}$
 	
 	$n\le 2000,m\le 3\times 10^4$
-		
+
 
 ???+note "[LOJ #2780. 「BalticOI 2016 Day1」上司们](https://loj.ac/p/2780)"
 	給一顆 $n$ 個點的樹
@@ -403,24 +403,23 @@
 	$N \le 3\times 10^5$
 	
 	<figure markdown>
-      ![Image title](./images/18.png){ width="200" }
-      <figcaption>例如此圖的順序就是 $5\to 4\to 2$</figcaption>
-    </figure>
+	  ![Image title](./images/18.png){ width="200" }
+	  <figcaption>例如此圖的順序就是 $5\to 4\to 2$</figcaption>
+	</figure>
 
-	
 	??? note "思路"
 		[重要性質] : 若存在至少一組合法解，則必存在一組合法解使的他是某個dfs序
 		
 		[引理] : 可以發現對於定根 $u$ 來說，最多只有一個子樹，他的所有葉子走完以後無法回到 $u$ 或他的祖先
 		
-        使用樹 DP。令 $depth_v$ 為 $v$ 的深度，且令 $dp_u$ 為繞完這棵子樹後可以回到的最淺深度。轉移如下：
-
-        - 如果子樹中有至少兩個 $dp_{son}$ 都大於 $depth_u$，則其中一個繞完以後就回不了另一個了，必定無解。
-        
-        - 如果子樹中恰有一個 $dp_{son}$ 大於 $depth_u$，則這個子樹要放到最後才走，$dp_u = dp_{son}$
-        
-        - 如果子樹中沒有 $dp_{son}$ 大於 $depth_u$，則任意一個子樹都能當最後一個走到的，由於我們要深度最淺的，因此 $dp_u$ 就是所有 $dp_{son}$ 的最小值
-
+	    使用樹 DP。令 $depth_v$ 為 $v$ 的深度，且令 $dp_u$ 為繞完這棵子樹後可以回到的最淺深度。轉移如下：
+	
+	    - 如果子樹中有至少兩個 $dp_{son}$ 都大於 $depth_u$，則其中一個繞完以後就回不了另一個了，必定無解。
+	    
+	    - 如果子樹中恰有一個 $dp_{son}$ 大於 $depth_u$，則這個子樹要放到最後才走，$dp_u = dp_{son}$
+	    
+	    - 如果子樹中沒有 $dp_{son}$ 大於 $depth_u$，則任意一個子樹都能當最後一個走到的，由於我們要深度最淺的，因此 $dp_u$ 就是所有 $dp_{son}$ 的最小值
+	
 		構造的話找出就直接去 dfs，在過程中先去 dfs 合法的子樹，再去 dfs 不合法的
 		
 		合法的子樹內的順序可以任意
@@ -440,7 +439,7 @@
 			dfs (last);
 		}
 		```
-		
+
 ## 樹上背包
 
 ???+note "[CF 440D Berland Federalization](https://codeforces.com/problemset/problem/440/D)"
@@ -646,7 +645,7 @@
 		慢慢從 leaf 開始移除，每次移除時要選擇對答案影響最小的，直到當前未移除的連通塊的邊權總和 $\le L$
 		
 		過程利用 pq 維護
-		
+
 ???+note "[2015 全國賽 p5](https://tioj.ck.tp.edu.tw/problems/1915)"
 	
 
@@ -696,14 +695,42 @@
 
 ## Greedy
 - TOI 2022 pC
+
+
 ???+note "[BOI 2020 B1. Village (Minimum)](https://codeforces.com/contest/1387/problem/B1)"
 	給一顆 $N$ 個點的樹
 	
 	請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$
 	
 	構造 $v_1,v_2,\ldots,v_n$，使得花費**最少**
-    
+  	
+  	??? note "提示"
+  		先考慮 leaf，leaf 一定至少需要跟他的父親交換
+  	
     ??? note "思路"
+  
+    	我們其實可以把交換想成一個連接 $u\leftrightarrow v$ 的一個 path，cost 就是 $2\times \text{dis}(u,v)$，盡量讓 path 跟 path 之間的邊不要有交集
+    	
+    	問題就變成，我需要將點兩兩連 path，目標是讓大家都至少在一個 path 上的「兩端」
+    	
+    	性質 : 能在同一個子樹內配對就在同一個子樹內配對
+    	
+    	每個子樹最多只會剩下 1 個點沒配對到
+    	
+    	假設 $u$ 的 child 是 $v_1,v_2,v_3$ 他們都分別剩一個節點沒配對到
+    	
+    	那就 $v_1\leftrightarrow v_2$，$v_3\leftrightarrow u$ 
+    	
+    	<figure markdown>
+    	    ![Image title](./images/20.png){ width="250" }
+    	  </figure>
+    	  
+    	  ---
+    	  
+    	  上面的方法實作比較複雜，其實有一個另解
+    	  
+    	  把題目的移動看成是兩點在做多個「交換」
+    	
     	先考慮 leaf，leaf 一定至少需要跟他的父親交換，不然他沒其他方可交換了
     	
     	而交換完後在這個 leaf 的數值也就固定了
@@ -721,19 +748,18 @@
     	這樣最後有可能還剩一個，隨便找一個相鄰結點再交換一次就好，一樣 ans += 2
     	
     	<figure markdown>
-          ![Image title](./images/19.png){ width="450" }
-          <figcaption>最後還剩一個的例子<caption>
-        </figure>
-		
-		> 參考自 : [hackmd](https://hackmd.io/@E-5gxTGiSByBOKpvsaKa_g/HJDNb1Aev)
-		
-		---
-    	
+    	    ![Image title](./images/19.png){ width="450" }
+    	    <figcaption>最後還剩一個的例子<caption>
+    	  </figure>
+	  	
     	實作方面不需要真的移除 leaf，利用 dfs 讓他從 leaf 開始往上處理即可
     	
     	詳見代碼
     	
+    	> 參考自 : [hackmd](https://hackmd.io/@E-5gxTGiSByBOKpvsaKa_g/HJDNb1Aev)
+  
     
+  
     ??? note "code"
     	```cpp linenums="1"
     	#include <bits/stdc++.h>
@@ -742,13 +768,13 @@
         int n;
         int node[100001];
         vector<int> G[100001];
-        int ans = 0;
-
+	      int ans = 0;
+  
         void dfs (int u, int par) {
             for (auto v : G[u]) {
                 if (v != par) dfs(v, u);
-            }
-
+	          }
+      
             if (node[u] == u) {
                 if (u == 1)
                     swap(node[1], node[G[1][0]]);
@@ -756,8 +782,8 @@
                     swap(node[u], node[par]);
                 ans += 2;
             }
-        }
-
+	      }
+      
         int main () {
             cin >> n;
             for (int i = 1; i < n; i++) {
@@ -765,25 +791,125 @@
                 cin >> u >> v;
                 G[u].pb(v);
                 G[v].pb(u);
-            }
-
+	          }
+      
             for (int i = 1; i <= n; i++)
-                node[i] = i;
-
-            dfs(1, 0);
-
+	              node[i] = i;
+      
+	          dfs(1, 0);
+      
             cout << ans << endl;
             for (int i = 1; i <= n; i++)
                 cout << node[i] << ' ';
         }
-        ```
+	    ```
 	
+
 ???+note "[BOI 2020 B2. Village (Maximum)](https://codeforces.com/contest/1387/problem/B2)"
 	給一顆 $N$ 個點的樹
 	
 	請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$
 	
 	構造 $v_1,v_2,\ldots,v_n$，使得花費**最多**
+	
+	??? note "提示"
+		若考慮以樹重心為根 ? 
+		
+		能不能讓每條路徑都經過樹重心
+		
+		註 : 樹重心移除後每個子樹大小 $\le n/2$
+	
+	??? note "思路"
+		我們先對於每條邊獨立思考，最多多少個點可以從 $(u,v)$ 移動 ?
+		
+		答案是 $2\times \min(sz_u, n - sz_u)$ 
+		
+		若有辦法將這些邊以某種方法接起來，答案則為 
+		
+		$$\sum\limits_{\text{edge}\in (u,v)} 2\times \min(sz_u, n - sz_u)$$
+		
+		觀察到這個試子跟樹重心的試子蠻像的
+		
+		考慮樹重心為根，每個子樹的大小 $\le n/2$
+		
+		代表每個子樹以外的大小至少是 $n-n/2=n/2$，所以子樹內的點必定可以走到子樹以外，外面也一定有辦法全部都走進來。
+		
+		也就每條邊會被走的次數就是 $2\times sz_u$ (這邊的 $sz$ 是以樹重心為根計算的)
+		
+		也就是符合上面的 $2\times \min(sz_u, n - sz_u)$
+		
+		<figure markdown>
+          ![Image title](./images/21.png){ width="200" }
+          <figcaption>將每個點都先推到 root(重心)，在讓他分配該往哪個子樹去<caption>
+        </figure>
+        
+		至於構造的話，使得每個節點都不落入同一子樹中就行了
+		
+		以重心為根，子樹的 size 不會超過 n/2，所以依照 dfs 序 shift n/2 格之後對應到的點一定在不同子樹
+		
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        using namespace std;
+
+        const int N = 1e5;
+        int n, C, s[N], dt, ds[N], ord[N];
+        vector<int> G[N];
+        long long ans;
+		
+		// 找樹重心
+        void find (int u = 0, int par = -1) {
+            s[u] = 1;
+            int w = 0;
+            for (auto v : G[u]) {
+                if (v == par)
+                    continue;
+
+                find (v, u);
+                s[u] += s[v];
+                w = max(w, s[v]);
+            }
+
+            w = max(n - s[u], w);
+
+            if (w <= n / 2) {
+                C = u;
+            }
+        }
+
+        void dfs (int u = 0, int p = -1) {
+            ord[u] = dt;
+            ds[dt++] = u; // dfs 序
+            s[u] = 1;
+            for (int v : G[u]) {
+                if (v == p)
+                    continue;
+                dfs(v, u);
+                ans += min(s[v], n - s[v]);
+                s[u] += s[v];
+            }
+        }
+
+        int main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+
+            cin >> n;
+            for (int i = 1, u, v; i < n; i++) {
+                cin >> u >> v, --u, --v;
+                G[u].push_back(v);
+                G[v].push_back(u);
+            }
+
+            find (); 
+            dfs (C);
+
+            cout << 2 * ans << "\n";
+            for (int i = 0; i < n; i++)
+                cout << ds[(ord[i] + n / 2) % n] + 1 << " ";
+        }
+        ```
 
 
 ## Prufer code
@@ -791,7 +917,7 @@
 - CSES prufer code
 - [nhspc 2022 pG](https://sorahisa-rank.github.io/nhspc-fin/2022/problems.pdf)
 ## Tree Isomorphism
-- CSES
+- [題解](https://github.com/yozen0405/c-projects/blob/main/markdown/1700.md)
 ## Euler Tour
 
 - CSES path queries
