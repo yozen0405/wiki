@@ -1,5 +1,15 @@
 ## 比賽策略
 
+---
+
+重點不是在你學了多少進階資料結構或演算法，而是在你要去練習怎麼觀察題目
+
+子題通常都很有引導性，要練習想子題，在利用子題想正確的滿分解
+
+<font style='font-size:12px'>:octicons-dash-16: <font style='font-size:11px'>:fontawesome-solid-user:</font> cthbst</font>
+
+---
+
 - 考前
 	- 平時
 		- 學習新技術

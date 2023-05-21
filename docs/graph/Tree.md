@@ -647,7 +647,83 @@
 		過程利用 pq 維護
 
 ???+note "[2015 全國賽 p5](https://tioj.ck.tp.edu.tw/problems/1915)"
+	給一張 $n$ 點 $m$ 邊無向圖，你要將點由 $1\sim n$ 編號，問 $ans$ 最小可以是多少
 	
+	計算方法如下 :
+	
+	$$cost_u = u \space 周圍的點 \space v \space 有幾個編號比他大 $$
+	
+	$$ans = \max \limits_{u=1\sim n}\{ cost_u \} $$
+	
+	也就是最小化最大值
+	
+	$n\le 5\times 10^5,m\le 8\times 10^5$
+	
+	??? note "思路"
+		> 法 1 : 二分搜
+	
+		考慮二分搜答案，檢查答案是否合法
+		
+		??? code "check function 實作"
+	        ```cpp linenums="1"
+	        // 檢查只能用 degree <= x 的是否可以達成
+	        bool topo (int x) {
+	            queue<int> q;
+	            vector<bool> vis(n + 1);
+	
+	            for (int i = 1; i <= n; i++) {
+	                if (deg[i] <= x) q.push (i);
+	            }
+	            while (q.size ()) {
+	                int u = q.top(); q.pop();
+	                vis[u] = true;
+	
+	                for (auto v : G[u]) {
+	                    if (vis[v]) continue;
+	
+	                    deg[v]--;
+	                    if (deg[v] <= x) q.push (v);
+	                }
+	            }
+	
+	            for (int i = 1; i <= n; i++) {
+	                if (vis[i] == false) return false;
+	            }
+	            return true;
+	        }
+	        ```
+		
+		複雜度 : $O((n+m)\log n)$
+		
+		---
+		
+		> 法 2 : greedy 想法
+		
+		依序枚舉 1 ~ n，放在 `deg[i]` 最小的，用 pq 維護當前 deg 最小的
+		
+		將某個點 u 周圍的 `deg[v]--` 的話要怎麼做 ?
+		
+		想想看 dijkstra 是怎麼做到這件事的
+		
+		就像 dijkstra 那樣直接 push 一個新的進去 pq 即可
+		
+		pq 再拿某個點出來時記得檢查是否過期
+		
+		複雜度 : $O((n+m)\log n)$
+		
+		---
+		
+		> 法 3 : 優化法 2
+		
+		此方法實測是不能通過的，只是一個想法
+		
+		開 $n$ 個 vector，`v[i]` 放所有 degree = i 的點
+		
+		每次更新 degree 就不管 `v[deg[i]]`，直接 push 一個到 `v[deg[i]--]`
+		
+		複雜度 : $O(n+m)$
+
+??? note "[2017 全國賽 p5](https://tioj.ck.tp.edu.tw/problems/2038)"
 
 ## DP
 
@@ -827,11 +903,16 @@
 		
 		$$\sum\limits_{\text{edge}\in (u,v)} 2\times \min(sz_u, n - sz_u)$$
 		
+		<figure markdown>
+	      ![Image title](./images/22.png){ width="600" }
+	      <figcaption>可以證明上界是可以達到的，上圖為一個例子<caption>
+	    </figure>
+		
 		觀察到這個試子跟樹重心的試子蠻像的
 		
 		考慮樹重心為根，每個子樹的大小 $\le n/2$
 		
-		代表每個子樹以外的大小至少是 $n-n/2=n/2$，所以子樹內的點必定可以走到子樹以外，外面也一定有辦法全部都走進來。
+		代表每個子樹以外的大小至少是 $n-n/2=n/2$，所以子樹內的點必定可以走到子樹以外，外面也一定有辦法全部都走進來
 		
 		也就每條邊會被走的次數就是 $2\times sz_u$ (這邊的 $sz$ 是以樹重心為根計算的)
 		
@@ -844,8 +925,8 @@
 	    
 		至於構造的話，使得每個節點都不落入同一子樹中就行了
 		
-		以重心為根，子樹的 size 不會超過 n/2，所以依照 dfs 序 shift n/2 格之後對應到的點一定在不同子樹
-
+		以重心為根，子樹的 size 不會超過 $n/2$，所以依照 dfs 序 shift $n/2$ 格之後對應到的點一定在不同子樹
+	
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
