@@ -406,7 +406,7 @@
 	  ![Image title](./images/18.png){ width="200" }
 	  <figcaption>例如此圖的順序就是 $5\to 4\to 2$</figcaption>
 	</figure>
-
+	
 	??? note "思路"
 		[重要性質] : 若存在至少一組合法解，則必存在一組合法解使的他是某個dfs序
 		
@@ -703,63 +703,62 @@
 	請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$
 	
 	構造 $v_1,v_2,\ldots,v_n$，使得花費**最少**
-  	
-  	??? note "提示"
-  		先考慮 leaf，leaf 一定至少需要跟他的父親交換
-  	
-    ??? note "思路"
-  
-    	我們其實可以把交換想成一個連接 $u\leftrightarrow v$ 的一個 path，cost 就是 $2\times \text{dis}(u,v)$，盡量讓 path 跟 path 之間的邊不要有交集
-    	
-    	問題就變成，我需要將點兩兩連 path，目標是讓大家都至少在一個 path 上的「兩端」
-    	
-    	性質 : 能在同一個子樹內配對就在同一個子樹內配對
-    	
-    	每個子樹最多只會剩下 1 個點沒配對到
-    	
-    	假設 $u$ 的 child 是 $v_1,v_2,v_3$ 他們都分別剩一個節點沒配對到
-    	
-    	那就 $v_1\leftrightarrow v_2$，$v_3\leftrightarrow u$ 
-    	
-    	<figure markdown>
-    	    ![Image title](./images/20.png){ width="250" }
-    	  </figure>
-    	  
-    	  ---
-    	  
-    	  上面的方法實作比較複雜，其實有一個另解
-    	  
-    	  把題目的移動看成是兩點在做多個「交換」
-    	
-    	先考慮 leaf，leaf 一定至少需要跟他的父親交換，不然他沒其他方可交換了
-    	
-    	而交換完後在這個 leaf 的數值也就固定了
-    	
-    	也相當於我們可以直接把這個 leaf 刪掉，接下來就是子問題
-    	
-    	所以我們得到了一個 greedy 的作法
-    	
-    	每次找當前的 leaf
-    	
-    	- 如果沒有交換過，就和父節點交換，並將該 leaf 刪除，ans += 2
-    	
-    	- 如果 leaf 有交換過，只接就刪掉，ans 維持當前的數字
-    	
-    	這樣最後有可能還剩一個，隨便找一個相鄰結點再交換一次就好，一樣 ans += 2
-    	
-    	<figure markdown>
-    	    ![Image title](./images/19.png){ width="450" }
-    	    <figcaption>最後還剩一個的例子<caption>
-    	  </figure>
+	
+	??? note "提示"
+		先考慮 leaf，leaf 一定至少需要跟他的父親交換
+	
+	??? note "思路"
+	  
+		我們其實可以把交換想成一個連接 $u\leftrightarrow v$ 的一個 path，cost 就是 $2\times \text{dis}(u,v)$，盡量讓 path 跟 path 之間的邊不要有交集
+		
+		問題就變成，我需要將點兩兩連 path，目標是讓大家都至少在一個 path 上的「兩端」
+		
+		性質 : 能在同一個子樹內配對就在同一個子樹內配對
+		
+		每個子樹最多只會剩下 1 個點沒配對到
+		
+		假設 $u$ 的 child 是 $v_1,v_2,v_3$ 他們都分別剩一個節點沒配對到
+		
+		那就 $v_1\leftrightarrow v_2$，$v_3\leftrightarrow u$ 
+		
+		<figure markdown>
+		    ![Image title](./images/20.png){ width="250" }
+		  </figure>
+		  
+		  ---
+		  
+		  上面的方法實作比較複雜，其實有一個另解
+		  
+		  把題目的移動看成是兩點在做多個「交換」
+		
+		先考慮 leaf，leaf 一定至少需要跟他的父親交換，不然他沒其他方可交換了
+		
+		而交換完後在這個 leaf 的數值也就固定了
+		
+		也相當於我們可以直接把這個 leaf 刪掉，接下來就是子問題
+		
+		所以我們得到了一個 greedy 的作法
+		
+		每次找當前的 leaf
+		
+		- 如果沒有交換過，就和父節點交換，並將該 leaf 刪除，ans += 2
+		
+		- 如果 leaf 有交換過，只接就刪掉，ans 維持當前的數字
+		
+		這樣最後有可能還剩一個，隨便找一個相鄰結點再交換一次就好，一樣 ans += 2
+		
+		<figure markdown>
+		    ![Image title](./images/19.png){ width="450" }
+		    <figcaption>最後還剩一個的例子<caption>
+		  </figure>
 	  	
-    	實作方面不需要真的移除 leaf，利用 dfs 讓他從 leaf 開始往上處理即可
-    	
-    	詳見代碼
-    	
-    	> 參考自 : [hackmd](https://hackmd.io/@E-5gxTGiSByBOKpvsaKa_g/HJDNb1Aev)
-  
-    
-  
+		實作方面不需要真的移除 leaf，利用 dfs 讓他從 leaf 開始往上處理即可
+		
+		詳見代碼
+		
+		> 參考自 : [hackmd](https://hackmd.io/@E-5gxTGiSByBOKpvsaKa_g/HJDNb1Aev)
+
+
     ??? note "code"
     	```cpp linenums="1"
     	#include <bits/stdc++.h>
@@ -768,12 +767,12 @@
         int n;
         int node[100001];
         vector<int> G[100001];
-	      int ans = 0;
-  
+          int ans = 0;
+      
         void dfs (int u, int par) {
             for (auto v : G[u]) {
                 if (v != par) dfs(v, u);
-	          }
+              }
       
             if (node[u] == u) {
                 if (u == 1)
@@ -782,7 +781,7 @@
                     swap(node[u], node[par]);
                 ans += 2;
             }
-	      }
+          }
       
         int main () {
             cin >> n;
@@ -791,19 +790,19 @@
                 cin >> u >> v;
                 G[u].pb(v);
                 G[v].pb(u);
-	          }
+              }
       
             for (int i = 1; i <= n; i++)
-	              node[i] = i;
+                  node[i] = i;
       
-	          dfs(1, 0);
+              dfs(1, 0);
       
             cout << ans << endl;
             for (int i = 1; i <= n; i++)
                 cout << node[i] << ' ';
         }
-	    ```
-	
+        ```
+
 
 ???+note "[BOI 2020 B2. Village (Maximum)](https://codeforces.com/contest/1387/problem/B2)"
 	給一顆 $N$ 個點的樹
@@ -839,77 +838,76 @@
 		也就是符合上面的 $2\times \min(sz_u, n - sz_u)$
 		
 		<figure markdown>
-          ![Image title](./images/21.png){ width="200" }
-          <figcaption>將每個點都先推到 root(重心)，在讓他分配該往哪個子樹去<caption>
-        </figure>
-        
+	      ![Image title](./images/21.png){ width="200" }
+	      <figcaption>將每個點都先推到 root(重心)，在讓他分配該往哪個子樹去<caption>
+	    </figure>
+	    
 		至於構造的話，使得每個節點都不落入同一子樹中就行了
 		
 		以重心為根，子樹的 size 不會超過 n/2，所以依照 dfs 序 shift n/2 格之後對應到的點一定在不同子樹
-		
-	
+
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        using namespace std;
-
-        const int N = 1e5;
-        int n, C, s[N], dt, ds[N], ord[N];
-        vector<int> G[N];
-        long long ans;
+	    using namespace std;
+	
+	    const int N = 1e5;
+	    int n, C, s[N], dt, ds[N], ord[N];
+	    vector<int> G[N];
+	    long long ans;
 		
 		// 找樹重心
-        void find (int u = 0, int par = -1) {
-            s[u] = 1;
-            int w = 0;
-            for (auto v : G[u]) {
-                if (v == par)
-                    continue;
-
-                find (v, u);
-                s[u] += s[v];
-                w = max(w, s[v]);
-            }
-
-            w = max(n - s[u], w);
-
-            if (w <= n / 2) {
-                C = u;
-            }
-        }
-
-        void dfs (int u = 0, int p = -1) {
-            ord[u] = dt;
-            ds[dt++] = u; // dfs 序
-            s[u] = 1;
-            for (int v : G[u]) {
-                if (v == p)
-                    continue;
-                dfs(v, u);
-                ans += min(s[v], n - s[v]);
-                s[u] += s[v];
-            }
-        }
-
-        int main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-
-            cin >> n;
-            for (int i = 1, u, v; i < n; i++) {
-                cin >> u >> v, --u, --v;
-                G[u].push_back(v);
-                G[v].push_back(u);
-            }
-
-            find (); 
-            dfs (C);
-
-            cout << 2 * ans << "\n";
-            for (int i = 0; i < n; i++)
-                cout << ds[(ord[i] + n / 2) % n] + 1 << " ";
-        }
-        ```
+	    void find (int u = 0, int par = -1) {
+	        s[u] = 1;
+	        int w = 0;
+	        for (auto v : G[u]) {
+	            if (v == par)
+	                continue;
+	
+	            find (v, u);
+	            s[u] += s[v];
+	            w = max(w, s[v]);
+	        }
+	
+	        w = max(n - s[u], w);
+	
+	        if (w <= n / 2) {
+	            C = u;
+	        }
+	    }
+	
+	    void dfs (int u = 0, int p = -1) {
+	        ord[u] = dt;
+	        ds[dt++] = u; // dfs 序
+	        s[u] = 1;
+	        for (int v : G[u]) {
+	            if (v == p)
+	                continue;
+	            dfs(v, u);
+	            ans += min(s[v], n - s[v]);
+	            s[u] += s[v];
+	        }
+	    }
+	
+	    int main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	
+	        cin >> n;
+	        for (int i = 1, u, v; i < n; i++) {
+	            cin >> u >> v, --u, --v;
+	            G[u].push_back(v);
+	            G[v].push_back(u);
+	        }
+	
+	        find (); 
+	        dfs (C);
+	
+	        cout << 2 * ans << "\n";
+	        for (int i = 0; i < n; i++)
+	            cout << ds[(ord[i] + n / 2) % n] + 1 << " ";
+	    }
+	    ```
 
 
 ## Prufer code
