@@ -49,11 +49,15 @@
 | 張集貴 | <li>[hackmd](https://hackmd.io/@pr3pony)<br><li>[演算法資源整理](https://hackmd.io/@pr3pony/HysEHoYe8) | <li>2017 2!                                             |
 | 吳宗達 | <li>[algoseacow github](https://github.com/algo-seacow)<br><li>[解題日誌](https://docs.google.com/spreadsheets/d/1FYjs5OFKm9Gc9d8BRT2AtYIfwjzHXKrH8_LfG5D2NmM/edit#gid=0) | <li>2016 2!                                             |
 | 劉澈   | <li>[部落格](https://cheissmart.github.io/)                  | <li>2021 國手                                           |
-| 葉宥辰 | <li>[hackmd](https://hackmd.io/@LittlePants)                 | <li>2022 1!                                             |
+| 葉宥辰 | <li>[hackmd](https://hackmd.io/@LittlePants)<br><li>[解題日記](https://hackmd.io/@LittlePants/SkmahkxcD/https%3A%2F%2Fhackmd.io%2F%40LittlePants%2FH1GU2FUoP) | <li>2022 1!                                             |
 | 黃頂軒 | <li>[部落格](https://fffelix-huang.github.io/)               | <font color="gray">無</font>                            |
 | 李培綸 | <li>[部落格](https://andyli.tw/)                             | <font color="gray">無</font>                            |
 | 鍾?均  | <li>[部落格](https://cbjsprogramdiary.com/)                  | <font color="gray">無</font>                            |
 | 李尚哲 | <li>[部落格](https://mtmatt.page)                            | <font color="gray">無</font>                            |
+| 古佳怡 | <li>[hackmd](https://hackmd.io/@cyk)<br><li>[111 竹女競賽培訓](https://hackmd.io/@cyk/111/https%3A%2F%2Fhackmd.io%2F%40cyk%2F111-introduction) | <font color="gray">無</font>                            |
+| 黃惟   | <li>[網站](https://yuihuang.com/)                            | <li>2022 1!                                             |
+| 熊恩伶 | <li>[部落格](https://bear1222.github.io/archives/)           | <li>2022 1!                                             |
+| 謝牧懷 | <li>[hackmd](https://hackmd.io/@thanksone)<br><li>[CSES 題解(code)](https://hackmd.io/@thanksone/CSESPLANI)<br><li>[slides](https://slides.com/thanksone) | <font color="gray">無</font>                            |
 
 ## 其他網站
 

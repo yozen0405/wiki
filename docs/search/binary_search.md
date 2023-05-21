@@ -19,3 +19,5 @@
 - [全國賽 2019 史蒂芬與獵人](https://sorahisa-rank.github.io/nhspc-fin/2019/problems.pdf#page=10)
 
 - [neoj 田忌賽馬](https://neoj.sprout.tw/problem/69/)
+
+- 2023 TOI mock double cnt

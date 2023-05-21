@@ -356,7 +356,38 @@
 	class 17 
 
 ???+note "[2023 TOI 模擬賽第三場 pE](http://127.0.0.1:8000/wiki/cp/contest/images/TOI-2023-3.pdf#page=11)"
-	待補
+	$2n$ 個人參加一個聚餐，所有人編號為 $1\sim 2n$，對於所有 $1\le i \le n$，編號 $2i-1$ 的人和編號 $2i$ 的人是情侶
+	
+	聚餐是圍著一個圓桌吃飯，位置按照順時鐘編號為 $1\sim 2n$。每個位置都放有一副餐具，每副餐具都不一樣，每個人都恰好喜歡其中一副餐具，喜歡第 $i$ 副餐具的人編號是 $a_i$
+
+	請安排所有人入座並滿足以下兩個條件：
+
+	1. 所有情侶要坐在相鄰的兩個位置<br>
+	2. 在滿足 1. 的情況下，要盡量多的人坐在有自己喜歡的餐具的位置上。
+
+	請輸出滿足以上兩個條件的入座方式。若有多組解，請輸出字典序最小的解
+	
+	??? note "思路"
+		令 $b_i$ 為想做第 $i$ 個位置的人的編號
+		
+		將 $b_{2i}$ 與 $b_{2i-1}$ 連邊
+		
+		將 $2i$ 與 $2i-1$ 連邊
+		
+		連邊代表每條邊左右只能 2 選 1(2 個之中只能有 1 個坐在有自己喜歡的餐具的位置上)
+		
+		你會得到若干個偶環，長度為 $2$ 的環可以直接配對
+		
+		其他就挑字典序最小的即可
+		
+		<figure markdown>
+          ![Image title](./images/23.png){ width="600" }
+        </figure>
+
+		
+		
+		
+
 
 ???+note "[洛谷 P3441 [POI2006]MET-Subway](https://www.luogu.com.cn/problem/P3441)"
 	在一棵 $n$ 個點的樹上選出 $k$ 條可相交的 path 使得被覆蓋的點數最多，求該最大值
@@ -383,6 +414,64 @@
 	問至少要用幾條不重疊的 path 才能將圖覆蓋，並且這些 path 裡面長度最長的最少可以是多少
 	
 	$n\le 10^4$
+
+???+note "[LOJ #3943. 「JOI 2023 Final」训猫](https://loj.ac/p/3943)"
+	給你一個 $n$ 個點的樹，每個節點有高度 $h_i$，節點的高度是一個 permutation
+	
+	有一隻貓現在在 $h_i=n$ 的那個節點上
+	
+	你可以一直刪點，若刪到貓所在的節點那貓就會移到當前連通塊內高度最高的點
+	
+	求貓每次移動的距離總和最大可以是多少
+	
+	??? note "思路"
+		假設我們目前的圖長這樣
+		
+		<figure markdown>
+	      ![Image title](./images/10.png){ width="400" }
+	      <figcaption>$n=14$，藍色的字為每個節點的 $h_i$</figcaption>
+	    </figure>
+		
+		當我們刪掉 $h_i=14$ 的點後，貓可以選擇往三個連通塊的最高點跑，然後執行子問題
+		
+		假如 $h_i=14$ 的子問題算出來的答案是這樣
+		
+		<figure markdown>
+	      ![Image title](./images/11.png){ width="400" }
+	    </figure>
+	    
+	    那麼答案就是 
+	    
+	    $$ans_u=\max \{ ans_x+\text{dis}(u,x) \}$$ 
+	    
+	    其中 $x$ 是 $v$ 的連通塊內高度最高的節點
+	    
+		可是若以此分治，考慮樹是一條 chain，那最糟可達 $O(n^2)$
+		
+		---
+		
+		我們依照上面子問題執行的步驟，建一個新的樹
+		
+		<figure markdown>
+	      ![Image title](./images/9.png){ width="300" }
+	      <figcaption>邊權為兩點間的 distance</figcaption>
+	    </figure>
+	    
+	    那麼整題的答案就是樹高度
+	    
+	    重點是要怎麼建立這個樹呢 ?
+	    
+	    我們發現我們每次在做的事情就是一直斷邊，$h_i$ 越小的越晚斷
+	    
+	    所以我們可以倒著想，我們從 $h_i=1$ 開始，每次 merge 周圍最小的節點
+	    
+	    再來看看 $h_i=2$ 是否已備 merge 過，若還沒再繼續 merge，以此類推
+	    
+	    以新圖來看我們在做的事情就是從 leaf 慢慢把樹蓋上去
+	    
+	    至於要怎麼 merge，我們每個點用 pq(min heap) 維護周圍節點的 $\texttt{pair}(h_i,i)$ 
+	    
+	    兩個點 merge 起來用啟發式合併，但要注意可能會算到已算過的節點，所以在 pop 的時候檢查此編號是否已經在同一個 DSU 內
 
 
 - <https://usaco.guide/gold/all-roots?lang=cpp>
@@ -723,7 +812,162 @@
 		
 		複雜度 : $O(n+m)$
 
-??? note "[2017 全國賽 p5](https://tioj.ck.tp.edu.tw/problems/2038)"
+???+note "[2017 全國賽 p5](https://tioj.ck.tp.edu.tw/problems/2038)"
+	給你一張 $n$ 點 $m$ 邊無向圖，選一些點 ( 我們把這個點集合叫做 $S$ )，$S$ 內的點必須連通
+	
+	問 $F(S)$ 最大多少
+	
+	$$F(S) = \lvert S \rvert  \min\limits_{1\leq i \leq \lvert S \rvert} \{ D_i \}$$
+	
+	其中 $D_i$ 表示 $i$ 的鄰居裡面，有多少人在 $S$ 內
+	
+	$n\le 5000$
+	
+	??? note "思路"
+		我們考慮從枚舉 $D_i$ 下手 
+		
+		- $D_i=1$ 這時其實就是整張圖
+	    
+	    - $D_i=2$ 因為 degree 是 $1$ 的點不能選，所以刪除 $\deg \le 1$ 的點，並將周圍的點的 degree -1
+	    
+	    - $D_i=3$ 刪除 $\deg \le 2$ 的點，並將周圍的點的 degree -1
+	
+		- $D_i=4$ 刪除 $\deg \le 3$ 的點，並將周圍的點的 degree -1
+	
+		- ...
+	
+		可以觀察到當 $D_i=k$ 的時候需要將 $\deg \le k-1$ 的點刪掉
+		
+		此時 $F(S)=$ 剩下的點的數量 $\times (k-1)$
+		
+		---
+		
+		實作方面沒辦法真的去刪邊，考慮時光倒流技巧，用加邊來看
+		
+		只是你並不能知道要依序加哪些點進去
+		
+		所以我們先預處理好 $D_i=k+1 \to D_i=k$ 的時候需要加入的點即可
+		
+		預處理就像 topo 排序那樣每輪找 $\deg = k$ 的點，將他們存在 vector `v[k]` 裡面
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using PQ = priority_queue<int, vector<int>, greater<int>>;
+	
+	    const int INF = 2e18;
+	    const int maxn = 5e3 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, m;
+	    vector<int> G[maxn];
+	    vector<int> V[maxn];
+	    int in[maxn], vis[maxn], par[maxn], sz[maxn];
+	
+	    void dsu_init () {
+	        for (int i = 1; i <= n; i++) {
+	            par[i] = i;
+	            sz[i] = 1;
+	        }
+	    }
+	
+	    int find (int x) {
+	        if (par[x] == x) return x;
+	        else return par[x] = find (par[x]);
+	    }
+	
+	    void merge (int a, int b) {
+	        int x = find (a), y = find (b);
+	        if (x == y) return;
+	        par[x] = y;
+	        sz[y] += sz[x];
+	        sz[x] = 0;
+	    }
+	
+	    void init () {
+	        cin >> n >> m;
+	        int u, v;
+	        for (int i = 0; i < m; i++) {
+	            cin >> u >> v;
+	            G[u].pb (v);
+	            G[v].pb (u);
+	            in[u]++, in[v]++;
+	        }
+	    }
+
+
+        void topo () {
+            for (int i = 1; i <= n; i++) {
+                // 刪除 deg[u] <= i 的點
+                queue<int> q;
+                for (int j = 1; j <= n; j++) {
+                    if (!vis[j] && in[j] == i) {
+                        q.push (j);
+                        vis[j] = 1;
+                    }
+                }
+    
+                while (q.size ()) {
+                    int u = q.front ();
+                    q.pop ();
+                    V[i].pb (u);
+    
+                    for (auto v : G[u]) {
+                        in[v]--;
+                        if (vis[v]) continue;
+    
+                        if (in[v] <= i) {
+                            q.push (v);
+                            vis[v] = 1;
+                        }
+                    }
+                }
+            }
+        }
+    
+        void solve () {
+            topo ();
+            dsu_init ();
+            memset (vis, 0, sizeof vis);
+            int ans = 0;
+            for (int i = n; i >= 1; i--) {
+                for (auto u : V[i]) {
+                    vis[u] = 1; 
+                    for (auto v : G[u]) {
+                        if (!vis[v]) continue;
+                        merge (u, v);
+                    }
+                }
+                for (int u = 1; u <= n; u++) {
+                    if (par[u] == u && vis[u]) {
+                        ans = max (ans, sz[u] * i);
+                    } 
+                }
+            }
+    
+            cout << ans << "\n";
+        } 
+    
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            //cin >> t;
+            while (t--) {
+                init();
+                solve();
+            }
+        } 
+        ```
 
 ## DP
 
@@ -770,7 +1014,43 @@
 		利用 $\texttt{ok}(l,r)$ 在 $O(n^2)$ 對於每個 $i$ 預處理最小合法的 $k$
 
 ## Greedy
-- TOI 2022 pC
+
+???+note "[TOI 2022 pC](https://tioj.ck.tp.edu.tw/problems/2248)"
+	給定一顆 $n$ 個點邊有權重的樹，$w_{i}$ 代表第 $i$ 個點一開始有幾台車
+	
+	每條邊有權重 $d_i$ 代表通過這條邊的距離為 $d_{i}$
+	
+	$$調度成本 = 調度數量 \times 調度距離$$
+	
+	如果要讓每個點車子數量最後皆為 $k$，最小總調度成本為多少？
+	
+	$1 \leq n \leq 10^{5},\sum w_i = n\times k$
+	
+	??? note "思路"
+		一樣我們先考慮 leaf，leaf 只能從父親節點的方向將車送過來，或將多餘的送回去
+		
+		如果不夠，我們可以先跟父親節點借，將父親節點的 $w_i-=k$
+		
+		如果太多，我們可以送給父親節點，將父親節點的 $w_i+=k$
+	
+		一旦 leaf 調整好至 $k$ 台車，因為不會有車要送過來，或自己有車要送出去，所以可以將 leaf 刪除
+		
+	??? note "code"
+		```cpp linenums="1"
+		int dfs (int u, int par) {
+	        int need = w[u] - k, child_need;
+	        
+	        for(auto v : G[u]) {
+	        	if (v == par) continue;
+	        	
+	        	child_need = dfs(v, u);
+	            ans += abs(child_need) * d[i];
+	            need += child_need;
+	        }
+	        
+	        return need;
+	    }
+	    ```
 
 
 ???+note "[BOI 2020 B1. Village (Minimum)](https://codeforces.com/contest/1387/problem/B1)"
@@ -992,74 +1272,83 @@
 
 
 ## Prufer code
-- https://oi-wiki.org/graph/prufer/#pr%C3%BCfer-%E5%BA%8F%E5%88%97%E7%9A%84%E6%80%A7%E8%B4%A8
-- CSES prufer code
-- [nhspc 2022 pG](https://sorahisa-rank.github.io/nhspc-fin/2022/problems.pdf)
+- [Oi wiki Prüfer code](https://oi-wiki.org/graph/prufer/#pr%C3%BCfer-%E5%BA%8F%E5%88%97%E7%9A%84%E6%80%A7%E8%B4%A8)
+
+???+note "[CSES - Prüfer Code](https://cses.fi/problemset/task/1134)"
+	給定長度為 $n-2$ 的 Prüfer 序列，求此 Prüfer 序列構成的樹
+	
+	$3 \le n \le 2 \cdot 10^5$
+
+???+note "[全國賽 2022 pG](https://sorahisa-rank.github.io/nhspc-fin/2022/problems.pdf#page=21)"
+	設 $T$ 為一棵有 $n$ 個節點的樹，節點編號 $1, 2, \ldots , n$
+	
+	已知 $T$ 每個節點的 degree 為 $d_1,d_2,\ldots ,d_n$，其中 $d_i$ 為點 $i$ 的 degree
+	
+	求出 $T$ 所有可能的 Prüfer 序列中，字典序第 $k$ 小的，如果沒有輸出 $-1$
+	
+	$3<n\le 10^3,1\le k\le 10^9$
+
 ## Tree Isomorphism
 - [題解](https://github.com/yozen0405/c-projects/blob/main/markdown/1700.md)
+
+???+note "[CSES - Tree Isomorphism I](https://cses.fi/problemset/task/1700)"
+	給兩顆 $n$ 個點的有根樹
+	
+	問他們有沒有可能可以以某種畫法把他們畫出來使他們兩個長得一模一樣
+	
+	$n\le 10^5$
+
+???+note "[CSES - Tree Isomorphism II](https://cses.fi/problemset/task/1701)"
+	給兩顆 $n$ 個點的無根樹
+	
+	問他們有沒有可能可以以某種畫法把他們畫出來使他們兩個長得一模一樣
+	
+	$n\le 10^5$
+
+
 ## Euler Tour
 
-- CSES path queries
-- subtree queries
-- [nhspc 2021 pG](https://tioj.ck.tp.edu.tw/problems/2257)
+???+note "[CSES - path queries](https://cses.fi/problemset/task/1138)"
+	給定一個有根樹，點編號 $1,2,\ldots, n$，$1$ 是 root
+	
+	每個節點一開始都有一個 value
+	
+	$q$ 個操作，每次會是以下一種 :
+	
+	- $\text{modify}(x,v):$ 把節點 $x$ 的 value 變成 $v$ 
+	- $\text{sum}(rt,x):$ 求 $\texttt{root} \to \ldots \to x$ 的 value 總和
+	
+	$n,m\le 2\times 10^5$
 
+???+note "[CSES - Subtree Queries](https://cses.fi/problemset/task/1137)"
+	給定一個有根樹，點編號 $1,2,\ldots, n$，$1$ 是 root
+	
+	每個節點一開始都有一個 value
+	
+	$q$ 個操作，每次會是以下一種 :
+	
+	- $\text{modify}(x,v):$ 把節點 $x$ 的 value 變成 $v$ 
+	- $\text{SubtreeSum}(x):$ 求 $x$ 的子樹的 value 總和
+	
+	$n,m\le 2\times 10^5$
 
+???+note "[全國賽 2021 pG](https://tioj.ck.tp.edu.tw/problems/2257)"
+	給定一棵 $n$ 點有根樹，一開始每條邊權重都是 $1$
+	
+	$q$ 個操作，每次會是以下一種 :
+	
+	- 把某條邊的權重變 $0$
+	
+	- 詢問根節點到某一節點的權重和
+	
+	$n,q\le 10^5$
 
-???+note "[LOJ #3943. 「JOI 2023 Final」训猫](https://loj.ac/p/3943)"
-	給你一個 $n$ 個點的樹，每個節點有高度 $h_i$，節點的高度是一個 permutation
+## 樹上前綴和
+
+???+note "[CSES - Counting Paths](https://cses.fi/problemset/task/1136)"
+	給定 $n$ 個點的樹，再另外給你 $m$ 條 path
 	
-	有一隻貓現在在 $h_i=n$ 的那個節點上
+	對於每個節點 $i$，問這 $m$ 條 path 有幾條有覆蓋到 $i$
 	
-	你可以一直刪點，若刪到貓所在的節點那貓就會移到當前連通塊內高度最高的點
-	
-	求貓每次移動的距離總和最大可以是多少
-	
-	??? note "思路"
-		假設我們目前的圖長這樣
-		
-		<figure markdown>
-	      ![Image title](./images/10.png){ width="400" }
-	      <figcaption>$n=14$，藍色的字為每個節點的 $h_i$</figcaption>
-	    </figure>
-		
-		當我們刪掉 $h_i=14$ 的點後，貓可以選擇往三個連通塊的最高點跑，然後執行子問題
-		
-		假如 $h_i=14$ 的子問題算出來的答案是這樣
-		
-		<figure markdown>
-	      ![Image title](./images/11.png){ width="400" }
-	    </figure>
-	    
-	    那麼答案就是 
-	    
-	    $$ans_u=\max \{ ans_x+\text{dis}(u,x) \}$$ 
-	    
-	    其中 $x$ 是 $v$ 的連通塊內高度最高的節點
-	    
-		可是若以此分治，考慮樹是一條 chain，那最糟可達 $O(n^2)$
-		
-		---
-		
-		我們依照上面子問題執行的步驟，建一個新的樹
-		
-		<figure markdown>
-	      ![Image title](./images/9.png){ width="300" }
-	      <figcaption>邊權為兩點間的 distance</figcaption>
-	    </figure>
-	    
-	    那麼整題的答案就是樹高度
-	    
-	    重點是要怎麼建立這個樹呢 ?
-	    
-	    我們發現我們每次在做的事情就是一直斷邊，$h_i$ 越小的越晚斷
-	    
-	    所以我們可以倒著想，我們從 $h_i=1$ 開始，每次 merge 周圍最小的節點
-	    
-	    再來看看 $h_i=2$ 是否已備 merge 過，若還沒再繼續 merge，以此類推
-	    
-	    以新圖來看我們在做的事情就是從 leaf 慢慢把樹蓋上去
-	    
-	    至於要怎麼 merge，我們每個點用 pq(min heap) 維護周圍節點的 $\texttt{pair}(h_i,i)$ 
-	    
-	    兩個點 merge 起來用啟發式合併，但要注意可能會算到已算過的節點，所以在 pop 的時候檢查此編號是否已經在同一個 DSU 內
+	$n,m\le 2\times 10^5$
 
