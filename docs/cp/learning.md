@@ -81,6 +81,14 @@ CF
 - <https://codeforces.com/blog/entry/55219>
 - <https://codeforces.com/blog/entry/94042>
 
+## youtube
+
+- [Dynamic Programming Playlist](https://www.youtube.com/watch?v=8LusJS5-AGo&list=PLrmLmBdmIlpsHaNTPP_jHHDx_os9ItYXr)
+
+- [CSES 題解影片版](https://www.youtube.com/@arslongavitabrevis6605/videos)
+
+- [演算法概念講解](https://www.youtube.com/@AlgorithmsLive)
+
 ## 寫程式用的軟體
 
 - codeblock (APCS)

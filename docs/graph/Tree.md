@@ -1,6 +1,86 @@
 ## 換根 DP
 - 又稱全方位木 DP，solving for all roots
 
+???+note "[CSES Tree Distances I](https://cses.fi/problemset/task/1132/)"
+	給一顆有 $n$ 個點的樹，對於每個點求該點到其他點的最遠距離
+	
+	??? note "思路"
+		> 法 1 : 換根 dp
+		
+		因為在給 $v$ 計算的時候有可能 $u$ 的最遠距離就在 $v$ 子樹
+		
+		所以必須維護次遠距離的子樹
+		
+		??? code "實作"
+			```cpp linenums="1"
+			#include <bits/stdc++.h>
+	        #define int long long
+	        using namespace std;
+	
+	        const int maxn = 2e5 + 5;
+	        const int INF = 0x3f3f3f3f;
+	        int n;
+	        int dp_ch[maxn], dp_fa[maxn], sec[maxn], ans[maxn];
+	        vector<int> G[maxn];
+	
+	        void dfs_ch (int u, int par) {
+	            for (auto v : G[u]) {
+	                if (v == par) continue;
+	
+	                dfs_ch (v, u);
+	
+	                if (dp_ch[v] + 1 > dp_ch[u]) {
+	                    sec[u] = dp_ch[u];
+	                    dp_ch[u] = dp_ch[v] + 1;
+	                }
+	                else if (dp_ch[v] + 1 > sec[u]) {
+	                    sec[u] = dp_ch[v] + 1;
+	                }
+	            }
+	        }
+	
+	        void dfs_fa (int u, int par) {
+	            for (auto v : G[u]) {
+	                if (v == par) continue;
+	
+	                if (dp_ch[v] + 1 == dp_ch[u]) {
+	                    dp_fa[v] = max(sec[u], dp_fa[u]) + 1;
+	
+	                    dfs_fa (v, u);
+	                }
+	                else {
+	                    dp_fa[v] = max(dp_ch[u], dp_fa[u]) + 1;
+	                    dfs_fa (v, u);
+	                }
+	            }
+	        }
+	
+	        signed main() {
+	            ios::sync_with_stdio(0);
+	            cin.tie(0);
+	            cin >> n;
+	
+	            for (int i = 0, u, v; i < n - 1; i++) {
+	                cin >> u >> v;
+	                G[u].push_back(v);
+	                G[v].push_back(u);
+	            }
+	
+	            dfs_ch (1, 0);
+	            dfs_fa (1, 0);
+	
+	            for (int i = 1; i <= n; i++) {
+	                cout << max (dp_ch[i], dp_fa[i]) << " ";
+	            }
+	        }
+	        ```
+	        
+		> 法 2 : 樹直徑
+		
+		根據樹直徑的性質，最遠點一定會在樹直徑的頭尾
+		
+		證明請參見樹直徑的 section
+
 ???+note "<a href="/wiki/graph/images/403 . 樹直徑.html" target="_blank">2023 IOIC 403 .樹直徑</a>"
 	有一棵 $N$ 個點的樹
 	
@@ -41,6 +121,98 @@
 	求 $\max \limits_{v=1... n} \{\space \sum\limits_{i = 1}^{n} dist(i, v) \cdot a_i \space \}$
 	
 	$n,a_i\le 2\times 10^5$
+	
+	??? note "思路"
+		一樣換根 dp
+	
+		不過這邊在算 $fa$ 的時候我們採用直接算答案的方式比較方便
+		
+		也就是 $dp_{fa}[u]$ 直接紀錄 $u$ 的答案
+		
+		$$\small dp_{fa}[v] = (dp_{fa}[u] - \underbrace{(dp_{ch}[v] + sum[v] + a[v])}_{扣除v的貢獻} + \underbrace{(tot - sum[v] - a[v])}_{加上v子樹以外的貢獻}) + dp_{ch}[v]$$
+		
+	    不然還要再多紀錄 $u$ 上面的連通塊的 sum
+	    
+	??? note "code"
+	    ```cpp linenums="1"
+	    #include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using PQ = priority_queue<int, vector<int>, greater<int>>;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, tot;
+	    int a[maxn];
+	    int dp1[maxn], dp2[maxn], sum[maxn];
+	    vector<int> G[maxn];
+	
+	    void dfs1 (int u, int par) {
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            dfs1 (v, u);
+	
+	            sum[u] += sum[v] + a[v];
+	            dp1[u] += dp1[v] + sum[v] + a[v];
+	        } 
+	    }
+	
+	    void dfs2 (int u, int par) {
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	
+	            dp2[v] = (dp2[u] - (dp1[v] + sum[v]) - a[v] + tot - sum[v] - a[v]) + dp1[v];
+	            dfs2 (v, u);
+	        }
+	    }
+	
+	    void init () {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) cin >> a[i], tot += a[i];
+	        int u, v;
+	
+	        for (int i = 1; i <= n - 1; i++) {
+	            cin >> u >> v;
+	            G[u].pb (v);
+	            G[v].pb (u);
+	        }
+	    }
+	
+	    void solve () {
+	        dfs1 (1, 0);
+	        dp2[1] = dp1[1];
+	
+	        dfs2 (1, 0);
+	
+	        int ans = -INF;
+	        for (int i = 1; i <= n; i++) {
+	            ans = max (ans, dp2[i]);
+	        }
+	
+	        cout << ans << "\n";
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    } 
+	    ```
+
 
 ???+note "[Balkan OI 2017 City Attractions ](https://www.acmicpc.net/problem/14875)"
 	給一 $N$ 個點的顆樹，有一個人第一天在 $1$ 這個節點
@@ -73,16 +245,198 @@
 	這種圖法有幾種
 	
 	??? note "思路"
-		- <https://hackmd.io/mcmDUAthQTqKmP3nLZDXXg>
+		$dp(u,0/1):$ $u$ 是白/黑，黑色要能連通的能塗色的方法數
+		
+		對於所有的點， $dp_{ch}(u,0)=1,dp_{fa}(u,0)=1$
+	
+		$dp_{ch}(u,1)=\prod (dp_{ch}(v,0)+dp_{ch}(v,1))$
+		
+		$dp_{fa}(v_1,1)=dp_{fa}(u,1)\times \prod \limits_{v\neq v_1} (dp_{ch}(v,0)+dp_{ch}(v,1))+dp_{fa}(u,0)$
+		
+		$ans_u=dp_{ch}(u,1)\times dp_{fa}(u,1)$
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using PQ = priority_queue<int, vector<int>, greater<int>>;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	
+	    int n, M;
+	    vector<int> G[maxn];
+	    int dp_ch[maxn][2],dp_fa[maxn][2];
+	
+	    void dfs_ch (int u, int par) {
+	        dp_ch[u][1] = dp_ch[u][0] = 1;
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            dfs_ch (v, u);
+	
+	            dp_ch[u][1] = dp_ch[u][1] * (dp_ch[v][0] + dp_ch[v][1]);
+	            dp_ch[u][1] %= M;
+	        }
+	    }
+	
+	    void dfs_fa (int u, int par) {
+	        dp_fa[u][0] = 1;
+	        int sz = G[u].size ();
+	
+	        vector<int> pre (sz + 1, 1);
+	        vector<int> suf (sz + 2, 1);
+	
+	        for (int i = 1; i <= sz; i++) {
+	            int v = G[u][i - 1];
+	            if (v == par) {
+	                pre[i] = pre[i - 1];
+	                continue;
+	            }
+	
+	            pre[i] = (pre[i - 1] * (dp_ch[v][0] + dp_ch[v][1])) % M;
+	        }
+	        for (int i = sz; i >= 1; i--) {
+	            int v = G[u][i - 1];
+	            if (v == par) {
+	                suf[i] = suf[i + 1];
+	                continue;
+	            }
+	            suf[i] = (suf[i + 1] * (dp_ch[v][0] + dp_ch[v][1])) % M;
+	        }
+	
+	        for (int i = 1; i <= sz; i++) {
+	            int v = G[u][i - 1];
+	            if (v == par) {
+	                continue;
+	            }
+	
+	            dp_fa[v][1] = (dp_fa[u][1] * ((pre[i - 1] * suf[i + 1]) % M)) % M + dp_fa[u][0];
+	            dp_fa[v][1] %= M;
+	        }
+	
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            dfs_fa (v, u);
+	        }
+	    }
+	
+	    void init () {
+	        cin >> n >> M;
+	
+	        int u, v;
+	        for (int i = 1; i <= n - 1; i++) {
+	            cin >> u >> v;
+	            G[u].pb (v);
+	            G[v].pb (u);
+	        }
+	    }
+	
+	    void solve () {
+	        dfs_ch (1, -1);
+	
+	        dp_fa[1][1] = 1;
+	        dfs_fa (1, -1);
+	
+	        for (int i = 1; i <= n; i++) {
+	            cout << (dp_ch[i][1] * dp_fa[i][1]) % M << "\n";
+	        }
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    } 
+	    ```
+
 
 ## 樹 DP
 
 ???+note "[hackerrank kingdom division](https://www.hackerrank.com/challenges/kingdom-division/problem)"
-	給一個 tree 每個點可以圖黑色或白色，但是同一個顏色要至少兩個以上相鄰，只要至少有兩個相鄰，要分成幾個區塊都 ok
+	給一個 $n$ 個點的樹，每個點可以圖黑色或白色
+	
+	同一種顏色不一定要擠在同一個連通塊，但是每個同色的連通塊至少要有 $2$ 個點
+	
+	問有幾種圖法
+	
+	$n\le 10^5$
 	
 	??? note "思路"
-		- <https://hackmd.io/AUw7lai3S2WM7WLDvQwwtA>
-
+		$f(u,0/1):$ $u$ 是白色/黑色的塗色方法數
+		
+		$g(u,0/1):$ $u$ 是白色/黑色，$v$ 都是跟 $u$ 相反的顏色的方法數
+		
+		$f(u,0)=g(u,0)\times(g(v,0)+f(v,0))+f(u,0)\times(f(v,0)+g(v,0)+f(v,1))$
+	    $f(u,1)=g(u,1)\times(g(v,1)+f(v,1))+f(u,1)\times(f(v,1)+g(v,1)+f(v,0))$
+	    
+	    $g(u,0)=g(u,0)\times f(v,1)$
+	    
+	    $g(u,1)=g(u,1)\times f(v,0)$		
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    using namespace std;
+	
+	    const int INF = 0x3f3f3f3f;
+	    const int M = 1e9 + 7;
+	    const int maxn = 1e5 + 5;
+	    int n, d;
+	    vector<int> G[maxn];
+	    int f[maxn][2], g[maxn][2];
+	
+	    void dfs (int u = 1, int par = 0) {
+	        g[u][0] = g[u][1] = 1;
+	        f[u][0] = 0, f[u][1] = 0;
+	
+	        for (auto v : G[u]) {
+	            if (par == v) continue;
+	
+	            dfs(v, u);
+	            f[u][0] = (g[u][0] * (g[v][0] + f[v][0])) % M + 
+	                      (f[u][0] * (f[v][0] + g[v][0] + f[v][1])) % M;
+	            f[u][0] %= M;
+	
+	            f[u][1] = (g[u][1] * (g[v][1] + f[v][1])) % M + 
+	                      (f[u][1] * (f[v][1] + g[v][1] + f[v][0])) % M;
+	            f[u][1] %= M;
+	
+	            g[u][0] *= f[v][1];
+	            g[u][0] %= M;
+	
+	            g[u][1] *= f[v][0];
+	            g[u][1] %= M;
+	        }
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	
+	        for (int i = 0; i < n - 1; i++) {
+	            int u, v;
+	            cin >> u >> v;
+	            G[u].push_back(v);
+	            G[v].push_back(u);
+	        }
+	
+	        dfs ();
+	        cout << (f[1][0] + f[1][1]) % M << "\n";
+	    }
+	    ```
 ???+note "[CF 461B Appleman and Tree](https://codeforces.com/problemset/problem/461/B)"
 	給一棵 $n$ 個點的樹，每個點是白色或者黑色，問有多少種方案能夠通過去掉一些邊，使每個聯通塊中只有一個黑色的點
 	
@@ -108,90 +462,7 @@
 	    }
 	    ```
 
-???+note "[2020 TOI pB.建設人工島](https://tioj.ck.tp.edu.tw/problems/2189)"
-	給 $n$ 個點，邊有權重的樹，求嚴格次長樹直徑
-	
-	$n\le 10^5$
-	
-	??? note "code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    using namespace std;
-	
-	    const int INF = 2e18;
-	    const int maxn = 1e5 + 5;
-	    const int M = 1e9 + 7;
-	
-	    struct Eg {
-	        int v, w;
-	    };
-	
-	    struct node {
-	        int mx, sec;
-	    };
-	
-	    int n, m;
-	    vector<Eg> G[maxn];
-	    vector<node> dp(maxn);
-	    int vis[maxn];
-	    node ans;
-	
-	    void cal (int val, node &x) {
-	        if (x.mx < val) x.sec = x.mx, x.mx = val;
-	        else if (val != x.mx && x.sec < val) x.sec = val;
-	    }
-	
-	    void dfs (int u) {
-	        vis[u] = true;
-	        for (auto [v, w] : G[u]) {  
-	            if (vis[v] == 1) continue;
-	
-	            dfs (v);
-	            // ans 的轉移式
-	            cal (dp[v].mx + dp[u].mx + w, ans);
-	            cal (dp[v].mx + dp[u].sec + w, ans);
-	            cal (dp[u].mx + dp[v].sec + w, ans);
-	            // 沒有 u.sec + v.sec 因為她一定會比其他的小(成為第三名)
-	
-	            // 把 v 的鏈更新 u.mx, u.sec
-	            cal (dp[v].mx + w, dp[u]);
-	            cal (dp[v].sec + w, dp[u]);
-	        }
-	    }
-	
-	    void init() {
-	        cin >> n;
-	        int u, v, w;
-	        for (int i = 1; i <= n - 1; i++) {
-	            cin >> u >> v >> w;
-	            u++, v++;
-	            G[u].pb({v, w});
-	            G[v].pb({u, w});
-	        }
-	    }
-	
-	    void solve() {
-	        dfs (1);
-	        cout << ans.sec << "\n";
-	    } 
-	
-	    signed main() {
-	        // ios::sync_with_stdio(0);
-	        // cin.tie(0);
-	        int t = 1;
-	        //cin >> t;
-	        while (t--) {
-	            init();
-	            solve();
-	        }
-	    } 
-	    ```
+
 
 ## 其他類型
 
@@ -347,24 +618,16 @@
 	    }
 	    ```
 
-
-???+note "[CSES - Network Renovation](https://cses.fi/problemset/task/1704)"
-	給一顆樹，你要加一些邊使不管斷任何一條邊斷掉整張圖還是連通的
-	
-	問最少斷幾條邊，並且輸出任意一組解
-	
-	class 17 
-
 ???+note "[2023 TOI 模擬賽第三場 pE](http://127.0.0.1:8000/wiki/cp/contest/images/TOI-2023-3.pdf#page=11)"
 	$2n$ 個人參加一個聚餐，所有人編號為 $1\sim 2n$，對於所有 $1\le i \le n$，編號 $2i-1$ 的人和編號 $2i$ 的人是情侶
 	
 	聚餐是圍著一個圓桌吃飯，位置按照順時鐘編號為 $1\sim 2n$。每個位置都放有一副餐具，每副餐具都不一樣，每個人都恰好喜歡其中一副餐具，喜歡第 $i$ 副餐具的人編號是 $a_i$
-
+	
 	請安排所有人入座並滿足以下兩個條件：
-
+	
 	1. 所有情侶要坐在相鄰的兩個位置<br>
 	2. 在滿足 1. 的情況下，要盡量多的人坐在有自己喜歡的餐具的位置上。
-
+	
 	請輸出滿足以上兩個條件的入座方式。若有多組解，請輸出字典序最小的解
 	
 	??? note "思路"
@@ -381,12 +644,8 @@
 		其他就挑字典序最小的即可
 		
 		<figure markdown>
-          ![Image title](./images/23.png){ width="600" }
-        </figure>
-
-		
-		
-		
+	      ![Image title](./images/23.png){ width="600" }
+	    </figure>
 
 
 ???+note "[洛谷 P3441 [POI2006]MET-Subway](https://www.luogu.com.cn/problem/P3441)"
@@ -476,9 +735,241 @@
 
 - <https://usaco.guide/gold/all-roots?lang=cpp>
 
+## 樹直徑
+
+- 樹直徑性質 (APCSC)
+
+- 兩次 dfs 找樹直徑 - 正確性證明
+	- code in CF 1085D 
+
+???+note "[CF 1085 D.A Wide, Wide Graph](https://codeforces.com/contest/1805/problem/D)"
+	給一顆有 $n$ 個點的樹
+	
+	定義 $G_k$ 為 : 有幾個點 $u$ 至少存在一個點與他距離 $\ge k$ 
+	
+	依序求 $G_1,\ldots,G_n$
+	
+	$n\le 10^5$
+	
+	??? note "思路"
+		我們只要求出對於每個點，與他距離最遠的點的距離即可
+		
+	??? note "code"
+		```cpp linenums="1"
+	    #include <bits/stdc++.h>
+	    #define int long long
+	    #define s second
+	    #define f first
+	    #define pii pair<int,int>
+	    using namespace std;
+	
+	    const int INF = 0x3f3f3f3f, MAXN = 1e5 + 5, M = 1e9 + 7;
+	    int t, n, m, dis[MAXN], mx[MAXN];
+	    vector<vector<int>> G(MAXN);
+	
+	    int dfs(int u, int p, int d) {
+	        int ans = u;
+	        dis[u] = max (d, dis[u]);
+	
+	        for (auto v : G[u]) {
+	            if (v != p) {
+	                int tmp = dfs(v, u, d + 1);
+	
+	                if (dis[tmp] > dis[ans]) {
+	                    ans = tmp;
+	                }
+	            }
+	        }
+	
+	        return ans;
+	    }
+	
+	    signed main() {
+	        ios_base::sync_with_stdio(0);
+	        cin.tie(0);
+	        t = 1;
+	
+	        while (t--) {
+	            cin >> n;
+	
+	            for (int i = 0, u, v; i < n - 1; i++) {
+	                cin >> u >> v;
+	                G[u].push_back(v);
+	                G[v].push_back(u);
+	            }
+	
+	            int s = dfs(1, 0, 0);
+	            int t = dfs(s, 0, 0);
+	            dfs(t, 0, 0);
+	
+	            sort(dis + 1, dis + 1 + n);
+	            int x = 0;
+	
+	            for (int i = 1; i <= n; i++) {
+	                while (x <= n && dis[x] < i) {
+	                    x++;
+	                }
+	
+	                if (x > n)
+	                    cout << n << " ";
+	                else
+	                    cout << x << " ";
+	            }
+	        }
+	    }
+	    ```
+
+???+note "[2020 TOI pB.建設人工島](https://tioj.ck.tp.edu.tw/problems/2189)"
+	給 $n$ 個點，邊有權重的樹，求嚴格次長樹直徑
+	
+	$n\le 10^5$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 1e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Eg {
+	        int v, w;
+	    };
+	
+	    struct node {
+	        int mx, sec;
+	    };
+	
+	    int n, m;
+	    vector<Eg> G[maxn];
+	    vector<node> dp(maxn);
+	    int vis[maxn];
+	    node ans;
+	
+	    void cal (int val, node &x) {
+	        if (x.mx < val) x.sec = x.mx, x.mx = val;
+	        else if (val != x.mx && x.sec < val) x.sec = val;
+	    }
+	
+	    void dfs (int u) {
+	        vis[u] = true;
+	        for (auto [v, w] : G[u]) {  
+	            if (vis[v] == 1) continue;
+	
+	            dfs (v);
+	            // ans 的轉移式
+	            cal (dp[v].mx + dp[u].mx + w, ans);
+	            cal (dp[v].mx + dp[u].sec + w, ans);
+	            cal (dp[u].mx + dp[v].sec + w, ans);
+	            // 沒有 u.sec + v.sec 因為她一定會比其他的小(成為第三名)
+	
+	            // 把 v 的鏈更新 u.mx, u.sec
+	            cal (dp[v].mx + w, dp[u]);
+	            cal (dp[v].sec + w, dp[u]);
+	        }
+	    }
+	
+	    void init() {
+	        cin >> n;
+	        int u, v, w;
+	        for (int i = 1; i <= n - 1; i++) {
+	            cin >> u >> v >> w;
+	            u++, v++;
+	            G[u].pb({v, w});
+	            G[v].pb({u, w});
+	        }
+	    }
+	
+	    void solve() {
+	        dfs (1);
+	        cout << ans.sec << "\n";
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    } 
+	    ```
+
 ## 利用 dfs 序
 
 - [CF 1065F](https://codeforces.com/problemset/problem/1065/F)
+
+???+note "[CSES - Network Renovation](https://cses.fi/problemset/task/1704)"
+	給一顆 $n$ 個點的樹，你要加一些邊使不管斷任何一條邊斷掉整張圖還是連通的
+	
+	也就是使圖上沒有邊是 bridge (雙連通)
+	
+	問最少斷幾條邊，並且輸出任意一組解
+	
+	$n\le 10^5$
+	
+	??? note "思路"
+		觀察到要連接的是 leaf 跟 leaf
+		
+		若不是的話往 leaf 的方向那段會斷掉
+		
+		<figure markdown>
+	      ![Image title](./images/24.png){ width="300" }
+	    </figure>
+		
+		leaf 跟 leaf 連接會形成一個類似 cycle 的結構
+		
+		<figure markdown>
+	      ![Image title](./images/25.png){ width="300" }
+	    </figure>
+	    
+	    在這個 cycle 有覆蓋到的地方，就不會有 bridge
+	    
+	    代表因為 cycle 要形成至少需要 $2$ 個 leaf
+	     
+	    所以答案一定至少要是 $k/2$，其中 $k$ 是 leaf 的數量
+	    
+	    觀察到不能讓某些邊沒有被 cycle 給覆蓋到
+	    
+	    我們希望每個 leaf 到 root 的這個 path 都有被覆蓋到
+	    
+	    root 的 degree 要 >= 2
+	    
+	    ---
+	    
+	    > 參考 : <https://www.youtube.com/watch?v=tRTezLvPZ3k>
+	    
+	    觀察到要連接的是 leaf 跟 leaf
+		
+		若不是的話往 leaf 的方向那段會斷掉
+		
+		<figure markdown>
+	      ![Image title](./images/24.png){ width="300" }
+	    </figure>
+	    
+	    所以我們**至少**需要 $P_T/2$ 個才能將圖給覆蓋
+	    
+	    因為如果 hooked 的地方不是 leaf，那下面的 edge 就不會被覆蓋到
+	    
+	    存在一個 pedant centriod，若將樹 rerooted as the pendant centriod
+	    
+	    每個 subtree 中的 leaf 的數量將會 <= $P_T /2$
+	    
+	    那你就用 i 跟 i + $P_T/2$ 配就一定可以配到「同一個子樹之外」
+	    
+	    那假如我們的 root 定在任意點，因為 euler 序列的順序不會因為 root 的改變而改變，所以依然可以照上面的方法將 i 跟 i + $P_T/2$ 配
+
+
+​        
 
 ???+note "[2021 全國賽模擬賽 pF. 地洞遊戲](https://tioj.ck.tp.edu.tw/pmisc/pre-nhspc-2021-statements/Cave.pdf)"
 	給定一棵 $N$ 點的有根樹，邊是由根往底下連的
@@ -1307,6 +1798,8 @@
 
 
 ## Euler Tour
+
+- 換根後 euler tour 序列 order 不變
 
 ???+note "[CSES - path queries](https://cses.fi/problemset/task/1138)"
 	給定一個有根樹，點編號 $1,2,\ldots, n$，$1$ 是 root

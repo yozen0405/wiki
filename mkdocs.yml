@@ -128,6 +128,7 @@ nav:
           - 語法教學: 'main/syntax.md'
           - 架設教學: 'main/setup.md'
         - codebook: 'main/codebook.md'
+        - bug: 'main/bug.md'
         - vscode 下載教學: 
           - 影片: 'main/vscode_vid.md'
           - 網址: 'main/vscode.md'
