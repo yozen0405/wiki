@@ -673,6 +673,182 @@
 	問至少要用幾條不重疊的 path 才能將圖覆蓋，並且這些 path 裡面長度最長的最少可以是多少
 	
 	$n\le 10^4$
+	
+	??? note "思路"
+		第一個答案顯然是 $\displaystyle \frac{\deg[i]-1}{2}$
+		
+		其中 $\deg[i]$ 代表點 $i$ 的度數，$\deg[rt]$ 要記得特判因為沒有父親
+		
+		因為其中一條可以往父親方向上傳
+		
+		---
+		
+		再來是第二個答案，因為能用的 path 的數量已經固定，所以我們就在 path 的數量固定下討論能連的可能性
+		
+		我們先來討論非 root 的情況
+	
+	    若為偶數
+	    
+	    - 上傳 : 兩兩配對，剩下的兩個一個單獨成線 (max)，另一個上傳 (二分)
+	
+	    - 不上傳 : 兩兩配對
+	
+	    若為奇數
+	
+	    - 上傳 : 兩兩配對，剩下一個 (二分)
+	
+	    - 不上傳 : 不可能
+	
+		再來討論非 root 的情況
+		
+		若為偶數 : 兩兩配對
+	
+	    若為奇數 : 檢查最大的是否合法，剩下兩兩配對
+
+
+​		
+		??? question "為什麼可以二分 ?"
+	        no 1
+	
+	        $[2,9],[3,8],[4,7],[5,6]$
+	
+	        no 2
+	
+	        $[1,9],[3,8],[4,7],[5,6]$
+	
+	        no 3
+	
+	        $[1,9],[2,8],[4,7],[5,6]$
+	
+	        no 4
+	
+	        $[1,9],[2,8],[3,7],[5,6]$
+	
+	        no 5
+	
+	        $[1,9],[2,8],[3,7],[4,6]$
+	
+	        你可以發現到從 1~5 慢慢的從左到右每個 pair 的總和都少了 1
+
+
+
+        > ref : <https://blog.csdn.net/C20181220_xiang_m_y/article/details/102564783>
+        
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+    
+        using namespace std;
+        using PQ = priority_queue<int, vector<int>, greater<int>>;
+    
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+    
+        int n, cnt, lim;
+        vector<int> G[maxn];
+        int deg[maxn], f[maxn], g[maxn];
+    
+        int check (int x) {
+            for (int l = 1, r = cnt; l < r; l++, r--) {
+                if (l == x) l++;
+                if (r == x) r--;
+                if (l < r && g[l] + g[r] > lim) return false;
+            }
+            return true;
+        }
+    
+        int dfs (int u, int par) {
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                if (dfs (v, u) == 0) return 0;
+            }
+            cnt = 0;
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                g[++cnt] = f[v];
+            }
+            sort (g + 1, g + cnt + 1);
+            if (u == 1) {
+                if (cnt & 1) {
+                    cnt--;
+                    return check (0);
+                }
+                else {
+                    return check (0);
+                }
+            }
+            if (cnt % 2 == 0) {
+                if (check (0)) {
+                    f[u] = 1;
+                    return 1;
+                }
+                cnt--;
+            }
+    
+            int l = 1, r = cnt + 1;
+            while (l < r) {
+                int mid = (l + r) / 2;
+                if (check (mid)) r = mid;
+                else l = mid + 1;
+            }
+            if (l == cnt + 1) return 0;
+            f[u] = g[l] + 1;
+
+
+            return f[u] <= lim;
+        }
+    
+        void init () {
+            cin >> n;
+    
+            int u, v;
+            for (int i = 1; i <= n - 1; i++) {
+                cin >> u >> v;
+                G[u].pb (v);
+                G[v].pb (u);
+                deg[u]++, deg[v]++;
+            }
+            int sum = 0;
+    
+            sum += (deg[1] + 1) / 2;
+    
+            for (int i = 2; i <= n; i++) sum += (deg[i] - 1) / 2;
+            cout << sum << " ";
+        }
+    
+        void solve () {
+            int l = 1, r = n - 1;
+    
+            while (l < r) {
+                int mid = (l + r) / 2;
+                lim = mid;
+    
+                if (dfs (1, 0)) r = mid;
+                else l = mid + 1;
+            }
+    
+            cout << l << "\n";
+        } 
+    
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            //cin >> t;
+            while (t--) {
+                init();
+                solve();
+            }
+        } 
+        ```
 
 ???+note "[LOJ #3943. 「JOI 2023 Final」训猫](https://loj.ac/p/3943)"
 	給你一個 $n$ 個點的樹，每個節點有高度 $h_i$，節點的高度是一個 permutation
@@ -967,9 +1143,6 @@
 	    那你就用 i 跟 i + $P_T/2$ 配就一定可以配到「同一個子樹之外」
 	    
 	    那假如我們的 root 定在任意點，因為 euler 序列的順序不會因為 root 的改變而改變，所以依然可以照上面的方法將 i 跟 i + $P_T/2$ 配
-
-
-​        
 
 ???+note "[2021 全國賽模擬賽 pF. 地洞遊戲](https://tioj.ck.tp.edu.tw/pmisc/pre-nhspc-2021-statements/Cave.pdf)"
 	給定一棵 $N$ 點的有根樹，邊是由根往底下連的
@@ -1765,10 +1938,88 @@
 ## Prufer code
 - [Oi wiki Prüfer code](https://oi-wiki.org/graph/prufer/#pr%C3%BCfer-%E5%BA%8F%E5%88%97%E7%9A%84%E6%80%A7%E8%B4%A8)
 
+Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉它，然後在序列中記錄下它連接到的那個結點，重複 $n-2$ 次後就只剩下兩個結點，算法結束
+
+??? note "範例圖"
+    <figure markdown>
+      ![Image title](https://oi-wiki.org/graph/images/prufer1.png){ width="700" }
+    </figure>
+
+### 性質
+
+1. 在構造完 Prüfer 序列後原樹中會剩下兩個結點，其中一個一定是編號最大的點 n
+
+2. 每個結點在序列中出現的次數是其度數減 1（沒有出現的就是葉結點）
+
+下面是模板題
+
 ???+note "[CSES - Prüfer Code](https://cses.fi/problemset/task/1134)"
 	給定長度為 $n-2$ 的 Prüfer 序列，求此 Prüfer 序列構成的樹
 	
 	$3 \le n \le 2 \cdot 10^5$
+	
+	??? note "思路"
+		維護當前的 leaf 有哪些即可
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	    
+	    set<int> st;
+	    int n;
+	    int a[maxn];
+	    int cnt[maxn];
+	
+	    void init () {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) st.insert (i);
+	
+	        int x;
+	        for (int i = 1; i <= n - 2; i++) {
+	            cin >> a[i];
+	            cnt[a[i]]++;
+	            if (st.find(a[i]) != st.end()) st.erase (st.find(a[i]));
+	        }
+	    }
+	
+	    void solve () {
+	        for (int i = 1; i <= n - 2; i++) {
+	            int x = *st.begin();
+	            st.erase (st.begin());
+	            cout << x << " " << a[i] << "\n";
+	            cnt[a[i]]--;
+	            if (cnt[a[i]] == 0) st.insert (a[i]);
+	        }
+	        int x = *st.begin();
+	        st.erase (st.begin());
+	        int y = *st.begin();
+	        cout << x << " " << y << "\n";
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    } 
+	    ```
 
 ???+note "[全國賽 2022 pG](https://sorahisa-rank.github.io/nhspc-fin/2022/problems.pdf#page=21)"
 	設 $T$ 為一棵有 $n$ 個節點的樹，節點編號 $1, 2, \ldots , n$
@@ -1778,6 +2029,153 @@
 	求出 $T$ 所有可能的 Prüfer 序列中，字典序第 $k$ 小的，如果沒有輸出 $-1$
 	
 	$3<n\le 10^3,1\le k\le 10^9$
+	
+	??? note "思路"
+		根據上面 Prüfer 序列的性質 2，題目就變成 :
+		
+		有一個陣列，第 $i$ 個數字出現 $d_i-1$ 次，求字典序第 $k$ 小的
+		
+		至於要怎麼求字典序第 $k$ 小，要先會寫 [TIOJ 2052](https://tioj.ck.tp.edu.tw/problems/2052)
+		
+		我們填 $i$，填完剩 $d_i-1$ 個 $i$，還剩 $n$ 個空格可以填
+		
+		$$\frac{n!}{d_1!\times d_2!\times \ldots \times (d_i-1)! \times \ldots \times d_n!}$$
+		
+		在這邊要知道一個公式 
+		
+		$$\frac{(\sum a_i+\sum b_i)!}{\prod a_i!\prod b_i!}=\frac{(\sum a_i)!}{\prod a_i!}\times\frac{(\sum b_i)!}{\prod b_i!}\times C_{\sum a_i}^{\sum a_i+\sum b_i}$$
+		
+		令 $\sum a_i=\sum\limits_{1}^{i-1} d_i,\sum b_i=\sum\limits_{i+1}^n d_i$
+		
+		令 $\prod a_i!=\prod\limits_{1}^{i-1} d_i!,\prod b_i!=\prod\limits_{i+1}^n d_i!$
+		
+		先建好以 $d_1\sim d_{i-1}$ 排列的答案，也就是 $\frac{(\sum a_i)!}{\prod a_i!}$
+		
+		也算 $d_{i+1}\sim d_n$ 的答案，也就是 $\frac{(\sum b_i)!}{\prod b_i!}$
+		
+		這邊計算的方式就是單純的排列，可以採用 TIOJ 2052 的 $C^n_k$ 計算方式
+		
+		兩個合併起來的時候利用上面的公式
+		
+		要再乘上 $C_{(\sum a_i)!}^{(\sum a_i)!+(\sum b_i)!}$，其實就是 $\frac{(\sum a_i)!+(\sum b_i)!}{(\sum a_i)!\times (\sum b_i)!}$
+		
+		所以就是
+		
+		$$\frac{(\sum a_i)!}{\prod a_i!}\times\frac{(\sum b_i)!}{\prod b_i!}\times C_{\sum a_i}^{\sum a_i+\sum b_i}=\frac{(\sum a_i+\sum b_i)!}{\prod a_i!\prod b_i!}$$
+		
+		只是我們還要再加入 $d_i-1$ 的貢獻
+		
+		所以利用上面的公式，還要再乘上 $C_{(\sum a_i+\sum b_i)!}^{n!}$，其實就是 $\frac{n!}{(\sum a_i+\sum b_i)!\times (d_i-1)!}$
+		
+		所以就是
+		
+		$$\frac{(\sum a_i+\sum b_i)!}{\prod a_i!\prod b_i!}\times C_{(\sum a_i+\sum b_i)!}^{n!}=\frac{n!}{d_1!\times d_2!\times \ldots \times (d_i-1)! \times \ldots \times d_n!}$$
+		
+		這邊做這些事情都是為了避免 overflow
+		
+		用 $C^n_k$ 的好處是可以預先建表，還可以將過大的設為 `INF`
+		
+		而若直接乘的話可能 $n!$ 是 $1000!$ 的時候就直接爆掉了  
+		
+		---
+		
+		
+		
+	??? note "code (by [becaido](https://caidocode.blogspot.com/2022/12/nhspc2022.html))"
+		```cpp linenums="1"
+		#pragma GCC optimize("O3,unroll-loops")
+        #pragma GCC target("avx,avx2,popcnt,sse4,abm")
+        #include <bits/stdc++.h>
+        using namespace std;
+
+        #ifdef WAIMAI
+        #define debug(HEHE...) cout<<"["<<#HEHE<<"] : ",dout(HEHE)
+        void dout(){cout<<'\n';}
+        template<typename T,typename...U>
+        void dout(T t,U...u){cout<<t<<(sizeof...(u)?", ":""),dout(u...);}
+        #else
+        #define debug(...) 7122
+        #endif
+
+        #define int long long
+        #define ll long long
+        #define Waimai ios::sync_with_stdio(false),cin.tie(0)
+        #define FOR(x,a,b) for(int x=a,I=b;x<=b;x++)
+        #define pb emplace_back
+        #define F first
+        #define S second
+
+        const int INF = 2e9;
+        const int SIZE = 1005;
+
+        int n, k;
+        int d[SIZE];
+        int C[SIZE][SIZE];
+        int pre[SIZE], suf[SIZE];
+        int prep[SIZE], sufp[SIZE];
+
+        void solve() {
+            cin >> n >> k;
+            FOR (i, 1, n) cin >> d[i];
+            FOR (i, 1, n) d[i]--;
+            C[0][0] = 1;
+            FOR (i, 1, n) {
+                C[i][0] = 1;
+                FOR (j, 1, i) C[i][j] = min (INF, C[i - 1][j - 1] + C[i - 1][j]);
+            }
+
+            k--;
+            int pro = 1;
+            for (int i = 1, m = 0; i <= n; i++) {
+                m += d[i];
+                pro = min (INF, pro * C[m][d[i]]);
+            }
+            debug (k, pro);
+            if (k >= pro) {
+                cout << "-1\n";
+                return;
+            }
+
+            vector<int> ans;
+            FOR (t, 1, n - 2) {
+                prep[0] = sufp[n + 1] = 1;
+                FOR (i, 1, n) {
+                    pre[i] = pre[i - 1] + d[i];
+                    prep[i] = min (INF, prep[i - 1] * C[pre[i]][d[i]]);
+                }
+                for (int i = n; i >= 1; i--) {
+                    suf[i] = suf[i + 1] + d[i];
+                    sufp[i] = min (INF, sufp[i + 1] * C[suf[i]][d[i]]);
+                }
+                bool f = 0;
+                FOR (i, 1, n) 
+                	if (d[i]) {
+                        int val = min (INF, prep[i - 1] * sufp[i + 1]);
+                        val = min (INF, val * C[pre[i - 1] + suf[i + 1]][pre[i - 1]]);
+                        val = min (INF, val * C[n - 2 - t][pre[i - 1] + suf[i + 1]]);
+                        debug (i, k, val);
+                        if (k >= val) k -= val;
+                        else {
+                            debug (t, i);
+                            d[i]--;
+                            ans.pb (i);
+                            f = 1;
+                            break;
+                        }
+                }
+                if (!f) {
+                    cout << "-1\n";
+                    return;
+                }
+            }
+            for (int x : ans) cout << x << '\n';
+        }
+
+        int32_t main() {
+            Waimai;
+            solve();
+        }
+        ```
 
 ## Tree Isomorphism
 - [題解](https://github.com/yozen0405/c-projects/blob/main/markdown/1700.md)
