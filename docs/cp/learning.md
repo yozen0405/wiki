@@ -1,21 +1,3 @@
-## Online Judge
-
-| 名稱                                                         | 備註                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [Codeforces](https://codeforces.com)                         | <li>近期比賽大部分都是梗題大賽<br/><li>可以刷比較久遠的 Educational Round,會有比較多演算法題 |
-| [CSES](https://cses.fi)                                      | <li>有很多裸題、經典題<br/><li>可以挑自己比較不熟的主題刷<br><li>不過後面有些 trick 其實不太會用到 |
-| [Atcoder](https://atcoder.jp)                                | <li>[整理 Atcoder 題目的網站](https://kenkoooo.com/atcoder/#/table/)<br/><li>[atcoder tags](https://atcoder-tags.herokuapp.com/)<br><li>ABC 太水,要 virtual 建議 ARC 或上古 AGC |
-| [CS Academy](https://csacademy.com/ieeextreme-practice/tasks/) | <li>有很多優質題目<br/><li>要刷的話可以照 solved 排序,就大概會照難度排序了 |
-| [Leetcode](https://leetcode.com)                             | <li>面試刷題                                                 |
-| [Zerojudge](https://zerojudge.tw)                            | <li>APCS<br><li>新手練習<br><li>題目品質有待加強             |
-| [洛谷](https://www.luogu.com.cn/)                            | <li>不喜歡看英文的，這裡幾乎都有題目的中文翻譯               |
-| [loj](https://loj.ac)                                        | <li>中文，OI 選拔考古題套題                                  |
-| [Kattis](https://open.kattis.com/)                           | <font color="gray">無</font>                                 |
-| [TIOJ](http://tioj.ck.tp.edu.tw/)                            | <li>考古題套題                                               |
-| [tcirc](https://judge.tcirc.tw/)                             | <li>AP325練習題                                              |
-| [TOJ](https://toj.tfcis.org/oj/proset/)                      | <font color="gray">無</font>                                 |
-| [NCTUOJ](https://oj.nctu.edu.tw/signin/)                     | <li>交大教授的一些練習題                                     |
-
 ## 部落格, 簡報
 
 | 名稱   | 網址                                                         | 經歷                                                    |
@@ -72,8 +54,10 @@
 | cp algorithm        | <li>[網站](https://cp-algorithms.com/)<br><li>部分主題整理<br><li>講解清晰 |
 | NHDK                | <li>[四校營隊簡報](https://github.com/HHSH-CYSH-WGSH-HSNU-Summer-Camp)<br><li>[影片清單](https://www.youtube.com/watch?v=_CWCr1hCT44&list=PL_815psSzw1FATzqwJdWaWJHGcH4F6DUz) |
 | NCKU ACM            | <li>[講義](https://hackmd.io/@nckuacm/ryLIV6BYI/%2F%40nckuacm%2FBJD15vyrI) |
+| 蔣宗哲教授教材      | <li>[hackmd](https://hackmd.io/@tcchiang/Hk1oAePJw)<br><li>[網友解答](https://hackmd.io/@mathlin/Bkn6Tcp1D) |
 | Awesome CS Training | <li>[github](https://github.com/goodjack/awesome-cs-training)<br> |
 | ITSA                | <li>[judge](https://e-tutor.itsa.org.tw/e-Tutor/Question_bank.php?id=624)<br><li>需註冊帳號 |
+| 競程修練心法        | <li>[hackmd](https://hackmd.io/@sa072686/cp/%2F@sa072686%2FrJap7SM_r) |
 | 宜蘭高中自學平台    | <li>論壇(不一定跟程式有關)<br><li>[網站](https://josh930908.github.io/web/#/) |
 
 CF
@@ -98,3 +82,22 @@ CF
 ## 如何 debug
 
 - [USACO Guide debug 教學](https://usaco.guide/general/debugging-checklist?lang=cpp)
+
+## Online Judge
+
+| 名稱                                                         | 備註                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [Codeforces](https://codeforces.com)                         | <li>近期比賽大部分都是梗題大賽<br/><li>可以刷比較久遠的 Educational Round,會有比較多演算法題 |
+| [CSES](https://cses.fi)                                      | <li>有很多裸題、經典題<br/><li>可以挑自己比較不熟的主題刷<br><li>不過後面有些 trick 其實不太會用到 |
+| [Atcoder](https://atcoder.jp)                                | <li>[整理 Atcoder 題目的網站](https://kenkoooo.com/atcoder/#/table/)<br/><li>[atcoder tags](https://atcoder-tags.herokuapp.com/)<br><li>ABC 太水,要 virtual 建議 ARC 或上古 AGC |
+| [CS Academy](https://csacademy.com/ieeextreme-practice/tasks/) | <li>有很多優質題目<br/><li>要刷的話可以照 solved 排序,就大概會照難度排序了 |
+| [Leetcode](https://leetcode.com)                             | <li>面試刷題                                                 |
+| [Zerojudge](https://zerojudge.tw)                            | <li>APCS<br><li>新手練習<br><li>題目品質有待加強             |
+| [洛谷](https://www.luogu.com.cn/)                            | <li>不喜歡看英文的，這裡幾乎都有題目的中文翻譯               |
+| [loj](https://loj.ac)                                        | <li>中文，OI 選拔考古題套題                                  |
+| [Kattis](https://open.kattis.com/)                           | <font color="gray">無</font>                                 |
+| [TIOJ](http://tioj.ck.tp.edu.tw/)                            | <li>考古題套題                                               |
+| [tcirc](https://judge.tcirc.tw/)                             | <li>AP325練習題                                              |
+| [TOJ](https://toj.tfcis.org/oj/proset/)                      | <font color="gray">無</font>                                 |
+| [NCTUOJ](https://oj.nctu.edu.tw/signin/)                     | <li>交大教授的一些練習題                                     |
+

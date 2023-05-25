@@ -1,6 +1,3 @@
-!!! yellow ""
-	:loudspeaker:&nbsp;&nbsp;[蘭燈之星第112期APCS程式設計培育計畫](https://www.ylsh.ilc.edu.tw/ischool/public/news_view/show.php?nid=24781)
-	
 ## 歷屆題目
 
 ### 觀念題
@@ -13,8 +10,7 @@
 - [2017 3 月](/wiki/cp/images/3.pdf)
 - [2020 7 月](https://hackmd.io/@enip/APCS202007)
 - [2020 10 月](https://hackmd.io/@cthbst/APCS_10910#APCS-1091017)
-- [2021 1 月 (第一場)](https://hackmd.io/@rollfatcat/ByEIVsekd)
-- [2021 1 月 (第二場)](https://hackmd.io/@rollfatcat/H12Z4Qgku)
+- [2021 1 月](https://hackmd.io/@algoseacow/APCS11001)
 - [2021 11 月](https://hackmd.io/@algoseacow/APCS11011-writing)
 - [2022 1 月](https://hackmd.io/@algoseacow/APCS11101-writing)
 - [2022 6 月](https://hackmd.io/@algoseacow/APCS11106-writing)

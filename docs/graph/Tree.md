@@ -472,6 +472,73 @@
 	對於每個 $i$ 求 $\min \{ d(i,k) \times k \}$
 	
 	$n\le 2000,m\le 3\times 10^4$
+	
+	??? note "思路"
+		$dp[i][j]=$ 從任何地方走 $i$ 步能走到 $j$ 的最小值
+		
+		$dp[i][j]=\min \limits_{(k,j) \in E} \{ dp[i-1][k] + dis(k,j) \}$
+		
+		$O(n(n+m))$ DP
+		
+		??? code "虛擬碼"
+			```cpp linenums="1"
+	        for k = 1 ~ n :
+	        	for u = 1 ~ n :
+	            	for v in G[u] :
+	                	dp[v][k] = min(dp[u][k-1] + dis(u, v))
+	                    ans = min (dp[v][k] * k)
+	        ```
+		
+	??? note "code (by wiwiho)"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define StarBurstStream ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+	    #define eb(a) emplace_back(a)
+	    #define mp(a, b) make_pair(a, b)
+	    #define F first
+	    #define S second
+	
+	    using namespace std;
+	
+	    typedef long long ll;
+	
+	    using pll = pair<ll, ll>;
+	
+	    int main(){
+	        StarBurstStream
+	
+	        int n, m, s;
+	        cin >> n >> m >> s;
+	        vector<vector<pll>> g(n + 1);
+	        for(int i = 0; i < m; i++){
+	            int u, v, p;
+	            cin >> u >> v >> p;
+	            g[u].eb(mp(v, p));
+	            g[v].eb(mp(u, p));
+	        }
+	
+	        vector<ll> dp(n + 1, 1LL << 60);
+	        dp[s] = 0;
+	        vector<ll> ans(n + 1, 1LL << 60);
+	        ans[s] = 0;
+	        for(int i = 1; i <= n; i++){
+	            vector<ll> dp2(n + 1, 1LL << 60);
+	            for(int j = 1; j <= n; j++){
+	                for(auto e : g[j]){
+	                    dp2[e.F] = min(dp2[e.F], dp[j] + e.S);
+	                }
+	            }
+	            dp = dp2;
+	            for(int j = 1; j <= n; j++){
+	                if(dp[j] < (1LL << 60)) ans[j] = min(ans[j], dp[j] * i);
+	            }
+	        }
+	        for(int i = 1; i <= n; i++) cout << ans[i] << " ";
+	        cout << "\n";
+	
+	        return 0;
+	    }
+	    ```
 
 
 ???+note "[LOJ #2780. 「BalticOI 2016 Day1」上司们](https://loj.ac/p/2780)"
@@ -2549,7 +2616,7 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
             }  
             ```
 
-## Euler Tour
+## Euler Tour Technique
 
 ### DFS 序
 
@@ -2612,75 +2679,75 @@ i & 1 & 2 & 3 & 4 & 5 & 6 \\\\ \hline
 
     using namespace std;
     const int N = 2e5 + 5;
-
+    
     int n, m, h;
     int head[N], to[N], nxt[N], cnt;
     int ein[N], eout[N], tot;
     int d[N], f[N][21];
-
+    
     void add(int x, int y) {
         to[++cnt] = y;
         nxt[cnt] = head[x];
         head[x] = cnt;
     }
-
+    
     void dfs(int x, int fa) {
         f[x][0] = fa;
-
+    
         for (int i = 1; i <= h; i++)
             f[x][i] = f[f[x][i - 1]][i - 1];
-
+    
         d[x] = d[fa] + 1; //树上前缀和
         ein[x] = ++tot;
-
+    
         for (int i = head[x]; i; i = nxt[i]) {
             int y = to[i];
-
+    
             if (y != fa)
                 dfs(y, x);
         }
-
+    
         eout[x] = ++tot;
     }
-
+    
     bool up(int x, int y) {
         return (ein[x] <= ein[y] and eout[x] >= eout[y]);
     }
-
+    
     int lca(int x, int y) {
         if (up(x, y))
             return x;
-
+    
         if (up(y, x))
             return y;
-
+    
         for (int i = h; i >= 0; i--)
             if (!up(f[x][i], y) and f[x][i] != 0)
                 x = f[x][i];
-
+    
         return f[x][0];
     }
-
+    
     int main() {
         cin >> n;
         h = log(n) / log(2) + 1; //深度
-
+    
         for (int i = 1; i < n; i++) {
             int x, y;
             cin >> x >> y;
             add(x, y);
             add(y, x);
         }
-
+    
         dfs(1, 0);  //处理欧拉序
         cin >> m;
-
+    
         while (m--) {
             int x, y;
             cin >> x >> y;
             cout << d[x] + d[y] - 2 * d[lca(x, y)] << endl;
         }
-
+    
         return 0;
     }
     ```
@@ -2697,7 +2764,7 @@ i & 1 & 2 & 3 & 4 & 5 & 6 \\\\ \hline
 
 $$[1,2,3,2,1,5,6,5,1,4,1]$$
 
-> 參考 : <https://www.cnblogs.com/fusiwei/p/13684547.html>
+> 參考 :<br><https://www.cnblogs.com/fusiwei/p/13684547.html><br><https://usaco.guide/gold/tree-euler?lang=cpp>
 
 歐拉序中出現的次數等於這個點的度數，所以歐拉序的長度是 $2n-1$
 
@@ -2707,15 +2774,15 @@ $$[1,2,3,2,1,5,6,5,1,4,1]$$
     </figure>
 
     上圖的歐拉序列為 
-
+    
     $$[1,2,3,2,1,5,6,5,1,4,1]$$
-
+    
     我們將歐拉序列延伸一倍，相當於表示成一個環 
-
+    
     $$[1,2,3,2,1,5,6,5,1,4,1,1,2,3,2,1,5,6,5,1,4,1]$$
-
+    
     那換以 $5$ 為根呢 ?
-
+    
     $$[1,2,3,2,1,5,6,\underbrace{5,1,4,1,1,2,3,2,1,5,6,5},1,4,1]$$
 
 #### 找 LCA
@@ -2776,8 +2843,8 @@ $$[1,2,3,2,1,5,6,5,1,4,1]$$
 	??? note "思路"
 		建立 DFS 序
 		
-        每次要 query 時計算 $1\sim \texttt{in}[x]$
-        
+	    每次要 query 時計算 $1\sim \texttt{in}[x]$
+	    
 		修改 $\texttt{edge}(u,v):$ 將 $\texttt{in}[v]+x,\texttt{out}[u]-x$
 
 ## 樹上前綴和
