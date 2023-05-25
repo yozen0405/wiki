@@ -704,12 +704,10 @@
 		若為偶數 : 兩兩配對
 	
 	    若為奇數 : 檢查最大的是否合法，剩下兩兩配對
-
-
-​		
-		??? question "為什麼可以二分 ?"
-	        no 1
 	
+		??? question "為什麼可以二分 ?"
+			no 1
+			
 	        $[2,9],[3,8],[4,7],[5,6]$
 	
 	        no 2
@@ -729,7 +727,6 @@
 	        $[1,9],[2,8],[3,7],[4,6]$
 	
 	        你可以發現到從 1~5 慢慢的從左到右每個 pair 的總和都少了 1
-
 
 
         > ref : <https://blog.csdn.net/C20181220_xiang_m_y/article/details/102564783>
@@ -1743,7 +1740,7 @@
 		
 		<figure markdown>
 		    ![Image title](./images/20.png){ width="250" }
-		  </figure>
+		</figure>
 		  
 		  ---
 		  
@@ -2078,104 +2075,102 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 		而若直接乘的話可能 $n!$ 是 $1000!$ 的時候就直接爆掉了  
 		
 		---
-		
-		
-		
+	
 	??? note "code (by [becaido](https://caidocode.blogspot.com/2022/12/nhspc2022.html))"
 		```cpp linenums="1"
 		#pragma GCC optimize("O3,unroll-loops")
-        #pragma GCC target("avx,avx2,popcnt,sse4,abm")
-        #include <bits/stdc++.h>
-        using namespace std;
-
-        #ifdef WAIMAI
-        #define debug(HEHE...) cout<<"["<<#HEHE<<"] : ",dout(HEHE)
-        void dout(){cout<<'\n';}
-        template<typename T,typename...U>
-        void dout(T t,U...u){cout<<t<<(sizeof...(u)?", ":""),dout(u...);}
-        #else
-        #define debug(...) 7122
-        #endif
-
-        #define int long long
-        #define ll long long
-        #define Waimai ios::sync_with_stdio(false),cin.tie(0)
-        #define FOR(x,a,b) for(int x=a,I=b;x<=b;x++)
-        #define pb emplace_back
-        #define F first
-        #define S second
-
-        const int INF = 2e9;
-        const int SIZE = 1005;
-
-        int n, k;
-        int d[SIZE];
-        int C[SIZE][SIZE];
-        int pre[SIZE], suf[SIZE];
-        int prep[SIZE], sufp[SIZE];
-
-        void solve() {
-            cin >> n >> k;
-            FOR (i, 1, n) cin >> d[i];
-            FOR (i, 1, n) d[i]--;
-            C[0][0] = 1;
-            FOR (i, 1, n) {
-                C[i][0] = 1;
-                FOR (j, 1, i) C[i][j] = min (INF, C[i - 1][j - 1] + C[i - 1][j]);
-            }
-
-            k--;
-            int pro = 1;
-            for (int i = 1, m = 0; i <= n; i++) {
-                m += d[i];
-                pro = min (INF, pro * C[m][d[i]]);
-            }
-            debug (k, pro);
-            if (k >= pro) {
-                cout << "-1\n";
-                return;
-            }
-
-            vector<int> ans;
-            FOR (t, 1, n - 2) {
-                prep[0] = sufp[n + 1] = 1;
-                FOR (i, 1, n) {
-                    pre[i] = pre[i - 1] + d[i];
-                    prep[i] = min (INF, prep[i - 1] * C[pre[i]][d[i]]);
-                }
-                for (int i = n; i >= 1; i--) {
-                    suf[i] = suf[i + 1] + d[i];
-                    sufp[i] = min (INF, sufp[i + 1] * C[suf[i]][d[i]]);
-                }
-                bool f = 0;
-                FOR (i, 1, n) 
-                	if (d[i]) {
-                        int val = min (INF, prep[i - 1] * sufp[i + 1]);
-                        val = min (INF, val * C[pre[i - 1] + suf[i + 1]][pre[i - 1]]);
-                        val = min (INF, val * C[n - 2 - t][pre[i - 1] + suf[i + 1]]);
-                        debug (i, k, val);
-                        if (k >= val) k -= val;
-                        else {
-                            debug (t, i);
-                            d[i]--;
-                            ans.pb (i);
-                            f = 1;
-                            break;
-                        }
-                }
-                if (!f) {
-                    cout << "-1\n";
-                    return;
-                }
-            }
-            for (int x : ans) cout << x << '\n';
-        }
-
-        int32_t main() {
-            Waimai;
-            solve();
-        }
-        ```
+	    #pragma GCC target("avx,avx2,popcnt,sse4,abm")
+	    #include <bits/stdc++.h>
+	    using namespace std;
+	
+	    #ifdef WAIMAI
+	    #define debug(HEHE...) cout<<"["<<#HEHE<<"] : ",dout(HEHE)
+	    void dout(){cout<<'\n';}
+	    template<typename T,typename...U>
+	    void dout(T t,U...u){cout<<t<<(sizeof...(u)?", ":""),dout(u...);}
+	    #else
+	    #define debug(...) 7122
+	    #endif
+	
+	    #define int long long
+	    #define ll long long
+	    #define Waimai ios::sync_with_stdio(false),cin.tie(0)
+	    #define FOR(x,a,b) for(int x=a,I=b;x<=b;x++)
+	    #define pb emplace_back
+	    #define F first
+	    #define S second
+	
+	    const int INF = 2e9;
+	    const int SIZE = 1005;
+	
+	    int n, k;
+	    int d[SIZE];
+	    int C[SIZE][SIZE];
+	    int pre[SIZE], suf[SIZE];
+	    int prep[SIZE], sufp[SIZE];
+	
+	    void solve() {
+	        cin >> n >> k;
+	        FOR (i, 1, n) cin >> d[i];
+	        FOR (i, 1, n) d[i]--;
+	        C[0][0] = 1;
+	        FOR (i, 1, n) {
+	            C[i][0] = 1;
+	            FOR (j, 1, i) C[i][j] = min (INF, C[i - 1][j - 1] + C[i - 1][j]);
+	        }
+	
+	        k--;
+	        int pro = 1;
+	        for (int i = 1, m = 0; i <= n; i++) {
+	            m += d[i];
+	            pro = min (INF, pro * C[m][d[i]]);
+	        }
+	        debug (k, pro);
+	        if (k >= pro) {
+	            cout << "-1\n";
+	            return;
+	        }
+	
+	        vector<int> ans;
+	        FOR (t, 1, n - 2) {
+	            prep[0] = sufp[n + 1] = 1;
+	            FOR (i, 1, n) {
+	                pre[i] = pre[i - 1] + d[i];
+	                prep[i] = min (INF, prep[i - 1] * C[pre[i]][d[i]]);
+	            }
+	            for (int i = n; i >= 1; i--) {
+	                suf[i] = suf[i + 1] + d[i];
+	                sufp[i] = min (INF, sufp[i + 1] * C[suf[i]][d[i]]);
+	            }
+	            bool f = 0;
+	            FOR (i, 1, n) 
+	            	if (d[i]) {
+	                    int val = min (INF, prep[i - 1] * sufp[i + 1]);
+	                    val = min (INF, val * C[pre[i - 1] + suf[i + 1]][pre[i - 1]]);
+	                    val = min (INF, val * C[n - 2 - t][pre[i - 1] + suf[i + 1]]);
+	                    debug (i, k, val);
+	                    if (k >= val) k -= val;
+	                    else {
+	                        debug (t, i);
+	                        d[i]--;
+	                        ans.pb (i);
+	                        f = 1;
+	                        break;
+	                    }
+	            }
+	            if (!f) {
+	                cout << "-1\n";
+	                return;
+	            }
+	        }
+	        for (int x : ans) cout << x << '\n';
+	    }
+	
+	    int32_t main() {
+	        Waimai;
+	        solve();
+	    }
+	    ```
 
 ## Tree Isomorphism
 - [題解](https://github.com/yozen0405/c-projects/blob/main/markdown/1700.md)
@@ -2186,6 +2181,35 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 	問他們有沒有可能可以以某種畫法把他們畫出來使他們兩個長得一模一樣
 	
 	$n\le 10^5$
+	
+	??? note "思路"
+		- 我們令 $\texttt{leaf}$ 的 $\texttt{hash}$ 是 $1$ 
+	    - 繼續往上，如果目前的子樹是我們沒看過的就把這個子樹存入 $\texttt{map}$
+	
+	    <figure markdown>
+	      ![Image title](./images/26.png){ width="500" }
+	    </figure>
+
+
+        - 記得把子樹的 $\texttt{hash vector}$ 照小到大 $\texttt{sort}$ 才不會明明是相同只是順序對調就被判 $\texttt{NO}$ 
+    
+        ```cpp linenums="1"
+        int hash (int u, int par) {
+            int sum = 0;
+    
+            vector<int> res;
+            for (auto v : G[u]) {
+                if (v == par) continue;
+    
+                res.pb(hash(v, u));
+            }
+            sort (ALL(res));
+    
+            if (!mp[res]) mp[res] = idx++;
+            return mp[res];
+        }
+        ```
+
 
 ???+note "[CSES - Tree Isomorphism II](https://cses.fi/problemset/task/1701)"
 	給兩顆 $n$ 個點的無根樹
@@ -2193,11 +2217,512 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 	問他們有沒有可能可以以某種畫法把他們畫出來使他們兩個長得一模一樣
 	
 	$n\le 10^5$
+	
+	??? note "思路"
+	    
+	    - 我們發現它的 $\texttt{root}$ 是不確定的
+	
+	    > 樹重心 $\texttt{:}$
+	    >
+	    > 重心分割的連通塊大小皆 $\le \frac{n}{2}$
+	
+	    - 我們想到樹跟樹之間最小的差異就是在 **樹重心**
+	      - 樹重心每個樹最多只有兩個
+	      - 兩顆樹總共也只有 $4$ 種情況非常少
+	
+	    ```cpp title="Find Tree centroid code" linenums="1"
+	     void find (int u, int par) {
+	         sz[u] = 1;
+	         int w = 0;
+	         for (auto v : G[u]) {
+	             if (v == par) continue;
+	
+	             find (v, u);
+	             sz[u] += sz[v];
+	             w = max (w, sz[v]); // u 以下
+	             // 只需要考慮最大的那個連通塊
+	         }
+	         w = max (n - sz[u], w); // u 以上
+	
+	         if (w <= n / 2) {
+	             C.pb(u); // 是重心
+	         }
+	     }
+	    ```
+	
+	    - 用樹重心下去檢查
+	
+		??? note "code (map)"
+	        ```cpp linenums="1"
+	        #include <bits/stdc++.h>
+	        #define int long long
+	        #define pii pair<int, int>
+	        #define pb push_back
+	        #define mk make_pair
+	        #define F first
+	        #define S second
+	        #define ALL(x) x.begin(), x.end()
+	
+	        using namespace std;
+	        using PQ = priority_queue<int, vector<int>, greater<int>>;
+	
+	        const int INF = 2e18;
+	
+	        map<vector<int>, int> mp;
+	        int idx = 1;
+	
+	        struct Tree {
+	            static const int M = 1000696969;
+	            static const int X = 131;
+	
+	            vector<vector<int>> G;
+	            vector<int> C;
+	            vector<int> sz;
+	
+	            int n;
+	
+	            void init (int _n) {
+	                n = _n;
+	                sz.resize (n + 1);
+	                G.resize (n + 1);
+	
+	                for (int i = 1; i <= n; i++) {
+	                    sz[i] = 0;
+	                }
+	            }
+	
+	            void add_edge (int u, int v) {
+	                G[u].pb(v);
+	                G[v].pb(u);
+	            }
+	
+	            void find (int u, int par) {
+	                sz[u] = 1;
+	                int w = 0;
+	                for (auto v : G[u]) {
+	                    if (v == par) continue;
+	
+	                    find (v, u);
+	                    sz[u] += sz[v];
+	                    w = max (w, sz[v]);
+	                }
+	                w = max (n - sz[u], w);
+	
+	                if (w <= n / 2) {
+	                    C.pb(u);
+	                }
+	            }
+	
+	            int hash (int u, int par) {
+	                int sum = 0;
+	
+	                vector<int> res;
+	                for (auto v : G[u]) {
+	                    if (v == par) continue;
+	
+	                    res.pb(hash(v, u));
+	                }
+	                sort (ALL(res));
+	
+	                if (!mp[res]) mp[res] = idx++;
+	                return mp[res];
+	            }
+	        };
 
+
+            void solve () {
+                int n;
+                cin >> n;
+                Tree A;
+                Tree B;
+                int u, v;
+    
+                A.init (n);
+                B.init (n);
+    
+                for (int i = 0; i < n - 1; i++) {
+                    cin >> u >> v;
+                    A.add_edge (u, v);
+                }
+    
+                for (int i = 0; i < n - 1; i++) {
+                    cin >> u >> v;
+                    B.add_edge (u, v);
+                }
+    
+                A.find (1, 0);
+                B.find (1, 0);
+    
+                int res = 0;
+                for (auto a : A.C) {
+                    for (auto b : B.C) {
+                        if (A.hash (a, 0) == B.hash (b, 0)) {
+                            res = 1;
+                        }
+                    }
+                }
+    
+                if (res) cout << "YES\n";
+                else cout << "NO\n";
+            } 
+    
+            signed main() {
+                // ios::sync_with_stdio(0);
+                // cin.tie(0);
+                int t = 1;
+                cin >> t;
+                while (t--) {
+                    solve();
+                }
+            } 
+            ```
+    
+    	---
+    	
+    	- 其實到這邊就結束了，但這題的 hash 其實有另外一種寫法
+        - 例如有棵樹如下
+    
+        <figure markdown>
+          ![Image title](./images/27.png){ width="200" }
+        </figure>
+
+
+        - $H[u]=H[v_1]\times X^1+H[v_2]\times X^2+H[v_3]\times X^3$
+    
+        ```cpp linenums="1"
+        int hash (int u, int par) {
+            int sum = 0;
+    
+            vector<int> res;
+            for (auto v : G[u]) {
+                if (v == par) continue;
+    
+                res.pb(hash(v, u));
+            }
+            sort (ALL(res));
+            int cnt = 1; 
+            // 注意 hash 從 X^1 開始而非 X^0 因為若從 X^0 chain 的 hash value 會跟 leaf 的一樣
+            for (auto h : res) {
+                sum = (sum + (H[cnt] * h) % M) % M;
+                cnt++;
+            }
+    
+            if (G[u].size() == 1) sum = 1; // leaf 的 hash value 是 1
+    
+            return sum;
+        }
+        ```
+    
+        ??? note "code (hash)"
+            ```cpp linenums="1"
+            #include <bits/stdc++.h>
+            #define int long long
+            #define pii pair<int, int>
+            #define pb push_back
+            #define mk make_pair
+            #define F first
+            #define S second
+            #define ALL(x) x.begin(), x.end()
+    
+            using namespace std;
+            using PQ = priority_queue<int, vector<int>, greater<int>>;
+    
+            const int INF = 2e18;
+    
+            struct Tree {
+                static const int M = 1000696969;
+                static const int X = 131;
+    
+                vector<vector<int>> G;
+                vector<int> C;
+                vector<int> sz;
+                vector<int> H;
+                int n;
+    
+                void init (int _n) {
+                    n = _n;
+                    sz.resize (n + 1);
+                    H.resize (n + 1);
+                    G.resize (n + 1);
+    
+                    for (int i = 1; i <= n; i++) {
+                        sz[i] = 0;
+                        H[i] = 0;
+                    }
+    
+                    H[0] = 1;
+                    for (int i = 1; i <= n; i++) {
+                        H[i] = (H[i - 1] * X) % M;
+                    }
+                }
+    
+                void add_edge (int u, int v) {
+                    G[u].pb(v);
+                    G[v].pb(u);
+                }
+    
+                void find (int u, int par) {
+                    sz[u] = 1;
+                    int w = 0;
+                    for (auto v : G[u]) {
+                        if (v == par) continue;
+    
+                        find (v, u);
+                        sz[u] += sz[v];
+                        w = max (w, sz[v]);
+                    }
+                    w = max (n - sz[u], w);
+    
+                    if (w <= n / 2) {
+                        C.pb(u);
+                    }
+                }
+    
+                int hash (int u, int par) {
+                    int sum = 0;
+    
+                    vector<int> res;
+                    for (auto v : G[u]) {
+                        if (v == par) continue;
+    
+                        res.pb(hash(v, u));
+                    }
+                    sort (ALL(res));
+                    int cnt = 1;
+                    for (auto h : res) {
+                        sum = (sum + (H[cnt] * h) % M) % M;
+                        cnt++;
+                    }
+    
+                    sum = (sum + (H[cnt] * (sum)) % M) % M;
+                    if (G[u].size() == 1) sum = 1;
+    
+                    return sum;
+                }
+            };
+
+
+            void solve () {
+                int n;
+                cin >> n;
+                Tree A;
+                Tree B;
+                int u, v;
+    
+                A.init (n);
+                B.init (n);
+    
+                for (int i = 0; i < n - 1; i++) {
+                    cin >> u >> v;
+                    A.add_edge (u, v);
+                }
+    
+                for (int i = 0; i < n - 1; i++) {
+                    cin >> u >> v;
+                    B.add_edge (u, v);
+                }
+    
+                A.find (1, 0);
+                B.find (1, 0);
+    
+                int res = 0;
+                for (auto a : A.C) {
+                    for (auto b : B.C) {
+                        if (A.hash (a, 0) == B.hash (b, 0)) {
+                            res = 1;
+                        }
+                    }
+                }
+    
+                if (res) cout << "YES\n";
+                else cout << "NO\n";
+            } 
+    
+            signed main() {
+                // ios::sync_with_stdio(0);
+                // cin.tie(0);
+                int t = 1;
+                cin >> t;
+                while (t--) {
+                    solve();
+                }
+            }  
+            ```
 
 ## Euler Tour
 
-- 換根後 euler tour 序列 order 不變
+### DFS 序
+
+<figure markdown>
+  ![Image title](./images/29.png){ width="200" }
+</figure>
+
+上圖的 DFS 序列為 
+
+$$[1,2,3,3,2,5,6,6,5,4,4,1]$$
+
+#### DFS 序判定祖孫關係
+
+下面，我們以模板題祖孫詢問來說明歐拉序如何判斷位置關係。
+
+對於每個點，我們開兩個數組 in 與 out 來記錄每個點的入棧和出棧時在歐拉序中是第幾個。
+還是以上圖為例，那麼
+
+$$\begin{array}{|c|c|c|c|c|c|c|}
+\hline
+i & 1 & 2 & 3 & 4 & 5 & 6 \\\\ \hline
+\texttt{in} & 1 & 2 & 3 & 10 & 6 & 7 \\\\ \hline
+\texttt{out} & 12 & 5 & 4 & 11 & 9 & 8 \\\\ \hline
+\end{array}$$
+
+不難發現，一個點 $x$ 是 $y$ 的祖先，當且僅當 $x$ 比 $y$ 早入棧且 $x$ 比 $y$ 晚出棧
+
+即 $\texttt{in}[x] \le \texttt{in}[y] \texttt{ and } \texttt{out}[x] \ge \texttt{out}[y]$
+
+這裡用了等於是如果 $x = y$ 了，那麼也算是祖先，避免了這種情況。
+
+於是程序就很容易寫出來了：
+
+???+note "code"
+	```cpp linenums="1"
+    void dfs (int u) {
+        in[u] = ++stamp; 
+        for(auto v : G[u]) {
+            if (v == par) continue;
+            if (!in[v]) dfs(v);
+        }
+        out[u] = ++stamp;  
+    }
+
+    bool check (int x,int y) {
+        return (in[x] <= in[y] and out[x] >= out[y]);
+    }
+    ```
+
+而且複雜度是 $O(n+m)$
+
+#### 找 LCA
+
+祖孫判定 + 倍增也可以用來找 LCA
+
+??? note "code"
+	```cpp linenums="1"
+	#include <iostream>
+    #include <cmath>
+
+    using namespace std;
+    const int N = 2e5 + 5;
+
+    int n, m, h;
+    int head[N], to[N], nxt[N], cnt;
+    int ein[N], eout[N], tot;
+    int d[N], f[N][21];
+
+    void add(int x, int y) {
+        to[++cnt] = y;
+        nxt[cnt] = head[x];
+        head[x] = cnt;
+    }
+
+    void dfs(int x, int fa) {
+        f[x][0] = fa;
+
+        for (int i = 1; i <= h; i++)
+            f[x][i] = f[f[x][i - 1]][i - 1];
+
+        d[x] = d[fa] + 1; //树上前缀和
+        ein[x] = ++tot;
+
+        for (int i = head[x]; i; i = nxt[i]) {
+            int y = to[i];
+
+            if (y != fa)
+                dfs(y, x);
+        }
+
+        eout[x] = ++tot;
+    }
+
+    bool up(int x, int y) {
+        return (ein[x] <= ein[y] and eout[x] >= eout[y]);
+    }
+
+    int lca(int x, int y) {
+        if (up(x, y))
+            return x;
+
+        if (up(y, x))
+            return y;
+
+        for (int i = h; i >= 0; i--)
+            if (!up(f[x][i], y) and f[x][i] != 0)
+                x = f[x][i];
+
+        return f[x][0];
+    }
+
+    int main() {
+        cin >> n;
+        h = log(n) / log(2) + 1; //深度
+
+        for (int i = 1; i < n; i++) {
+            int x, y;
+            cin >> x >> y;
+            add(x, y);
+            add(y, x);
+        }
+
+        dfs(1, 0);  //处理欧拉序
+        cin >> m;
+
+        while (m--) {
+            int x, y;
+            cin >> x >> y;
+            cout << d[x] + d[y] - 2 * d[lca(x, y)] << endl;
+        }
+
+        return 0;
+    }
+    ```
+
+### 歐拉序
+
+又稱 euler tour
+
+<figure markdown>
+  ![Image title](./images/29.png){ width="200" }
+</figure>
+
+上圖的歐拉序列為 
+
+$$[1,2,3,2,1,5,6,5,1,4,1]$$
+
+> 參考 : <https://www.cnblogs.com/fusiwei/p/13684547.html>
+
+歐拉序中出現的次數等於這個點的度數，所以歐拉序的長度是 $2n-1$
+
+??? question "換根後 euler tour 序列 order 不變"
+    <figure markdown>
+      ![Image title](./images/29.png){ width="200" }
+    </figure>
+
+    上圖的歐拉序列為 
+
+    $$[1,2,3,2,1,5,6,5,1,4,1]$$
+
+    我們將歐拉序列延伸一倍，相當於表示成一個環 
+
+    $$[1,2,3,2,1,5,6,5,1,4,1,1,2,3,2,1,5,6,5,1,4,1]$$
+
+    那換以 $5$ 為根呢 ?
+
+    $$[1,2,3,2,1,5,6,\underbrace{5,1,4,1,1,2,3,2,1,5,6,5},1,4,1]$$
+
+#### 找 LCA
+
+歐拉序 + Sparse Table 可以在 $O(1)$ query 找到 LCA
+
+### 例題
 
 ???+note "[CSES - path queries](https://cses.fi/problemset/task/1138)"
 	給定一個有根樹，點編號 $1,2,\ldots, n$，$1$ 是 root
@@ -2210,6 +2735,13 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 	- $\text{sum}(rt,x):$ 求 $\texttt{root} \to \ldots \to x$ 的 value 總和
 	
 	$n,m\le 2\times 10^5$
+	
+	??? note "思路"
+		建立 DFS 序
+		
+		每次要 query 時計算 $1\sim \texttt{in}[x]$
+		
+		要修改某個點值就將 $\texttt{in}[x],\texttt{out}[x]$ 都修改成該值
 
 ???+note "[CSES - Subtree Queries](https://cses.fi/problemset/task/1137)"
 	給定一個有根樹，點編號 $1,2,\ldots, n$，$1$ 是 root
@@ -2222,6 +2754,13 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 	- $\text{SubtreeSum}(x):$ 求 $x$ 的子樹的 value 總和
 	
 	$n,m\le 2\times 10^5$
+	
+	??? note "思路"
+		建立 DFS 序
+		
+		每次要 query 時計算 $\texttt{in}[x]\sim \texttt{out}[x]-1$
+		
+		要修改某個點值就將 $\texttt{in}[x]$ 修改成該值
 
 ???+note "[全國賽 2021 pG](https://tioj.ck.tp.edu.tw/problems/2257)"
 	給定一棵 $n$ 點有根樹，一開始每條邊權重都是 $1$
@@ -2233,6 +2772,13 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 	- 詢問根節點到某一節點的權重和
 	
 	$n,q\le 10^5$
+	
+	??? note "思路"
+		建立 DFS 序
+		
+        每次要 query 時計算 $1\sim \texttt{in}[x]$
+        
+		修改 $\texttt{edge}(u,v):$ 將 $\texttt{in}[v]+x,\texttt{out}[u]-x$
 
 ## 樹上前綴和
 
@@ -2242,4 +2788,11 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 	對於每個節點 $i$，問這 $m$ 條 path 有幾條有覆蓋到 $i$
 	
 	$n,m\le 2\times 10^5$
+	
+	??? note "思路"
+		對於每個 path，假設他加值 $u\to \ldots \to \text{LCA}\to \ldots \to v$，假設 LCA 上面的點較 Fa
+		
+		將 `f[u]++`，`f[v]++`，`f[LCA]--`，`f[Fa]--`
+		
+		$$f[u]=f[u]+\sum f[v]$$
 
