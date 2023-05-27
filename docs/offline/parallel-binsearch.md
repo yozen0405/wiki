@@ -30,7 +30,140 @@ $$
 	
 	- $\text{query(}a_l\sim a_r,k):$ 回答 $a_l\sim a_r$ 中第 $k$ 小的數值是多少<br>
 	
-	範圍 : $n,q\le 2\times 10^5$
+	$n,q\le 2\times 10^5,|a_i|\le 10^9$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+        #define lowbit(x) (x & (-x))
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct BIT {
+            int n;
+            vector<int> bit;
+
+            void init (int _n) {
+                n = _n;
+                bit.resize (n + 1);
+            }
+
+            void add (int x, int d) {
+                while (x <= n) {
+                    bit[x] += d;
+                    x += lowbit (x);
+                }
+            }
+
+            int query (int x) {
+                int ret = 0;
+                while (x > 0) {
+                    ret += bit[x];
+                    x -= lowbit (x);
+                }
+                return ret;
+            }
+        } bit;
+
+        struct qry {
+            int l, r, k, id;
+        };
+
+        int n, q;
+        int arr[maxn], a[maxn], ans[maxn];
+
+        void solve (int l, int r, vector<int> &idx, vector<qry> &q) {
+            if (l == r) {
+                for (auto [ql, qr, k, id] : q) {
+                    ans[id] = l;
+                }
+                return;
+            }
+
+            int mid = (l + r) / 2;
+
+            vector<int> iLeft, iRight;
+            for (auto id : idx) {
+                if (a[id] <= mid) {
+                    bit.add (id, 1);
+                    iLeft.pb (id);
+                }
+                else iRight.pb (id);
+            }
+
+            vector<qry> qLeft, qRight;
+            for (auto [ql, qr, k, id] : q) {
+                int t = bit.query (qr) - bit.query (ql - 1);
+                if (k <= t) {
+                    qLeft.pb ({ql, qr, k, id});
+                }
+                else {
+                    qRight.pb ({ql, qr, k - t, id});
+                }
+            }
+
+            for (auto id : idx) {
+                if (a[id] <= mid) bit.add (id, -1);
+            }
+            vector<int>().swap (idx);
+            vector<qry>().swap (q);
+
+            solve (l, mid, iLeft, qLeft);
+            solve (mid + 1, r, iRight, qRight);
+        }
+
+        void work () {
+            cin >> n >> q;
+            vector<int> d;
+            for (int i = 1; i <= n; i++) {
+                cin >> arr[i];
+                d.pb (arr[i]);
+            }
+            sort (ALL (d));
+            d.resize (unique (ALL (d)) - d.begin ());
+
+            vector<int> idx;
+            for (int i = 1; i <= n; i++) {
+                a[i] = lower_bound (ALL (d), arr[i]) - d.begin () + 1;
+            }
+            for (int i = 1; i <= n; i++) {
+                idx.pb (i);
+            }
+            vector<qry> qry;
+            for (int i = 1; i <= q; i++) {
+                int l, r, k;
+                cin >> l >> r >> k;
+                qry.pb ({l, r, k, i});
+            }
+            bit.init (n);
+
+            solve (1, d.size (), idx, qry);
+            for (int i = 1; i <= q; i++) {
+                cout << d[ans[i] - 1] << "\n";
+            }
+        } 
+
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            //cin >> t;
+            while (t--) {
+                work();
+            }
+        } 
+        ```
 
 
 #### 動態區間 k 小
@@ -40,7 +173,7 @@ $$
 	- $\text{query(}a_l\sim a_r,k):$ 回答 $a_l\sim a_r$ 中第 $k$ 小的數值是多少<br>
 	- $\text{modify(}a_i,x):$ 將 $a_i$ 的數值改成 $x$
 	
-	範圍 : $n,q\le 2\times 10^5$
+	$n,q\le 2\times 10^5$
 	
 	??? note "思路"
 		1. 把原先 $a_i$ 的貢獻給扣除<br>
@@ -252,9 +385,19 @@ $$
 		
 		> 方法一 : 把 graph 拆半，兩個子問題圖都只有本來的一半
 		
-		- $ans \le t$ 少一半的 else
+		- $ans \le t$ 少一半的 edge，刪邊
 		
-		- $ans > t$ 少一半的 else，縮點
+		- $ans > t$ 少一半的 edge，縮點
+		
+		實作方法 :
+		
+		令 $t=\text{median}(el\sim er)$
+		
+		$\texttt{edge_weight}=\max\{w_u,w_v \}$ 
+		
+		- $ans \le t$，開新的，只保留 G 上 $\texttt{edge_weight}\le t$ 的邊
+		
+		- $ans > t$，繼承 G，將 G 上 $\texttt{edge_weight}\le t$ 的邊縮點
 		
 		時間複雜度 : $O(m \log m)$
 		
@@ -339,12 +482,18 @@ $$
 	求 $l,r$
 	
 	??? note "思路"
+		如果移除 [i, emid] 可以連通，那你的 ans[i] 有可能是 emid，也有可能在 emid 之後
+		
+		那不如我們把 ans[i] 的定義往後挪一格呢 ?
+		
+		---
+		
 		ans[i] 表示
 		
 	    - 移除 [i, ans[i] - 1] 會連通
 	
 	    - 移除 [i, ans[i]] 則不會連通，或者 ans[i] = m
-
+	
 		對於每個 i 要二分搜到 ans[i] 滿足：移除 [i, ans[i]] 是不連通的
 	
 	    一開始在 main 裡面要先找 qr 的目的就是為了保證 i = [ql, qr] 之間的 i 都可以找到上面定義的 ans[i]
@@ -354,370 +503,376 @@ $$
 	    對於在 i = [ql, qr] 之間的, ans[i] 一定介於 [el, er]
 	    
 		二分搜尋的起始條件很重要，上面做很多事情都是在確保：搜尋的過程中答案會介於目前			的下界跟上界之間
+		
+		ans[i] : 移除 [i, ans[i]] 不能連通, 移除 [i, ans[i]-1] 可以連通
+		
+        如果移除 [i, emid] 可以連通 ⇒ emid < ans[i]
+        
+        如果移除 [i, emid] 不能連通 ⇒ ans[i] <= emid
 	
 	??? note "code (44 points)"
 		```cpp linenums="1"
 		#include <iostream>
-        #include <utility>
-        #include <vector>
-
-        using namespace std;
-
-        struct Edge {
-            int u, v, w;
-        };
-
-        struct Graph {
-            Graph(int n, int s, int t) : s(s), t(t) {
-                par = vector<int>(n);
-                for (int i = 0; i < n; i++) {
-                    par[i] = i;
-                }
-            }
-            void add_edge(const Edge& e) {
-                int u = find(e.u), v = find(e.v);
-                par[u] = v;
-            }
-            bool connected() {
-                return find(s) == find(t);
-            }
-
-           private:
-            int s, t;
-            vector<int> par;
-
-            int find(int x) {
-                if (par[x] == x) return x;
-                return par[x] = find(par[x]);
-            }
-        };
-
-        int n, m, x;
-        vector<Edge> edges;
-        vector<int> ans;
-
-        int s = 0, t;
-
-        void init() {
-            cin >> n >> m >> t;
-            t--;  // to 0-base
-
-            for (int i = 0; i < m; i++) {
-                int u, v, w;
-                cin >> u >> v >> w;
-                u--, v--;  // to 0-base
-                w--;
-                edges.push_back({u, v, w});
-            }
-        }
-
-        // ans[i] : 移除 [i, ans[i]] 不能連通, 移除 [i, ans[i]-1] 可以連通
-        // 如果移除 [i, emid] 可以連通 \imply emid < ans[i]
-        // 如果移除 [i, emid] 不能連通 \imply ans[i] <= emid
-        //
-        void DC(Graph g, int el, int er, int ql, int qr) {
-            // 假設 edges[0, ql-1] 和 edges[er+1, m-1] 都已經加入 g
-            // 如果移除 [qr, er] 一定不連通。 TODO: 寫一個迴圈檢查
-            if (el == er) {
-                for (int i = ql; i <= qr; i++) ans[i] = er;
-                return;
-            }
-            int emid = (el + er) / 2;
-
-            Graph h = g;
-            for (int i = emid + 1; i <= er; i++) {
-                h.add_edge(edges[i]);
-            }
-
-            int qmid = emid;
-            for (int i = ql; i <= emid; i++) {
-                if (i > ql) h.add_edge(edges[i - 1]);
-                if (h.connected()) {
-                    // 移除 [i, emid] 會連通
-                    // 移除 [i-1, emid] 不連通
-                    qmid = i - 1;
-                    break;
-                }
-            }
-
-            Graph gl = g;
-            Graph gr = g;
-            for (int i = emid + 1; i <= er; i++) gl.add_edge(edges[i]);
-            for (int i = ql; i <= qmid; i++) gr.add_edge(edges[i]);
-            DC(gl, el, emid, ql, qmid);
-            DC(gr, emid + 1, er, qmid + 1, qr);
-        }
-
-        vector<int> color;
-        vector<vector<pair<int, int>>> wg;
-        void dfs(int u) {
-            for (auto [v, c] : wg[u]) {
-                if (color[v] == -1) {
-                    color[v] = color[u] ^ c;
-                    dfs(v);
-                }
-            }
-        }
-
-        int main() {
-            cin.tie(0);
-            cin.sync_with_stdio(0);
-
-            init();
-
-            if (s == t) {
-                cout << n << ' ' << 1 << ' ' << n << ' ' << 1 << '\n';
-                return 0;
-            }
-
-            Graph tmp(n, s, t);
-            int ql = 0, qr = m;
-            for (int i = 0; i < m; i++) {
-                tmp.add_edge(edges[i]);
-                if (tmp.connected()) {
-                    qr = i;
-                    break;
-                }
-            }
-            if (qr == m) {
-                cout << -1 << '\n';
-                return 0;
-            }
-
-            ans = vector<int>(m, m);
-            DC(Graph(n, s, t), 0, m - 1, ql, qr);
-
-            int len = 0, best_l = -1, best_r = -1;
-            for (int i = 0; i < m; i++) {
-                if (ans[i] - i > len) {
-                    len = ans[i] - i;
-                    best_l = i;
-                    best_r = ans[i] - 1;
-                }
-            }
-
-            color = vector<int>(n, -1);
-            wg.resize(n);
-            for (int i = 0; i < m; i++) {
-                if (best_l <= i && i <= best_r) continue;
-                Edge e = edges[i];
-                wg[e.u].push_back({e.v, e.w});
-                wg[e.v].push_back({e.u, e.w});
-            }
-            color[s] = 0;
-            dfs(s);
-
-            cout << len << ' ';
-            cout << best_l + 1 << ' ' << best_r + 1 << ' ';
-            cout << color[t] + 1 << '\n';
-
-            return 0;
-        }
-        ```
+	    #include <utility>
+	    #include <vector>
+	
+	    using namespace std;
+	
+	    struct Edge {
+	        int u, v, w;
+	    };
+	
+	    struct Graph {
+	        Graph(int n, int s, int t) : s(s), t(t) {
+	            par = vector<int>(n);
+	            for (int i = 0; i < n; i++) {
+	                par[i] = i;
+	            }
+	        }
+	        void add_edge(const Edge& e) {
+	            int u = find(e.u), v = find(e.v);
+	            par[u] = v;
+	        }
+	        bool connected() {
+	            return find(s) == find(t);
+	        }
+	
+	       private:
+	        int s, t;
+	        vector<int> par;
+	
+	        int find(int x) {
+	            if (par[x] == x) return x;
+	            return par[x] = find(par[x]);
+	        }
+	    };
+	
+	    int n, m, x;
+	    vector<Edge> edges;
+	    vector<int> ans;
+	
+	    int s = 0, t;
+	
+	    void init() {
+	        cin >> n >> m >> t;
+	        t--;  // to 0-base
+	
+	        for (int i = 0; i < m; i++) {
+	            int u, v, w;
+	            cin >> u >> v >> w;
+	            u--, v--;  // to 0-base
+	            w--;
+	            edges.push_back({u, v, w});
+	        }
+	    }
+	
+	    // ans[i] : 移除 [i, ans[i]] 不能連通, 移除 [i, ans[i]-1] 可以連通
+	    // 如果移除 [i, emid] 可以連通 \imply emid < ans[i]
+	    // 如果移除 [i, emid] 不能連通 \imply ans[i] <= emid
+	    //
+	    void DC(Graph g, int el, int er, int ql, int qr) {
+	        // 假設 edges[0, ql-1] 和 edges[er+1, m-1] 都已經加入 g
+	        // 如果移除 [qr, er] 一定不連通。 TODO: 寫一個迴圈檢查
+	        if (el == er) {
+	            for (int i = ql; i <= qr; i++) ans[i] = er;
+	            return;
+	        }
+	        int emid = (el + er) / 2;
+	
+	        Graph h = g;
+	        for (int i = emid + 1; i <= er; i++) {
+	            h.add_edge(edges[i]);
+	        }
+	
+	        int qmid = emid;
+	        for (int i = ql; i <= emid; i++) {
+	            if (i > ql) h.add_edge(edges[i - 1]);
+	            if (h.connected()) {
+	                // 移除 [i, emid] 會連通
+	                // 移除 [i-1, emid] 不連通
+	                qmid = i - 1;
+	                break;
+	            }
+	        }
+	
+	        Graph gl = g;
+	        Graph gr = g;
+	        for (int i = emid + 1; i <= er; i++) gl.add_edge(edges[i]);
+	        for (int i = ql; i <= qmid; i++) gr.add_edge(edges[i]);
+	        DC(gl, el, emid, ql, qmid);
+	        DC(gr, emid + 1, er, qmid + 1, qr);
+	    }
+	
+	    vector<int> color;
+	    vector<vector<pair<int, int>>> wg;
+	    void dfs(int u) {
+	        for (auto [v, c] : wg[u]) {
+	            if (color[v] == -1) {
+	                color[v] = color[u] ^ c;
+	                dfs(v);
+	            }
+	        }
+	    }
+	
+	    int main() {
+	        cin.tie(0);
+	        cin.sync_with_stdio(0);
+	
+	        init();
+	
+	        if (s == t) {
+	            cout << n << ' ' << 1 << ' ' << n << ' ' << 1 << '\n';
+	            return 0;
+	        }
+	
+	        Graph tmp(n, s, t);
+	        int ql = 0, qr = m;
+	        for (int i = 0; i < m; i++) {
+	            tmp.add_edge(edges[i]);
+	            if (tmp.connected()) {
+	                qr = i;
+	                break;
+	            }
+	        }
+	        if (qr == m) {
+	            cout << -1 << '\n';
+	            return 0;
+	        }
+	
+	        ans = vector<int>(m, m);
+	        DC(Graph(n, s, t), 0, m - 1, ql, qr);
+	
+	        int len = 0, best_l = -1, best_r = -1;
+	        for (int i = 0; i < m; i++) {
+	            if (ans[i] - i > len) {
+	                len = ans[i] - i;
+	                best_l = i;
+	                best_r = ans[i] - 1;
+	            }
+	        }
+	
+	        color = vector<int>(n, -1);
+	        wg.resize(n);
+	        for (int i = 0; i < m; i++) {
+	            if (best_l <= i && i <= best_r) continue;
+	            Edge e = edges[i];
+	            wg[e.u].push_back({e.v, e.w});
+	            wg[e.v].push_back({e.u, e.w});
+	        }
+	        color[s] = 0;
+	        dfs(s);
+	
+	        cout << len << ' ';
+	        cout << best_l + 1 << ' ' << best_r + 1 << ' ';
+	        cout << color[t] + 1 << '\n';
+	
+	        return 0;
+	    }
+	    ```
 	??? note "code(by algoseacow)"
 		```cpp linenums="1"
 		#include <iostream>
-        #include <utility>
-        #include <vector>
-
-        using namespace std;
-
-        struct Edge {
-            int u, v, w;
-        };
-
-        struct Graph {
-            Graph(int n, int s, int t) : s(s), t(t) {
-                par = vector<int>(n);
-                for (int i = 0; i < n; i++) {
-                    par[i] = i;
-                }
-            }
-            void add_edge(const Edge& e) {
-                int u = find(e.u), v = find(e.v);
-                par[u] = v;
-            }
-            bool connected() {
-                return find(s) == find(t);
-            }
-            void shrink(vector<Edge>& edges) {
-                int n = par.size();
-
-                vector<bool> used(n);
-                used[find(s)] = true;
-                used[find(t)] = true;
-                for (Edge e : edges) {
-                    used[find(e.u)] = true;
-                    used[find(e.v)] = true;
-                }
-
-                vector<int> cc(n, -1);
-                int cnt = 0;
-                for (int i = 0; i < n; i++) {
-                    if (i == find(i) && used[i] == true) {
-                        cc[i] = cnt++;
-                    }
-                }
-
-                for (Edge& e : edges) {
-                    e.u = cc[find(e.u)];
-                    e.v = cc[find(e.v)];
-                }
-                s = cc[find(s)];
-                t = cc[find(t)];
-
-                par = vector<int>(cnt);
-                for (int i = 0; i < cnt; i++) par[i] = i;
-            }
-
-           private:
-            int s, t;
-            vector<int> par;
-
-            int find(int x) {
-                if (par[x] == x) return x;
-                return par[x] = find(par[x]);
-            }
-        };
-
-        int n, m, x;
-        vector<Edge> edges;
-        vector<int> ans;
-
-        int s = 0, t;
-
-        void init() {
-            cin >> n >> m >> t;
-            t--;  // to 0-base
-
-            for (int i = 0; i < m; i++) {
-                int u, v, w;
-                cin >> u >> v >> w;
-                u--, v--;  // to 0-base
-                w--;
-                edges.push_back({u, v, w});
-            }
-        }
-
-        // ans[i] : 移除 [i, ans[i]] 不能連通, 移除 [i, ans[i]-1] 可以連通
-        // 如果移除 [i, emid] 可以連通 \imply emid < ans[i]
-        // 如果移除 [i, emid] 不能連通 \imply ans[i] <= emid
-        //
-        void DC(Graph g, int el, int er, int ql, int qr) {
-            // 假設 edges[0, ql-1] 和 edges[er+1, m-1] 都已經加入 g
-            // 如果移除 [qr, er] 一定不連通
-            if (ql > qr) return;
-            if (el == er) {
-                for (int i = ql; i <= qr; i++) ans[i] = er;
-                return;
-            }
-
-            // 先把圖變小
-            vector<Edge> edges_old(edges.begin() + ql, edges.begin() + er + 1);
-            vector<Edge> edges_new = edges_old;
-            g.shrink(edges_new);
-
-            // 把 edge[ql, qr] 換成新編號
-            for (int i = 0; i <= er - ql; i++) edges[ql + i] = edges_new[i];
-
-            int emid = (el + er) / 2;
-            Graph h = g;
-            for (int i = emid + 1; i <= er; i++) {
-                h.add_edge(edges[i]);
-            }
-
-            int qmid = emid;
-            for (int i = ql; i <= emid; i++) {
-                if (i > ql) h.add_edge(edges[i - 1]);
-                if (h.connected()) {
-                    // 移除 [i, emid] 會連通
-                    // 移除 [i-1, emid] 不連通
-                    qmid = i - 1;
-                    break;
-                }
-            }
-
-            Graph gl = g;
-            for (int i = emid + 1; i <= er; i++) gl.add_edge(edges[i]);
-            DC(gl, el, emid, ql, qmid);  // edge [0, ql-1], [emid+1, m-1]
-
-            Graph gr = std::move(g);
-            for (int i = ql; i <= qmid; i++) gr.add_edge(edges[i]);
-            DC(gr, emid + 1, er, qmid + 1, qr);  // edge[0, qmid], [er+1,m-1]
-
-            // 把 edge[ql, qr] 換回舊編號
-            for (int i = 0; i <= er - ql; i++) edges[ql + i] = edges_old[i];
-        }
-
-        vector<int> color;
-        vector<vector<pair<int, int>>> wg;
-        void dfs(int u) {
-            for (auto [v, c] : wg[u]) {
-                if (color[v] == -1) {
-                    color[v] = color[u] ^ c;
-                    dfs(v);
-                }
-            }
-        }
-
-        int main() {
-            cin.tie(0);
-            cin.sync_with_stdio(0);
-
-            init();
-
-            if (s == t) {
-                cout << n << ' ' << 1 << ' ' << n << ' ' << 1 << '\n';
-                return 0;
-            }
-
-            int ql = 0, qr = m;
-
-            Graph tmp(n, s, t);
-            for (int i = 0; i < m; i++) {
-                tmp.add_edge(edges[i]);
-                if (tmp.connected()) {
-                    qr = i;
-                    break;
-                }
-            }
-            if (qr == m) {
-                cout << -1 << '\n';
-                return 0;
-            }
-
-            //
-            ans = vector<int>(m, m);  // 移除 edge[i, ans[i]-1] 之後依然是聯通的
-            DC(Graph(n, s, t), 0, m - 1, ql, qr);
-
-            int len = 0, best_l = -1, best_r = -1;
-            for (int i = 0; i < m; i++) {
-                if (ans[i] - i > len) {
-                    len = ans[i] - i;
-                    best_l = i;
-                    best_r = ans[i] - 1;
-                }
-            }
-
-            // 重建一張有權重的圖，dfs 判斷 s t 是不是相同顏色
-            color = vector<int>(n, -1);
-            wg.resize(n);
-            for (int i = 0; i < m; i++) {
-                if (best_l <= i && i <= best_r) continue;
-                Edge e = edges[i];
-                wg[e.u].push_back({e.v, e.w});
-                wg[e.v].push_back({e.u, e.w});
-            }
-            color[s] = 0;
-            dfs(s);
-
-            // output
-            cout << len << ' ';
-            cout << best_l + 1 << ' ' << best_r + 1 << ' ';
-            cout << color[t] + 1 << '\n';
-
-            return 0;
-        }
+	    #include <utility>
+	    #include <vector>
+	
+	    using namespace std;
+	
+	    struct Edge {
+	        int u, v, w;
+	    };
+	
+	    struct Graph {
+	        Graph(int n, int s, int t) : s(s), t(t) {
+	            par = vector<int>(n);
+	            for (int i = 0; i < n; i++) {
+	                par[i] = i;
+	            }
+	        }
+	        void add_edge(const Edge& e) {
+	            int u = find(e.u), v = find(e.v);
+	            par[u] = v;
+	        }
+	        bool connected() {
+	            return find(s) == find(t);
+	        }
+	        void shrink(vector<Edge>& edges) {
+	            int n = par.size();
+	
+	            vector<bool> used(n);
+	            used[find(s)] = true;
+	            used[find(t)] = true;
+	            for (Edge e : edges) {
+	                used[find(e.u)] = true;
+	                used[find(e.v)] = true;
+	            }
+	
+	            vector<int> cc(n, -1);
+	            int cnt = 0;
+	            for (int i = 0; i < n; i++) {
+	                if (i == find(i) && used[i] == true) {
+	                    cc[i] = cnt++;
+	                }
+	            }
+	
+	            for (Edge& e : edges) {
+	                e.u = cc[find(e.u)];
+	                e.v = cc[find(e.v)];
+	            }
+	            s = cc[find(s)];
+	            t = cc[find(t)];
+	
+	            par = vector<int>(cnt);
+	            for (int i = 0; i < cnt; i++) par[i] = i;
+	        }
+	
+	       private:
+	        int s, t;
+	        vector<int> par;
+	
+	        int find(int x) {
+	            if (par[x] == x) return x;
+	            return par[x] = find(par[x]);
+	        }
+	    };
+	
+	    int n, m, x;
+	    vector<Edge> edges;
+	    vector<int> ans;
+	
+	    int s = 0, t;
+	
+	    void init() {
+	        cin >> n >> m >> t;
+	        t--;  // to 0-base
+	
+	        for (int i = 0; i < m; i++) {
+	            int u, v, w;
+	            cin >> u >> v >> w;
+	            u--, v--;  // to 0-base
+	            w--;
+	            edges.push_back({u, v, w});
+	        }
+	    }
+	
+	    // ans[i] : 移除 [i, ans[i]] 不能連通, 移除 [i, ans[i]-1] 可以連通
+	    // 如果移除 [i, emid] 可以連通 \imply emid < ans[i]
+	    // 如果移除 [i, emid] 不能連通 \imply ans[i] <= emid
+	    //
+	    void DC(Graph g, int el, int er, int ql, int qr) {
+	        // 假設 edges[0, ql-1] 和 edges[er+1, m-1] 都已經加入 g
+	        // 如果移除 [qr, er] 一定不連通
+	        if (ql > qr) return;
+	        if (el == er) {
+	            for (int i = ql; i <= qr; i++) ans[i] = er;
+	            return;
+	        }
+	
+	        // 先把圖變小
+	        vector<Edge> edges_old(edges.begin() + ql, edges.begin() + er + 1);
+	        vector<Edge> edges_new = edges_old;
+	        g.shrink(edges_new);
+	
+	        // 把 edge[ql, er] 換成縮點後的
+	        for (int i = 0; i <= er - ql; i++) edges[ql + i] = edges_new[i];
+	
+	        int emid = (el + er) / 2;
+	        Graph h = g;
+	        for (int i = emid + 1; i <= er; i++) {
+	            h.add_edge(edges[i]);
+	        }
+	
+	        int qmid = emid;
+	        for (int i = ql; i <= emid; i++) {
+	            if (i > ql) h.add_edge(edges[i - 1]);
+	            if (h.connected()) {
+	                // 移除 [i, emid] 會連通
+	                // 移除 [i-1, emid] 不連通
+	                qmid = i - 1;
+	                break;
+	            }
+	        }
+	
+	        Graph gl = g;
+	        for (int i = emid + 1; i <= er; i++) gl.add_edge(edges[i]);
+	        DC(gl, el, emid, ql, qmid);  // edge [0, ql-1], [emid+1, m-1]
+	
+	        Graph gr = std::move(g);
+	        for (int i = ql; i <= qmid; i++) gr.add_edge(edges[i]);
+	        DC(gr, emid + 1, er, qmid + 1, qr);  // edge[0, qmid], [er+1,m-1]
+	
+	        // 把 edge[ql, qr] 換回舊編號
+	        for (int i = 0; i <= er - ql; i++) edges[ql + i] = edges_old[i];
+	    }
+	
+	    vector<int> color;
+	    vector<vector<pair<int, int>>> wg;
+	    void dfs(int u) {
+	        for (auto [v, c] : wg[u]) {
+	            if (color[v] == -1) {
+	                color[v] = color[u] ^ c;
+	                dfs(v);
+	            }
+	        }
+	    }
+	
+	    int main() {
+	        cin.tie(0);
+	        cin.sync_with_stdio(0);
+	
+	        init();
+	
+	        if (s == t) {
+	            cout << n << ' ' << 1 << ' ' << n << ' ' << 1 << '\n';
+	            return 0;
+	        }
+	
+	        int ql = 0, qr = m;
+	
+	        Graph tmp(n, s, t);
+	        for (int i = 0; i < m; i++) {
+	            tmp.add_edge(edges[i]);
+	            if (tmp.connected()) {
+	                qr = i;
+	                break;
+	            }
+	        }
+	        if (qr == m) {
+	            cout << -1 << '\n';
+	            return 0;
+	        }
+	
+	        //
+	        ans = vector<int>(m, m);  // 移除 edge[i, ans[i]-1] 之後依然是聯通的
+	        DC(Graph(n, s, t), 0, m - 1, ql, qr);
+	
+	        int len = 0, best_l = -1, best_r = -1;
+	        for (int i = 0; i < m; i++) {
+	            if (ans[i] - i > len) {
+	                len = ans[i] - i;
+	                best_l = i;
+	                best_r = ans[i] - 1;
+	            }
+	        }
+	
+	        // 重建一張有權重的圖，dfs 判斷 s t 是不是相同顏色
+	        color = vector<int>(n, -1);
+	        wg.resize(n);
+	        for (int i = 0; i < m; i++) {
+	            if (best_l <= i && i <= best_r) continue;
+	            Edge e = edges[i];
+	            wg[e.u].push_back({e.v, e.w});
+	            wg[e.v].push_back({e.u, e.w});
+	        }
+	        color[s] = 0;
+	        dfs(s);
+	
+	        // output
+	        cout << len << ' ';
+	        cout << best_l + 1 << ' ' << best_r + 1 << ' ';
+	        cout << color[t] + 1 << '\n';
+	
+	        return 0;
+	    }
 	    ```
 
 
@@ -910,8 +1065,8 @@ $$
 		就是一個二維平面問題，我們只要將第一維排序，第二維使用 BIT 即可
 		
 		<figure markdown>
-          ![Image title](./images/5.png){ width="300" }
-        </figure>
+	      ![Image title](./images/5.png){ width="300" }
+	    </figure>
 
 ???+note "[2022算法班第一階段認證考_pE](https://neoj.sprout.tw/problem/846/)"
 	給一張 $N$ 點 $M$ 邊的無向圖，這張圖是一張「好圖」
@@ -919,14 +1074,14 @@ $$
 	「好圖」有以下性質
 	
 	- $N=1$
-
+	
 	- **或是**
-        - 整張圖連通
-        - 存在唯一一個度數最大的點，稱為「關鍵點」
-        - 將「關鍵點」移除後，剩下的圖也是「好圖」，且會剩兩個點數相差不超過 $2$ 的連通塊
+	    - 整張圖連通
+	    - 存在唯一一個度數最大的點，稱為「關鍵點」
+	    - 將「關鍵點」移除後，剩下的圖也是「好圖」，且會剩兩個點數相差不超過 $2$ 的連通塊
 	
 	給定 $Q$ 筆詢問，每次給 $s,t$ 問 $dis(s,t)$
 	
 	$N\le 10^5,M,Q\le 3\times 10^5$
-		
+
 [^1]: 每個邊只會往一邊走，上一層用完了就可以刪掉，所以同一時間只有 $m$ 條邊在跑，每個邊只出現在一個地方 
