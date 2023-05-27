@@ -1218,6 +1218,191 @@ $$
 		<figure markdown>
 	      ![Image title](./images/5.png){ width="300" }
 	    </figure>
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	    #define lowbit(x) (x & (-x))
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct opr {
+	        int l, r, c;
+	
+	        bool operator<(const opr &other) {
+	            return l < other.l;
+	        }
+	    };
+	
+	    struct qry {
+	        // farmer id, need how much
+	        int id, goal;
+	    };
+	
+	    struct BIT {
+	        BIT (int n) : n(n) {
+	            bit.resize (n + 1);
+	        }
+	
+	        void add (int x, int d) {
+	            while (x <= n) {
+	                bit[x] += d;
+	                x += lowbit (x);
+	            }
+	        }
+	
+	        int query (int x) {
+	            int ret = 0;
+	            while (x > 0) {
+	                ret += bit[x];
+	                x -= lowbit (x);
+	            }
+	            return ret;
+	        }
+	
+	        bool clean () {
+	            for (int i = 1; i <= n; i++) {
+	                if (bit[i]) return false;
+	            }
+	            return true;
+	        }
+	
+	        private :
+	            int n;
+	            vector<int> bit;
+	    };
+	
+	    int n, m, q;
+	    vector<int> G[maxn];
+	    vector<opr> operation;
+	    vector<qry> queries;
+	    int nxt[maxn], a[maxn], ans[maxn];
+	
+	    void solve (BIT &bit, int el, int er, vector<qry> &q) {
+	        // 在 [el, er] 的這些操作中，我在哪個操作可以達到目標
+	        if (el == er) {
+	            for (auto [id, goal] : q) {
+	                ans[id] = el;
+	            }
+	            return;
+	        }
+	
+	        int emid = (el + er) / 2;
+	        vector<opr> op(operation.begin () + el - 1, operation.begin () + emid);
+	
+	        sort (ALL (op));
+	        vector<pii> query;
+	        vector<int> cost;
+	
+	        int cnt = 0;
+	        for (auto &[id, goal] : q) {
+	            for (auto i : G[id]) {
+	                query.pb ({i, cnt});
+	            }
+	            cnt++;
+	        }
+	        cost.resize (cnt);
+	        sort (ALL (query));
+	        int ptr = 0;
+	
+	        for (auto [i, idx] : query) {
+	            int j = nxt[i];
+	            while (ptr < op.size () && op[ptr].l <= i) {
+	                bit.add (op[ptr].r, op[ptr].c);
+	                ptr++;
+	            } 
+	
+	            if (j == 0) {
+	                int t = bit.query (m) - bit.query (i - 1);
+	                cost[idx] += t;
+	            }
+	            else {
+	                int t = bit.query (j - 1) - bit.query (i - 1);
+	                cost[idx] += t;
+	            }
+	        }
+	
+	        cnt = 0;
+	        vector<qry> qLeft, qRight;
+	        for (auto &[id, goal] : q) {
+	            if (goal <= cost[cnt]) {
+	                qLeft.pb ({id, goal});
+	            } 
+	            else {
+	                qRight.pb ({id, goal - cost[cnt]});
+	            } 
+	            cnt++;
+	        }
+	
+	        for (int i = 0; i < ptr; i++) {
+	            bit.add (op[i].r, -op[i].c);
+	        }
+	
+	        vector<pii>().swap (query);
+	        vector<int>().swap (cost);
+	        vector<opr>().swap (op);
+	        vector<qry>().swap (q);
+	
+	        solve (bit, el, emid, qLeft);
+	        solve (bit, emid + 1, er, qRight);
+	    }
+	
+	    void init () {
+	        cin >> n >> m >> q;
+	
+	        for (int i = 1; i <= m; i++) {
+	            cin >> a[i];
+	            if (G[a[i]].size()) nxt[G[a[i]].back ()] = i;
+	            G[a[i]].pb (i);
+	        }
+	
+	        for (int i = 1; i <= n; i++) {
+	            int x;
+	            cin >> x;
+	            queries.pb ({i, x});
+	        }
+	
+	        for (int i = 1; i <= q; i++) {
+	            int l, r, c;
+	            cin >> l >> r >> c;
+	            operation.pb ({l, r, c});
+	        }
+	    }
+	
+	    void work () {
+	        q++;
+	        operation.pb ({1, m, (int)2e9});
+	        BIT bit(m);
+	        solve (bit, 1, q, queries);
+	
+	        for (int i = 1; i <= n; i++) {
+	            if (ans[i] == q) cout << -1 << "\n";
+	            else cout << ans[i] << "\n";
+	        }
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            work();
+	        }
+	    } 
+	    ```
 
 ???+note "[2022算法班第一階段認證考_pE](https://neoj.sprout.tw/problem/846/)"
 	給一張 $N$ 點 $M$ 邊的無向圖，這張圖是一張「好圖」
@@ -1234,5 +1419,6 @@ $$
 	給定 $Q$ 筆詢問，每次給 $s,t$ 問 $dis(s,t)$
 	
 	$N\le 10^5,M,Q\le 3\times 10^5$
+
 
 [^1]: 每個邊只會往一邊走，上一層用完了就可以刪掉，所以同一時間只有 $m$ 條邊在跑，每個邊只出現在一個地方 
