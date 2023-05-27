@@ -35,135 +35,135 @@ $$
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-        #define lowbit(x) (x & (-x))
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        struct BIT {
-            int n;
-            vector<int> bit;
-
-            void init (int _n) {
-                n = _n;
-                bit.resize (n + 1);
-            }
-
-            void add (int x, int d) {
-                while (x <= n) {
-                    bit[x] += d;
-                    x += lowbit (x);
-                }
-            }
-
-            int query (int x) {
-                int ret = 0;
-                while (x > 0) {
-                    ret += bit[x];
-                    x -= lowbit (x);
-                }
-                return ret;
-            }
-        } bit;
-
-        struct qry {
-            int l, r, k, id;
-        };
-
-        int n, q;
-        int arr[maxn], a[maxn], ans[maxn];
-
-        void solve (int l, int r, vector<int> &idx, vector<qry> &q) {
-            if (l == r) {
-                for (auto [ql, qr, k, id] : q) {
-                    ans[id] = l;
-                }
-                return;
-            }
-
-            int mid = (l + r) / 2;
-
-            vector<int> iLeft, iRight;
-            for (auto id : idx) {
-                if (a[id] <= mid) {
-                    bit.add (id, 1);
-                    iLeft.pb (id);
-                }
-                else iRight.pb (id);
-            }
-
-            vector<qry> qLeft, qRight;
-            for (auto [ql, qr, k, id] : q) {
-                int t = bit.query (qr) - bit.query (ql - 1);
-                if (k <= t) {
-                    qLeft.pb ({ql, qr, k, id});
-                }
-                else {
-                    qRight.pb ({ql, qr, k - t, id});
-                }
-            }
-
-            for (auto id : idx) {
-                if (a[id] <= mid) bit.add (id, -1);
-            }
-            vector<int>().swap (idx);
-            vector<qry>().swap (q);
-
-            solve (l, mid, iLeft, qLeft);
-            solve (mid + 1, r, iRight, qRight);
-        }
-
-        void work () {
-            cin >> n >> q;
-            vector<int> d;
-            for (int i = 1; i <= n; i++) {
-                cin >> arr[i];
-                d.pb (arr[i]);
-            }
-            sort (ALL (d));
-            d.resize (unique (ALL (d)) - d.begin ());
-
-            vector<int> idx;
-            for (int i = 1; i <= n; i++) {
-                a[i] = lower_bound (ALL (d), arr[i]) - d.begin () + 1;
-            }
-            for (int i = 1; i <= n; i++) {
-                idx.pb (i);
-            }
-            vector<qry> qry;
-            for (int i = 1; i <= q; i++) {
-                int l, r, k;
-                cin >> l >> r >> k;
-                qry.pb ({l, r, k, i});
-            }
-            bit.init (n);
-
-            solve (1, d.size (), idx, qry);
-            for (int i = 1; i <= q; i++) {
-                cout << d[ans[i] - 1] << "\n";
-            }
-        } 
-
-        signed main() {
-            // ios::sync_with_stdio(0);
-            // cin.tie(0);
-            int t = 1;
-            //cin >> t;
-            while (t--) {
-                work();
-            }
-        } 
-        ```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	    #define lowbit(x) (x & (-x))
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct BIT {
+	        int n;
+	        vector<int> bit;
+	
+	        void init (int _n) {
+	            n = _n;
+	            bit.resize (n + 1);
+	        }
+	
+	        void add (int x, int d) {
+	            while (x <= n) {
+	                bit[x] += d;
+	                x += lowbit (x);
+	            }
+	        }
+	
+	        int query (int x) {
+	            int ret = 0;
+	            while (x > 0) {
+	                ret += bit[x];
+	                x -= lowbit (x);
+	            }
+	            return ret;
+	        }
+	    } bit;
+	
+	    struct qry {
+	        int l, r, k, id;
+	    };
+	
+	    int n, q;
+	    int arr[maxn], a[maxn], ans[maxn];
+	
+	    void solve (int l, int r, vector<int> &idx, vector<qry> &q) {
+	        if (l == r) {
+	            for (auto [ql, qr, k, id] : q) {
+	                ans[id] = l;
+	            }
+	            return;
+	        }
+	
+	        int mid = (l + r) / 2;
+	
+	        vector<int> iLeft, iRight;
+	        for (auto id : idx) {
+	            if (a[id] <= mid) {
+	                bit.add (id, 1);
+	                iLeft.pb (id);
+	            }
+	            else iRight.pb (id);
+	        }
+	
+	        vector<qry> qLeft, qRight;
+	        for (auto [ql, qr, k, id] : q) {
+	            int t = bit.query (qr) - bit.query (ql - 1);
+	            if (k <= t) {
+	                qLeft.pb ({ql, qr, k, id});
+	            }
+	            else {
+	                qRight.pb ({ql, qr, k - t, id});
+	            }
+	        }
+	
+	        for (auto id : idx) {
+	            if (a[id] <= mid) bit.add (id, -1);
+	        }
+	        vector<int>().swap (idx);
+	        vector<qry>().swap (q);
+	
+	        solve (l, mid, iLeft, qLeft);
+	        solve (mid + 1, r, iRight, qRight);
+	    }
+	
+	    void work () {
+	        cin >> n >> q;
+	        vector<int> d;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> arr[i];
+	            d.pb (arr[i]);
+	        }
+	        sort (ALL (d));
+	        d.resize (unique (ALL (d)) - d.begin ());
+	
+	        vector<int> idx;
+	        for (int i = 1; i <= n; i++) {
+	            a[i] = lower_bound (ALL (d), arr[i]) - d.begin () + 1;
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            idx.pb (i);
+	        }
+	        vector<qry> qry;
+	        for (int i = 1; i <= q; i++) {
+	            int l, r, k;
+	            cin >> l >> r >> k;
+	            qry.pb ({l, r, k, i});
+	        }
+	        bit.init (n);
+	
+	        solve (1, d.size (), idx, qry);
+	        for (int i = 1; i <= q; i++) {
+	            cout << d[ans[i] - 1] << "\n";
+	        }
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            work();
+	        }
+	    } 
+	    ```
 
 
 #### 動態區間 k 小
@@ -360,14 +360,14 @@ $$
 	
 	$q$ 筆詢問 $x, y, z$
 	
-	回答從 $x$ 點出發和從 $y$ 點走的「點集聯集大小」至少是 $z$ 的最大邊編號最小值
+	回答從 $x$ 點出發和從 $y$ 點走的「點集聯集大小」至少是 $z$ 的最大「邊」編號最小值
 	
 	- $n,m,q \le 10^5$
 	
 	??? note "思路"
 		> 暴力作法
 	
-		我們二分搜 $\text{mid}=t$ 
+		我們二分搜 $\displaystyle \text{mid}=\frac{l+r}{2}=t$ 
 		
 		檢查如果只走 $\le t$ 的邊 : 
 		
@@ -389,21 +389,15 @@ $$
 		
 		- $ans > t$ 少一半的 edge，縮點
 		
-		實作方法 :
-		
-		令 $t=\text{median}(el\sim er)$
-		
-		$\texttt{edge_weight}=\max\{w_u,w_v \}$ 
-		
-		- $ans \le t$，開新的，只保留 G 上 $\texttt{edge_weight}\le t$ 的邊
-		
-		- $ans > t$，繼承 G，將 G 上 $\texttt{edge_weight}\le t$ 的邊縮點
+		此方法很難實作
 		
 		時間複雜度 : $O(m \log m)$
 		
 		空間複雜度 : $O(m)$[^1]
 		
 		> 方法二 : 存 $\log m$ 個 $n\text{-vertex graph}$
+		
+		為了避免每次都複製一次資料結構，可以開 $\log m$ 個資料結構慢慢長
 		
 		<figure markdown>
 	      ![Image title](./images/4.png){ width="500" }
@@ -412,6 +406,163 @@ $$
 		時間複雜度 : $O(m \log m + q)=O(m\log m)$
 		
 		空間複雜度 : $O(m \log m)$
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Edge {
+	        int u, v, w;
+	    };
+	
+	    struct qry {
+	        int x, y, z, id;
+	    };
+	
+	    int n, m, q;
+	
+	    struct Graph {
+	        Graph () {
+	            par = vector<int>(n + 1);
+	            sz = vector<int>(n + 1);
+	            for (int i = 1; i <= n; i++) {
+	                par[i] = i;
+	                sz[i] = 1;
+	            }   
+	        }
+	        void add_edge(const Edge& e) {
+	            int u = find(e.u), v = find(e.v);
+	            if (u == v) return;
+	            par[u] = v;
+	            sz[v] += sz[u];
+	            sz[u] = 0;
+	        }
+	        bool check (const qry& q) {
+	            int u = find (q.x), v = find (q.y);
+	            if (u != v) {
+	                return sz[u] + sz[v] >= q.z;
+	            }
+	            return sz[u] >= q.z;
+	        }
+	
+	       private:
+	        vector<int> par;
+	        vector<int> sz;
+	
+	        int find(int x) {
+	            if (par[x] == x) return x;
+	            return par[x] = find(par[x]);
+	        }
+	    };
+
+
+        int ans[maxn];
+        vector<Edge> edges;
+        vector<qry> queries;
+        vector<Graph> g;
+    
+        void solve (int depth, int el, int er, vector<Edge> &edge,vector<qry>& q) {
+            int emid = (el + er) / 2;
+            Graph &G = g[depth];
+    
+            if (el == er) {
+                for (auto [x, y, z, id] : q) {
+                    ans[id] = el;
+                }
+    
+                for (auto [u, v, w] : edge) {
+                    if (w <= emid) {
+                        G.add_edge({u, v, w});
+                    } 
+                }
+    
+                vector<qry>().swap (q);
+                vector<Edge>().swap (edge);
+                return;
+            }
+    
+            vector<Edge> eLeft, eRight;
+            for (auto [u, v, w] : edge) {
+                if (w <= emid) {
+                    G.add_edge({u, v, w});
+                    eLeft.pb ({u, v, w});
+                } 
+                else {
+                    eRight.pb ({u, v, w});
+                }
+            }
+            vector<qry> qLeft, qRight;
+            for (auto query : q) {
+                if (G.check (query)) {
+                    qLeft.pb (query);
+                }
+                else {
+                    qRight.pb (query);
+                }
+            }
+    
+            for (auto [u, v, w] : edge) {
+                if (w > emid) {
+                    G.add_edge({u, v, w});
+                }
+            }
+            vector<qry>().swap (q);
+            vector<Edge>().swap (edge);
+    
+            solve (depth + 1, el, emid, eLeft, qLeft);
+            solve (depth + 1, emid + 1, er, eRight, qRight);
+        } 
+    
+        void init () {
+            cin >> n >> m;
+    
+            int u, v;
+            for (int i = 1; i <= m; i++) {
+                cin >> u >> v;
+                edges.pb ({u, v, i});
+            }
+            cin >> q;
+    
+            int x, y, z;
+            for (int i = 1; i <= q; i++) {
+                cin >> x >> y >> z;
+                queries.pb ({x, y, z, i});
+            }
+        }
+    
+        void work () {
+            g.resize (21);
+            solve (0, 1, m, edges, queries);
+    
+            for (int i = 1; i <= q; i++) {
+                cout << ans[i] << "\n";
+            }
+        } 
+    
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            //cin >> t;
+            while (t--) {
+                init();
+                work();
+            }
+        } 
+        ```
 
 ### 區間 gcd
 
@@ -506,9 +657,9 @@ $$
 		
 		ans[i] : 移除 [i, ans[i]] 不能連通, 移除 [i, ans[i]-1] 可以連通
 		
-        如果移除 [i, emid] 可以連通 ⇒ emid < ans[i]
-        
-        如果移除 [i, emid] 不能連通 ⇒ ans[i] <= emid
+	    如果移除 [i, emid] 可以連通 ⇒ emid < ans[i]
+	    
+	    如果移除 [i, emid] 不能連通 ⇒ ans[i] <= emid
 	
 	??? note "code (44 points)"
 		```cpp linenums="1"
