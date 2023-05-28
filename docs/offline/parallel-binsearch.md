@@ -385,15 +385,198 @@ $$
 		
 		> 方法一 : 把 graph 拆半，兩個子問題圖都只有本來的一半
 		
-		- $ans \le t$ 少一半的 edge，刪邊
+		- $ans \le t$ 少一半的 edge
 		
 		- $ans > t$ 少一半的 edge，縮點
-		
-		此方法很難實作
 		
 		時間複雜度 : $O(m \log m)$
 		
 		空間複雜度 : $O(m)$[^1]
+		
+		??? note "code"
+			```cpp linenums="1"
+			#include <iostream>
+            #include <utility>
+            #include <vector>
+
+            #define int long long
+            #define pii pair<int, int>
+            #define pb push_back
+            #define mk make_pair
+            #define F first
+            #define S second
+            #define ALL(x) x.begin(), x.end()
+
+            using namespace std;
+
+            struct Edge {
+                int u, v, w;
+            };
+
+            struct qry {
+                int x, y, z, id;
+            };
+
+            struct Graph {
+               public:
+                Graph(int n) : n(n) {
+                    par = vector<int>(n);
+                    sz = vector<int>(n, 1);
+                    for (int i = 0; i < n; i++) {
+                        par[i] = i;
+                    }
+                }
+                void add_edge(const Edge& e) {
+                    int u = find(e.u), v = find(e.v);
+                    if (u == v) return;
+                    par[u] = v;
+                    sz[v] += sz[u];
+                    sz[u] = 0;
+                }
+                bool check(const qry& q) {
+                    int u = find(q.x), v = find(q.y);
+                    if (u != v) {
+                        return sz[u] + sz[v] >= q.z;
+                    }
+                    return sz[u] >= q.z;
+                }
+                int find(int x) {
+                    if (par[x] == x) return x;
+                    return par[x] = find(par[x]);
+                }
+                int size() {
+                    return n;
+                }
+
+                vector<int> sz;
+
+               private:
+                int n;
+                vector<int> par;
+            };
+
+            const int maxn = 3e5 + 5;
+            int ans[maxn];
+            vector<Edge> edges;
+            vector<qry> queries;
+            vector<Graph> g;
+
+            void shrink(vector<Edge>& edge, vector<qry>& q, Graph& G) {
+                // query 有用到的 node 才要存
+                // 相同 CC 的點，要變成同樣編號
+                // 新圖的點邊號是 0 ~ (k-1)
+                int n = G.size();
+                vector<bool> need(n, false);
+
+                for (auto [x, y, z, id] : q) {
+                    need[G.find(x)] = true;
+                    need[G.find(y)] = true;
+                }
+                for (auto [u, v, w] : edge) {
+                    need[G.find(u)] = true;
+                    need[G.find(v)] = true;
+                }
+
+                vector<int> new_id(n, -1);
+                vector<int> sz;
+                int k = 0;
+                for (int i = 0; i < n; i++) {
+                    if (need[i]) {
+                        new_id[i] = k++;
+                        sz.push_back(G.sz[i]);
+                    }
+                }
+
+                for (auto& [x, y, z, id] : q) {
+                    x = new_id[G.find(x)];
+                    y = new_id[G.find(y)];
+                }
+                for (auto& [u, v, w] : edge) {
+                    u = new_id[G.find(u)];
+                    v = new_id[G.find(v)];
+                }
+                G = Graph(k);
+                for (int i = 0; i < k; i++) G.sz[i] = sz[i];
+            }
+
+            void solve(int el, int er, vector<Edge>& edge, vector<qry>& q, Graph& G) {
+                int emid = (el + er) / 2;
+
+                if (el == er) {
+                    for (auto [x, y, z, id] : q) {
+                        ans[id] = el;
+                    }
+                    return;
+                }
+
+                shrink(edge, q, G);
+
+                Graph gLeft = G;
+                Graph& gRight = G;
+
+                vector<Edge> eLeft, eRight;
+                for (auto [u, v, w] : edge) {
+                    if (w <= emid) {
+                        G.add_edge({u, v, w});
+                        eLeft.pb({u, v, w});
+                    } else {
+                        eRight.pb({u, v, w});
+                    }
+                }
+                vector<qry> qLeft, qRight;
+                for (auto query : q) {
+                    if (G.check(query)) {
+                        qLeft.pb(query);
+                    } else {
+                        qRight.pb(query);
+                    }
+                }
+
+                solve(el, emid, eLeft, qLeft, gLeft);
+                solve(emid + 1, er, eRight, qRight, gRight);
+            }
+
+            int n, m, q;
+
+            void init() {
+                cin >> n >> m;
+
+                int u, v;
+                for (int i = 0; i < m; i++) {
+                    cin >> u >> v;
+                    u--, v--;
+                    edges.pb({u, v, i});
+                }
+                cin >> q;
+                int x, y, z;
+                for (int i = 0; i < q; i++) {
+                    cin >> x >> y >> z;
+                    x--, y--;
+                    queries.pb({x, y, z, i});
+                }
+            }
+
+            void work() {
+                // g.resize(21);
+                Graph G(n);
+                solve(0, m - 1, edges, queries, G);
+
+                for (int i = 0; i < q; i++) {
+                    cout << ans[i] + 1 << '\n';
+                }
+            }
+
+            signed main() {
+                ios::sync_with_stdio(0);
+                cin.tie(0);
+                int t = 1;
+                // cin >> t;
+                while (t--) {
+                    init();
+                    work();
+                }
+            }
+            ```
 		
 		> 方法二 : 存 $\log m$ 個 $n\text{-vertex graph}$
 		
@@ -407,162 +590,162 @@ $$
 		
 		空間複雜度 : $O(m \log m)$
 		
-	??? note "code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	
-	    using namespace std;
-	
-	    const int INF = 2e18;
-	    const int maxn = 3e5 + 5;
-	    const int M = 1e9 + 7;
-	
-	    struct Edge {
-	        int u, v, w;
-	    };
-	
-	    struct qry {
-	        int x, y, z, id;
-	    };
-	
-	    int n, m, q;
-	
-	    struct Graph {
-	        Graph () {
-	            par = vector<int>(n + 1);
-	            sz = vector<int>(n + 1);
-	            for (int i = 1; i <= n; i++) {
-	                par[i] = i;
-	                sz[i] = 1;
-	            }   
-	        }
-	        void add_edge(const Edge& e) {
-	            int u = find(e.u), v = find(e.v);
-	            if (u == v) return;
-	            par[u] = v;
-	            sz[v] += sz[u];
-	            sz[u] = 0;
-	        }
-	        bool check (const qry& q) {
-	            int u = find (q.x), v = find (q.y);
-	            if (u != v) {
-	                return sz[u] + sz[v] >= q.z;
-	            }
-	            return sz[u] >= q.z;
-	        }
-	
-	       private:
-	        vector<int> par;
-	        vector<int> sz;
-	
-	        int find(int x) {
-	            if (par[x] == x) return x;
-	            return par[x] = find(par[x]);
-	        }
-	    };
+        ??? note "code"
+            ```cpp linenums="1"
+            #include <bits/stdc++.h>
+            #define int long long
+            #define pii pair<int, int>
+            #define pb push_back
+            #define mk make_pair
+            #define F first
+            #define S second
+            #define ALL(x) x.begin(), x.end()
 
+            using namespace std;
 
-        int ans[maxn];
-        vector<Edge> edges;
-        vector<qry> queries;
-        vector<Graph> g;
-    
-        void solve (int depth, int el, int er, vector<Edge> &edge,vector<qry>& q) {
-            int emid = (el + er) / 2;
-            Graph &G = g[depth];
-    
-            if (el == er) {
-                for (auto [x, y, z, id] : q) {
-                    ans[id] = el;
+            const int INF = 2e18;
+            const int maxn = 3e5 + 5;
+            const int M = 1e9 + 7;
+
+            struct Edge {
+                int u, v, w;
+            };
+
+            struct qry {
+                int x, y, z, id;
+            };
+
+            int n, m, q;
+
+            struct Graph {
+                Graph () {
+                    par = vector<int>(n + 1);
+                    sz = vector<int>(n + 1);
+                    for (int i = 1; i <= n; i++) {
+                        par[i] = i;
+                        sz[i] = 1;
+                    }   
                 }
-    
+                void add_edge(const Edge& e) {
+                    int u = find(e.u), v = find(e.v);
+                    if (u == v) return;
+                    par[u] = v;
+                    sz[v] += sz[u];
+                    sz[u] = 0;
+                }
+                bool check (const qry& q) {
+                    int u = find (q.x), v = find (q.y);
+                    if (u != v) {
+                        return sz[u] + sz[v] >= q.z;
+                    }
+                    return sz[u] >= q.z;
+                }
+
+               private:
+                vector<int> par;
+                vector<int> sz;
+
+                int find(int x) {
+                    if (par[x] == x) return x;
+                    return par[x] = find(par[x]);
+                }
+            };
+
+
+            int ans[maxn];
+            vector<Edge> edges;
+            vector<qry> queries;
+            vector<Graph> g;
+
+            void solve (int depth, int el, int er, vector<Edge> &edge,vector<qry>& q) {
+                int emid = (el + er) / 2;
+                Graph &G = g[depth];
+
+                if (el == er) {
+                    for (auto [x, y, z, id] : q) {
+                        ans[id] = el;
+                    }
+
+                    for (auto [u, v, w] : edge) {
+                        if (w <= emid) {
+                            G.add_edge({u, v, w});
+                        } 
+                    }
+
+                    vector<qry>().swap (q);
+                    vector<Edge>().swap (edge);
+                    return;
+                }
+
+                vector<Edge> eLeft, eRight;
                 for (auto [u, v, w] : edge) {
                     if (w <= emid) {
                         G.add_edge({u, v, w});
+                        eLeft.pb ({u, v, w});
                     } 
+                    else {
+                        eRight.pb ({u, v, w});
+                    }
                 }
-    
+                vector<qry> qLeft, qRight;
+                for (auto query : q) {
+                    if (G.check (query)) {
+                        qLeft.pb (query);
+                    }
+                    else {
+                        qRight.pb (query);
+                    }
+                }
+
+                for (auto [u, v, w] : edge) {
+                    if (w > emid) {
+                        G.add_edge({u, v, w});
+                    }
+                }
                 vector<qry>().swap (q);
                 vector<Edge>().swap (edge);
-                return;
-            }
-    
-            vector<Edge> eLeft, eRight;
-            for (auto [u, v, w] : edge) {
-                if (w <= emid) {
-                    G.add_edge({u, v, w});
-                    eLeft.pb ({u, v, w});
-                } 
-                else {
-                    eRight.pb ({u, v, w});
+
+                solve (depth + 1, el, emid, eLeft, qLeft);
+                solve (depth + 1, emid + 1, er, eRight, qRight);
+            } 
+
+            void init () {
+                cin >> n >> m;
+
+                int u, v;
+                for (int i = 1; i <= m; i++) {
+                    cin >> u >> v;
+                    edges.pb ({u, v, i});
+                }
+                cin >> q;
+
+                int x, y, z;
+                for (int i = 1; i <= q; i++) {
+                    cin >> x >> y >> z;
+                    queries.pb ({x, y, z, i});
                 }
             }
-            vector<qry> qLeft, qRight;
-            for (auto query : q) {
-                if (G.check (query)) {
-                    qLeft.pb (query);
+
+            void work () {
+                g.resize (21);
+                solve (0, 1, m, edges, queries);
+
+                for (int i = 1; i <= q; i++) {
+                    cout << ans[i] << "\n";
                 }
-                else {
-                    qRight.pb (query);
+            } 
+
+            signed main() {
+                // ios::sync_with_stdio(0);
+                // cin.tie(0);
+                int t = 1;
+                //cin >> t;
+                while (t--) {
+                    init();
+                    work();
                 }
-            }
-    
-            for (auto [u, v, w] : edge) {
-                if (w > emid) {
-                    G.add_edge({u, v, w});
-                }
-            }
-            vector<qry>().swap (q);
-            vector<Edge>().swap (edge);
-    
-            solve (depth + 1, el, emid, eLeft, qLeft);
-            solve (depth + 1, emid + 1, er, eRight, qRight);
-        } 
-    
-        void init () {
-            cin >> n >> m;
-    
-            int u, v;
-            for (int i = 1; i <= m; i++) {
-                cin >> u >> v;
-                edges.pb ({u, v, i});
-            }
-            cin >> q;
-    
-            int x, y, z;
-            for (int i = 1; i <= q; i++) {
-                cin >> x >> y >> z;
-                queries.pb ({x, y, z, i});
-            }
-        }
-    
-        void work () {
-            g.resize (21);
-            solve (0, 1, m, edges, queries);
-    
-            for (int i = 1; i <= q; i++) {
-                cout << ans[i] << "\n";
-            }
-        } 
-    
-        signed main() {
-            // ios::sync_with_stdio(0);
-            // cin.tie(0);
-            int t = 1;
-            //cin >> t;
-            while (t--) {
-                init();
-                work();
-            }
-        } 
-        ```
+            } 
+            ```
 
 ### 區間 gcd
 
@@ -1404,6 +1587,8 @@ $$
 	    } 
 	    ```
 
+### 2022 認證考_pE
+
 ???+note "[2022算法班第一階段認證考_pE](https://neoj.sprout.tw/problem/846/)"
 	給一張 $N$ 點 $M$ 邊的無向圖，這張圖是一張「好圖」
 	
@@ -1420,5 +1605,29 @@ $$
 	
 	$N\le 10^5,M,Q\le 3\times 10^5$
 
+### TIOJ 2030
+
+???+note "[TIOJ 2030.盩僰麌過街 人人喊打](https://tioj.ck.tp.edu.tw/problems/2030)"
+	給你長度為 $N$ 的序列 $a_1\sim a_N$，請支援 $Q$ 次以下操作 :
+	
+	- $1\space p\space v:$ 把 $p$ 改成 $v$
+
+	- $2\space L\space R\space V:$ 設置一道雷射光在 $[L,R]$，強度為 $V$，保障沒有之前左界在 $L$ 的雷射光
+
+	- $3\space L:$ 移除左界在 $L$ 的雷射光，保障之前有一個左界在 $L$ 的雷射光
+
+	- $4\space L\space R:$ 計算 $[L,R]$ 之間的不重複數字，以及 $[L,R]$ 之間所有被完全覆蓋在內的雷射光強度總和
+
+	$N,Q\le 10^5$
+
+### 洛谷 动态逆序对
+
+???+note "[洛谷 P3157 [CQOI2011]动态逆序对](https://www.luogu.com.cn/problem/P3157)"
+	現在給出 $1\sim n$ 的一個排列，按照某種順序依次刪除 $m$ 個元素
+	
+	在每次刪除一個元素之前統計整個序列的逆序數對的個數
+	
+	$n\le 10^5,m\le 5\times 10^4$
+ 
 
 [^1]: 每個邊只會往一邊走，上一層用完了就可以刪掉，所以同一時間只有 $m$ 條邊在跑，每個邊只出現在一個地方 
