@@ -5,3 +5,5 @@
 副鍾魔鏡
 
 2018 TOI p4
+
+https://oi-wiki.org/basic/prefix-sum/
