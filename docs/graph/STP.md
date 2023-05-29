@@ -25,6 +25,29 @@
     }
     ```
 
+### 來回
+
+??? note "[zerojudge g733. 110北二4.漫遊高譚市](https://zerojudge.tw/ShowProblem?problemid=g733)"
+	給 $n$ 點 $m$ 邊有向圖，邊帶權
+	
+	另外額外有 $k$ 條無向帶權邊，至多只能走一條這種邊
+	
+	問 $s\to t$ 的最短路
+	
+	$n\le 10^4,m+k\le 10^5$
+	
+	??? note "思路"
+		- 給定起點 $s$, 對於每個點 $u$ 找 $dis(s \rightarrow u) + dis(u \rightarrow v)$
+		- 正反各做一次，也就是把正圖跟反圖都各做一次 $\texttt{dijkstra}$ 起點都是 $\texttt{s}$
+
+### n 平方
+
+???+note "例題"
+	給定 $n$ 個點，第 $i$ 點在 $(x_i,y_i)$，從 $i\to j$ 花費 $(x_i - x_j)^2 + (y_i - y_j)^2$
+	
+	問從 $s\to t$ 的最小花費
+
+
 ### 多源點 dijkstra
 
 ???+note "[zerojudge b904. 10. 學園生活](https://zerojudge.tw/ShowProblem?problemid=b904)"
@@ -196,9 +219,9 @@
             - 每個邊最多跑到一次 跑到意即要被刪掉
             - 刪點最多刪 $n$ 個
             - 也就是 topo sort 的複雜度
-
-	??? note "code"
-		```cpp linenums="1"
+    
+    ??? note "code"
+    	```cpp linenums="1"
         void del() {
             q.push(goal);
             while(! q.empty()) {
@@ -214,7 +237,7 @@
             }
         }
         ```
-        
+
 ### 分層 dijkstra
 
 ???+note "APIO 2023 p1"
@@ -225,7 +248,7 @@
 	若連續走兩條邊 $a\to b\to c$，本來需花 $w(a,b)+w(b,c)$，使用優惠券可以將花費改成 $w(b,c)\times 2$，優惠券只能用 $k$ 次
 	
 	問 $1\to n$ 的最小花費
-	
+
 ???+note "[2021 附中模競 II 惡地之路](https://drive.google.com/file/d/1ISO-o4DrQmbuqVVAgxeVQEO3ifMvcy01/view)"
 	給一張 $n$ 點 $m$ 邊無向圖，令 $s$ 到節點 $i$ 走 $k$ 步的最短距離是 $d(i,k)$
 	
@@ -245,7 +268,7 @@
 		
 		- $u$ 的第 $i$ 個點到 $v$ 的第 $i+1$ 個點（有向）
 		- $v$ 的第 $i$ 到 $u$ 的第 $i+1$ 個點（有向）
-
+	
 		這樣走到某個節點的第 $i$ 個點的路徑長度一定是 $i-1$
 		
 		$n^2$ 個點，$2nm$ 個邊做最短路徑，$O(nm\log⁡ nm)$
@@ -253,7 +276,7 @@
 		枚舉 $k=1\ldots n$，對於第 $k$ 層拉出來求最小的 $dis_k$ 
 		
 		$$ans = \min\limits_{k=1\ldots n} \{dis_k\times k\}$$
-		
+
 ???+note "[CSES - flight discount](https://cses.fi/problemset/task/1195)"
 	給一張 $n$ 點 $m$ 邊的無向圖，邊有權重，可將其中 $k$ 條邊以半價計算，求 $1\to n$ 的最短路
 	
@@ -267,7 +290,7 @@
 		$\texttt{node}(k-1, u)$ 到 $\texttt{node}(k, v)$ 的長度就是 $w(u, v)/2$
 		
 		直接跑 Dijkstra，起點 $\texttt{node}(0, 1)$ 終點 $\texttt{node}(2, n)$
-		
+
 ### 次短路
 
 -  先做一次 $\texttt{dijkstra}$
@@ -291,43 +314,43 @@
 
 ??? note "次短路 code"
 	```cpp linenums="1"
-        void dijkstra (int start) {
+    void dijkstra (int start) {
         vector<int> f (n + 1, INF);
         f[start] = 0;
 
         // 最短路徑
         for (int i = 1; i <= n; i++) {
             int u = find1 (f);
-
+    
             for (int j = 0; j < G[u].size(); j++) {
                 int v = G[u][j].F, w = G[u][j].S;
                 f[v] = min (f[v], f[u] + w);
             }
         }
-
+    
         vector<pii> g (n + 1);
         for (int i = 1; i <= n; i++) {
             g[i] = mk(f[i], -1);
         }
-
+    
         for (int i = 1; i <= n; i++) {
             for (int j = 0; j < G[i].size(); j++) {
                 int v = G[i][j].F, w = G[i][j].S;
                 sec (g[v], f[i] + w);
             }
         }
-
+    
         memset (vis, 0, sizeof (vis));
         for (int i = 1; i <= n; i++) {
             int u = find2 (g);
             if (u == -1) break;
-
+    
             for (int j = 0; j < G[u].size(); j++) {
                 int v = G[u][j].F, w = G[u][j].S;
                 sec (g[v], g[u].S + w);
             }
         }
-
+    
         cout << g[n].S << "\n";
     }
     ```
@@ -366,24 +389,24 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
             cin >> u >> v >> w;
             G[u].push_back({w, v});
         }
-
+    
         vector<vector<int>> dis(n + 1, vector<int>(k));
-
+    
         for (int i = 1; i <= n; i++) {
             for (int j = 0; j < k; j++) dis[i][j] = INF;
         }
-
+    
         priority_queue<pair<int, int>, vector<pair<int, int>>,
        				   greater<pair<int, int>>> pq;
         pq.push({0, 1});
-
+    
         while (pq.size()) {
             int u = pq.top().second;
             int d = pq.top().first;
             pq.pop();
-
+    
             if (dis[u][k - 1] < d) continue;
-
+    
             for (auto [w, v] : G[u]) {
                 if (d + w < dis[v][k - 1]) {
                     dis[v][k - 1] = d + w;
@@ -392,18 +415,18 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
                 }
             }
         }
-
+    
         for (int i = 0; i < k; i++)
             cout << dis[n][i] << " ";
-
+    
     }
     ```
 
 ## Bellman Ford
-	
+
 ???+note "Bellman Ford code"
 	```cpp linenums="1"
-        void solve () {
+    void solve () {
         vector<int> d(n, INF);
         d[v] = 0;
         for (int i = 0; i < n - 1; ++i)
@@ -432,7 +455,7 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	
 	??? note "思路"
 		我們將邊權都 `*= -1`，這樣我們就只要找到 $x$ 使得邊權都 $+x$ 之後沒有負環，$x$ 具有單調性可以二分搜
-		
+
 ## SPFA
 
 - shortest path Finding algorithm，單源最短路
@@ -475,4 +498,37 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 
 ## Floyd warshall 
 
+???+note "[zerojudge b686. 6. 航線規劃](https://zerojudge.tw/ShowProblem?problemid=b686)"
+	
+	??? note "思路"
+		
+	??? note "code"
+		```cpp linenums="1"
+		sort (A.rbegin(), A.rend()); // 防禦力大到小
+	    sort (query.rbegin(), query.rend()); // 破壞力大到小
+	
+	    for (int q = 1; q <= query.size(); q++) {
+	        int w = query[q];
+	
+	        // floyd 中繼點並非一次全部更新, 而是要得才更新
+	        for (int k = 1; A[k] > w; k++) {
+	           for (int i = 1; i <= n; i++) {
+	               for (int j = 1; j <= n; j++) {
+	                   d[i][j] = max (d[i][j], d[i][k] + d[k][j]);
+	               }
+	           } 
+	        }
+	    }
+	    ```
 
+???+note "[CF 1051 F.The Shortest Statement](https://codeforces.com/problemset/problem/1051/F)"
+	給一個 $n$ 點 $m$ 邊的無向圖，$q$ 筆詢問 :
+	
+	- $s_i\to t_i$ 的最短路徑
+	
+	$n,m,q\le 10^5,m-n\le 20$
+
+???+note "[CSA Chromatic Number](https://csacademy.com/contest/archive/task/chromatic-number)"
+
+![](https://hackmd.io/_uploads/HkN0cYbIh.png)
+	
