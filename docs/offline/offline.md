@@ -1,7 +1,7 @@
 ### CSES 1734
 
 ???+note "[Distinct Values Queries](https://cses.fi/problemset/task/1734)"
-    給你 $a_1,...,a_n$，有 $q$ 個查詢 $j>R$
+    給你 $a_1,...,a_n$，有 $q$ 個查詢
     
 
     - $a_i,...,a_j$ 之間有幾種數字

@@ -1,4 +1,7 @@
+- <https://drive.google.com/file/d/1a1mgK8KFJWNoXATHwi3E6ceStn22QmZl/view>
+
 ## 算法概要
+
 - 對於每個 node 周圍最小 edge 一定會再 MST 內
 - Kruskal
 	- 每次選 **整張圖** 最小權的邊

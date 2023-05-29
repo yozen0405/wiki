@@ -1,10 +1,10 @@
-補: TOI 2023 一模 pD
-
 ## dijkstra
 
 單源點最短路徑
 
 考慮不帶權的單點源最短路，我們用BFS維護一個 queue，每次處理一個點時最短路徑大小已知，因此只需要拿該點去**更新其他點一次**在**沒有負邊**的假設下，dijkstra 就像是有帶權的BFS。
+
+模板題 : [CSES - Shortest Routes I](https://cses.fi/problemset/task/1671)
 
 ???+note "dijkstra 模板"
     ```cpp linenums="1"
@@ -363,6 +363,8 @@
 
 > 所以當 $w$ 被推出去的時候 就保證是最佳解
 
+延伸 : A*、 yen's algorithm
+
 - 從上面的次短路延伸
 
 - 假設 $v_1,..,v_r$ 都可以走到 $u$
@@ -424,6 +426,10 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 
 ## Bellman Ford
 
+模板題 :  [CSES - Shortest Routes I](https://cses.fi/problemset/task/1671)
+
+判斷負環 : [CSES - Cycle Finding](https://cses.fi/problemset/task/1197)
+
 ???+note "Bellman Ford code"
 	```cpp linenums="1"
     void solve () {
@@ -435,16 +441,6 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
                     d[e.b] = min(d[e.b], d[e.a] + e.cost);
     }
     ```
-
-### Bellman Ford on DAG
-
-- 將邊按照 topo sort
-
-- 用這個順序去 relax
-
-- 複雜度線性時間 $O(V+E)$
-
-- DAG DP
 
 ???+note "2022 北一區早上場 p3"
 	給一張 $n$ 點 $m$ 邊無向圖，邊有權重
@@ -498,7 +494,16 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 
 ## Floyd warshall 
 
+模板題 : [CSES - Shortest Routes II](https://cses.fi/problemset/task/1672)
+
 ???+note "[zerojudge b686. 6. 航線規劃](https://zerojudge.tw/ShowProblem?problemid=b686)"
+	給一張 $n$ 點 $m$ 邊無向圖，邊帶權，每個點有一個權重 $a_i$
+	
+	有 $q$ 筆詢問，如下 :
+	
+	- $x,s,t:$ $A_i<x$ 的點都不能走，問 $s\to t$ 的最短路徑<br> 
+	
+	$n\le 500,m\le 10^5,q\le 2\times 10^5,1\le a_i,x,s,t\le n$
 	
 	??? note "思路"
 		
@@ -546,11 +551,28 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	- $m\le 5000$
 	- $P\le 10^5$ 且 $P$ 是質數
 
-???+note "[CSES - Visiting Cities](https://cses.fi/problemset/task/1203
-)"
-    給定起點終點 $s,t$ 判斷每個邊 $\texttt{:}$
+???+note "[CSES - Visiting Cities](https://cses.fi/problemset/task/1203)"
 
+	給定起點終點 $s,t$ 判斷每個邊是哪種 $\texttt{type}$
 	
+	- $\texttt{type 1: }$是否在每個最短路徑上 
+	
+	- $\texttt{type 2: }$至少有在一個最短路徑上
+	
+	- $\texttt{type 3: }$根本沒有在最短路徑上
+	
+	??? note "思路"
+	
+		- shotest path DAG
+	        - DAG DP
+	        - $\mathtt{dp(u \rightarrow v)}$ $\mathtt{u}$ 到 $\mathtt{v}$ 是最短路的路徑方法數
+	        - $\texttt{type 2: } \mathtt{dis(s \rightarrow u) + dis(v \rightarrow t) = dis(s \rightarrow t)}$ 
+	        - $\texttt{type 3: } \mathtt{dp(s \rightarrow u) \times dp(v \rightarrow t) = dp(s \rightarrow t)}$ 
+	
+		<figure markdown>
+	      ![Image title](./images/30.png){ width="700" }
+	    </figure>
+
 
 ???+note "[JOI 2021 p4](https://www.luogu.com.cn/problem/P7407)"
     給你一個張無向圖，邊有顏色 $C_i$。
@@ -565,19 +587,19 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
         > 否則就是 $\texttt{IMPOSSILBE}$
         
         - 要走 $u\rightarrow v$ 其實只有兩種 case
-
+    
         - $\begin{cases} \texttt{case1: }w \\ \texttt{case2: }S_{u,c}-w \end{cases}$
-
+    
         - 注意到選擇 case2 的話這些被改變的邊在之後的路徑上不會貢獻
             - 如果會貢獻就直接在 $u$ 的時候走那條(case1)不是花費更少?
-
+    
         - 走 case1 會影響到 $v$ 為中心的 case2
             - 花費就成了 $S_{v,c}-w-w'$
             - 其中 $w'$ 是 $u\rightarrow v$ 用 case1 的花費
             - 這種情況只發生在 $u,v$ 往外走都走同一顏色的情況
-
+    
         - 建立虛點 $u_c$ 轉移 $v_c$，邊權為 $0$
-
+    
         - 再讓 $v_c$ 轉移到 $x$ 邊權為 $S_{v,c}-w-w'+w'=S_{v,c}-w$
     
     ??? note "code"
@@ -585,34 +607,34 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
     	struct Edge {
             int v,c,w;
         };
-
+    
         void Upd(int u, int d){
             pq.push({u, d});
         }
-
+    
         void AddEdge (int u, int v, int c, int w){
             if(!st[u].count(c)) {
                 st[u][c] = ++k;
                 G[u].pb((Edge){k, 0, 0});
             }
-
+    
             int t = st[u][c];
             G[t].pb((Edge){v, c, w});
             S[t] += w;
         }
-
+    
         void Dijkstra () {
             memset(dis, 0x3f, sizeof dis);
             dis[1] = 0;
             pq.push({1, 0});
-
+    
             while(pq.size ()) {
                 auto [u, d] = pq.top ();
                 pq.pop();
-
+    
                 if(dis[u] != INF) continue;
                 dis[u] = d;
-
+    
                 if(u <= n) {
                     for(Edge edge : G[u]) {
                         int t = edge.v; // u_c
@@ -628,45 +650,49 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
         }
         ```
 
-- [POJ3255](https://vjudge.net/problem/POJ-3255)
-- [全國賽 2016 第二可靠路網](https://sorahisa-rank.github.io/nhspc-fin/2016/problems.pdf)
+???+note "[POJ - 3255 Roadblocks](https://vjudge.net/problem/POJ-3255)"
+	給一張 $n$ 點 $m$ 邊帶權圖，求 $1\to n$ 的嚴格次短路
+	
+	$n\le 5000,m\le 10^5$
+
+???+note "[全國賽 2016 第二可靠路網](https://sorahisa-rank.github.io/nhspc-fin/2016/problems.pdf#page=9)"
 
 ## grid 最短路
 ???+note "[JOI 2017 p4](https://oj.uz/problem/view/JOI17_soccer)"
     有 $n$ 個球員站在 Grid 上求球從 $a_1$ 踢到 $a_n$ 的最小 $cost$
     
     - 球員踢球(上下左右) $A\times p + B$
-
+    
     - 球員移動(上下左右) $cost=C$
-
+    
     - 放下球 $cost=0$
-
+    
     - 拿起球 $cost = 0$
-	
-	??? note "思路"
+    
+    ??? note "思路"
         - 最後兩點是沒用的
             - 你拿放下球然後跑走讓另一個過來拿球(???)
             - 你放下球然後再拿起來(???)
-
+    
         - 觀察後會發現一個球員最多有一次的機會可以掌控球 (下面有證明)
-
+    
         > - $0,1,2,3$ 上下左右 (自飛)
         
         > - $4$ 停止 (自飛)
         
         > - $5$ 帶飛 (往 random direction)
-
+    
         - 自飛的球
           - 繼續移動 $0,1,2,3\rightarrow 0,1,2,3 :A$ 往自己的方向 
           - 被球員撿到 $4\rightarrow 5: dis_{i,j}\times C$ 
               - $dis_{i,j}$ 為最近的球員到 $(i,j)$ 的距離
           - 停下來  $0,1,2,3\rightarrow 4:0$  
-
+    
         - 帶飛的球
           - 繼續跟著球員走 $5 \rightarrow 5:C$  四個方向
           - 被球員踢出去 $5 \rightarrow 0,1,2,3:B$ 
           - ~~停下來~~ 停下來，撿起來，浪費時間
-
+    
         > 球員跟求只能相遇一次 proof
         
         > - 如果相遇在同一個位置 
@@ -686,24 +712,39 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
         - $i$ 能走到 $j$ 當且僅當 $S_{b[i],b[j]}=1$
 
 	??? note "思路"
-        > key obeservation
-        
-        > $\text{cost}=|i-j|\rightarrow$ 想成每次都移動 $1$ 格
-        
-        > ex: $i\rightarrow i+1 \texttt{ or } i-1$
-        
-        - 建一個 $O(nk)$ 的圖
+	    > key obeservation
+	    
+	    > $\text{cost}=|i-j|\rightarrow$ 想成每次都移動 $1$ 格
+	    
+	    > ex: $i\rightarrow i+1 \texttt{ or } i-1$
+	    
+	    - 建一個 $O(nk)$ 的圖
+	
+	    - node (u, b) 代表目前的位置(不是真正在 u，而是目前的 cost 增加或減到 u)，b 代表從上個真正點的 $b_i$
+	
+	    - node (u, b) = $\begin{cases} \texttt{node (u + 1, b)}+1 \\ \texttt{node (u - 1, b)}+1 \\ \texttt{node (u, b[u])}+0 \end{cases}$
+	
+	    - 其中 node (u, b) -> node (u, b[u]) 走到真正的點
 
-        - node (u, b) 代表目前的位置(不是真正在 u，而是目前的 cost 增加或減到 u)，b 代表從上個真正點的 $b_i$
+???+note "[全國賽 2021 pC](https://tioj.ck.tp.edu.tw/problems/2253)"
+	給一張 $n$ 點（城市） $m$ 邊的有向圖 $G_0$。 我們對 $G_0$ 的每條邊都加上 $k$ 個點（村莊），得到一張 $n + mk$ 節點的有向圖 $G$，並賦予點權重 $c: V(G) \to Z$（每個節點的收支）。
 
-        - node (u, b) = $\begin{cases} \texttt{node (u + 1, b)}+1 \\ \texttt{node (u - 1, b)}+1 \\ \texttt{node (u, b[u])}+0 \end{cases}$
+	設 $C$ 是 $G$ 上的一個簡單環且 $u ∈ V(C)$。 若從 $u$ 出發沿著 $C$ 走一圈，任意前綴點權重和都 $\ge 0$，我們就說 $C$ 是 $G$ 的一個好環，而 $u$ 是 $C$ 的一個好起點。
+	
+	請找出 $G$ 的任一個好環 $C$ 與 $C$ 的任一個好起點 $u$，並求出 $C$ 上有幾個點可以當作好起點，這些好起點又有幾個在 $G_0$ 上。
+	
+	$k\le n\le 2000,m\le 8000$
 
-        - 其中 node (u, b) -> node (u, b[u]) 走到真正的點
-
+???+note "[TIOJ 2058 死對頭問題](https://tioj.ck.tp.edu.tw/problems/2058)"
+	給一張 $N$ 點 $M$ 邊有向帶權圖，求 $s\to t$ 最短路徑和嚴格次短路徑長的差
+	
+	有 $T$ 筆測資
+	
+	$T \le 20,N, M \le 10^5$
 
 - https://blog.csdn.net/Mr_dimple/article/details/124970504
+- https://drive.google.com/file/d/1a1mgK8KFJWNoXATHwi3E6ceStn22QmZl/view
 
-- https://tioj.ck.tp.edu.tw/problems/2058
 
 ![](https://hackmd.io/_uploads/HkN0cYbIh.png)
 	

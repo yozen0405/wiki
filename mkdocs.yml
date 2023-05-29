@@ -172,13 +172,16 @@ nav:
         - 二分圖: 'graph/bipartite.md'
         - 水母圖: 'graph/functional_graph.md'
         - 仙人掌圖: 'graph/cactus.md'
+        - 圓方樹: 'graph/block_forest.md'
+      - 迴路:
+        - 歐拉迴路: 'graph/euler_path.md'
+        - 漢米頓迴路: 'graph/hamiltonian.md'
       - 最短路: 'graph/STP.md'
-      - 歐拉迴路: 'graph/euler_path.md'
-      - 漢米頓迴路: 'graph/hamiltonian.md'
       - 連通元件圖論: 'graph/scc.md'
       - 網路流: 'graph/flow.md'
     - 數學:
         - 線性基: 'math/XOR.md'
+        - 矩陣: 'math/matrix.md'
         - 特定數:
           - mex: 'math/special/mex.md'
           - 中位數: 'math/special/median.md'
@@ -202,6 +205,8 @@ nav:
       - LIS: 'dp/LIS.md'
       - 背包問題: 'dp/knapsack.md'
       - 雜題整理: 'dp/problem.md'
+    - 其他:
+      - 序列交換問題: 'other/swap.md'
     
     
     
