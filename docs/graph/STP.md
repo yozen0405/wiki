@@ -293,21 +293,21 @@
 
 ### 次短路
 
--  先做一次 $\texttt{dijkstra}$
+-  先做一次 dijkstra
 
 -  令 $f(i)$ 為 $i$ 這個 $\texttt{node}$ 的最短路徑
 
 -  令 $g(i)$ 為 $i$ 這個 $\texttt{node}$ 的次短路徑
 
--  $\texttt{dijkstra}$ 的精神就是從最小的點開始擴散 (轉移)
+-  dijkstra 的精神就是從最小的點開始擴散 (轉移)
 
 -  這邊的想法也一樣
     -  一定有某一個 $\texttt{node}$ 的 $g(i)$ 是不從 $g(j)$ 轉移的，而是從周圍 $f(i)$ 的轉移
-    -  確定這個點之後就可以開始類似 $\texttt{dijkstra}$ 從該點開始轉移出去
+    -  確定這個點之後就可以開始類似 dijkstra 從該點開始轉移出去
     -  $g(u)= \sec \begin{cases} f(v) + w(u, v) \\ g(v) + w(u, v) \end{cases}$
 
 - 步驟
-    - 一般的 $\texttt{dijkstra}$ 得到 $f(u)$
+    - 一般的 dijkstra 得到 $f(u)$
     - $g(u)= \sec \begin{cases} f(v) + w(u, v)\end{cases}$
     - 每次找最小的 $g(u)$ 來更新其他人的 $g(v)$ (如下)
     - $g(v)= \sec \begin{cases} f(u) + w(u, v) \\ g(u)+w(u,v) \end{cases}$
@@ -357,7 +357,7 @@
 
 ## K 短路
 
-> $\texttt{dijkstra}$ 正確性證明
+> dijkstra 正確性證明
 
 > 你把狀態 $w$ 推出去的時候 狀態 $<w$ 都已經推出去了
 
@@ -534,7 +534,7 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	輸出最多能有幾條這樣的路徑以及最佳的選擇方式有幾種
 	
 	- $N\le 300$
-
+	
 	- $M\le \frac{N(N-1)}{2}$
 
 ???+note "[2023 TOI 一模 pD.安逸旅行路線 (jaunt)](https://drive.google.com/file/d/1_sx9DvDSjpn0RCR280MKsS_FNfrr-iqy/view)"
@@ -545,6 +545,161 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	- $n\le 1000$
 	- $m\le 5000$
 	- $P\le 10^5$ 且 $P$ 是質數
+
+???+note "[CSES - Visiting Cities](https://cses.fi/problemset/task/1203
+)"
+    給定起點終點 $s,t$ 判斷每個邊 $\texttt{:}$
+
+	
+
+???+note "[JOI 2021 p4](https://www.luogu.com.cn/problem/P7407)"
+    給你一個張無向圖，邊有顏色 $C_i$。
+    目標從 $1$ 走到 $n$，想走 $u\rightarrow v$ 若且唯若 $u$ 的出邊只有 $u\rightarrow v$ 有該種顏色
+    每條邊可花 $P_i$ 變顏色(只限變一次)，問最小花費
+    
+    ??? note "思路"
+    	> 一定可以找到一種顏色使得 $u\rightarrow v$ 的顏色唯一
+    	
+        > - 改自己 或 改別人
+        
+        > 否則就是 $\texttt{IMPOSSILBE}$
+        
+        - 要走 $u\rightarrow v$ 其實只有兩種 case
+
+        - $\begin{cases} \texttt{case1: }w \\ \texttt{case2: }S_{u,c}-w \end{cases}$
+
+        - 注意到選擇 case2 的話這些被改變的邊在之後的路徑上不會貢獻
+            - 如果會貢獻就直接在 $u$ 的時候走那條(case1)不是花費更少?
+
+        - 走 case1 會影響到 $v$ 為中心的 case2
+            - 花費就成了 $S_{v,c}-w-w'$
+            - 其中 $w'$ 是 $u\rightarrow v$ 用 case1 的花費
+            - 這種情況只發生在 $u,v$ 往外走都走同一顏色的情況
+
+        - 建立虛點 $u_c$ 轉移 $v_c$，邊權為 $0$
+
+        - 再讓 $v_c$ 轉移到 $x$ 邊權為 $S_{v,c}-w-w'+w'=S_{v,c}-w$
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	struct Edge {
+            int v,c,w;
+        };
+
+        void Upd(int u, int d){
+            pq.push({u, d});
+        }
+
+        void AddEdge (int u, int v, int c, int w){
+            if(!st[u].count(c)) {
+                st[u][c] = ++k;
+                G[u].pb((Edge){k, 0, 0});
+            }
+
+            int t = st[u][c];
+            G[t].pb((Edge){v, c, w});
+            S[t] += w;
+        }
+
+        void Dijkstra () {
+            memset(dis, 0x3f, sizeof dis);
+            dis[1] = 0;
+            pq.push({1, 0});
+
+            while(pq.size ()) {
+                auto [u, d] = pq.top ();
+                pq.pop();
+
+                if(dis[u] != INF) continue;
+                dis[u] = d;
+
+                if(u <= n) {
+                    for(Edge edge : G[u]) {
+                        int t = edge.v; // u_c
+                        for(Edge i : G[t]) {
+                            Upd(i.v, d + min(i.w, S[t] - i.w));
+                            Upd(st[i.v][i.c], d); // u_c -> v_c
+                        }
+                    }
+                } 
+                else for(Edge i : G[u]) Upd(i.v, d + S[u] - i.w);
+            }
+            cout << (dis[n] == INF ? -1 : dis[n]) << "\n";
+        }
+        ```
+
+- [POJ3255](https://vjudge.net/problem/POJ-3255)
+- [全國賽 2016 第二可靠路網](https://sorahisa-rank.github.io/nhspc-fin/2016/problems.pdf)
+
+## grid 最短路
+???+note "[JOI 2017 p4](https://oj.uz/problem/view/JOI17_soccer)"
+    有 $n$ 個球員站在 Grid 上求球從 $a_1$ 踢到 $a_n$ 的最小 $cost$
+    
+    - 球員踢球(上下左右) $A\times p + B$
+
+    - 球員移動(上下左右) $cost=C$
+
+    - 放下球 $cost=0$
+
+    - 拿起球 $cost = 0$
+	
+	??? note "思路"
+        - 最後兩點是沒用的
+            - 你拿放下球然後跑走讓另一個過來拿球(???)
+            - 你放下球然後再拿起來(???)
+
+        - 觀察後會發現一個球員最多有一次的機會可以掌控球 (下面有證明)
+
+        > - $0,1,2,3$ 上下左右 (自飛)
+        
+        > - $4$ 停止 (自飛)
+        
+        > - $5$ 帶飛 (往 random direction)
+
+        - 自飛的球
+          - 繼續移動 $0,1,2,3\rightarrow 0,1,2,3 :A$ 往自己的方向 
+          - 被球員撿到 $4\rightarrow 5: dis_{i,j}\times C$ 
+              - $dis_{i,j}$ 為最近的球員到 $(i,j)$ 的距離
+          - 停下來  $0,1,2,3\rightarrow 4:0$  
+
+        - 帶飛的球
+          - 繼續跟著球員走 $5 \rightarrow 5:C$  四個方向
+          - 被球員踢出去 $5 \rightarrow 0,1,2,3:B$ 
+          - ~~停下來~~ 停下來，撿起來，浪費時間
+
+        > 球員跟求只能相遇一次 proof
+        
+        > - 如果相遇在同一個位置 
+        >   - cost = 球跑了大半天的 cost (完全沒必要)
+        
+        > - 如果相遇在不同位置 
+        >   - cost = 我需要移動到那個位置的 cost + 求繞了大半天的 cost
+        >   - 那其實直接報的球跑到那個位置為更好 相當於求不離身 沒有再相遇一次
+        >   - 球員有移動 跟 球員跟著球移動的 cost 相等
+
+## 拆解 & 轉換題目
+???+note "[USACO Gold 2021 January - Telephone](http://www.usaco.org/index.php?page=viewproblem2&cpid=1090)" 
+	- 給 $n,k$ 陣列 $b$ 跟 matrix $S$
+        - 目標從 $1\rightarrow n$
+        - $i$ 走到 $j$ 的 $\text{cost}=|i-j|$
+        - $b_i=1...k$ 
+        - $i$ 能走到 $j$ 當且僅當 $S_{b[i],b[j]}=1$
+
+	??? note "思路"
+        > key obeservation
+        
+        > $\text{cost}=|i-j|\rightarrow$ 想成每次都移動 $1$ 格
+        
+        > ex: $i\rightarrow i+1 \texttt{ or } i-1$
+        
+        - 建一個 $O(nk)$ 的圖
+
+        - node (u, b) 代表目前的位置(不是真正在 u，而是目前的 cost 增加或減到 u)，b 代表從上個真正點的 $b_i$
+
+        - node (u, b) = $\begin{cases} \texttt{node (u + 1, b)}+1 \\ \texttt{node (u - 1, b)}+1 \\ \texttt{node (u, b[u])}+0 \end{cases}$
+
+        - 其中 node (u, b) -> node (u, b[u]) 走到真正的點
+
 
 - https://blog.csdn.net/Mr_dimple/article/details/124970504
 
