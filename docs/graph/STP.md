@@ -27,7 +27,7 @@
 
 ### 來回
 
-??? note "[zerojudge g733. 110北二4.漫遊高譚市](https://zerojudge.tw/ShowProblem?problemid=g733)"
+???+note "[zerojudge g733. 110北二4.漫遊高譚市](https://zerojudge.tw/ShowProblem?problemid=g733)"
 	給 $n$ 點 $m$ 邊有向圖，邊帶權
 	
 	另外額外有 $k$ 條無向帶權邊，至多只能走一條這種邊
@@ -74,9 +74,9 @@
 
 這邊提一個結構叫 shortest path tree 又稱最短路徑樹，每個點 $v$ 都跟自己的最短路徑的上一個點 $u$ 連接，形成一顆樹
 
-我們可以建立最短路徑樹，我們就只需要在樹上 BFS 即可應付每次 x 改變之後的擴張範圍。複雜度 $O(E\log⁡E)$ 建樹，$O(V+E)$ BFS 二分搜 $O(\log ⁡C)$，總共 $O(E \log ⁡E+(V+E)  \log ⁡C)$
+我們可以建立最短路徑樹，我們就只需要在樹上 BFS 即可應付每次 $x$ 改變之後的擴張範圍。複雜度 $O(E\log⁡E)$ 建樹，$O(V+E)$ BFS 二分搜 $O(\log ⁡C)$，總共 $O(E \log ⁡E+(V+E)  \log ⁡C)$
 
-但其實到頭來我們只是要看重疊的部分，我們也就同樣的建立最短路徑樹，枚舉 edge 使得 $(u,v)$ 是來自不同的源點，$ans$ 去跟他取 min 即可，複雜度 $O(E \log⁡ E+E) = O(E \log⁡ E) $
+但其實到頭來我們只是要看重疊的部分，我們也就同樣的建立最短路徑樹，枚舉 edge 使得 $(u,v)$ 是來自不同的源點，$ans$ 去跟他取 min 即可，複雜度 $O(E \log⁡ E+E) = O(E \log⁡ E)$
 
 <figure markdown>
   ![Image title](./images/6.png){ width="300" }
@@ -529,6 +529,26 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	$n,m,q\le 10^5,m-n\le 20$
 
 ???+note "[CSA Chromatic Number](https://csacademy.com/contest/archive/task/chromatic-number)"
+	給一張 $N$ 點 $M$ 邊的圖，邊有邊權，請選擇 $K$ 個特殊點，使 $1\to N$ 的最短路徑中有最多的特殊點
+	
+	輸出最多能有幾條這樣的路徑以及最佳的選擇方式有幾種
+	
+	- $N\le 300$
+
+	- $M\le \frac{N(N-1)}{2}$
+
+???+note "[2023 TOI 一模 pD.安逸旅行路線 (jaunt)](https://drive.google.com/file/d/1_sx9DvDSjpn0RCR280MKsS_FNfrr-iqy/view)"
+	有一張 $n$ 點 $m$ 邊有向圖，邊 $u \rightarrow v$ 的難度係數為 $d(u, v)$，代表如果 $u \rightarrow v$ 是路徑上的第 $k$ 條邊（1-based），則這條邊的辛苦程度是 $d(u, v)^k\mod P$，一條路徑的辛苦程度被定義為路徑上所有邊的最大辛苦程度
+
+	輸出 $s$ 到 $t$ 的所有路徑中，最小辛苦程度的值，若不存在請輸出 $-1$
+	
+	- $n\le 1000$
+	- $m\le 5000$
+	- $P\le 10^5$ 且 $P$ 是質數
+
+- https://blog.csdn.net/Mr_dimple/article/details/124970504
+
+- https://tioj.ck.tp.edu.tw/problems/2058
 
 ![](https://hackmd.io/_uploads/HkN0cYbIh.png)
 	
