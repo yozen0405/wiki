@@ -11,4 +11,10 @@
 
 - 最大化最小邊生成樹方法時要記得 basecase 也要加邊
 
+- bascase 要 return
+
+- debug print 的位置不要放錯
+
+- qmid = i - 1
+
   
