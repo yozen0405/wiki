@@ -1221,8 +1221,28 @@ $$
 	$n,m,q\le 2\times 10^5$
 	
 	??? note "思路"
-		- <https://www.cnblogs.com/chasedeath/p/14504709.html>
-		- <https://www.cnblogs.com/stinger/p/15970444.html>
+		
+		ans[i] 表示 
+		
+		- 移除 [i, ans[i] - 1] 有 odd cycle
+		
+		- 移除 [i, ans[i]] 沒 odd cycle
+
+		對於每個 i，二分搜 ans[i]，使 [i, ans[i]] 沒 odd cycle
+		
+		再來要定義上界下界
+		
+		下界的部分有可能只移除第 i 個邊就沒有 odd cycle 了
+		
+		上界的部分就要保證移除 [i, m - 1] 就沒有 odd cycle
+		
+		所以我們找到第一個 prefix[0, qr] 滿足 :
+		
+		- 只用 [0, qr - 1] 的邊沒有 odd cycle
+
+		- 只用 [0, qr] 的邊有 odd cycle
+
+		i > qr 的部分不管移除多少個邊都還是會有 odd cycle
 	
 	??? note "code"
 		```cpp linenums="1"
@@ -1669,13 +1689,23 @@ $$
 	
 	- $1\space p\space v:$ 把 $p$ 改成 $v$
 	
-	- $2\space L\space R\space V:$ 設置一道雷射光在 $[L,R]$，強度為 $V$，保障沒有之前左界在 $L$ 的雷射光
+	- $2\space L\space R\space V:$ 設置一道雷射光在 $[L,R]$，強度為 $V$，保證之前沒有左界在 $L$ 的雷射光
 	
-	- $3\space L:$ 移除左界在 $L$ 的雷射光，保障之前有一個左界在 $L$ 的雷射光
+	- $3\space L:$ 移除左界在 $L$ 的雷射光，保證之前有一個左界在 $L$ 的雷射光
 	
 	- $4\space L\space R:$ 計算 $[L,R]$ 之間的不重複數字，以及 $[L,R]$ 之間所有被完全覆蓋在內的雷射光強度總和
 	
 	$N,Q\le 10^5$
+	
+	??? note "思路"
+		
+		cdq
+		
+		存 $(i,j,k):$ index, 下一次出現的位置, 時間戳記 
+		
+		$L_j,R_j,t_j$
+		
+		$(L_i, R_i, t_i):$ 被移除的時刻 $\begin{cases}t_i > t_j\\ L\end{cases}$
 
 ### 洛谷 动态逆序对
 
@@ -1686,5 +1716,11 @@ $$
 	
 	$n\le 10^5,m\le 5\times 10^4$
 
+### NPSC 上司的薪水
+
+???+note "<a href="/wiki/offline/images/NPSC2015.pdf" target="_blank">NPSC 2015 高中組決賽 pB.上司的薪水</a>"
+	給你一顆 $N$ 個點的有根樹還有一個正整數 $k$，每一個點一開始的值都是 $0$，有 $Q$ 次操作，每次選擇一個點 $u$ 跟一個正整數 $x$，代表把 $u$ 走到根每個點的值都加上 $x$，每次操作完問有整棵樹有幾個點的值 $\ge k$
+	
+	$N,Q\le 3\times 10^5$
 
 [^1]: 每個邊只會往一邊走，上一層用完了就可以刪掉，所以同一時間只有 $m$ 條邊在跑，每個邊只出現在一個地方 
