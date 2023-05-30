@@ -1687,7 +1687,7 @@ $$
 ???+note "[TIOJ 2030.盩僰麌過街 人人喊打](https://tioj.ck.tp.edu.tw/problems/2030)"
 	給你長度為 $N$ 的序列 $a_1\sim a_N$，請支援 $Q$ 次以下操作 :
 	
-	- $1\space p\space v:$ 把 $p$ 改成 $v$
+	- $1\space p\space v:$ 把 $a_p$ 改成 $v$
 	
 	- $2\space L\space R\space V:$ 設置一道雷射光在 $[L,R]$，強度為 $V$，保證之前沒有左界在 $L$ 的雷射光
 	
@@ -1699,13 +1699,42 @@ $$
 	
 	??? note "思路"
 		
-		cdq
+		$(L_j,R_j,t_j)$
 		
-		存 $(i,j,k):$ index, 下一次出現的位置, 時間戳記 
+		更改想成兩個步驟，消除 $a_p$ 的貢獻，加入 $v$ 的貢獻
 		
-		$L_j,R_j,t_j$
+		$-a_p$ :
 		
-		$(L_i, R_i, t_i):$ 被移除的時刻 $\begin{cases}t_i > t_j\\ L\end{cases}$
+		存 $(idx,nxt,t_i),-1:$ 
+		
+		index, 在之前 $a_p$ 出現的那個時刻下一次出現的位置, 現在的時間戳記 
+		
+		$$\begin{cases}L_j \le idx\\ idx \le R_j \\ t_i < t_j \\ nxt > R_j \end{cases}$$
+		
+		改成 $v:$
+		
+		存 $(idx,nxt,t_i),+1:$ 
+		
+		index, 在現在 $v$ 下一次出現的位置, 現在的時間戳記 
+		
+		$$\begin{cases}L_j \le idx\\ idx \le R_j \\ t_i < t_j \\ nxt > R_j \end{cases}$$
+		
+		<figure markdown>
+          ![Image title](./images/8.png){ width="300" }
+          <figcaption>Image caption</figcaption>
+        </figure>
+		
+		$+(L_i, R_i, t_i),+V:$ 加入的時刻
+		
+		$-(L_i, R_i, t_i),-V:$ 加入的時刻
+		
+		$$\begin{cases}t_j > t_i\\ L_j \ge L_i \\ R_i \ge R_j\end{cases}$$
+		
+		<figure markdown>
+          ![Image title](./images/9.png){ width="300" }
+          <figcaption>Image caption</figcaption>
+        </figure>
+
 
 ### 洛谷 动态逆序对
 
@@ -1718,7 +1747,7 @@ $$
 
 ### NPSC 上司的薪水
 
-???+note "<a href="/wiki/offline/images/NPSC2015.pdf" target="_blank">NPSC 2015 高中組決賽 pB.上司的薪水</a>"
+???+note "<a href="/wiki/offline/images/NPSC2015.pdf#page=7" target="_blank">NPSC 2015 高中組決賽 pB.上司的薪水</a>"
 	給你一顆 $N$ 個點的有根樹還有一個正整數 $k$，每一個點一開始的值都是 $0$，有 $Q$ 次操作，每次選擇一個點 $u$ 跟一個正整數 $x$，代表把 $u$ 走到根每個點的值都加上 $x$，每次操作完問有整棵樹有幾個點的值 $\ge k$
 	
 	$N,Q\le 3\times 10^5$
