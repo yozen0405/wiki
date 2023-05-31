@@ -1227,7 +1227,7 @@ $$
 		- 移除 [i, ans[i] - 1] 有 odd cycle
 		
 		- 移除 [i, ans[i]] 沒 odd cycle
-
+	
 		對於每個 i，二分搜 ans[i]，使 [i, ans[i]] 沒 odd cycle
 		
 		再來要定義上界下界
@@ -1239,197 +1239,197 @@ $$
 		所以我們找到第一個 prefix[0, qr] 滿足 :
 		
 		- 只用 [0, qr - 1] 的邊沒有 odd cycle
-
+	
 		- 只用 [0, qr] 的邊有 odd cycle
-
+	
 		i > qr 的部分不管移除多少個邊都還是會有 odd cycle
 	
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        struct Edge {
-            int u, v;
-        };
-
-        struct Graph {
-            Graph (int n) : n(n) {
-                sz = vector<int>(n, 1);
-                par = vector<int>(n);
-                dis = vector<int>(n);
-                cnt = 0;
-                for (int i = 0; i < n; i++) {
-                    par[i] = i;
-                }
-            }
-            void add_edge (const Edge &e) {
-                auto [x, disx] = find (e.u);
-                auto [y, disy] = find (e.v);
-                if (x == y) {
-                    // if (disx == disy) => odd cycle
-                    cnt += (disx == disy);
-                    stk.push ({-1, (disx == disy)});
-                    return;
-                }
-
-                if (sz[x] < sz[y]) swap (x, y);
-                sz[x] += sz[y]; par[y] = x; dis[y] = disx ^ disy ^ 1;
-                stk.push ({x, y});
-            }
-            void undo () {
-                auto [x, y] = stk.top ();
-                stk.pop ();
-                if (x == -1) {
-                    cnt -= y;
-                    return;
-                }
-                sz[x] -= sz[y]; par[y] = y; dis[y] = 0;
-            }
-            bool check () {
-                // return : 有沒有 odd cycle
-                return (cnt > 0);
-            }
-
-            private :
-                int n, cnt;
-                vector<int> sz;
-                vector<int> par;
-                vector<int> dis;
-                stack<pii> stk;
-
-                pii find (int x) {
-                    if (par[x] == x) return {x, 0};
-                    else {
-                        auto [fa, d] = find (par[x]);
-                        return {fa, d ^ dis[x]};
-                    } 
-                }
-        };
-
-        int n, m, q;
-        int ans[maxn];
-        vector<Edge> edges;
-
-        void solve (Graph &g, int el, int er, int ql, int qr) {
-            // [0, ql - 1] and [er + 1, m - 1] 都已加入 g 
-            if (ql > qr) return;
-            if (el == er) {
-                for (int i = ql; i <= qr; i++) {
-                    ans[i] = el;
-                }
-                return;
-            }
-            int emid = (el + er) / 2, qmid = min (emid, qr);
-
-            for (int i = emid + 1; i <= er; i++) {
-                g.add_edge (edges[i]);
-            }
-            int cnt = 0;
-            for (int i = ql; i <= min (emid, qr); i++) {
-                if (i > ql) g.add_edge (edges[i - 1]), cnt++;
-                if (g.check ()) {
-                    // 移除 [i, emid] 有 odd cycle
-                    // 移除 [i - 1, emid] 沒 odd cycle
-                    qmid = i - 1;
-                    break;
-                }
-            }
-
-            while (cnt--) {
-                g.undo ();
-            }
-
-            solve (g, el, emid, ql, qmid); // [0, ql - 1] [emid + 1, m - 1]
-
-            for (int i = emid + 1; i <= er; i++) {
-                g.undo ();
-            }
-
-            for (int i = ql; i <= qmid; i++) {
-                g.add_edge (edges[i]);
-            }
-
-            solve (g, emid + 1, er, qmid + 1, qr); // [0, qmid] [er + 1, m - 1]
-            for (int i = ql; i <= qmid; i++) {
-                g.undo ();
-            }
-        }
-
-        void init () {
-            cin >> n >> m >> q;
-            int u, v;
-            for (int i = 0; i < m; i++) {
-                cin >> u >> v;
-                u--, v--;
-                edges.pb ({u, v});
-            }
-        }
-
-        // 找到最小的 ans[i], 使移除 [i, ans[i]] 沒 odd cycle
-        // 移除 [i, ans[i] - 1] 有 odd cycle
-        // 移除 [i, ans[i]] 沒 odd cycle
-
-        void build () {
-            // 使得 ans[i] 有上界
-            // TODO : 找到第一個 i 使得 用 [0, i] 的 edge 有 odd cycle
-            Graph tmp(n);
-            int ql = 0, qr = m;
-            for (int i = 0; i < m; i++) {
-                tmp.add_edge (edges[i]);
-                if (tmp.check ()) {
-                    qr = i;
-                    break;
-                } 
-            }
-            if (qr == m) {
-                for (int i = 0; i < m; i++) {
-                    ans[i] = i;
-                }
-                return;
-            }
-            for (int i = qr + 1; i < m; i++) {
-                ans[i] = m;
-            }
-
-            Graph g(n);
-            solve (g, 0, m - 1, ql, qr);
-        }
-
-        void work () {
-            build ();
-
-            while (q--) {
-                int l, r;
-                cin >> l >> r;
-                l--, r--;
-                if (ans[l] <= r) cout << "NO\n";
-                else cout << "YES\n";
-            }
-        } 
-
-        signed main() {
-            // ios::sync_with_stdio(0);
-            // cin.tie(0);
-            int t = 1;
-            //cin >> t;
-            while (t--) {
-                init ();
-                work();
-            }
-        }
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Edge {
+	        int u, v;
+	    };
+	
+	    struct Graph {
+	        Graph (int n) : n(n) {
+	            sz = vector<int>(n, 1);
+	            par = vector<int>(n);
+	            dis = vector<int>(n);
+	            cnt = 0;
+	            for (int i = 0; i < n; i++) {
+	                par[i] = i;
+	            }
+	        }
+	        void add_edge (const Edge &e) {
+	            auto [x, disx] = find (e.u);
+	            auto [y, disy] = find (e.v);
+	            if (x == y) {
+	                // if (disx == disy) => odd cycle
+	                cnt += (disx == disy);
+	                stk.push ({-1, (disx == disy)});
+	                return;
+	            }
+	
+	            if (sz[x] < sz[y]) swap (x, y);
+	            sz[x] += sz[y]; par[y] = x; dis[y] = disx ^ disy ^ 1;
+	            stk.push ({x, y});
+	        }
+	        void undo () {
+	            auto [x, y] = stk.top ();
+	            stk.pop ();
+	            if (x == -1) {
+	                cnt -= y;
+	                return;
+	            }
+	            sz[x] -= sz[y]; par[y] = y; dis[y] = 0;
+	        }
+	        bool check () {
+	            // return : 有沒有 odd cycle
+	            return (cnt > 0);
+	        }
+	
+	        private :
+	            int n, cnt;
+	            vector<int> sz;
+	            vector<int> par;
+	            vector<int> dis;
+	            stack<pii> stk;
+	
+	            pii find (int x) {
+	                if (par[x] == x) return {x, 0};
+	                else {
+	                    auto [fa, d] = find (par[x]);
+	                    return {fa, d ^ dis[x]};
+	                } 
+	            }
+	    };
+	
+	    int n, m, q;
+	    int ans[maxn];
+	    vector<Edge> edges;
+	
+	    void solve (Graph &g, int el, int er, int ql, int qr) {
+	        // [0, ql - 1] and [er + 1, m - 1] 都已加入 g 
+	        if (ql > qr) return;
+	        if (el == er) {
+	            for (int i = ql; i <= qr; i++) {
+	                ans[i] = el;
+	            }
+	            return;
+	        }
+	        int emid = (el + er) / 2, qmid = min (emid, qr);
+	
+	        for (int i = emid + 1; i <= er; i++) {
+	            g.add_edge (edges[i]);
+	        }
+	        int cnt = 0;
+	        for (int i = ql; i <= min (emid, qr); i++) {
+	            if (i > ql) g.add_edge (edges[i - 1]), cnt++;
+	            if (g.check ()) {
+	                // 移除 [i, emid] 有 odd cycle
+	                // 移除 [i - 1, emid] 沒 odd cycle
+	                qmid = i - 1;
+	                break;
+	            }
+	        }
+	
+	        while (cnt--) {
+	            g.undo ();
+	        }
+	
+	        solve (g, el, emid, ql, qmid); // [0, ql - 1] [emid + 1, m - 1]
+	
+	        for (int i = emid + 1; i <= er; i++) {
+	            g.undo ();
+	        }
+	
+	        for (int i = ql; i <= qmid; i++) {
+	            g.add_edge (edges[i]);
+	        }
+	
+	        solve (g, emid + 1, er, qmid + 1, qr); // [0, qmid] [er + 1, m - 1]
+	        for (int i = ql; i <= qmid; i++) {
+	            g.undo ();
+	        }
+	    }
+	
+	    void init () {
+	        cin >> n >> m >> q;
+	        int u, v;
+	        for (int i = 0; i < m; i++) {
+	            cin >> u >> v;
+	            u--, v--;
+	            edges.pb ({u, v});
+	        }
+	    }
+	
+	    // 找到最小的 ans[i], 使移除 [i, ans[i]] 沒 odd cycle
+	    // 移除 [i, ans[i] - 1] 有 odd cycle
+	    // 移除 [i, ans[i]] 沒 odd cycle
+	
+	    void build () {
+	        // 使得 ans[i] 有上界
+	        // TODO : 找到第一個 i 使得 用 [0, i] 的 edge 有 odd cycle
+	        Graph tmp(n);
+	        int ql = 0, qr = m;
+	        for (int i = 0; i < m; i++) {
+	            tmp.add_edge (edges[i]);
+	            if (tmp.check ()) {
+	                qr = i;
+	                break;
+	            } 
+	        }
+	        if (qr == m) {
+	            for (int i = 0; i < m; i++) {
+	                ans[i] = i;
+	            }
+	            return;
+	        }
+	        for (int i = qr + 1; i < m; i++) {
+	            ans[i] = m;
+	        }
+	
+	        Graph g(n);
+	        solve (g, 0, m - 1, ql, qr);
+	    }
+	
+	    void work () {
+	        build ();
+	
+	        while (q--) {
+	            int l, r;
+	            cin >> l >> r;
+	            l--, r--;
+	            if (ans[l] <= r) cout << "NO\n";
+	            else cout << "YES\n";
+	        }
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init ();
+	            work();
+	        }
+	    }
 	    ```
 
 ### POI 2011 Meteors
@@ -1682,74 +1682,5 @@ $$
 	
 	$N\le 10^5,M,Q\le 3\times 10^5$
 
-### TIOJ 2030
-
-???+note "[TIOJ 2030.盩僰麌過街 人人喊打](https://tioj.ck.tp.edu.tw/problems/2030)"
-	給你長度為 $N$ 的序列 $a_1\sim a_N$，請支援 $Q$ 次以下操作 :
-	
-	- $1\space p\space v:$ 把 $a_p$ 改成 $v$
-	
-	- $2\space L\space R\space V:$ 設置一道雷射光在 $[L,R]$，強度為 $V$，保證之前沒有左界在 $L$ 的雷射光
-	
-	- $3\space L:$ 移除左界在 $L$ 的雷射光，保證之前有一個左界在 $L$ 的雷射光
-	
-	- $4\space L\space R:$ 計算 $[L,R]$ 之間的不重複數字，以及 $[L,R]$ 之間所有被完全覆蓋在內的雷射光強度總和
-	
-	$N,Q\le 10^5$
-	
-	??? note "思路"
-		
-		$(L_j,R_j,t_j)$
-		
-		更改想成兩個步驟，消除 $a_p$ 的貢獻，加入 $v$ 的貢獻
-		
-		$-a_p$ :
-		
-		存 $(idx,nxt,t_i),-1:$ 
-		
-		index, 在之前 $a_p$ 出現的那個時刻下一次出現的位置, 現在的時間戳記 
-		
-		$$\begin{cases}L_j \le idx\\ idx \le R_j \\ t_i < t_j \\ nxt > R_j \end{cases}$$
-		
-		改成 $v:$
-		
-		存 $(idx,nxt,t_i),+1:$ 
-		
-		index, 在現在 $v$ 下一次出現的位置, 現在的時間戳記 
-		
-		$$\begin{cases}L_j \le idx\\ idx \le R_j \\ t_i < t_j \\ nxt > R_j \end{cases}$$
-		
-		<figure markdown>
-          ![Image title](./images/8.png){ width="300" }
-          <figcaption>Image caption</figcaption>
-        </figure>
-		
-		$+(L_i, R_i, t_i),+V:$ 加入的時刻
-		
-		$-(L_i, R_i, t_i),-V:$ 加入的時刻
-		
-		$$\begin{cases}t_j > t_i\\ L_j \ge L_i \\ R_i \ge R_j\end{cases}$$
-		
-		<figure markdown>
-          ![Image title](./images/9.png){ width="300" }
-          <figcaption>Image caption</figcaption>
-        </figure>
-
-
-### 洛谷 动态逆序对
-
-???+note "[洛谷 P3157 [CQOI2011]动态逆序对](https://www.luogu.com.cn/problem/P3157)"
-	現在給出 $1\sim n$ 的一個排列，按照某種順序依次刪除 $m$ 個元素
-	
-	在每次刪除一個元素之前統計整個序列的逆序數對的個數
-	
-	$n\le 10^5,m\le 5\times 10^4$
-
-### NPSC 上司的薪水
-
-???+note "<a href="/wiki/offline/images/NPSC2015.pdf#page=7" target="_blank">NPSC 2015 高中組決賽 pB.上司的薪水</a>"
-	給你一顆 $N$ 個點的有根樹還有一個正整數 $k$，每一個點一開始的值都是 $0$，有 $Q$ 次操作，每次選擇一個點 $u$ 跟一個正整數 $x$，代表把 $u$ 走到根每個點的值都加上 $x$，每次操作完問有整棵樹有幾個點的值 $\ge k$
-	
-	$N,Q\le 3\times 10^5$
 
 [^1]: 每個邊只會往一邊走，上一層用完了就可以刪掉，所以同一時間只有 $m$ 條邊在跑，每個邊只出現在一個地方 

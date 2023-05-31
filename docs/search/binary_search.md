@@ -21,3 +21,7 @@
 - [neoj 田忌賽馬](https://neoj.sprout.tw/problem/69/)
 
 - 2023 TOI mock double cnt
+
+- <https://tioj.ck.tp.edu.tw/problems/1669>
+
+- [JOI Kingdom](https://loj.ac/p/2334)

@@ -307,184 +307,179 @@
 	    那要怎麼維護操作先後順序呢 ? 我們可以多加一為 $z$ 表示此操作的時間戳記，問題就變成
 	    
 	    給定一個 $(x_i,y_i,z_i)$ 詢問 $\begin{cases}x_j \le x_i \\ y_j \le y_i \\ z_j \le z_i \end{cases}$ 的權值總和
-
+	
 	??? note "code"
 		```cpp linenums="1"
 		#include <algorithm>
-        #include <cassert>
-        #include <iostream>
-        #include <utility>
-        #include <vector>
+	    #include <cassert>
+	    #include <iostream>
+	    #include <utility>
+	    #include <vector>
+	
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define lowbit(x) (x & (-x))
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int maxn = 3e5 + 5;
+	
+	    int n, q;
+	    int ans[maxn], op[maxn];
+	    int g[1005][1005], pre[1005][1005];
+	
+	    struct triple {
+	        int a, b, c, cnt, x, id;
+	        // (z, x, y), cnt, multiply, org qry idx
+	    };
+	
+	    vector<triple> a;
+	    int t = 0;
+	
+	    void add_event(int i, int j, int cnt, int x, int id) {
+	        if (i <= 0) return;
+	        if (j <= 0) return;
+	        a.pb({t++, i, j, cnt, x, id});
+	    }
+	
+	    int cmpA(const triple &A, const triple &B) {
+	        if (A.a != B.a) return A.a < B.a;
+	        if (A.b != B.b) return A.b < B.b;
+	        return A.c < B.c;
+	    }
+	
+	    int cmpB(const triple &A, const triple &B) {
+	        if (A.b != B.b) return A.b < B.b;
+	        return A.c < B.c;
+	    }
+	
+	    struct BIT {
+	        vector<int> bit;
+	        int n;
+	
+	        void init(int _n) {
+	            n = _n;
+	            bit.resize(n + 1);
+	        }
+	
+	        void add(int x, int d) {
+	            assert(x != 0);
+	            while (x <= n) {
+	                bit[x] += d;
+	                x += lowbit(x);
+	            }
+	        }
+	
+	        int query(int x) {
+	            int ret = 0;
+	            while (x > 0) {
+	                ret += bit[x];
+	                x -= lowbit(x);
+	            }
+	            return ret;
+	        }
+	    } bit;
+	
+	    void CDQ(int l, int r) {
+	        if (l == r) return;
+	        // cout << l << ' ' << r << endl;
+	
+	        int mid = (l + r) / 2;
+	        CDQ(l, mid);
+	        CDQ(mid + 1, r);
+	        // sort(a.begin() + l, a.begin() + mid + 1, cmpB);
+	        // sort(a.begin() + mid + 1, a.begin() + r + 1, cmpB);
+	
+	        int i = l;
+	        for (int j = mid + 1; j <= r; j++) {
+	            while (i <= mid && a[i].b <= a[j].b) {
+	                bit.add(a[i].c, a[i].cnt);
+	                i++;
+	            }
+	
+	            ans[a[j].id] += a[j].x * bit.query(a[j].c);
+	        }
+	
+	        for (int k = l; k < i; k++) {
+	            bit.add(a[k].c, -a[k].cnt);
+	        }
+	
+	        inplace_merge(a.begin() + l, a.begin() + mid + 1, a.begin() + r + 1, cmpB);
+	    }
+	
+	    void solve() {
+	        cin >> n >> q;
+	
+	        for (int i = 1; i <= n; i++) {
+	            for (int j = 1; j <= n; j++) {
+	                char c;
+	                cin >> c;
+	                if (c == '*') {
+	                    g[i][j] = 1;
+	                    pre[i][j]++;
+	                }
+	            }
+	        }
+	
+	        for (int i = 1; i <= n; i++) {
+	            for (int j = 1; j <= n; j++) {
+	                pre[i][j] =
+	                    pre[i][j] + pre[i - 1][j] + pre[i][j - 1] - pre[i - 1][j - 1];
+	                // cout << "i:" << i << ",j:" << j << ",pre:" << pre[i][j] << "\n";
+	            }
+	        }
+	
+	        for (int cs = 1; cs <= q; cs++) {
+	            cin >> op[cs];
+	            if (op[cs] == 1) {
+	                int i, j;
+	                cin >> i >> j;
+	
+	                if (g[i][j] == 1) {
+	                    add_event(i, j, -1, 0, 0);
+	                    g[i][j] = 0;
+	                } else {
+	                    add_event(i, j, +1, 0, 0);
+	                    g[i][j] = 1;
+	                }
+	            } else {
+	                int i1, i2, j1, j2;
+	                cin >> i1 >> j1 >> i2 >> j2;
+	                i1--, j1--;
+	                add_event(i2, j2, 0, +1, cs);
+	                add_event(i1, j2, 0, -1, cs);
+	                add_event(i2, j1, 0, -1, cs);
+	                add_event(i1, j1, 0, +1, cs);
+	                ans[cs] += pre[i2][j2] - pre[i1][j2] - pre[i2][j1] + pre[i1][j1];
+	            }
+	        }
+	
+	        sort(ALL(a), cmpA);
+	
+	        bit.init(1024);
+	        CDQ(0, (int)a.size() - 1);
+	
+	        for (int i = 1; i <= q; i++) {
+	            if (op[i] == 1) continue;
+	
+	            cout << ans[i] << '\n';
+	        }
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	
+	        solve();
+	    }
+	    ```
 
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define lowbit(x) (x & (-x))
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int maxn = 3e5 + 5;
-
-        int n, q;
-        int ans[maxn], op[maxn];
-        int g[1005][1005], pre[1005][1005];
-
-        struct triple {
-            int a, b, c, cnt, x, id;
-            // (z, x, y), cnt, multiply, org qry idx
-        };
-
-        vector<triple> a;
-        int t = 0;
-
-        void add_event(int i, int j, int cnt, int x, int id) {
-            if (i <= 0) return;
-            if (j <= 0) return;
-            a.pb({t++, i, j, cnt, x, id});
-        }
-
-        int cmpA(const triple &A, const triple &B) {
-            if (A.a != B.a) return A.a < B.a;
-            if (A.b != B.b) return A.b < B.b;
-            return A.c < B.c;
-        }
-
-        int cmpB(const triple &A, const triple &B) {
-            if (A.b != B.b) return A.b < B.b;
-            return A.c < B.c;
-        }
-
-        struct BIT {
-            vector<int> bit;
-            int n;
-
-            void init(int _n) {
-                n = _n;
-                bit.resize(n + 1);
-            }
-
-            void add(int x, int d) {
-                assert(x != 0);
-                while (x <= n) {
-                    bit[x] += d;
-                    x += lowbit(x);
-                }
-            }
-
-            int query(int x) {
-                int ret = 0;
-                while (x > 0) {
-                    ret += bit[x];
-                    x -= lowbit(x);
-                }
-                return ret;
-            }
-        } bit;
-
-        void CDQ(int l, int r) {
-            if (l == r) return;
-            // cout << l << ' ' << r << endl;
-
-            int mid = (l + r) / 2;
-            CDQ(l, mid);
-            CDQ(mid + 1, r);
-            // sort(a.begin() + l, a.begin() + mid + 1, cmpB);
-            // sort(a.begin() + mid + 1, a.begin() + r + 1, cmpB);
-
-            int i = l;
-            for (int j = mid + 1; j <= r; j++) {
-                while (i <= mid && a[i].b <= a[j].b) {
-                    bit.add(a[i].c, a[i].cnt);
-                    i++;
-                }
-
-                ans[a[j].id] += a[j].x * bit.query(a[j].c);
-            }
-
-            for (int k = l; k < i; k++) {
-                bit.add(a[k].c, -a[k].cnt);
-            }
-
-            inplace_merge(a.begin() + l, a.begin() + mid + 1, a.begin() + r + 1, cmpB);
-        }
-
-        void solve() {
-            cin >> n >> q;
-
-            for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= n; j++) {
-                    char c;
-                    cin >> c;
-                    if (c == '*') {
-                        g[i][j] = 1;
-                        pre[i][j]++;
-                    }
-                }
-            }
-
-            for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= n; j++) {
-                    pre[i][j] =
-                        pre[i][j] + pre[i - 1][j] + pre[i][j - 1] - pre[i - 1][j - 1];
-                    // cout << "i:" << i << ",j:" << j << ",pre:" << pre[i][j] << "\n";
-                }
-            }
-
-            for (int cs = 1; cs <= q; cs++) {
-                cin >> op[cs];
-                if (op[cs] == 1) {
-                    int i, j;
-                    cin >> i >> j;
-
-                    if (g[i][j] == 1) {
-                        add_event(i, j, -1, 0, 0);
-                        g[i][j] = 0;
-                    } else {
-                        add_event(i, j, +1, 0, 0);
-                        g[i][j] = 1;
-                    }
-                } else {
-                    int i1, i2, j1, j2;
-                    cin >> i1 >> j1 >> i2 >> j2;
-                    i1--, j1--;
-                    add_event(i2, j2, 0, +1, cs);
-                    add_event(i1, j2, 0, -1, cs);
-                    add_event(i2, j1, 0, -1, cs);
-                    add_event(i1, j1, 0, +1, cs);
-                    ans[cs] += pre[i2][j2] - pre[i1][j2] - pre[i2][j1] + pre[i1][j1];
-                }
-            }
-
-            sort(ALL(a), cmpA);
-
-            bit.init(1024);
-            CDQ(0, (int)a.size() - 1);
-
-            for (int i = 1; i <= q; i++) {
-                if (op[i] == 1) continue;
-
-                cout << ans[i] << '\n';
-            }
-        }
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-
-            solve();
-        }
-        ```
-
-  
-
-
-
-
-### APIO 2019 路燈
+- 類似題 : [APIO 2019 路燈](https://loj.ac/p/3146)
 
 
 ### NPSC 忙碌的國度
@@ -553,8 +548,82 @@
 		<figure markdown>
 	      ![Image title](./images/3.png){ width="400" }
 	    </figure>
-
-
-​		
+		
 		時間複雜度 : $O(n\log n)$
 
+### TIOJ 2030
+
+???+note "[TIOJ 2030.盩僰麌過街 人人喊打](https://tioj.ck.tp.edu.tw/problems/2030)"
+	給你長度為 $N$ 的序列 $a_1\sim a_N$，請支援 $Q$ 次以下操作 :
+	
+	- $1\space p\space v:$ 把 $a_p$ 改成 $v$
+	
+	- $2\space L\space R\space V:$ 設置一道雷射光在 $[L,R]$，強度為 $V$，保證之前沒有左界在 $L$ 的雷射光
+	
+	- $3\space L:$ 移除左界在 $L$ 的雷射光，保證之前有一個左界在 $L$ 的雷射光
+	
+	- $4\space L\space R:$ 計算 $[L,R]$ 之間的不重複數字，以及 $[L,R]$ 之間所有被完全覆蓋在內的雷射光強度總和
+	
+	$N,Q\le 10^5$
+	
+	??? note "思路"
+		
+		$(L_j,R_j,t_j)$
+		
+		更改想成兩個步驟，消除 $a_p$ 的貢獻，加入 $v$ 的貢獻
+		
+		$-a_p$ :
+		
+		存 $(idx,nxt,t_i),-1:$ 
+		
+		index, 在之前 $a_p$ 出現的那個時刻下一次出現的位置, 現在的時間戳記 
+		
+		$$\begin{cases}L_j \le idx\\ idx \le R_j \\ t_i < t_j \\ nxt > R_j \end{cases}$$
+		
+		改成 $v:$
+		
+		存 $(idx,nxt,t_i),+1:$ 
+		
+		index, 在現在 $v$ 下一次出現的位置, 現在的時間戳記 
+		
+		$$\begin{cases}L_j \le idx\\ idx \le R_j \\ t_i < t_j \\ nxt > R_j \end{cases}$$
+		
+		<figure markdown>
+	      ![Image title](./images/8.png){ width="300" }
+	      <figcaption>Image caption</figcaption>
+	    </figure>
+		
+		$+(L_i, R_i, t_i),+V:$ 加入的時刻
+		
+		$-(L_i, R_i, t_i),-V:$ 加入的時刻
+		
+		$$\begin{cases}t_j > t_i\\ L_j \ge L_i \\ R_i \ge R_j\end{cases}$$
+		
+		<figure markdown>
+	      ![Image title](./images/9.png){ width="300" }
+	      <figcaption>Image caption</figcaption>
+	    </figure>
+
+
+### 洛谷 动态逆序对
+
+???+note "[洛谷 P3157 [CQOI2011]动态逆序对](https://www.luogu.com.cn/problem/P3157)"
+	現在給出 $1\sim n$ 的一個排列，按照某種順序依次刪除 $m$ 個元素
+	
+	在每次刪除一個元素之前統計整個序列的逆序數對的個數
+	
+	$n\le 10^5,m\le 5\times 10^4$
+
+### NPSC 上司的薪水
+
+???+note "<a href="/wiki/offline/images/NPSC2015.pdf#page=7" target="_blank">NPSC 2015 高中組決賽 pB.上司的薪水</a>"
+	給你一顆 $N$ 個點的有根樹還有一個正整數 $k$，每一個點一開始的值都是 $0$，有 $Q$ 次操作，每次選擇一個點 $u$ 跟一個正整數 $x$，代表把 $u$ 走到根每個點的值都加上 $x$，每次操作完問有整棵樹有幾個點的值 $\ge k$
+	
+	$N,Q\le 3\times 10^5$
+
+### 吐鈔機 2
+
+???+note "[吐鈔機 2](https://tioj.ck.tp.edu.tw/problems/1921)"
+	有 $N$ 台機器，其中第 $i$ 台會在時間 $D_i$ 拍賣，價格為 $P_i$，此機器每天會生產 $G_i$ 元，且將這台機器轉賣可得 $R_i$ 元，一個時間只能擁有一台機器，你一開始有 $C_i$ 元，求在第 $D$ 天後你最多可以賺進多少錢
+	
+	$N\le 10^5,D\le 10^9$
