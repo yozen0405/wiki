@@ -2145,98 +2145,123 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 	
 	??? note "code (by [becaido](https://caidocode.blogspot.com/2022/12/nhspc2022.html))"
 		```cpp linenums="1"
-		#pragma GCC optimize("O3,unroll-loops")
-	    #pragma GCC target("avx,avx2,popcnt,sse4,abm")
-	    #include <bits/stdc++.h>
-	    using namespace std;
-	
-	    #ifdef WAIMAI
-	    #define debug(HEHE...) cout<<"["<<#HEHE<<"] : ",dout(HEHE)
-	    void dout(){cout<<'\n';}
-	    template<typename T,typename...U>
-	    void dout(T t,U...u){cout<<t<<(sizeof...(u)?", ":""),dout(u...);}
-	    #else
-	    #define debug(...) 7122
-	    #endif
-	
-	    #define int long long
-	    #define ll long long
-	    #define Waimai ios::sync_with_stdio(false),cin.tie(0)
-	    #define FOR(x,a,b) for(int x=a,I=b;x<=b;x++)
-	    #define pb emplace_back
-	    #define F first
-	    #define S second
-	
-	    const int INF = 2e9;
-	    const int SIZE = 1005;
-	
-	    int n, k;
-	    int d[SIZE];
-	    int C[SIZE][SIZE];
-	    int pre[SIZE], suf[SIZE];
-	    int prep[SIZE], sufp[SIZE];
-	
-	    void solve() {
-	        cin >> n >> k;
-	        FOR (i, 1, n) cin >> d[i];
-	        FOR (i, 1, n) d[i]--;
-	        C[0][0] = 1;
-	        FOR (i, 1, n) {
-	            C[i][0] = 1;
-	            FOR (j, 1, i) C[i][j] = min (INF, C[i - 1][j - 1] + C[i - 1][j]);
-	        }
-	
-	        k--;
-	        int pro = 1;
-	        for (int i = 1, m = 0; i <= n; i++) {
-	            m += d[i];
-	            pro = min (INF, pro * C[m][d[i]]);
-	        }
-	        debug (k, pro);
-	        if (k >= pro) {
-	            cout << "-1\n";
-	            return;
-	        }
-	
-	        vector<int> ans;
-	        FOR (t, 1, n - 2) {
-	            prep[0] = sufp[n + 1] = 1;
-	            FOR (i, 1, n) {
-	                pre[i] = pre[i - 1] + d[i];
-	                prep[i] = min (INF, prep[i - 1] * C[pre[i]][d[i]]);
-	            }
-	            for (int i = n; i >= 1; i--) {
-	                suf[i] = suf[i + 1] + d[i];
-	                sufp[i] = min (INF, sufp[i + 1] * C[suf[i]][d[i]]);
-	            }
-	            bool f = 0;
-	            FOR (i, 1, n) 
-	            	if (d[i]) {
-	                    int val = min (INF, prep[i - 1] * sufp[i + 1]);
-	                    val = min (INF, val * C[pre[i - 1] + suf[i + 1]][pre[i - 1]]);
-	                    val = min (INF, val * C[n - 2 - t][pre[i - 1] + suf[i + 1]]);
-	                    debug (i, k, val);
-	                    if (k >= val) k -= val;
-	                    else {
-	                        debug (t, i);
-	                        d[i]--;
-	                        ans.pb (i);
-	                        f = 1;
-	                        break;
-	                    }
-	            }
-	            if (!f) {
-	                cout << "-1\n";
-	                return;
-	            }
-	        }
-	        for (int x : ans) cout << x << '\n';
-	    }
-	
-	    int32_t main() {
-	        Waimai;
-	        solve();
-	    }
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const double mxLog = 9;
+        const int INF = 1e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+        const long double EPS = 1e-8;
+
+        int n, k;
+        int d[maxn];
+        double preLog[maxn];  // preLog[i] = log(i!)
+        int prei[maxn], pinv[maxn], pref[maxn];
+
+        void build() {
+            preLog[0] = 0;
+            for (int i = 1; i <= n; i++) {
+                preLog[i] = preLog[i - 1] + log10(i);
+            }
+
+            prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
+            for (int i = 2; i < maxn; i++) {
+                pref[i] = pref[i - 1] * i % M;
+                pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
+                prei[i] = prei[i - 1] * pinv[i] % M;
+            }
+        }
+
+        vector<int> work(int _n, int _k, const int _d[]) {
+            n = _n;
+            k = _k;
+            k--;
+            for (int i = 1; i <= n; i++) {
+                d[i] = _d[i];
+                d[i]--;
+            }
+
+            build();
+            vector<int> ans;
+            for (int t = n - 2; t >= 1; t--) {
+                int f, flag = false;
+                for (int i = 1; i <= n; i++) {
+                    if (d[i]) {
+                        f = i;
+                        break;
+                    }
+                }
+                double big = preLog[t - 1];
+                int small = pref[t - 1];
+
+                for (int i = 1; i <= n; i++) {
+                    if (i == f) {
+                        big = big - preLog[d[i] - 1];
+                        small = (small * prei[d[i] - 1]) % M;
+                    } else if (d[i]) {
+                        big = big - preLog[d[i]];
+                        small = (small * prei[d[i]]) % M;
+                    }
+                }
+                int val;
+                if (big - mxLog > EPS) {
+                    val = INF;
+                } else {
+                    val = small;
+                }
+                for (int i = 1; i <= n; i++) {
+                    if (d[i]) {
+                        if (i != f) {
+                            big += preLog[d[f] - 1] + preLog[d[i]];
+                            big -= preLog[d[f]] + preLog[d[i] - 1];
+                            small = (((small * pinv[d[f]]) % M) * d[i]) % M;
+                            if (big - mxLog > EPS) {
+                                val = INF;
+                            } else {
+                                val = small;
+                            }
+                            f = i;
+                        }
+                        if (k >= val) {
+                            k -= val;
+                        } else {
+                            ans.pb(i);
+                            d[i]--;
+                            flag = true;
+                            break;
+                        }
+                    }
+                }
+                if (flag == false) {
+                    return {-1};
+                }
+            }
+            return ans;
+        }
+
+        signed main () {
+            int n, k;
+            cin >> n >> k;
+            int d[1005];
+
+            for (int i = 1; i <= n; i++) {
+                cin >> d[i];
+            }
+
+            vector<int> ans = work (n, k, d);
+            for (auto it : ans) {
+                cout << it << "\n";
+            }
+        }
 	    ```
 
 ## Tree Isomorphism

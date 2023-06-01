@@ -1,9 +1,13 @@
-## 三维偏序
+## 模板
+
+按照值域進行分治，並非 index
+
 ### 非嚴格
-???+ note "非嚴格三维偏序"
+
+???+ note "[洛谷 P3810 三维偏序](https://www.luogu.com.cn/problem/P3810)"
     給 $n$ 個三維空間的點 $(x,y,z)$，問對於第 $i$ 個點，有幾個 $j$ 滿足 $x_j\ge x_i,y_j\ge y_i,z_j\ge z_i$
     
-    ??? note "[洛谷 P3810 三维偏序](https://www.luogu.com.cn/problem/P3810) code"
+    ??? note "code"
     	```cpp linenums="1"
     	#include <bits/stdc++.h>
         #define int long long
@@ -153,60 +157,40 @@
         #define pii pair<int, int>
         #define pb push_back
         #define mk make_pair
-        #define lowbit(x) (x & (-x))
         #define F first
         #define S second
         #define ALL(x) x.begin(), x.end()
-    
+        #define lowbit(x) (x & (-x))
+
         using namespace std;
-        using PQ = priority_queue<int, vector<int>, greater<int>>;
-    
+
         const int INF = 2e18;
         const int maxn = 3e5 + 5;
         const int M = 1e9 + 7;
-    
-        int n, C;
-        int ans[maxn];
-        vector<int> idx;
-    
+
         struct triple {
-            int a, b, c, id;
-    
-            bool operator== (triple &other) {
-                if (a == other.a && b == other.b && c == other.c)
-                    return true;
-                return false;
-            }
-        } a[maxn];
-    
-        int cmpA (triple A, triple B) {
-            if (A.a != B.a) return A.a > B.a;
-            if (A.b != B.b) return A.b > B.b;
-            return A.c > B.c;
-        }
-    
-        int cmpB (triple A, triple B) {
-            if (A.b != B.b) return A.b > B.b;
-            return A.c > B.c;
-        }
-    
+            int x, y, z, id;
+        };
+
         struct BIT {
             int n;
             vector<int> bit;
-    
+
             void init (int _n) {
                 n = _n;
                 bit.resize (n + 1);
             }
-    
+
             void add (int x, int d) {
+                x++;
                 while (x > 0) {
                     bit[x] += d;
                     x -= lowbit (x);
                 }
             }
-    
+
             int query (int x) {
+                x++;
                 int ret = 0;
                 while (x <= n) {
                     ret += bit[x];
@@ -214,78 +198,82 @@
                 }
                 return ret;
             }
-        } bit;
-    
-        void CDQ (int ql, int qr) {
-            if (ql == qr) return;
-    
-            int qmid = (ql + qr) / 2;
-            CDQ (ql, qmid), CDQ (qmid + 1, qr);
-    
-            int l = idx[ql], mid = idx[qmid + 1] - 1, r = idx[qr + 1] - 1;
-            vector<triple> left, right;
-            for (int i = l; i <= mid; i++) {
-                left.pb (a[i]);
-            }
-    
-            for (int i = mid + 1; i <= r; i++) {
-                right.pb (a[i]);
-            }
-            sort (ALL (left), cmpB);
-            sort (ALL (right), cmpB);
-    
-            int i = 0, j = 0;
-    
-            while (j < (int)right.size()) {
-                while (i < (int)left.size () && left[i].b > right[j].b) {
-                    bit.add (left[i].c, 1);
-                    i++;
-                }
-                ans[right[j].id] += bit.query (right[j].c + 1);
-                j++;
-            }   
-    
-            // undo
-            for (int k = 0; k < i; k++) {
-                bit.add (left[k].c, -1);
-            }
-            return;
+        }bit;
+
+        bool cmpX (triple &A, triple &B) {
+            if (A.x != B.x) return A.x < B.x;
+            if (A.y != B.y) return A.y > B.y;
+            return A.z > B.z;
         }
-    
-        void solve () {
-            cin >> n;
-    
-            for (int i = 0; i < n; i++) {
-                cin >> a[i].a >> a[i].b >> a[i].c;
-                a[i].id = i;
+
+        bool cmpY (triple &A, triple &B) {
+            if (A.y != B.y) return A.y > B.y;
+            return A.z > B.z;
+        }
+
+        int n;
+        int ans[maxn];
+
+        void solve (int l, int r, vector<triple> &a) {
+            int mid = (l + r) / 2;
+            if (l == r) return;
+
+
+            vector<triple> aLeft, aRight;
+            for (auto [x, y ,z, id] : a) {
+                if (x <= mid) aLeft.pb ({x, y, z, id});
+                else aRight.pb ({x, y, z, id});
             }
-            sort (a, a + n, cmpA);
-    
-            int m = 0, tot = 0;
-            for (int i = 0; i < n; i++) {
-                if (i && a[i - 1].a != a[i].a) {
-                    tot++;
-                    idx.pb (i);
+            solve (l, mid, aLeft); solve (mid + 1, r, aRight);
+
+            sort (ALL (aLeft), cmpY); sort (ALL (aRight), cmpY);
+
+            int i = 0, j = 0;
+            while (i < aLeft.size ()) {
+                while (j < aRight.size () && aRight[j].y > aLeft[i].y) {
+                    bit.add (aRight[j].z, 1);
+                    j++;
                 }
-                else if (i == 0) tot++, idx.pb (0);
+                ans[aLeft[i].id] += bit.query (aLeft[i].z + 1);
+                i++;
             }
+
+            for (int k = 0; k < j; k++) {
+                bit.add (aRight[k].z, -1);
+            }
+        }
+
+        vector<triple> a;
+
+        void init () {
+            cin >> n;
+            a.resize (n);
+
+            for (int i = 0; i < n; i++) {
+                cin >> a[i].x >> a[i].y >> a[i].z;
+                a[i].id = i;
+                a[i].x--, a[i].y--, a[i].z--;
+            }
+        }
+
+        void work () {
+            sort (ALL (a), cmpX);
+
             bit.init (n);
-            idx.pb (n);
-    
-            CDQ (0, tot - 1);
-    
+            solve (0, n - 1, a);
             for (int i = 0; i < n; i++) {
                 cout << ans[i] << "\n";
             }
         } 
-    
+
         signed main() {
             ios::sync_with_stdio(0);
             cin.tie(0);
             int t = 1;
             //cin >> t;
             while (t--) {
-                solve();
+                init();
+                work();
             }
         } 
         ```
@@ -590,7 +578,6 @@
 		
 		<figure markdown>
 	      ![Image title](./images/8.png){ width="300" }
-	      <figcaption>Image caption</figcaption>
 	    </figure>
 		
 		$+(L_i, R_i, t_i),+V:$ 加入的時刻
@@ -601,7 +588,6 @@
 		
 		<figure markdown>
 	      ![Image title](./images/9.png){ width="300" }
-	      <figcaption>Image caption</figcaption>
 	    </figure>
 
 
@@ -613,17 +599,13 @@
 	在每次刪除一個元素之前統計整個序列的逆序數對的個數
 	
 	$n\le 10^5,m\le 5\times 10^4$
-
-### NPSC 上司的薪水
-
-???+note "<a href="/wiki/offline/images/NPSC2015.pdf#page=7" target="_blank">NPSC 2015 高中組決賽 pB.上司的薪水</a>"
-	給你一顆 $N$ 個點的有根樹還有一個正整數 $k$，每一個點一開始的值都是 $0$，有 $Q$ 次操作，每次選擇一個點 $u$ 跟一個正整數 $x$，代表把 $u$ 走到根每個點的值都加上 $x$，每次操作完問有整棵樹有幾個點的值 $\ge k$
 	
-	$N,Q\le 3\times 10^5$
-
-### 吐鈔機 2
-
-???+note "[吐鈔機 2](https://tioj.ck.tp.edu.tw/problems/1921)"
-	有 $N$ 台機器，其中第 $i$ 台會在時間 $D_i$ 拍賣，價格為 $P_i$，此機器每天會生產 $G_i$ 元，且將這台機器轉賣可得 $R_i$ 元，一個時間只能擁有一台機器，你一開始有 $C_i$ 元，求在第 $D$ 天後你最多可以賺進多少錢
-	
-	$N\le 10^5,D\le 10^9$
+	??? note "思路"
+		
+		對於初始的陣列，我們的 tuple 就是 $(i,a_i,t_i=1),+1$
+		
+		然後先算好逆序數對個數
+		
+		再來對每一次的刪除，我們先 query$(i,a_i,t_i)$，然後加入 tuple $(i,a_i,t_i),-1$
+		
+		對於每個 query $(i,a_i,t_i)$ 我要算那些 $j$ 滿足 $\begin{cases}i<j\\ a_i > a_j \\ t_i \ge t_j\end{cases}$

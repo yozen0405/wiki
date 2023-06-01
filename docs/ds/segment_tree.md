@@ -8,3 +8,4 @@
 
 
 - 線段樹優化建圖
+- https://tioj.ck.tp.edu.tw/problems/1169

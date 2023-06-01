@@ -109,6 +109,18 @@
     
     - 請問你最少需要幾個步驟可以使 $a_l,...,a_r$ 非嚴格遞增
 
+### TIOJ 最小公倍數
+
+???+note "[TIOJ 1872.最小公倍數](https://tioj.ck.tp.edu.tw/problems/1872)"
+	給你 $N$ 個數，$Q$ 筆詢問 :
+	
+	- 計算 $c_l,\ldots ,c_r$ 的最小公倍數
+
+	$N,Q\le 10^6, c_i\le 10^6$
+	
+	
+
+
 - CSES - Pizzeria Queries
 
 - CSES - Polynomial Queries

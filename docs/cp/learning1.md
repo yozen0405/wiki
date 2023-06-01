@@ -28,8 +28,9 @@
 | 卓育安 | <li>[hackmd](https://hackmd.io/@CYA)                         | <li>2023 1!<br><li>2023 數奧國手                        |
 | 黃柏澄 | <li>[hackmd](https://hackmd.io/@BoCheNGHuaNG0114)            | <li>2023 數奧 3!                                        |
 | 林品安 | <li>[部落格](https://hakkaz.github.io/about/)<br><li>[APCS 經驗分享](https://medium.com/codingbar/apcs%E8%A7%A3%E9%A1%8C%E7%AD%96%E7%95%A5-%E5%AF%A6%E4%BD%9C%E6%BB%BF%E7%B4%9A%E5%88%86%E9%AB%98%E6%89%8B%E7%B6%93%E9%A9%97%E5%88%86%E4%BA%AB-217c79c76acb) | <font color="gray">無</font>                            |
-| 張集貴 | <li>[hackmd](https://hackmd.io/@pr3pony)<br><li>[演算法資源整理](https://hackmd.io/@pr3pony/HysEHoYe8) | <li>2017 2!                                             |
+| 張集貴 | <li>[hackmd](https://hackmd.io/@pr3pony)<br><li>[部落格](https://prprprpony.github.io/blog)<br><li>[演算法資源整理](https://hackmd.io/@pr3pony/HysEHoYe8) | <li>2017 2!                                             |
 | 吳宗達 | <li>[algoseacow github](https://github.com/algo-seacow)<br><li>[解題日誌](https://docs.google.com/spreadsheets/d/1FYjs5OFKm9Gc9d8BRT2AtYIfwjzHXKrH8_LfG5D2NmM/edit#gid=0) | <li>2016 2!                                             |
+| 王彥仁 | <li>[FB 心得文](https://www.facebook.com/wangyenjen0301)     | <li>2016 2!                                             |
 | 劉澈   | <li>[部落格](https://cheissmart.github.io/)                  | <li>2021 國手                                           |
 | 葉宥辰 | <li>[hackmd](https://hackmd.io/@LittlePants)<br><li>[解題日記](https://hackmd.io/@LittlePants/SkmahkxcD/https%3A%2F%2Fhackmd.io%2F%40LittlePants%2FH1GU2FUoP) | <li>2022 1!                                             |
 | 黃頂軒 | <li>[部落格](https://fffelix-huang.github.io/)               | <font color="gray">無</font>                            |
@@ -58,6 +59,7 @@
 | 蔣宗哲教授教材      | <li>[hackmd](https://hackmd.io/@tcchiang/Hk1oAePJw)<br><li>[網友解答](https://hackmd.io/@mathlin/Bkn6Tcp1D) |
 | Awesome CS Training | <li>[github](https://github.com/goodjack/awesome-cs-training)<br> |
 | ITSA                | <li>[judge](https://e-tutor.itsa.org.tw/e-Tutor/Question_bank.php?id=624)<br><li>需註冊帳號 |
+| A Simple Blog       | <li>[網站](https://robert1003.github.io/)                    |
 | 競程修練心法        | <li>[hackmd](https://hackmd.io/@sa072686/cp/%2F@sa072686%2FrJap7SM_r) |
 | 宜蘭高中自學平台    | <li>論壇(不一定跟程式有關)<br><li>[網站](https://josh930908.github.io/web/#/) |
 

@@ -17,4 +17,10 @@
 
 - qmid = i - 1
 
+- 輸入時忘記 vector.resize ()
+
+- 兩個迴圈 i, j 結果要用 j 的時候打成 i
+
+- const **double** EPS = 1e-8 not **const int**
+
   
