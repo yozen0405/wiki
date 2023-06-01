@@ -210,12 +210,17 @@ nav:
       - LIS: 'dp/LIS.md'
       - 背包問題: 'dp/knapsack.md'
       - 雜題整理: 'dp/problem.md'
+      - 狀態DP: 'dp/state.md'
       - 優化:
+        - 單調對列優化: 'dp/monotonous-queue.md'
+        - 分治優化: 'dp/D&C.md'
         - 斜率優化: 'dp/slope.md'
         - 四邊形優化: 'dp/quadrangle.md'
+        - SOS優化: 'dp/sos.md'
     - 其他:
       - 序列交換問題: 'other/swap.md'
       - 字典序: 'other/Lexicographic.md'
+      - bitset加速: 'other/bitset.md'
     
     
     

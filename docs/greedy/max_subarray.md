@@ -54,3 +54,6 @@ $$\begin{align} \max(\texttt{pre} + \texttt{suf}) &= \max(\texttt{total sum} - \
 		??? note "思路"
 			- $\texttt{pre(i)+suf(i+1)}$
 
+## APCS 內積
+
+???+note "[zerojudge i402. 4. 內積](https://zerojudge.tw/ShowProblem?problemid=i402)"
