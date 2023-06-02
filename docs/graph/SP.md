@@ -4,9 +4,12 @@
 
 考慮不帶權的單點源最短路，我們用BFS維護一個 queue，每次處理一個點時最短路徑大小已知，因此只需要拿該點去**更新其他點一次**在**沒有負邊**的假設下，dijkstra 就像是有帶權的BFS。
 
-模板題 : [CSES - Shortest Routes I](https://cses.fi/problemset/task/1671)
+???+note "模板 [CSES - Shortest Routes I](https://cses.fi/problemset/task/1671)"
+	給一張帶正權無向圖,求從節點 $1$ 到其他所有節點的最短路徑。
+	
+	$1 \le n \le 10^5,1 \le m \le 2 \times 10^5$
 
-???+note "dijkstra 模板"
+??? note "算法實作"
     ```cpp linenums="1"
     vector<int> dijkstra (int start, vector<int>* G) {
         vector<int> dis(n + 1, INF);
@@ -426,11 +429,12 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 
 ## Bellman Ford
 
-模板題 :  [CSES - Shortest Routes I](https://cses.fi/problemset/task/1671)
+???+note "模板 [CSES - Cycle Finding](https://cses.fi/problemset/task/1197)"
+	給一張 $n$ 點 $m$ 邊有向圖，求上面是否有負環
+	
+	$n \le 2500、m \le 5000$
 
-判斷負環 : [CSES - Cycle Finding](https://cses.fi/problemset/task/1197)
-
-???+note "Bellman Ford code"
+??? note "算法實作"
 	```cpp linenums="1"
     void solve () {
         vector<int> d(n, INF);
@@ -441,6 +445,18 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
                     d[e.b] = min(d[e.b], d[e.a] + e.cost);
     }
     ```
+
+!!! question "正環性質"
+	<https://drive.google.com/file/d/1q2mP9uHYAauroE2mjtYKti9khs0H9qaJ/view>
+
+???+note "[全國賽 2021 pC](https://tioj.ck.tp.edu.tw/problems/2253)"
+	給一張 $n$ 點（城市） $m$ 邊的有向圖 $G_0$。 我們對 $G_0$ 的每條邊都加上 $k$ 個點（村莊），得到一張 $n + mk$ 節點的有向圖 $G$，並賦予點權重 $c: V(G) \to Z$（每個節點的收支）。
+
+	設 $C$ 是 $G$ 上的一個簡單環且 $u ∈ V(C)$。 若從 $u$ 出發沿著 $C$ 走一圈，任意前綴點權重和都 $\ge 0$，我們就說 $C$ 是 $G$ 的一個好環，而 $u$ 是 $C$ 的一個好起點。
+	
+	請找出 $G$ 的任一個好環 $C$ 與 $C$ 的任一個好起點 $u$，並求出 $C$ 上有幾個點可以當作好起點，這些好起點又有幾個在 $G_0$ 上。
+	
+	$k\le n\le 2000,m\le 8000$
 
 ???+note "2022 北一區早上場 p3"
 	給一張 $n$ 點 $m$ 邊無向圖，邊有權重
@@ -494,7 +510,55 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 
 ## Floyd warshall 
 
-模板題 : [CSES - Shortest Routes II](https://cses.fi/problemset/task/1672)
+???+note "模板 [CSES - Shortest Routes II](https://cses.fi/problemset/task/1672)"
+	給一張無向圖，$q$ 筆詢問求某兩點間的最短路徑
+	
+	$n \le 500,q \le 10^5$
+	
+??? note "算法實作"
+	```cpp linenums="1"
+	for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                dis[i][j] = min({dis[i][j], dis[i][k] + dis[k][j]});
+            }
+        }
+    }
+    ```
+
+### 最小環
+
+???+note "[TIOJ  1212.圖論之最小圈測試](https://tioj.ck.tp.edu.tw/problems/1212)"
+	給一張 $n$ 點 $m$ 邊無向圖，找一个最小權值和的環
+	
+	$3\le n\le 500,m\le 10^5$
+	
+第一個想法是 Dijkstra，我們可以枚舉每條邊，移除該邊然後跑一次 dijkstra，更新此環的總和 $dis (u,v) + w$ 到答案，複雜度 $O(n^2\log n)$
+
+第二個想法是 Floyd warshall，Floyd warshall 有個性質，在最外層迴圈 $k$ 開始時，$dis_{i,j}$ 僅考慮是 $[1,k)$ 的最短路，我們可以利用這性質讓環成為 $dis_{i,j}+w_{i,k}+w_{k,j}$，因為環上一定有一個節點編號最大的點，故正確性足夠。	
+
+??? note "實作"
+	```cpp linenums="1"
+	int solve () {
+        init : dis[i][j] = INF, dis[u][v] = w, dis[i][i] = INF
+        
+        int ans = INF;
+        for (int k = 1; k <= n; k++) {
+            for (int i = 1; i < k; i++) {
+                for (int j = 1; j < i; j++) {
+                    if (i != j) ans = min (ans, dis[i][j] + w[i][k] + w[k][j]);
+                }
+            }
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    dis[i][j] = min (dis[i][j], dis[i][k] + dis[k][j]);
+                }
+            }
+        }
+        return ans;
+    }
+    ```
 
 ???+note "[zerojudge b686. 6. 航線規劃](https://zerojudge.tw/ShowProblem?problemid=b686)"
 	給一張 $n$ 點 $m$ 邊無向圖，邊帶權，每個點有一個權重 $a_i$
@@ -656,7 +720,16 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	$n\le 5000,m\le 10^5$
 
 ???+note "[全國賽 2016 第二可靠路網](https://sorahisa-rank.github.io/nhspc-fin/2016/problems.pdf#page=9)"
-
+	給一張 $n$ 點 $m$ 邊圖，每個邊上有邊權 $\displaystyle w=\frac{p}{q}$，有重邊
+	
+	$$cost=\prod w_i$$
+	
+	求嚴格次小生成樹的 $cost$，以最簡分數 $\displaystyle \frac{p}{q}$ 的形式輸出
+	
+	$n\le 3000,m\le 5\times 10^5$
+	
+IOIC becaido 的 p/q 的 code?
+	
 ## grid 最短路
 ???+note "[JOI 2017 p4](https://oj.uz/problem/view/JOI17_soccer)"
     有 $n$ 個球員站在 Grid 上求球從 $a_1$ 踢到 $a_n$ 的最小 $cost$
@@ -705,11 +778,9 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 
 ## 拆解 & 轉換題目
 ???+note "[USACO Gold 2021 January - Telephone](http://www.usaco.org/index.php?page=viewproblem2&cpid=1090)" 
-	- 給 $n,k$ 陣列 $b$ 跟 matrix $S$
-        - 目標從 $1\rightarrow n$
-        - $i$ 走到 $j$ 的 $\text{cost}=|i-j|$
-        - $b_i=1...k$ 
-        - $i$ 能走到 $j$ 當且僅當 $S_{b[i],b[j]}=1$
+	給 $n,k$ 陣列跟 matrix $S$，每個點有一個權值 $b_i=1...k$ ，$i$ 能走到 $j$ 當且僅當 $S_{b[i],b[j]}=1$，$i$ 走到 $j$ 的 $\text{cost}=|i-j|$，從 $1\rightarrow n$ 最少要多少 $cost$
+
+	$n\le 5\times 10^4,k\le 50$
 
 	??? note "思路"
 	    > key obeservation
@@ -725,15 +796,6 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	    - node (u, b) = $\begin{cases} \texttt{node (u + 1, b)}+1 \\ \texttt{node (u - 1, b)}+1 \\ \texttt{node (u, b[u])}+0 \end{cases}$
 	
 	    - 其中 node (u, b) -> node (u, b[u]) 走到真正的點
-
-???+note "[全國賽 2021 pC](https://tioj.ck.tp.edu.tw/problems/2253)"
-	給一張 $n$ 點（城市） $m$ 邊的有向圖 $G_0$。 我們對 $G_0$ 的每條邊都加上 $k$ 個點（村莊），得到一張 $n + mk$ 節點的有向圖 $G$，並賦予點權重 $c: V(G) \to Z$（每個節點的收支）。
-
-	設 $C$ 是 $G$ 上的一個簡單環且 $u ∈ V(C)$。 若從 $u$ 出發沿著 $C$ 走一圈，任意前綴點權重和都 $\ge 0$，我們就說 $C$ 是 $G$ 的一個好環，而 $u$ 是 $C$ 的一個好起點。
-	
-	請找出 $G$ 的任一個好環 $C$ 與 $C$ 的任一個好起點 $u$，並求出 $C$ 上有幾個點可以當作好起點，這些好起點又有幾個在 $G_0$ 上。
-	
-	$k\le n\le 2000,m\le 8000$
 
 ???+note "[TIOJ 2058 死對頭問題](https://tioj.ck.tp.edu.tw/problems/2058)"
 	給一張 $N$ 點 $M$ 邊有向帶權圖，求 $s\to t$ 最短路徑和嚴格次短路徑長的差

@@ -1,20 +1,43 @@
 /* 文章 */
 .md-typeset {
-  font-size: 16px;
+  font-size: .8rem;
 }
 
 .md-typeset h2 {
-  font-size: 23px;
+  font-size: 1.5625em;
+  line-height: 1.4;
+  margin: 1.6em 0 0.64em;
+}
+
+.md-typeset h1, .md-typeset h2 {
+  font-weight: 300;
+  letter-spacing: -.01em;
+}
+
+.md-typeset h2+h3 {
+  margin-top: 0.8em;
 }
 
 .md-typeset h3 {
-  font-size: 21px;
-  margin: 16px 0px;
+  font-size: 1.25em;
+  font-weight: 400;
+  letter-spacing: -.01em;
+  line-height: 1.5;
+  margin: 1.6em 0 0.8em;
 }
 
 .md-typeset h4 {
-  font-size: 19px;
-  font-weight: normal;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  margin: 1em 0
+}
+
+.md-typeset h5,.md-typeset h6 {
+  color: var(--md-default-fg-color--light);
+  font-size: .8em;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  margin: 1.25em 0
 }
 
 :root {

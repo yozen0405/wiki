@@ -180,7 +180,7 @@ nav:
       - 迴路:
         - 歐拉迴路: 'graph/euler_path.md'
         - 漢米頓迴路: 'graph/hamiltonian.md'
-      - 最短路: 'graph/STP.md'
+      - 最短路: 'graph/SP.md'
       - 連通元件圖論: 'graph/scc.md'
       - 網路流: 'graph/flow.md'
     - 數學:
