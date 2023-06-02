@@ -42,6 +42,7 @@
 | 熊恩伶 | <li>[部落格](https://bear1222.github.io/archives/)           | <li>2022 1!                                             |
 | 謝牧懷 | <li>[hackmd](https://hackmd.io/@thanksone)<br><li>[CSES 題解(code)](https://hackmd.io/@thanksone/CSESPLANI)<br><li>[slides](https://slides.com/thanksone) | <font color="gray">無</font>                            |
 | 王師宇 | <li>[部落格](https://utahaa.blogspot.com/)                   | <li>2019 國手                                           |
+| 郭勝威 | <li>[hackmd](https://hackmd.io/@william1070573)              | <li>2023 1!                                             |
 
 ## 其他網站
 

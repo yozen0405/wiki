@@ -161,26 +161,26 @@
         #define S second
         #define ALL(x) x.begin(), x.end()
         #define lowbit(x) (x & (-x))
-
+    
         using namespace std;
-
+    
         const int INF = 2e18;
         const int maxn = 3e5 + 5;
         const int M = 1e9 + 7;
-
+    
         struct triple {
             int x, y, z, id;
         };
-
+    
         struct BIT {
             int n;
             vector<int> bit;
-
+    
             void init (int _n) {
                 n = _n;
                 bit.resize (n + 1);
             }
-
+    
             void add (int x, int d) {
                 x++;
                 while (x > 0) {
@@ -188,7 +188,7 @@
                     x -= lowbit (x);
                 }
             }
-
+    
             int query (int x) {
                 x++;
                 int ret = 0;
@@ -199,21 +199,21 @@
                 return ret;
             }
         }bit;
-
+    
         bool cmpX (triple &A, triple &B) {
             if (A.x != B.x) return A.x < B.x;
             if (A.y != B.y) return A.y > B.y;
             return A.z > B.z;
         }
-
+    
         bool cmpY (triple &A, triple &B) {
             if (A.y != B.y) return A.y > B.y;
             return A.z > B.z;
         }
-
+    
         int n;
         int ans[maxn];
-
+    
         void solve (int l, int r, vector<triple> &a) {
             int mid = (l + r) / 2;
             if (l == r) return;
@@ -225,9 +225,9 @@
                 else aRight.pb ({x, y, z, id});
             }
             solve (l, mid, aLeft); solve (mid + 1, r, aRight);
-
+    
             sort (ALL (aLeft), cmpY); sort (ALL (aRight), cmpY);
-
+    
             int i = 0, j = 0;
             while (i < aLeft.size ()) {
                 while (j < aRight.size () && aRight[j].y > aLeft[i].y) {
@@ -237,35 +237,35 @@
                 ans[aLeft[i].id] += bit.query (aLeft[i].z + 1);
                 i++;
             }
-
+    
             for (int k = 0; k < j; k++) {
                 bit.add (aRight[k].z, -1);
             }
         }
-
+    
         vector<triple> a;
-
+    
         void init () {
             cin >> n;
             a.resize (n);
-
+    
             for (int i = 0; i < n; i++) {
                 cin >> a[i].x >> a[i].y >> a[i].z;
                 a[i].id = i;
                 a[i].x--, a[i].y--, a[i].z--;
             }
         }
-
+    
         void work () {
             sort (ALL (a), cmpX);
-
+    
             bit.init (n);
             solve (0, n - 1, a);
             for (int i = 0; i < n; i++) {
                 cout << ans[i] << "\n";
             }
         } 
-
+    
         signed main() {
             ios::sync_with_stdio(0);
             cin.tie(0);
@@ -511,11 +511,7 @@
 		
 		所以對於符合 $\begin{cases}x_j\le -x_i \\ y_j \le -y_i \\ z_j \le -z_i \end{cases}$ 的這些 $j$ 我們可以去看 
 		
-		$w_j=\{10^6,2\times 10^6, 3\times 10^6\}$ 分別有幾個
-		
-		所以線段樹必須維護 $w_j$ 值為 $\{10^6,2\times 10^6, 3\times 10^6\}$ 分別的個數
-		
-		記得要特判 $w_i=w_j$ 的 case
+		記得要特判 $w_i=w_j$ 的 case，可以預先在 ans[i] 裡消除其貢獻
 		
 		時間複雜度 : $O(n\log^2 n)$
 		
@@ -529,15 +525,39 @@
 	    
 	    $$\texttt{query_min} (-y_i)$$ 
 		
-		就是看之前 $y_j \le -y_i$ 的最小 $z_j$
+		就是看之前 $y_j \le -y_i$ 的最小 $z_j$ **有幾個**
 		
-		只是這樣可能會使得 $j=i$，就不合法了，所以**還須維護次小**
+		$w_i=w_j$ 時也需預先扣掉自己的貢獻
 		
 		<figure markdown>
 	      ![Image title](./images/3.png){ width="400" }
 	    </figure>
 		
 		時間複雜度 : $O(n\log n)$
+		
+		> 法 3 : 線段樹維護 by twpca
+		
+		每張卡片的 W 值只有幾種可能而已，可以枚舉所有可能的 W<sub>x</sub> + W<sub>y</sub>， 把問題從最大化的問題變成判定性問題。
+	
+		給一個中獎金額 C，目前所有的彩券有沒有辦法湊到這個中獎金額？ 重新整理題目的條件變成：
+	
+	    - A<sub>x</sub> + A<sub>y</sub> ≥ C
+	
+	    - B<sub>x</sub> + B<sub>y</sub> ≥ C
+	
+	    - C<sub>x</sub> + C<sub>y</sub> ≥ C
+		
+		那就可以
+		
+		- A: 預先排序用雙指針維護
+		
+	    - B: 作為樹狀結構的 index 區間查詢
+	    
+	    - C: 作為樹狀結構的 value 查詢區間最大值
+	    
+	    因為每個 tuple 的 W<sub>i</sub> 可能不同，所以可能需要兩棵線段樹
+
+        時間複雜度 : $O(n\log n)$
 
 ### TIOJ 2030
 

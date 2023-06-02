@@ -243,7 +243,12 @@
 
 ### 分層 dijkstra
 
-???+note "APIO 2023 p1"
+洛谷分層圖題單 : <https://www.luogu.com.cn/training/5811#problems>
+
+???+note "[LOJ #3964. 「APIO2023」赛博乐园](https://loj.ac/p/3964)"
+	
+	??? note "思路"
+		<https://www.cnblogs.com/crab-in-the-northeast/p/luogu-p9370.html>
 
 ???+note "CSES - flight discount 變化"
 	輸入一個 $n$ 點 $m$ 邊的有向圖，每條邊都有權重 $w(u,v)$
@@ -514,7 +519,7 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	給一張無向圖，$q$ 筆詢問求某兩點間的最短路徑
 	
 	$n \le 500,q \le 10^5$
-	
+
 ??? note "算法實作"
 	```cpp linenums="1"
 	for (int k = 1; k <= n; k++) {
@@ -532,7 +537,7 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	給一張 $n$ 點 $m$ 邊無向圖，找一个最小權值和的環
 	
 	$3\le n\le 500,m\le 10^5$
-	
+
 第一個想法是 Dijkstra，我們可以枚舉每條邊，移除該邊然後跑一次 dijkstra，更新此環的總和 $dis (u,v) + w$ 到答案，複雜度 $O(n^2\log n)$
 
 第二個想法是 Floyd warshall，Floyd warshall 有個性質，在最外層迴圈 $k$ 開始時，$dis_{i,j}$ 僅考慮是 $[1,k)$ 的最短路，我們可以利用這性質讓環成為 $dis_{i,j}+w_{i,k}+w_{k,j}$，因為環上一定有一個節點編號最大的點，故正確性足夠。	
@@ -549,7 +554,7 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
                     if (i != j) ans = min (ans, dis[i][j] + w[i][k] + w[k][j]);
                 }
             }
-
+    
             for (int i = 1; i <= n; i++) {
                 for (int j = 1; j <= n; j++) {
                     dis[i][j] = min (dis[i][j], dis[i][k] + dis[k][j]);
@@ -638,9 +643,11 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	    </figure>
 
 
-???+note "[JOI 2021 p4](https://www.luogu.com.cn/problem/P7407)"
-    給你一個張無向圖，邊有顏色 $C_i$。
+???+note "[洛谷 P7407 [JOI 2021 Final] ロボット](https://www.luogu.com.cn/problem/P7407)"
+    給你一個張無向圖，邊有顏色 $C_i$
+    
     目標從 $1$ 走到 $n$，想走 $u\rightarrow v$ 若且唯若 $u$ 的出邊只有 $u\rightarrow v$ 有該種顏色
+    
     每條邊可花 $P_i$ 變顏色(只限變一次)，問最小花費
     
     ??? note "思路"
@@ -727,7 +734,7 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	求嚴格次小生成樹的 $cost$，以最簡分數 $\displaystyle \frac{p}{q}$ 的形式輸出
 	
 	$n\le 3000,m\le 5\times 10^5$
-	
+
 IOIC becaido 的 p/q 的 code?
 	
 ## grid 最短路
@@ -778,10 +785,14 @@ IOIC becaido 的 p/q 的 code?
 
 ## 拆解 & 轉換題目
 ???+note "[USACO Gold 2021 January - Telephone](http://www.usaco.org/index.php?page=viewproblem2&cpid=1090)" 
-	給 $n,k$ 陣列跟 matrix $S$，每個點有一個權值 $b_i=1...k$ ，$i$ 能走到 $j$ 當且僅當 $S_{b[i],b[j]}=1$，$i$ 走到 $j$ 的 $\text{cost}=|i-j|$，從 $1\rightarrow n$ 最少要多少 $cost$
+	給 $n,k$ 陣列跟 matrix $S$，每個點有一個權值 $b_i=1...k$
+	
+	$i$ 能走到 $j$ 當且僅當 $S_{b[i],b[j]}=1$，且 $\text{cost}=|i-j|$
+	
+	求從 $1\rightarrow n$ 最少要多少 $\text{cost}$
 
 	$n\le 5\times 10^4,k\le 50$
-
+	
 	??? note "思路"
 	    > key obeservation
 	    
