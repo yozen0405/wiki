@@ -1,8 +1,12 @@
 - <https://zerojudge.tw/ShowProblem?problemid=b231>
+
 - <https://tioj.ck.tp.edu.tw/problems/1072>
 
 - file:///C:/Users/yozen/Downloads/%E5%B1%B1%E5%A7%86Greedy.pdf
+
 - <https://slides.com/fhvirus/1/fullscreen#/3/7>
+
+- http://pisces.ck.tp.edu.tw/~peng/index.php?action=showfile&file=f92769faf90359fc0de317dfbe25d71873539c009
 
 ???+ note "[TIOJ 1072](https://tioj.ck.tp.edu.tw/problems/1072)"
 	有 $n$ 個人要吃飯，第 $i$ 個人想吃的食物需要 $C_i$ 時間才能煮好，而他吃掉食物所花的時間為 $E_i$ ，且廚師同一時間只能煮一個食物，最小化所有人都吃完飯的時間。
@@ -41,5 +45,6 @@
 
 
 
-
+???+note "[TIOJ 1579.來自未來的新台幣](https://tioj.ck.tp.edu.tw/problems/1579)"
+	有⼀些⾯額為 1,5,10,50,100,500,1000 的錢幣，問你⽤這些硬幣最⼩湊不出來的錢是多少?
 

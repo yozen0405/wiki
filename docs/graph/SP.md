@@ -484,7 +484,7 @@
 		$\texttt{node}(k-1, u)$ 到 $\texttt{node}(k, v)$ 的長度就是 $w(u, v)/2$
 		
 		直接跑 Dijkstra，起點 $\texttt{node}(0, 1)$ 終點 $\texttt{node}(2, n)$
-		
+
 ???+note "[USACO Gold 2021 January - Telephone](http://www.usaco.org/index.php?page=viewproblem2&cpid=1090)" 
 	給 $n,k$ 陣列跟 matrix $S$，每個點有一個權值 $b_i=1...k$
 	
@@ -539,7 +539,27 @@
     - 每次找最小的 $g(u)$ 來更新其他人的 $g(v)$ (如下)
     - $g(v)= \sec \begin{cases} f(u) + w(u, v) \\ g(u)+w(u,v) \end{cases}$
 
-??? note "次短路 code"
+非沿革與嚴格的差別就只差在 `sec()` 函式的 $<$ 要改 $\le$
+
+=== "嚴格"
+
+	```cpp linenums="1"
+    void sec (pii &org, int x) {
+        if (org.F < x && org.S == -1) org.S = x;
+        else if (org.F < x && x < org.S) org.S = x;
+    }
+    ```
+
+=== "非嚴格"
+
+    ```cpp linenums="1"
+    void sec (pii &org, int x) {
+        if (org.F <= x && org.S == -1) org.S = x;
+        else if (org.F <= x && x < org.S) org.S = x;
+    }
+    ```
+
+??? note "次短路實作"
 	```cpp linenums="1"
     void dijkstra (int start) {
         vector<int> f (n + 1, INF);
@@ -581,9 +601,8 @@
         cout << g[n].S << "\n";
     }
     ```
-    
-非沿革與嚴格的差別就只差在 `sec()` 函式的 strictly greater 只需要改 le
-    
+
+
 ???+note "[POJ - 3255 Roadblocks](https://vjudge.net/problem/POJ-3255)"
 	給一張 $n$ 點 $m$ 邊帶權圖，求 $1\to n$ 的嚴格次短路
 	
@@ -597,9 +616,15 @@
 	$T \le 20,N, M \le 10^5$
 
 ???+note "嚴格次短路方法數 [AcWing - 383.觀光](https://www.acwing.com/problem/content/385/)"
-	給一張 $N$ 點 $M$ 邊有向帶權圖，求 $s\to t$ 的嚴格次短路的方法數
+	給一張 $N$ 點 $M$ 邊有向帶權圖，求 $s\to t$ 的 :
 	
-	$T \le 20,N, M \le 10^5$
+	- 最短路方法數
+
+	- 比最短路多一單位的方法數
+
+	有 $T$ 筆測資
+	
+	$N\le 1000,M \le 10^4$
 	
 	??? note "思路"
 		$dp_f(u)=\sum \limits_{f(v)+w(v, u)==f(u)}dp_f(v)$
@@ -820,13 +845,15 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
         
         > - 如果相遇在同一個位置 
         >   - cost = 球跑了大半天的 cost (完全沒必要)
-  
+      
         > - 如果相遇在不同位置 
         >   - cost = 我需要移動到那個位置的 cost + 求繞了大半天的 cost
         >   - 那其實直接報的球跑到那個位置為更好 相當於求不離身 沒有再相遇一次
         >   - 球員有移動 跟 球員跟著球移動的 cost 相等
 
 ## Bellman Ford
+
+Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原因是最短路徑最多只經過 $n − 1$ 條邊
 
 ???+note "模板 [CSES - Cycle Finding](https://cses.fi/problemset/task/1197)"
 	給一張 $n$ 點 $m$ 邊有向圖，求上面是否有負環
@@ -846,7 +873,37 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
     ```
 
 !!! question "正環性質"
+	注意 : 這邊說的正環是指非負環
+
+	若從 $u$ 出發沿著正環走一圈，任意前綴點權重和都 $\ge 0$，我們說 $u$ 是一個好起點
+	
 	<https://drive.google.com/file/d/1q2mP9uHYAauroE2mjtYKti9khs0H9qaJ/view>
+	
+	??? question "證明"
+		設 $C$ 是一個點權重和 $≥ 0$ 的環。隨意找一個 $u_1 ∈ V(C)$，並設從 $u_1$ 沿著 $C$ 出發走一圈經過的點依序是 $u_2, u_3, …, u_{|V(C)|}$。 對於所有的 $i ∈ {0, 1, …, |V(C)|}$，考慮在每個節點的所持金數列 $s$（也就是環的點權前綴和）：
+
+		$\begin{align}s(i) = \begin{cases}0,&\text{if }i=0,\\ c(u_1) + c(u_2) + \ldots + c(u_i),&\text{if }i\ge1.\end{cases}\end{align}$
+
+		考慮路途任一所持金最小的時刻 $k ∈ {0, 1, …, |V(C)| - 1}$，也就是 $k$ 滿足
+
+		$\begin{align}s(k) = \min_{0 \le i \le |V(C)| - 1} s(i).\end{align}$
+ 
+		注意我們有 $s(|V(C)|) ≥ 0 = s(0)$，因此
+ 
+		$\begin{align}s(k) = \min_{0 \le i \le |V(C)|} s(i).\end{align}$
+	
+		注意我們有 $s(|V(C)|) ≥ 0 = s(0)$，因此
+
+		$\begin{align}s(k) = \min_{0 \le i \le |V(C)|} s(i).\end{align}$
+ 
+		接著證明 $u_{k + 1}$ 是一個好起點。
+
+		對於所有的 $i ∈ { k + 1, k + 2, …, |V(C)| }$， 從 $u_{k + 1}$ 出發沿著 $C$ 走到 $u_i$ 的點權重和是 $s(i) - s(k)$， 但 $s(k) ≤ s(i)$， 故 $s(i) - s(k) ≥ 0$。
+
+		對於 $i ∈ {1, 2, …, k}$， 從 $u_{k + 1}$ 出發沿著 $C$ 走到 $u_i$ 的點權重和是 $s(|V(C)|) + s(i) - s(k)$。 但 $s(|V(C)|) ≥ 0$，依然有 $s(|V(C)|) + s(i) - s(k) ≥ s(i) - s(k) ≥ 0$。
+
+???+note "找非負環"
+	Bellman Ford 可以找負環，只是有辦法找「零」環嗎
 
 ???+note "[全國賽 2021 pC](https://tioj.ck.tp.edu.tw/problems/2253)"
 	給一張 $n$ 點（城市） $m$ 邊的有向圖 $G_0$。 我們對 $G_0$ 的每條邊都加上 $k$ 個點（村莊），得到一張 $n + mk$ 節點的有向圖 $G$，並賦予點權重 $c: V(G) \to Z$（每個節點的收支）。
@@ -856,6 +913,28 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	請找出 $G$ 的任一個好環 $C$ 與 $C$ 的任一個好起點 $u$，並求出 $C$ 上有幾個點可以當作好起點，這些好起點又有幾個在 $G_0$ 上。
 	
 	$k\le n\le 2000,m\le 8000$
+	
+	??? note "思路 (from twpca)"
+		依照上面提到的正環性質，任意一個非負環必定存在一個好起點
+		
+		所以我們只需要對 $G_0$ 的邊 `*=-1` 然後去找負環即可，複雜度 $O(nm)$
+		
+		定義 $s$ 的前綴最小值 $α_i$ 為 $u_1$ 沿著 $C$ 走到 $u_i$ 時的最小所持金：
+		
+		$\begin{align}\alpha_i = \min_{0 \le k \le i} s(i).\end{align}$
+
+        類似地，我們也可以定義 $s$ 的後綴最小值 $β$：
+
+		$\begin{align}\beta_i = \min_{i \le k \le |V(C)|} s(i).\end{align}$
+
+        若改變起點從 $u_x$ 開始沿著 $C$ 走一圈，可以推出所持金最小的時刻如下:
+
+        $u_x$ 至 $u_{|V(C)|}$ 間：$β_x - s(x - 1)$
+        
+        $u_1$ 至 $u_x-1$ 間：$α_{x - 1} + s(|V(C)|) - s(x - 1)$
+        
+        上面兩者取最小值即可求得以 $u_x$ 為起點繞 $C$ 走一圈的最小所持金
+        由於環展開頂多只有 $n + mk$ 個節點，故這邊複雜度為 $O(n + mk)$。
 
 ???+note "2022 北一區早上場 p3"
 	給一張 $n$ 點 $m$ 邊無向圖，邊有權重
@@ -988,9 +1067,10 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	    }
 	    ```
 
+???+note "[CSA Hallway](https://csacademy.com/contest/archive/task/hallway/)"
+
+???+note "[CSA Robot in a Labyrinth](https://csacademy.com/contest/archive/task/robot-in-a-labyrinth/)"
+
 - https://blog.csdn.net/Mr_dimple/article/details/124970504
 - https://drive.google.com/file/d/1a1mgK8KFJWNoXATHwi3E6ceStn22QmZl/view
 
-
-![](https://hackmd.io/_uploads/HkN0cYbIh.png)
-	
