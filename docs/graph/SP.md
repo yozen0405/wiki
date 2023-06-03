@@ -241,6 +241,192 @@
         }
         ```
 
+???+note "[CSA Chromatic Number](https://csacademy.com/contest/archive/task/chromatic-number)"
+	給一張 $N$ 點 $M$ 邊的圖，邊有邊權，請選擇 $K$ 個特殊點，使 $1\to N$ 的最短路徑中有最多的特殊點
+	
+	輸出最多能有幾條這樣的路徑以及最佳的選擇方式有幾種
+	
+	- $N\le 300$
+	
+	- $M\le \frac{N(N-1)}{2}$
+	
+	??? note "思路"
+		> 建圖
+	
+	    - $O(n^3) \texttt{ floyd warshall}$ 
+	    - $dis(u,v):$ $u$ 到 $v$ 的最短路
+	    - $cnt(u,v):$ 從 $u$ 走最短路到 $v$ 有幾種走法
+	
+		> 狀態定義
+	
+	    - $f_{i,k}$ 以 $i$ 結尾選 $k$ 個節點最多能在幾個 shortest path 上
+	    - $g_{i,k}$ 以 $i$ 結尾選 $k$ 個節點有幾種選法能滿足在 $f_{i,k}$ 個 shortest path 上
+	
+		> 轉移
+	
+	    - 找到 $u,v$ 滿足 $1 \rightarrow v \rightarrow u \rightarrow n$
+	    - $f_{u,k}=\max \begin{cases} f_{v,k-1}\times cnt(v,u) \\ f_{u,k} \end{cases}$
+	    - $g_{u,k}$
+	    	- $\texttt{if }f_{v,k-1}\times cnt(v,u) \texttt{ == }f_{u,k}: g_{u,k}=g_{u,k}+g_{v,k-1}$
+	    	- $\texttt{else if }f_{v,k-1}\times cnt(v,u) \texttt{ > }f_{u,k}: g_{u,k}=g_{v,k-1}$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using PQ = priority_queue<int, vector<int>, greater<int>>;
+	
+	    const int INF = 2e18;
+	    const int maxn = 300 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, m, K;
+	    int dis[maxn][maxn];
+	    int cnt[maxn][maxn];
+	    pii dp[maxn][maxn];
+	
+	    void floyd () {
+	        for (int k = 1; k <= n; k++) {
+	            for (int i = 1; i <= n; i++) {
+	                for (int j = 1; j <= n; j++) {
+	                    if (dis[i][j] == dis[i][k] + dis[k][j]) {
+	                        cnt[i][j] += cnt[i][k] * cnt[k][j];
+	                    }
+	                    else if (dis[i][j] > dis[i][k] + dis[k][j]) {
+	                        dis[i][j] = dis[i][k] + dis[k][j];
+	                        cnt[i][j] = cnt[i][k] * cnt[k][j];
+	                    }
+	                }
+	            }
+	        }
+	    }
+	
+	    void init () {
+	        cin >> n >> m >> K;
+	        int u, v, w;
+	
+	        for (int i = 1; i <= n; i++) {
+	            for (int j = 1; j <= n; j++) {
+	                dis[i][j] = INF;
+	            }
+	            dis[i][i] = 0;
+	        }
+	
+	        for (int i = 1; i <= m; i++) {
+	            cin >> u >> v >> w;
+	            dis[u][v] = dis[v][u] = min (w, dis[u][v]);
+	            cnt[u][v] = cnt[v][u] = 1;
+	        }
+	    }
+	
+	    void solve () {
+	        floyd ();
+	
+	        vector<pii> ord;
+	        for (int i = 1; i <= n; i++) {
+	            ord.pb ({dis[1][i], i});
+	            cnt[i][i] = 1;
+	        }
+	        sort (ALL(ord)); // sort by distance
+	
+	        // dp init
+	        for (int i = 0; i < n; i++) {
+	            int u = ord[i].S;
+	            if (dis[1][u] + dis[u][n] != dis[1][n]) continue;
+	            dp[u][1] = {cnt[1][u], 1};
+	        }
+	
+	        // (v -> u) 一定是 v 先被走到再來才是 u，距離是一種可以判斷先後的好方法
+	        for (int i = 0; i < ord.size (); i++) {
+	            int u = ord[i].S;
+	            if (dis[1][u] + dis[u][n] != dis[1][n]) continue; // check u
+	
+	            for (int j = 0; j < i; j++) {
+	                int v = ord[j].S;
+	                if (dis[1][v] + dis[v][u] + dis[u][n] != dis[1][n]) 
+	                    continue; // check v
+	
+	                for (int k = 2; k <= K; k++) {
+	                    pii tmp;
+	                    tmp.F = dp[v][k - 1].F * cnt[v][u];
+	                    tmp.S = dp[v][k - 1].S;
+	
+	                    if (tmp.F > dp[u][k].F)
+	                        dp[u][k] = tmp;
+	                    else if (tmp.F == dp[u][k].F) {
+	                        dp[u][k].S += tmp.S;
+	
+	                        if (dp[u][k].S >= M)
+	                            dp[u][k].S -= M;
+	                    }
+	                }
+	            }
+	        } 
+	
+	        pii res = {0, 0};
+	        // 以 u 結尾，還缺少到 u -> n 這段，補起來
+	        // 可是 n 結尾上面有算過了阿? 不一定會以 n 結尾 但最短路可延續至 n
+	        for (int i = 1; i <= n; i++) {
+	            if (dis[1][i] + dis[i][n] != dis[1][n])
+	                continue;
+	
+	            dp[i][K].F *= cnt[i][n];
+	
+	            if (dp[i][K].F > res.F)
+	                res = dp[i][K];
+	            else if (dp[i][K].F == res.F) {
+	                res.S += dp[i][K].S;
+	
+	                if (res.S >= M)
+	                    res.S -= M;
+	            }
+	        }
+	
+	        cout << res.F << " " << res.S << "\n";
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    } 
+	    ```
+
+???+note "[CSES - Visiting Cities](https://cses.fi/problemset/task/1203)"
+
+	給定起點終點 $s,t$ 判斷每個邊是哪種 $\texttt{type}$
+	
+	- $\texttt{type 1: }$是否在每個最短路徑上 
+	
+	- $\texttt{type 2: }$至少有在一個最短路徑上
+	
+	- $\texttt{type 3: }$根本沒有在最短路徑上
+	
+	??? note "思路"
+	
+		- shotest path DAG
+	        - DAG DP
+	        - $\mathtt{dp(u \rightarrow v)}$ $\mathtt{u}$ 到 $\mathtt{v}$ 是最短路的路徑方法數
+	        - $\texttt{type 2: } \mathtt{dis(s \rightarrow u) + dis(v \rightarrow t) = dis(s \rightarrow t)}$ 
+	        - $\texttt{type 3: } \mathtt{dp(s \rightarrow u) \times dp(v \rightarrow t) = dp(s \rightarrow t)}$ 
+	
+		<figure markdown>
+	      ![Image title](./images/30.png){ width="700" }
+	    </figure>
+
 ### 分層 dijkstra
 
 洛谷分層圖題單 : <https://www.luogu.com.cn/training/5811#problems>
@@ -298,6 +484,39 @@
 		$\texttt{node}(k-1, u)$ 到 $\texttt{node}(k, v)$ 的長度就是 $w(u, v)/2$
 		
 		直接跑 Dijkstra，起點 $\texttt{node}(0, 1)$ 終點 $\texttt{node}(2, n)$
+		
+???+note "[USACO Gold 2021 January - Telephone](http://www.usaco.org/index.php?page=viewproblem2&cpid=1090)" 
+	給 $n,k$ 陣列跟 matrix $S$，每個點有一個權值 $b_i=1...k$
+	
+	$i$ 能走到 $j$ 當且僅當 $S_{b[i],b[j]}=1$，且 $\text{cost}=|i-j|$
+	
+	求從 $1\rightarrow n$ 最少要多少 $\text{cost}$
+	
+	$n\le 5\times 10^4,k\le 50$
+	
+	??? note "思路"
+	    > key obeservation
+	    
+	    > $\text{cost}=|i-j|\rightarrow$ 想成每次都移動 $1$ 格
+	    
+	    > ex: $i\rightarrow i+1 \texttt{ or } i-1$
+	    
+	    - 建一個 $O(nk)$ 的圖
+	
+	    - node (u, b) 代表目前的位置(不是真正在 u，而是目前的 cost 增加或減到 u)，b 代表從上個真正點的 $b_i$
+	
+	    - node (u, b) = $\begin{cases} \texttt{node (u + 1, b)}+1 \\ \texttt{node (u - 1, b)}+1 \\ \texttt{node (u, b[u])}+0 \end{cases}$
+	
+	    - 其中 node (u, b) -> node (u, b[u]) 走到真正的點
+
+???+note "[2023 TOI 一模 pD.安逸旅行路線 (jaunt)](https://drive.google.com/file/d/1_sx9DvDSjpn0RCR280MKsS_FNfrr-iqy/view)"
+	有一張 $n$ 點 $m$ 邊有向圖，邊 $u \rightarrow v$ 的難度係數為 $d(u, v)$，代表如果 $u \rightarrow v$ 是路徑上的第 $k$ 條邊（1-based），則這條邊的辛苦程度是 $d(u, v)^k\mod P$，一條路徑的辛苦程度被定義為路徑上所有邊的最大辛苦程度
+
+	輸出 $s$ 到 $t$ 的所有路徑中，最小辛苦程度的值，若不存在請輸出 $-1$
+	
+	- $n\le 1000$
+	- $m\le 5000$
+	- $P\le 10^5$ 且 $P$ 是質數
 
 ### 次短路
 
@@ -362,8 +581,32 @@
         cout << g[n].S << "\n";
     }
     ```
+    
+非沿革與嚴格的差別就只差在 `sec()` 函式的 strictly greater 只需要改 le
+    
+???+note "[POJ - 3255 Roadblocks](https://vjudge.net/problem/POJ-3255)"
+	給一張 $n$ 點 $m$ 邊帶權圖，求 $1\to n$ 的嚴格次短路
+	
+	$n\le 5000,m\le 10^5$
 
-## K 短路
+???+note "[TIOJ 2058 死對頭問題](https://tioj.ck.tp.edu.tw/problems/2058)"
+	給一張 $N$ 點 $M$ 邊有向帶權圖，求 $s\to t$ 最短路徑和嚴格次短路徑長的差
+	
+	有 $T$ 筆測資
+	
+	$T \le 20,N, M \le 10^5$
+
+???+note "嚴格次短路方法數 [AcWing - 383.觀光](https://www.acwing.com/problem/content/385/)"
+	給一張 $N$ 點 $M$ 邊有向帶權圖，求 $s\to t$ 的嚴格次短路的方法數
+	
+	$T \le 20,N, M \le 10^5$
+	
+	??? note "思路"
+		$dp_f(u)=\sum \limits_{f(v)+w(v, u)==f(u)}dp_f(v)$
+		
+		$dp_g(u)=\sum \begin{cases}dp_g(v) & \text{ if } g(v) + w(v, u) == g(u) \\ dp_f(v) & \text{ if } f(v) + w(v, u) == f(u) \end{cases}$
+
+### K 短路
 
 > dijkstra 正確性證明
 
@@ -431,6 +674,157 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
     
     }
     ```
+
+### 線段樹優化建圖
+
+詳見此處
+
+### 練習題
+
+???+note "[CF 1051 F.The Shortest Statement](https://codeforces.com/problemset/problem/1051/F)"
+	給一個 $n$ 點 $m$ 邊的無向圖，$q$ 筆詢問 :
+	
+	- $s_i\to t_i$ 的最短路徑
+	
+	$n,m,q\le 10^5,m-n\le 20$
+	
+	??? note "思路"
+		觀察到 $m-n\le 20$
+		
+		若 $m=n-1$ 那就是一顆樹，我們可以將最短路分成全部都在樹上，跟有走到非樹邊的情況
+		
+		全部都在樹上 :
+		
+		樹上最短路，LCA
+		
+		有走到非樹邊 :
+		
+		因為這種邊最多只有 $21$ 條，也就是涵蓋 $42$ 個點，所以我們可以暴力以這 $42$ 個點為源點跑 dijkstra
+		
+		$s\to u \to t$，我們枚舉這 $42$ 個 $u$
+
+???+note "[洛谷 P7407 [JOI 2021 Final] ロボット](https://www.luogu.com.cn/problem/P7407)"
+    給你一個張無向圖，邊有顏色 $C_i$
+    
+    目標從 $1$ 走到 $n$，想走 $u\rightarrow v$ 若且唯若 $u$ 的出邊只有 $u\rightarrow v$ 有該種顏色
+    
+    每條邊可花 $P_i$ 變顏色(只限變一次)，問最小花費
+    
+    ??? note "思路"
+    	> 一定可以找到一種顏色使得 $u\rightarrow v$ 的顏色唯一
+    	
+        > - 改自己 或 改別人
+        
+        > 否則就是 $\texttt{IMPOSSILBE}$
+        
+        - 要走 $u\rightarrow v$ 其實只有兩種 case
+    
+        - $\begin{cases} \texttt{case1: }w \\ \texttt{case2: }S_{u,c}-w \end{cases}$
+    
+        - 注意到選擇 case2 的話這些被改變的邊在之後的路徑上不會貢獻
+            - 如果會貢獻就直接在 $u$ 的時候走那條(case1)不是花費更少?
+    
+        - 走 case1 會影響到 $v$ 為中心的 case2
+            - 花費就成了 $S_{v,c}-w-w'$
+            - 其中 $w'$ 是 $u\rightarrow v$ 用 case1 的花費
+            - 這種情況只發生在 $u,v$ 往外走都走同一顏色的情況
+    
+        - 建立虛點 $u_c$ 轉移 $v_c$，邊權為 $0$
+    
+        - 再讓 $v_c$ 轉移到 $x$ 邊權為 $S_{v,c}-w-w'+w'=S_{v,c}-w$
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	struct Edge {
+            int v,c,w;
+        };
+    
+        void Upd(int u, int d){
+            pq.push({u, d});
+        }
+    
+        void AddEdge (int u, int v, int c, int w){
+            if(!st[u].count(c)) {
+                st[u][c] = ++k;
+                G[u].pb((Edge){k, 0, 0});
+            }
+    
+            int t = st[u][c];
+            G[t].pb((Edge){v, c, w});
+            S[t] += w;
+        }
+    
+        void Dijkstra () {
+            memset(dis, 0x3f, sizeof dis);
+            dis[1] = 0;
+            pq.push({1, 0});
+    
+            while(pq.size ()) {
+                auto [u, d] = pq.top ();
+                pq.pop();
+    
+                if(dis[u] != INF) continue;
+                dis[u] = d;
+    
+                if(u <= n) {
+                    for(Edge edge : G[u]) {
+                        int t = edge.v; // u_c
+                        for(Edge i : G[t]) {
+                            Upd(i.v, d + min(i.w, S[t] - i.w));
+                            Upd(st[i.v][i.c], d); // u_c -> v_c
+                        }
+                    }
+                } 
+                else for(Edge i : G[u]) Upd(i.v, d + S[u] - i.w);
+            }
+            cout << (dis[n] == INF ? -1 : dis[n]) << "\n";
+        }
+        ```
+
+???+note "[LOJ #2335. 「JOI 2017 Final」足球](https://loj.ac/p/2335)"
+    有 $n$ 個球員站在 Grid 上求球從 $a_1$ 踢到 $a_n$ 的最小 $cost$
+    
+    - 球員踢球(上下左右) $A\times p + B$
+    
+    - 球員移動(上下左右) $cost=C$
+    
+    - 放下球 $cost=0$
+    
+    - 拿起球 $cost = 0$
+    
+    ??? note "思路"
+        - 最後兩點是沒用的
+            - 你拿放下球然後跑走讓另一個過來拿球(???)
+            - 你放下球然後再拿起來(???)
+    
+        - 觀察後會發現一個球員最多有一次的機會可以掌控球 (下面有證明)
+    
+        > - $0,1,2,3$ 上下左右 (自飛)
+        
+        > - $4$ 停止 (自飛)
+        
+        > - $5$ 帶飛 (往 random direction)
+    
+        - 自飛的球
+          - 繼續移動 $0,1,2,3\rightarrow 0,1,2,3 :A$ 往自己的方向 
+          - 被球員撿到 $4\rightarrow 5: dis_{i,j}\times C$ 
+              - $dis_{i,j}$ 為最近的球員到 $(i,j)$ 的距離
+          - 停下來  $0,1,2,3\rightarrow 4:0$  
+    
+        - 帶飛的球
+          - 繼續跟著球員走 $5 \rightarrow 5:C$  四個方向
+          - 被球員踢出去 $5 \rightarrow 0,1,2,3:B$ 
+          - ~~停下來~~ 停下來，撿起來，浪費時間
+    
+        > 球員跟求只能相遇一次 proof
+        
+        > - 如果相遇在同一個位置 
+        >   - cost = 球跑了大半天的 cost (完全沒必要)
+  
+        > - 如果相遇在不同位置 
+        >   - cost = 我需要移動到那個位置的 cost + 求繞了大半天的 cost
+        >   - 那其實直接報的球跑到那個位置為更好 相當於求不離身 沒有再相遇一次
+        >   - 球員有移動 跟 球員跟著球移動的 cost 相等
 
 ## Bellman Ford
 
@@ -511,7 +905,6 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 
 - 大多數情況下 SPFA 跑得很快，平均 $O(V+E)$
 - 但其最壞情況下的時間複雜度為 $O(VE)$
-	- 將其卡到這個複雜度也是不難的，實用性不高
 
 ## Floyd warshall 
 
@@ -594,226 +987,6 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 	        }
 	    }
 	    ```
-
-???+note "[CF 1051 F.The Shortest Statement](https://codeforces.com/problemset/problem/1051/F)"
-	給一個 $n$ 點 $m$ 邊的無向圖，$q$ 筆詢問 :
-	
-	- $s_i\to t_i$ 的最短路徑
-	
-	$n,m,q\le 10^5,m-n\le 20$
-
-???+note "[CSA Chromatic Number](https://csacademy.com/contest/archive/task/chromatic-number)"
-	給一張 $N$ 點 $M$ 邊的圖，邊有邊權，請選擇 $K$ 個特殊點，使 $1\to N$ 的最短路徑中有最多的特殊點
-	
-	輸出最多能有幾條這樣的路徑以及最佳的選擇方式有幾種
-	
-	- $N\le 300$
-	
-	- $M\le \frac{N(N-1)}{2}$
-
-???+note "[2023 TOI 一模 pD.安逸旅行路線 (jaunt)](https://drive.google.com/file/d/1_sx9DvDSjpn0RCR280MKsS_FNfrr-iqy/view)"
-	有一張 $n$ 點 $m$ 邊有向圖，邊 $u \rightarrow v$ 的難度係數為 $d(u, v)$，代表如果 $u \rightarrow v$ 是路徑上的第 $k$ 條邊（1-based），則這條邊的辛苦程度是 $d(u, v)^k\mod P$，一條路徑的辛苦程度被定義為路徑上所有邊的最大辛苦程度
-
-	輸出 $s$ 到 $t$ 的所有路徑中，最小辛苦程度的值，若不存在請輸出 $-1$
-	
-	- $n\le 1000$
-	- $m\le 5000$
-	- $P\le 10^5$ 且 $P$ 是質數
-
-???+note "[CSES - Visiting Cities](https://cses.fi/problemset/task/1203)"
-
-	給定起點終點 $s,t$ 判斷每個邊是哪種 $\texttt{type}$
-	
-	- $\texttt{type 1: }$是否在每個最短路徑上 
-	
-	- $\texttt{type 2: }$至少有在一個最短路徑上
-	
-	- $\texttt{type 3: }$根本沒有在最短路徑上
-	
-	??? note "思路"
-	
-		- shotest path DAG
-	        - DAG DP
-	        - $\mathtt{dp(u \rightarrow v)}$ $\mathtt{u}$ 到 $\mathtt{v}$ 是最短路的路徑方法數
-	        - $\texttt{type 2: } \mathtt{dis(s \rightarrow u) + dis(v \rightarrow t) = dis(s \rightarrow t)}$ 
-	        - $\texttt{type 3: } \mathtt{dp(s \rightarrow u) \times dp(v \rightarrow t) = dp(s \rightarrow t)}$ 
-	
-		<figure markdown>
-	      ![Image title](./images/30.png){ width="700" }
-	    </figure>
-
-
-???+note "[洛谷 P7407 [JOI 2021 Final] ロボット](https://www.luogu.com.cn/problem/P7407)"
-    給你一個張無向圖，邊有顏色 $C_i$
-    
-    目標從 $1$ 走到 $n$，想走 $u\rightarrow v$ 若且唯若 $u$ 的出邊只有 $u\rightarrow v$ 有該種顏色
-    
-    每條邊可花 $P_i$ 變顏色(只限變一次)，問最小花費
-    
-    ??? note "思路"
-    	> 一定可以找到一種顏色使得 $u\rightarrow v$ 的顏色唯一
-    	
-        > - 改自己 或 改別人
-        
-        > 否則就是 $\texttt{IMPOSSILBE}$
-        
-        - 要走 $u\rightarrow v$ 其實只有兩種 case
-    
-        - $\begin{cases} \texttt{case1: }w \\ \texttt{case2: }S_{u,c}-w \end{cases}$
-    
-        - 注意到選擇 case2 的話這些被改變的邊在之後的路徑上不會貢獻
-            - 如果會貢獻就直接在 $u$ 的時候走那條(case1)不是花費更少?
-    
-        - 走 case1 會影響到 $v$ 為中心的 case2
-            - 花費就成了 $S_{v,c}-w-w'$
-            - 其中 $w'$ 是 $u\rightarrow v$ 用 case1 的花費
-            - 這種情況只發生在 $u,v$ 往外走都走同一顏色的情況
-    
-        - 建立虛點 $u_c$ 轉移 $v_c$，邊權為 $0$
-    
-        - 再讓 $v_c$ 轉移到 $x$ 邊權為 $S_{v,c}-w-w'+w'=S_{v,c}-w$
-    
-    ??? note "code"
-    	```cpp linenums="1"
-    	struct Edge {
-            int v,c,w;
-        };
-    
-        void Upd(int u, int d){
-            pq.push({u, d});
-        }
-    
-        void AddEdge (int u, int v, int c, int w){
-            if(!st[u].count(c)) {
-                st[u][c] = ++k;
-                G[u].pb((Edge){k, 0, 0});
-            }
-    
-            int t = st[u][c];
-            G[t].pb((Edge){v, c, w});
-            S[t] += w;
-        }
-    
-        void Dijkstra () {
-            memset(dis, 0x3f, sizeof dis);
-            dis[1] = 0;
-            pq.push({1, 0});
-    
-            while(pq.size ()) {
-                auto [u, d] = pq.top ();
-                pq.pop();
-    
-                if(dis[u] != INF) continue;
-                dis[u] = d;
-    
-                if(u <= n) {
-                    for(Edge edge : G[u]) {
-                        int t = edge.v; // u_c
-                        for(Edge i : G[t]) {
-                            Upd(i.v, d + min(i.w, S[t] - i.w));
-                            Upd(st[i.v][i.c], d); // u_c -> v_c
-                        }
-                    }
-                } 
-                else for(Edge i : G[u]) Upd(i.v, d + S[u] - i.w);
-            }
-            cout << (dis[n] == INF ? -1 : dis[n]) << "\n";
-        }
-        ```
-
-???+note "[POJ - 3255 Roadblocks](https://vjudge.net/problem/POJ-3255)"
-	給一張 $n$ 點 $m$ 邊帶權圖，求 $1\to n$ 的嚴格次短路
-	
-	$n\le 5000,m\le 10^5$
-
-???+note "[全國賽 2016 第二可靠路網](https://sorahisa-rank.github.io/nhspc-fin/2016/problems.pdf#page=9)"
-	給一張 $n$ 點 $m$ 邊圖，每個邊上有邊權 $\displaystyle w=\frac{p}{q}$，有重邊
-	
-	$$cost=\prod w_i$$
-	
-	求嚴格次小生成樹的 $cost$，以最簡分數 $\displaystyle \frac{p}{q}$ 的形式輸出
-	
-	$n\le 3000,m\le 5\times 10^5$
-
-IOIC becaido 的 p/q 的 code?
-	
-## grid 最短路
-???+note "[JOI 2017 p4](https://oj.uz/problem/view/JOI17_soccer)"
-    有 $n$ 個球員站在 Grid 上求球從 $a_1$ 踢到 $a_n$ 的最小 $cost$
-    
-    - 球員踢球(上下左右) $A\times p + B$
-    
-    - 球員移動(上下左右) $cost=C$
-    
-    - 放下球 $cost=0$
-    
-    - 拿起球 $cost = 0$
-    
-    ??? note "思路"
-        - 最後兩點是沒用的
-            - 你拿放下球然後跑走讓另一個過來拿球(???)
-            - 你放下球然後再拿起來(???)
-    
-        - 觀察後會發現一個球員最多有一次的機會可以掌控球 (下面有證明)
-    
-        > - $0,1,2,3$ 上下左右 (自飛)
-        
-        > - $4$ 停止 (自飛)
-        
-        > - $5$ 帶飛 (往 random direction)
-    
-        - 自飛的球
-          - 繼續移動 $0,1,2,3\rightarrow 0,1,2,3 :A$ 往自己的方向 
-          - 被球員撿到 $4\rightarrow 5: dis_{i,j}\times C$ 
-              - $dis_{i,j}$ 為最近的球員到 $(i,j)$ 的距離
-          - 停下來  $0,1,2,3\rightarrow 4:0$  
-    
-        - 帶飛的球
-          - 繼續跟著球員走 $5 \rightarrow 5:C$  四個方向
-          - 被球員踢出去 $5 \rightarrow 0,1,2,3:B$ 
-          - ~~停下來~~ 停下來，撿起來，浪費時間
-    
-        > 球員跟求只能相遇一次 proof
-        
-        > - 如果相遇在同一個位置 
-        >   - cost = 球跑了大半天的 cost (完全沒必要)
-        
-        > - 如果相遇在不同位置 
-        >   - cost = 我需要移動到那個位置的 cost + 求繞了大半天的 cost
-        >   - 那其實直接報的球跑到那個位置為更好 相當於求不離身 沒有再相遇一次
-        >   - 球員有移動 跟 球員跟著球移動的 cost 相等
-
-## 拆解 & 轉換題目
-???+note "[USACO Gold 2021 January - Telephone](http://www.usaco.org/index.php?page=viewproblem2&cpid=1090)" 
-	給 $n,k$ 陣列跟 matrix $S$，每個點有一個權值 $b_i=1...k$
-	
-	$i$ 能走到 $j$ 當且僅當 $S_{b[i],b[j]}=1$，且 $\text{cost}=|i-j|$
-	
-	求從 $1\rightarrow n$ 最少要多少 $\text{cost}$
-
-	$n\le 5\times 10^4,k\le 50$
-	
-	??? note "思路"
-	    > key obeservation
-	    
-	    > $\text{cost}=|i-j|\rightarrow$ 想成每次都移動 $1$ 格
-	    
-	    > ex: $i\rightarrow i+1 \texttt{ or } i-1$
-	    
-	    - 建一個 $O(nk)$ 的圖
-	
-	    - node (u, b) 代表目前的位置(不是真正在 u，而是目前的 cost 增加或減到 u)，b 代表從上個真正點的 $b_i$
-	
-	    - node (u, b) = $\begin{cases} \texttt{node (u + 1, b)}+1 \\ \texttt{node (u - 1, b)}+1 \\ \texttt{node (u, b[u])}+0 \end{cases}$
-	
-	    - 其中 node (u, b) -> node (u, b[u]) 走到真正的點
-
-???+note "[TIOJ 2058 死對頭問題](https://tioj.ck.tp.edu.tw/problems/2058)"
-	給一張 $N$ 點 $M$ 邊有向帶權圖，求 $s\to t$ 最短路徑和嚴格次短路徑長的差
-	
-	有 $T$ 筆測資
-	
-	$T \le 20,N, M \le 10^5$
 
 - https://blog.csdn.net/Mr_dimple/article/details/124970504
 - https://drive.google.com/file/d/1a1mgK8KFJWNoXATHwi3E6ceStn22QmZl/view

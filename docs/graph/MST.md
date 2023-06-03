@@ -213,6 +213,27 @@ $$
 
 	$\displaystyle a=n,r=\frac{1}{2}$ 我們得到 $\displaystyle n + \frac{n}{2} + \frac{n}{4} + \dots = n\frac{1}{1-\frac{1}{2}} = 2n.$
 
+## 乘積生成樹
+
+???+note "[全國賽 2016 第二可靠路網](https://sorahisa-rank.github.io/nhspc-fin/2016/problems.pdf#page=9)"
+	給一張 $n$ 點 $m$ 邊圖，每個邊上有邊權 $\displaystyle w=\frac{p}{q}$，有重邊
+	
+
+	$$cost=\prod w_i$$
+	
+	求嚴格次小生成樹的 $cost$，以最簡分數 $\displaystyle \frac{p}{q}$ 的形式輸出
+	
+	$n\le 3000,m\le 5\times 10^5$
+	
+	??? note "思路"
+		將原本的 Kruskal 用加的改成用乘的
+		
+		因為我們考慮取 log，假如 log a, log b, log c 是最小的，那 a, b, c 也會是最小的，只不過是用乘的
+		
+		分數乘法可見此處<a href="/wiki/other/fraction/" target="_blank">此處</a>
+		
+		然後就套用次小生乘樹模板即可
+
 ## 額外練習
 
 | 題目                                                         | 備註 |
