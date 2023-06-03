@@ -63,6 +63,7 @@
 | A Simple Blog       | <li>[網站](https://robert1003.github.io/)                    |
 | 競程修練心法        | <li>[hackmd](https://hackmd.io/@sa072686/cp/%2F@sa072686%2FrJap7SM_r) |
 | 建中 2015 培訓      | <li>[網站](http://pisces.ck.tp.edu.tw/~peng/index.php?)      |
+| 最短路 blog         | <li>[網站](https://konaeakira.github.io/)                    |
 | 宜蘭高中自學平台    | <li>論壇(不一定跟程式有關)<br><li>[網站](https://josh930908.github.io/web/#/) |
 
 CF

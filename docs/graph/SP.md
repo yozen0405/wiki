@@ -518,6 +518,8 @@
 	- $m\le 5000$
 	- $P\le 10^5$ 且 $P$ 是質數
 
+### 方案數
+
 ### 次短路
 
 -  先做一次 dijkstra
@@ -603,8 +605,8 @@
     ```
 
 
-???+note "[POJ - 3255 Roadblocks](https://vjudge.net/problem/POJ-3255)"
-	給一張 $n$ 點 $m$ 邊帶權圖，求 $1\to n$ 的嚴格次短路
+???+note "[POJ - 3255 Roadblocks](https://www.luogu.com.cn/problem/P2865)"
+	給一張 $n$ 點 $m$ 邊無向帶權圖，求 $1\to n$ 的嚴格次短路
 	
 	$n\le 5000,m\le 10^5$
 
@@ -629,8 +631,193 @@
 	??? note "思路"
 		$dp_f(u)=\sum \limits_{f(v)+w(v, u)==f(u)}dp_f(v)$
 		
-		$dp_g(u)=\sum \begin{cases}dp_g(v) & \text{ if } g(v) + w(v, u) == g(u) \\ dp_f(v) & \text{ if } f(v) + w(v, u) == f(u) \end{cases}$
+		$dp_g(u)=\sum \begin{cases}dp_g(v) & \text{ if } g(v) + w(v, u) == g(u) \\ dp_f(v) & \text{ if } f(v) + w(v, u) == g(u) \end{cases}$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
 
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Edge {
+            int u, v, w;
+        };
+
+        struct Graph {
+            int n, m, s, t;
+            vector<vector<Edge>> G;
+            vector<int> f, g;
+            vector<int> dp_f, dp_g;
+
+            Graph (int _n, int _m) {
+                n = _n, m = _m;
+                f = vector<int>(n, INF);
+                g = vector<int>(n, INF);
+                dp_f = vector<int>(n);
+                dp_g = vector<int>(n);
+                G.resize (n);
+            }
+
+            void add_edge (int u, int v, int w) {
+                G[u].pb ({u, v, w});
+            }
+
+            void sec (int u, int x) {
+                if (f[u] < x && g[u] == INF) g[u] = x;
+                else if (f[u] < x && x < g[u]) g[u] = x;
+            }
+
+            void dijkstra () {
+                priority_queue<pii, vector<pii>, greater<pii>> pq;
+                pq.push({0, s});
+
+                while (pq.size()) {
+                    auto [x, u] = pq.top();
+                    pq.pop();
+
+                    if (f[u] != INF) continue;
+                    f[u] = x;
+
+                    for (auto [u, v, w] : G[u]) {
+                        pq.push({w + f[u], v});
+                    }
+                }
+            }
+
+            int find_second_best () {
+                priority_queue<pii, vector<pii>, greater<pii>> pq;
+                vector<int> vis (n);
+                for (int i = 0; i < n; i++) {
+                    for (auto [u, v, w] : G[i]) {
+                        sec (v, f[i] + w);
+                    }
+                }
+
+                for (int i = 0; i < n; i++) {
+                    pq.push ({g[i], i});
+                }
+
+                while (pq.size()) {
+                    auto [x, u] = pq.top ();
+                    pq.pop ();
+
+                    if (vis[u]) continue;
+                    vis[u] = 1;
+
+                    for (auto [u, v, w] : G[u]) {
+                        sec (v, x + w);
+                        pq.push ({g[v], v});
+                    }
+                }
+            }
+
+            void build_DAG (vector<int> &dis, vector<vector<Edge>> &D) {
+                for (int i = 0; i < n; i++) {
+                    for (auto [u, v, w] : G[i]) {
+                        if (dis[u] + w == dis[v]) {
+                            D[u].pb ({u, v, w});
+                        }
+                    }
+                }
+            }
+
+            void topo (vector<int> &dp, vector<vector<Edge>> &D) {
+                vector<int> in(n);
+                for (int i = 0; i < n; i++) {
+                    for (auto [u, v, w] : D[i]) {
+                        in[v]++;
+                    }
+                }
+
+                queue<int> q;
+                for (int i = 0; i < n; i++) {
+                    if (in[i] == 0) q.push (i);
+                }
+
+                while (q.size ()) {
+                    int u = q.front (); q.pop ();
+
+                    for (auto [u, v, w] : D[u]) {
+                        in[v]--;
+                        dp[v] += dp[u];
+                        if (in[v] == 0) q.push (v);
+                    }
+                }
+            }
+
+            int solve () {
+                int res = 0;
+
+                dijkstra ();
+                vector<vector<Edge>> Df (n);
+                build_DAG (f, Df);
+                dp_f[s] = 1;
+                topo (dp_f, Df);
+
+                res += dp_f[t];
+                find_second_best ();
+                if (g[t] == INF || g[t] != f[t] + 1) return res;
+
+                vector<vector<Edge>> Dg (n);
+                vector<vector<Edge>> Dfg (n);
+
+                build_DAG (g, Dg); 
+
+                // f[u] -> w -> g[v]
+                for (int i = 0; i < n; i++) {
+                    for (auto [u, v, w] : G[i]) {
+                        if (f[u] + w == g[v]) {
+                            dp_g[v] += dp_f[u];
+                        }
+                    }
+                }
+                topo (dp_g, Dg);
+
+                res += dp_g[t];
+                return res;
+            }
+        };
+
+        void work () {
+            int n, m, s, t;
+            cin >> n >> m;
+            Graph g(n, m);
+
+            int u, v, w;
+            for (int i = 0; i < m; i++) {
+                cin >> u >> v >> w;
+                u--, v--;
+                g.add_edge (u, v, w);
+            } 
+            cin >> s >> t;
+            s--, t--;
+            g.s = s, g.t = t;
+
+            cout << g.solve () << "\n";
+        } 
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            int t = 1;
+            cin >> t;
+            while (t--) {
+                work();
+            }
+        } 
+        ```
+	
 ### K 短路
 
 > dijkstra 正確性證明
