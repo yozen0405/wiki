@@ -220,10 +220,43 @@ Debug
 
 <font style='font-size:12px'>:octicons-dash-16: <font style='font-size:11px'>:fontawesome-solid-user:</font> 8e7</font>
 
+---
+
+時間分配 :
+
+前 30 分鐘 ( 2:00 - 2:30 )
+
+1. 讀完所有題目
+2. 寫簽到題
+3. 排序題目難度
+
+接下來一小時 ( 2:30 - 3:30 )
+
+1. 從簡單的題目開始想
+2. 每題花 10 分鐘想
+3. 如果有滿分解，就想一下實作細節，開始寫
+4. 如果只有部分分，就先想下一題
+5. 優先做有滿分解的，如果兩題都只有部分分就寫比較簡單的
+6. 想清楚再寫
+7. 如果寫到一半發現想錯了，就先做另一題
+8. 寫 + debug 如果超過 25 分鐘也先做另一題
+9. 後 1.5 小時 ( 3:30 - 5:00 )
+10. 看最難的兩題
+11. 先各花 10 分鐘檢視一下能拿的部分分有哪些
+12. 每題花 20 分鐘拿部分分，時間到就跳題
+13. 除非很有把握，不然先以一定拿得到的分數為主
+
+其他事項 :
+
+- 如果在 “接下來一小時” 覺得難度有點不對勁，就直接進入撈分環節
+
+<font style='font-size:12px'>:octicons-dash-16: <font style='font-size:11px'>:fontawesome-solid-user:</font> Paul-Liao</font>
+
 ## 經驗分享
 
 - [IOIC 2023 經驗分享](https://hackmd.io/@baluteshih/ioicamp-day1#/)
 - [TOI 2023 一階選訓營經驗分享](https://hackmd.io/@wiwiho/HJoRJ10Rj)
 - [TOI 2023 一階選訓營題型介紹](https://hackmd.io/@wiwiho/BkgXBX4kg2)
 - [TOI 2021 一階選訓營經驗分享](https://hackmd.io/@baluteshih/BkYA9D9XO)
+- [TOI 2021 比賽心態準備](https://hackmd.io/@ToMmyDong/H10t23gE_?utm_source=preview-mode&utm_medium=rec#/)
 - [海牛 嘉義高中](https://cs.cysh.cy.edu.tw/old_version/php_system/acm_statistics/%E8%B3%87%E8%A8%8A%E5%AD%B8%E7%A7%91%E8%83%BD%E5%8A%9B%E7%AB%B6%E8%B3%BD%E8%88%87%E8%B3%87%E8%A8%8A%E5%A5%A7%E6%9E%97%E5%8C%B9%E4%BA%9E%E9%81%B8%E8%A8%93%E7%87%9F%E5%82%B3%E6%89%BF_%E5%90%B3%E5%AE%97%E9%81%94_%E5%BC%B5%E5%87%B1%E5%82%91.docx)

@@ -170,8 +170,8 @@ nav:
       - MST: 'graph/MST.md'
       - 樹論: 
         - 樹論: 'graph/Tree.md'
-        - 重心分治: 'graph/DC_on_trees.md'
         - 倍增法與 LCA: 'graph/LCA.md'
+        - 重心分治: 'graph/DC_on_trees.md'
       - 特殊圖:
         - 二分圖: 'graph/bipartite.md'
         - 水母圖: 'graph/functional_graph.md'
@@ -205,7 +205,9 @@ nav:
             - 基礎技巧:  'offline/DC.md'
             - 整體二分: 'offline/parallel-binsearch.md'
             - CDQ 分治: 'offline/cdq.md'
-        - 離線: 'offline/offline.md'
+        - 離線操作: 'offline/offline.md'
+        - 莫隊算法: 'offline/mo-algo.md'
+        - 根號分塊: 'offline/sqrt.md'
     - 動態規劃:
       - LIS: 'dp/LIS.md'
       - 背包問題: 'dp/knapsack.md'
