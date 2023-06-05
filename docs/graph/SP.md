@@ -29,9 +29,9 @@
     }
     ```
 
-### 來回
+### 練習
 
-???+note "[zerojudge g733. 110北二4.漫遊高譚市](https://zerojudge.tw/ShowProblem?problemid=g733)"
+??? note "來回 [zerojudge g733. 110北二4.漫遊高譚市](https://zerojudge.tw/ShowProblem?problemid=g733)"
 	給 $n$ 點 $m$ 邊有向圖，邊帶權
 	
 	另外額外有 $k$ 條無向帶權邊，至多只能走一條這種邊
@@ -43,10 +43,8 @@
 	??? note "思路"
 		- 給定起點 $s$, 對於每個點 $u$ 找 $dis(s \rightarrow u) + dis(u \rightarrow v)$
 		- 正反各做一次，也就是把正圖跟反圖都各做一次 $\texttt{dijkstra}$ 起點都是 $\texttt{s}$
-
-### n 平方
-
-???+note "例題"
+		
+??? note "n 平方"
 	給定 $n$ 個點，第 $i$ 點在 $(x_i,y_i)$，從 $i\to j$ 花費 $(x_i - x_j)^2 + (y_i - y_j)^2$
 	
 	問從 $s\to t$ 的最小花費
@@ -101,7 +99,7 @@
   <figcaption>shortest path tree 結構</figcaption>
 </figure>
 
-???+note "shortest path tree code"
+??? note "實作"
 	```cpp linenums="1"
     void build_Tree () {
         fill (par + 1, par + 1 + n, -1);
@@ -1709,30 +1707,21 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 	
 	??? note "思路"
 		建表，對於每筆 query 枚舉中間點即可
-	
+
 ???+note "[TIOJ 2049.龜兔賽跑](https://tioj.ck.tp.edu.tw/problems/2049)"
 	給 $n$ 點 $m$ 邊無向圖，求若拔掉一個點後，$s\to t$ 的最短路徑最大會是多少
 	
 	$n,m\le 3\times 10^5$
 
-???+note "[CSA Hallway](https://csacademy.com/contest/archive/task/hallway/)"
-
-???+note "[CSA Robot in a Labyrinth](https://csacademy.com/contest/archive/task/robot-in-a-labyrinth/)"
-
 ???+note "[TIOJ 2204.交替路徑](https://tioj.ck.tp.edu.tw/contests/81/problems/2204)"
 	給一張 $n$ 點 $m$ 邊的簡單無向圖，每一條邊有兩個權重長度 $w_i$，顏色 $c_i$
 
 	定義「交替路徑」為沒有「連續」兩條邊有相同的顏色的路徑
-
+	
 	求全點對最短「交替路徑」長
 	
 	$n \le 500, m \le \frac{n(n-1)}{2}$
 	
-???+note "[2020 南一中校內複賽 pC ChamJam](https://toj.tfcis.org/oj/pro/568/)"
-    給你一張 $N$ 點 $M$ 邊無向連通圖，一條路徑的票價是「邊數 × 權重和」，求從節點 $S$ 到其他所有節點的最小票價
-	
-	$N \le 2000, M \le 3\times 10^4$
-
 ???+note "[2021 南一中校內複賽 pC 為美好的地牢獻上爆擊](https://toj.tfcis.org/oj/pro/636/)"
 	給一個 $n × m$ 的棋盤，在某一個格子有一個 ADD 道具，其他每個格子都有一隻魔物攻擊力是 $w_{i,j}$
 	
