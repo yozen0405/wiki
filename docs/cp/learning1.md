@@ -11,7 +11,7 @@
 | 陳柏凱 | <li>[部落格](https://caidocode.blogspot.com/)                | <li>2023 國手                                           |
 | 王褕立 | <li>[部落格](https://fhvirus.github.io/)<br><li>[slides](https://slides.com/fhvirus/)<br><li>[2022 臺大二階筆試](https://fhvirus.github.io/blog/2022/ntucsie-math/) | <li>2022 2!<br>                                         |
 | 林秉軒 | <li>[部落格](https://omeletwithoutegg.github.io/)            | <li>2021 國手                                           |
-| 陳克盈 | <li>[部落格](https://koyingtw.github.io/)<br><li>[github(簡報)](https://github.com/Koyingtw?tab=repositories) | <li>NHDK 創辦人                                         |
+| 陳克盈 | <li>[部落格](https://koyingtw.github.io/)<br><li>[讀書會](https://hackmd.io/@Koying/B1Ocazx7K/https%3A%2F%2Fhackmd.io%2F%40Koying%2FB1xaSp449)<br><li>[github(簡報)](https://github.com/Koyingtw?tab=repositories) | <li>NHDK 創辦人                                         |
 | 黃致皓 | <li>[部落格](https://penguin-71630.github.io/)<br><li>[競程技能樹](https://hackmd.io/@penguin71630/GinoSoWeak) | <li>NHDK 講師<br/>                                      |
 | 鍾詠先 | <li>[部落格](http://hiiragi4000.blogspot.com/2020/12/109.html?m=1) | <li>2013 2!<br><li>TOI 出題者<br/><li>全國賽出題者<br/> |
 | 林冠伶 | <li>[部落格](https://rahlin1004.github.io)                   | <li>2023 1!                                             |
