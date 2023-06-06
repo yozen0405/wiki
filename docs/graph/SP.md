@@ -13,19 +13,44 @@
 	
 	$1 \le n \le 10^5,1 \le m \le 2 \times 10^5$
 
-??? note "算法實作"
+一旦被選中去 relax 其他人時，就代表 u 這個點已經固定
+
+??? note "算法實作1（稍慢）"
     ```cpp linenums="1"
-    vector<int> dijkstra (int start, vector<int>* G) {
+    vector<int> dijkstra (int start) {
         vector<int> dis(n + 1, INF);
         priority_queue<pii, vector<pii>, greater<pii>> pq;
         pq.push({0, start});
         while (pq.size()) {
-            auto [x, u] = pq.top();
+            auto [dis_u, u] = pq.top();
             pq.pop();
             if (dis[u] != INF) continue;
-            dis[u] = x;
+            dis[u] = dis_u;
             for (auto [v, w] : G[u]) {
                 pq.push({w + dis[u], v});
+            }
+        }
+        return dis;
+    }
+    ```
+    
+??? note "算法實作2（稍快）"
+    ```cpp linenums="1"
+    vector<int> dijkstra (int start) {
+        vector<int> dis(n + 1, INF);
+        priority_queue<pii, vector<pii>, greater<pii>> pq;
+        pq.push({0, start});
+        dis[start] = 0;
+        while (pq.size()) {
+            auto [dis_u, u] = pq.top();
+            pq.pop();
+            if (dis[u] < dis_u) continue; // 相當於 if (visited)
+            dis[u] = dis_u;
+            for (auto [v, w] : G[u]) {
+                if (dis[v] > dis[u] + w) {
+                    dis[v] = dis[u] + w;
+                    pq.push ({dis[v], v});
+                } 
             }
         }
         return dis;
@@ -46,7 +71,7 @@
 	??? note "思路"
 		- 給定起點 $s$, 對於每個點 $u$ 找 $dis(s \rightarrow u) + dis(u \rightarrow v)$
 		- 正反各做一次，也就是把正圖跟反圖都各做一次 $\texttt{dijkstra}$ 起點都是 $\texttt{s}$
-		
+
 ??? note "n 平方"
 	給定 $n$ 個點，第 $i$ 點在 $(x_i,y_i)$，從 $i\to j$ 花費 $(x_i - x_j)^2 + (y_i - y_j)^2$
 	
@@ -726,12 +751,321 @@
 
 ### 分層 dijkstra
 
-洛谷分層圖題單 : <https://www.luogu.com.cn/training/5811#problems>
-
 ???+note "[LOJ #3964. 「APIO2023」赛博乐园](https://loj.ac/p/3964)"
 	
 	??? note "思路"
-		<https://www.cnblogs.com/crab-in-the-northeast/p/luogu-p9370.html>
+		Node (u, k) -> Node (v, k) 1/2^k
+        Node (u, k) -> Node (v, k) 0 if (k=K+1)
+        Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
+        Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #include "cyberland.h"
+        #define pii pair<int, double>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const double INF = 1000000000000000.00;
+
+        struct Graph {
+            int n, K, cnt;
+            vector<vector<pii>> G;
+            vector<vector<int>> id;
+            vector<double> dis;
+            vector<int> vis;
+
+            void init (int _n, int _k) {
+                n = _n, K = _k;
+                id.resize (K + 1);
+                cnt = 0;
+
+                // (id + 1) % n == 0 -> cyberland
+                // k != 0
+                // id / n -> k
+                for (int i = 0; i < K + 1; i++) {
+                    id[i].resize (n);
+                    for (int j = 0; j < n; j++) {
+                        id[i][j] = cnt++; // id[k][u]
+                    }
+                }
+                G.resize (cnt);
+                dis = vector<double>(cnt, INF);
+                vis = vector<int>(cnt);
+            }
+
+            void add_edge (int u, int uk, int v, int vk, double w) {
+                int id1 = id[uk][u];
+                int id2 = id[vk][v];
+
+                G[id1].pb ({id2, w});
+            }
+
+            void dijkstra (int s) {
+                priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
+                pq.push ({0, id[0][s]}); // cyberland 為起點
+                dis[id[0][s]] = 0;
+
+                while (pq.size ()) {
+
+                    auto [dis_u, u] = pq.top (); pq.pop ();
+
+                    if ((u % n) == (s % n) && (u / n) != 0) continue;
+                    if (vis[u]) continue; 
+                    vis[u] = 1;
+
+                    for (auto [v, w] : G[u]) {
+                        if ((v % n) == (s % n) && (v / n) != 0) continue;
+                        if (dis[v] > dis[u] + w) {
+                            dis[v] = dis[u] + w;
+                            pq.push ({dis[v], v});
+                        } 
+                    }
+                }   
+            }
+
+            double cal () {
+                double ans = INF;
+                for (int i = 0; i < K + 1; i++) {
+                    int u = id[i][0];
+                    ans = min (ans, dis[u]);
+                }
+                if (ans == INF) return -1;
+
+                return ans;
+            }
+        };
+
+        /*
+        cyberland 不能去 relax 別人
+        Node (u, k) -> Node (v, k) 1/2^k
+        Node (u, k) -> Node (v, k) 0 if (k=K+1)
+        Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
+        Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
+        */
+
+        double solve(int N, int M, int K, int H, vector<int> x, vector<int> y, vector<int> c, vector<int> arr) {
+            K = min (K, 70);
+            vector<vector<pii>> G(N);
+            for (int i = 0; i < M; i++) {
+                int u = x[i], v = y[i], w = c[i];
+                G[u].pb ({v, w}); G[v].pb ({u, w});
+            }
+            K++;
+
+            Graph g;
+            g.init (N, K);
+
+            double cnt = 1;
+            for (int k = 0; k < K + 1; k++) {
+                if (k == K) {
+                    for (int i = 0; i < N; i++) {
+                        for (auto [v, w] : G[i]) {
+                            g.add_edge (i, k, v, k, 0);
+                        }
+                    }
+                    continue;
+                }
+                for (int i = 0; i < N; i++) {
+                    for (auto [v, w] : G[i]) {
+                        g.add_edge (i, k, v, k, (double) w * cnt);
+                    }
+                }
+                cnt *= 0.5;
+            }
+            cnt = 1;
+            for (int k = 0; k < K - 1; k++) {
+                cnt *= 0.5;
+                for (int i = 0; i < N; i++) {
+                    for (auto [v, w] : G[i]) {
+                        if (arr[i] == 2) g.add_edge (i, k, v, k + 1, (double) w * cnt);
+                    }
+                }
+            }
+            for (int k = 0; k < K; k++) {
+                for (int i = 0; i < N; i++) {
+                    if (arr[i] == 0) g.add_edge (i, k, i, K, 0);
+                }
+            }
+
+            g.dijkstra (H);
+
+            return g.cal ();
+        }
+        ```
+	??? note "full code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        //#include "cyberland.h"
+        #define pii pair<int, long double>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const long double INF = 1000000000000000.00;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Graph {
+            int n, K, cnt;
+            vector<vector<pii>> G;
+            vector<vector<int>> id;
+            vector<double> dis;
+            vector<int> vis;
+
+            void init (int _n, int _k) {
+                n = _n, K = _k;
+                id.resize (K + 1);
+                cnt = 0;
+
+                // (id + 1) % n == 0 -> cyberland
+                // k != 0
+                // id / n -> k
+                for (int i = 0; i < K + 1; i++) {
+                    id[i].resize (n);
+                    for (int j = 0; j < n; j++) {
+                        id[i][j] = cnt++; // id[k][u]
+                    }
+                }
+                G.resize (cnt);
+                dis = vector<double>(cnt, INF);
+                vis = vector<int>(cnt);
+            }
+
+            void add_edge (int u, int uk, int v, int vk, double w) {
+                int id1 = id[uk][u];
+                int id2 = id[vk][v];
+
+                G[id1].pb ({id2, w});
+            }
+
+            void dijkstra (int s) {
+                priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
+                pq.push ({0, id[0][s]}); // cyberland 為起點
+                dis[id[0][s]] = 0;
+
+                while (pq.size ()) {
+
+                    auto [dis_u, u] = pq.top (); pq.pop ();
+
+                    if ((u % n) == (s % n) && (u / n) != 0) continue;
+                    if (vis[u]) continue; 
+                    vis[u] = 1;
+
+                    for (auto [v, w] : G[u]) {
+                        if ((v % n) == (s % n) && (v / n) != 0) continue;
+                        if (dis[v] > dis[u] + w) {
+                            dis[v] = dis[u] + w;
+                            pq.push ({dis[v], v});
+                        } 
+                    }
+                }   
+            }
+
+            double cal () {
+                double ans = INF;
+                for (int i = 0; i < K + 1; i++) {
+                    int u = id[i][0];
+                    ans = min (ans, dis[u]);
+                }
+                if (ans == INF) return -1;
+
+                return ans;
+            }
+        };
+
+        /*
+        cyberland 不能去 relax 別人
+        Node (u, k) -> Node (v, k) 1/2^k
+        Node (u, k) -> Node (v, k) 0 if (k=K+1)
+        Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
+        Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
+        */
+
+        double solve(int N, int M, int K, int H, vector<int> x, vector<int> y, vector<int> c, vector<int> arr) {
+            K = min (K, 70);
+            vector<vector<pii>> G(N);
+            for (int i = 0; i < M; i++) {
+                int u = x[i], v = y[i], w = c[i];
+                G[u].pb ({v, w}); G[v].pb ({u, w});
+            }
+            K++;
+
+            Graph g;
+            g.init (N, K);
+
+            double cnt = 1;
+            for (int k = 0; k < K + 1; k++) {
+                if (k == K) {
+                    for (int i = 0; i < N; i++) {
+                        for (auto [v, w] : G[i]) {
+                            g.add_edge (i, k, v, k, 0);
+                        }
+                    }
+                    continue;
+                }
+                for (int i = 0; i < N; i++) {
+                    for (auto [v, w] : G[i]) {
+                        g.add_edge (i, k, v, k, (double) w * cnt);
+                    }
+                }
+                cnt *= 0.5;
+            }
+            cnt = 1;
+            for (int k = 0; k < K - 1; k++) {
+                cnt *= 0.5;
+                for (int i = 0; i < N; i++) {
+                    for (auto [v, w] : G[i]) {
+                        if (arr[i] == 2) g.add_edge (i, k, v, k + 1, (double) w * cnt);
+                    }
+                }
+            }
+            for (int k = 0; k < K; k++) {
+                for (int i = 0; i < N; i++) {
+                    if (arr[i] == 0) g.add_edge (i, k, i, K, 0);
+                }
+            }
+
+            g.dijkstra (H);
+
+            return g.cal ();
+        }
+
+        void init () {
+            int n, m, k, h;
+            cin >> n >> m >> k >> h;
+            vector<int> arr (n);
+            vector<int> x (n);
+            vector<int> y (n);
+            vector<int> c (n);
+            for (int i = 0; i < n; i++) cin >> arr[i];
+            for (int i = 0; i < m; i++) cin >> x[i] >> y[i] >> c[i];
+
+            cout << fixed << setprecision (12) << solve (n, m, k, h, x, y, c, arr) << "\n";
+        }
+
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            int t = 1;
+            cin >> t;
+            while (t--) {
+                init ();
+                // solve ();
+            }
+        }
+        ```
 
 ???+note "CSES - flight discount 變化"
 	輸入一個 $n$ 點 $m$ 邊的有向圖，每條邊都有權重 $w(u,v)$
@@ -1728,173 +2062,173 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 	??? note "思路"
 		因為只需考慮相鄰的邊，我們只要看結尾的顏色
 		
-    	考慮 $i \to j$ 是一條最短交替路徑，現在我想要從 $j$ relax 周圍的點，我一定是拿最短的嘛！
-       
-    	除非某條邊 $j \to k$ 的顏色和 $i \to j$ 的結尾顏色一樣
-    	
-    	這個時候一定是拿「結尾顏色不一樣的次短交替路徑」
-    	
-    	所以只需要維護最短的與次短的，並確保結尾顏色不相同
-    	
-    	使用 $n^2$ dijkstra 實作，最短的與次短當成兩個不同的點來看
-    	
-    	詳見代碼
+		考慮 $i \to j$ 是一條最短交替路徑，現在我想要從 $j$ relax 周圍的點，我一定是拿最短的嘛！
+	   
+		除非某條邊 $j \to k$ 的顏色和 $i \to j$ 的結尾顏色一樣
+		
+		這個時候一定是拿「結尾顏色不一樣的次短交替路徑」
+		
+		所以只需要維護最短的與次短的，並確保結尾顏色不相同
+		
+		使用 $n^2$ dijkstra 實作，最短的與次短當成兩個不同的點來看
+		
+		詳見代碼
 		
 	??? note "code"
 		```cpp linenums="1"
 		#pragma GCC optimize("O3,unroll-loops")
-        #include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int mod2 = 5e8 + 4;
-        const int M = 1e9 + 7;
-
-        int n, m;
-
-        struct Edge {
-            int u, v, w, c;
-        };
-
-        struct triple {
-            int a, b, c;
-        };
-
-        struct Node {
-            int c1 = -1, c2 = -1, dis1 = INF, dis2 = INF, vis1, vis2;
-            // c1, dis1 : 當前最短交替路徑的顏色, 長度
-            // c1, dis1 : 當前與最短顏色不同的交替路徑的顏色, 長度
-            // vis1, vis2 : 是否已經固定 (被拿來 relax 起他人)
-            // c != -1, vis = 0 已入堆, 尚未固定
-        };
-
-        struct Graph {
-            vector<vector<Edge>> G;
-
-            void init () {
-                vector<vector<Edge>>().swap (G);
-                G.resize (n);
-            }
-
-            void add_edge (int u, int v, int w, int c) {
-                G[u].pb ({u, v, w, c});
-                G[v].pb ({v, u, w, c});
-            }
-
-            vector<int> dijkstra (int s) {
-                vector<Node> node (n);
-                node[s].c1 = 0; node[s].dis1 = 0;
-
-                auto sec = [&](int u, int dis, int c) {
-                    if (node[u].vis1 == 0) {
-                        if (dis < node[u].dis1) {
-                            if (c != node[u].c1) {
-                                node[u].dis2 = node[u].dis1;
-                                node[u].c2 = node[u].c1;
-                            }
-                            node[u].dis1 = dis;
-                            node[u].c1 = c;
-                            return;
-                        }
-                    }
-
-                    if (node[u].vis2 == 0) {
-                        if (dis < node[u].dis2) {
-                            if (c != node[u].c1) {
-                                node[u].dis2 = dis;
-                                node[u].c2 = c;
-                            }
-                        }
-                    }
-                };
-                auto find = [&]() {
-                    int u = -1, c, dis = INF, ord;
-                    for (int i = 0; i < n; i++) {
-                        if (node[i].vis1 == 0 && node[i].c1 != -1) {
-                            if (node[i].dis1 < dis) {
-                                u = i, c = node[i].c1, dis = node[i].dis1;
-                                ord = 1;
-                            }
-                        }
-                        if (node[i].vis2 == 0 && node[i].c2 != -1) {
-                            if (node[i].dis2 < dis) {
-                                u = i, c = node[i].c2, dis = node[i].dis2;
-                                ord = 2;
-                            } 
-                        }
-                    }
-                    if (u == -1) return (triple){-1, -1, -1};
-
-                    if (ord == 1) node[u].vis1 = 1;
-                    else node[u].vis2 = 1;
-
-                    return (triple){u, dis, c};
-                };
-
-                for (int i = 1; i <= 2 * n - 1; i++) {
-                    auto [u, dis, c] = find ();
-                    if (u == -1) break;
-
-                    for (auto [u, v, ew, ec] : G[u]) {
-                        if (c != ec) sec (v, dis + ew, ec);
-                    }
-                }
-
-                vector<int> dis (n);
-                for (int i = 0; i < n; i++) {
-                    if (node[i].vis1 == 0) dis[i] = 0;
-                    else dis[i] = node[i].dis1;
-                }
-
-                return dis;
-            } 
-        } G;
-
-        void init () {
-            cin >> n >> m;
-
-            G.init ();
-            int u, v, w, c;
-            for (int i = 0; i < m; i++) {
-                cin >> u >> v >> w >> c;
-                u--, v--;
-                G.add_edge (u, v, w, c);
-            }
-        }
-
-        void work () {
-            int ans = 0;
-            for (int i = 0; i < n; i++) {
-                vector<int> dis = G.dijkstra (i);
-                for (int j = 0; j < n; j++) {
-                    ans = (ans + ((i + j + 2) * dis[j]) % M) % M;
-                }
-            }
-
-            cout << (ans * mod2) % M << "\n";
-        } 
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            int t = 1;
-            cin >> t;
-            while (t--) {
-                init();
-                work();
-            }
-        } 
-        ```
+	    #include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
 	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int mod2 = 5e8 + 4;
+	    const int M = 1e9 + 7;
+	
+	    int n, m;
+	
+	    struct Edge {
+	        int u, v, w, c;
+	    };
+	
+	    struct triple {
+	        int a, b, c;
+	    };
+	
+	    struct Node {
+	        int c1 = -1, c2 = -1, dis1 = INF, dis2 = INF, vis1, vis2;
+	        // c1, dis1 : 當前最短交替路徑的顏色, 長度
+	        // c1, dis1 : 當前與最短顏色不同的交替路徑的顏色, 長度
+	        // vis1, vis2 : 是否已經固定 (被拿來 relax 起他人)
+	        // c != -1, vis = 0 已入堆, 尚未固定
+	    };
+	
+	    struct Graph {
+	        vector<vector<Edge>> G;
+	
+	        void init () {
+	            vector<vector<Edge>>().swap (G);
+	            G.resize (n);
+	        }
+	
+	        void add_edge (int u, int v, int w, int c) {
+	            G[u].pb ({u, v, w, c});
+	            G[v].pb ({v, u, w, c});
+	        }
+	
+	        vector<int> dijkstra (int s) {
+	            vector<Node> node (n);
+	            node[s].c1 = 0; node[s].dis1 = 0;
+	
+	            auto sec = [&](int u, int dis, int c) {
+	                if (node[u].vis1 == 0) {
+	                    if (dis < node[u].dis1) {
+	                        if (c != node[u].c1) {
+	                            node[u].dis2 = node[u].dis1;
+	                            node[u].c2 = node[u].c1;
+	                        }
+	                        node[u].dis1 = dis;
+	                        node[u].c1 = c;
+	                        return;
+	                    }
+	                }
+	
+	                if (node[u].vis2 == 0) {
+	                    if (dis < node[u].dis2) {
+	                        if (c != node[u].c1) {
+	                            node[u].dis2 = dis;
+	                            node[u].c2 = c;
+	                        }
+	                    }
+	                }
+	            };
+	            auto find = [&]() {
+	                int u = -1, c, dis = INF, ord;
+	                for (int i = 0; i < n; i++) {
+	                    if (node[i].vis1 == 0 && node[i].c1 != -1) {
+	                        if (node[i].dis1 < dis) {
+	                            u = i, c = node[i].c1, dis = node[i].dis1;
+	                            ord = 1;
+	                        }
+	                    }
+	                    if (node[i].vis2 == 0 && node[i].c2 != -1) {
+	                        if (node[i].dis2 < dis) {
+	                            u = i, c = node[i].c2, dis = node[i].dis2;
+	                            ord = 2;
+	                        } 
+	                    }
+	                }
+	                if (u == -1) return (triple){-1, -1, -1};
+	
+	                if (ord == 1) node[u].vis1 = 1;
+	                else node[u].vis2 = 1;
+	
+	                return (triple){u, dis, c};
+	            };
+	
+	            for (int i = 1; i <= 2 * n - 1; i++) {
+	                auto [u, dis, c] = find ();
+	                if (u == -1) break;
+	
+	                for (auto [u, v, ew, ec] : G[u]) {
+	                    if (c != ec) sec (v, dis + ew, ec);
+	                }
+	            }
+	
+	            vector<int> dis (n);
+	            for (int i = 0; i < n; i++) {
+	                if (node[i].vis1 == 0) dis[i] = 0;
+	                else dis[i] = node[i].dis1;
+	            }
+	
+	            return dis;
+	        } 
+	    } G;
+	
+	    void init () {
+	        cin >> n >> m;
+	
+	        G.init ();
+	        int u, v, w, c;
+	        for (int i = 0; i < m; i++) {
+	            cin >> u >> v >> w >> c;
+	            u--, v--;
+	            G.add_edge (u, v, w, c);
+	        }
+	    }
+	
+	    void work () {
+	        int ans = 0;
+	        for (int i = 0; i < n; i++) {
+	            vector<int> dis = G.dijkstra (i);
+	            for (int j = 0; j < n; j++) {
+	                ans = (ans + ((i + j + 2) * dis[j]) % M) % M;
+	            }
+	        }
+	
+	        cout << (ans * mod2) % M << "\n";
+	    } 
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        int t = 1;
+	        cin >> t;
+	        while (t--) {
+	            init();
+	            work();
+	        }
+	    } 
+	    ```
+
 ???+note "[2021 南一中校內複賽 pC 為美好的地牢獻上爆擊](https://toj.tfcis.org/oj/pro/636/)"
 	給一個 $n × m$ 的棋盤，在某一個格子有一個 ADD 道具，其他每個格子都有一隻魔物攻擊力是 $w_{i,j}$
 	
