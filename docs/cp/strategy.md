@@ -6,6 +6,10 @@
 
 子題通常都很有引導性，要練習想子題，在利用子題想正確的滿分解
 
+先想 chain, tree 的 case
+
+先想何為無解的情況
+
 <font style='font-size:12px'>:octicons-dash-16: <font style='font-size:11px'>:fontawesome-solid-user:</font> cthbst</font>
 
 ---

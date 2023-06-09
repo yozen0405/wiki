@@ -761,344 +761,344 @@
     每個點有一個能力 $arr[i]$
     
     - $arr[i] = 0$，可讓當前已走的距離設為 $0$
-
-	- $arr[i] = 1$，沒任何作用
-
-	- $arr[i] = 2$，可讓當前已走的距離除以 $2$ 
-
-	除了點 $H$ 外，所有點都可以重複走，只要走到點就可使用 $arr[i]$
-	
-	「除以 $2$ 」的能力總共只能使用 $K$ 次
-	
-	只要抵達 $H$ 點就代表走到終點，問抵達 $H$ 點的最短距離
-	
-	$N,M\le 10^5,K\le 10^6,c[i]\le 10^9$
-	
-	??? note "思路"
-		我們可以將題目的圖反著做，即從點 $H$ 開始，跑回點 $0$
-		
-		這樣就可以建立分層圖
-		
-		- 原先遇到能力為 $0$ 的點，會把當前距離設置為 $0$
-			- 那麼現在遇到能力為 $0$ 的點，相當於讓之後走過的所有邊權都變成 $0$
-
-		- 原先遇到能力為 $2$ 的點，會把當前距離減半
-			- 那麼現在遇到能力為 $2$ 的點，相當於讓之後走過的所有邊權都變成原來的一半
-		
-		第 $k$ 層為當前已使用「除以 $2$ 」的能力 $k$ 次
-		
-		我們發現，直接讓第 $k$ 層上 $u$ 和 $v$ 之間的邊權為原圖上 $u$ 和 $v$ 之間邊權的 $\displaystyle \frac{1}{2^k}$ ，就能滿足能力為 $2$ 的點。
-		
-		至於能力為 $0$ 的點，我們可以新建一層 $K+1$ 層，讓這一層內 $u$ 和 $v$ 之間的邊權都改成 $0$。然後讓所有 $arr[v]=0$ 的 node$(k,v)$ 直接建立單向邊到 $K+1$ 層即可。
-		
-		- Node (u, k) -> Node (v, k) 1/2^k
-		
-	    - Node (u, k) -> Node (v, k) 0 if (k=K+1)
-	    
-	    - Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
-	    
-	    - Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
-		
-		我們發現，事實上用一些次優惠政策之後，最短路會變的很低，遠遠低於精度
-
-		具體來說，本題中最短路最大不超過邊數乘邊權最大值，即 $10^5\times 10^9=10^{14}$
-		
-		只需讓這個數除以 $70$ 次 $2$ 就可以掉到 $10^{−7}$ 以下（$8\times 10^{−8}$）
-		
-	??? note "code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
-	    #include "cyberland.h"
-	    #define pii pair<int, double>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	
-	    using namespace std;
-	
-	    const double INF = 1000000000000000.00;
-	
-	    struct Graph {
-	        int n, K, cnt;
-	        vector<vector<pii>> G;
-	        vector<vector<int>> id;
-	        vector<double> dis;
-	        vector<int> vis;
-	
-	        void init (int _n, int _k) {
-	            n = _n, K = _k;
-	            id.resize (K + 1);
-	            cnt = 0;
-	
-	            // (id + 1) % n == 0 -> cyberland
-	            // k != 0
-	            // id / n -> k
-	            for (int i = 0; i < K + 1; i++) {
-	                id[i].resize (n);
-	                for (int j = 0; j < n; j++) {
-	                    id[i][j] = cnt++; // id[k][u]
-	                }
-	            }
-	            G.resize (cnt);
-	            dis = vector<double>(cnt, INF);
-	            vis = vector<int>(cnt);
-	        }
-	
-	        void add_edge (int u, int uk, int v, int vk, double w) {
-	            int id1 = id[uk][u];
-	            int id2 = id[vk][v];
-	
-	            G[id1].pb ({id2, w});
-	        }
-	
-	        void dijkstra (int s) {
-	            priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
-	            pq.push ({0, id[0][s]}); // cyberland 為起點
-	            dis[id[0][s]] = 0;
-	
-	            while (pq.size ()) {
-	
-	                auto [dis_u, u] = pq.top (); pq.pop ();
-	
-	                if ((u % n) == (s % n) && (u / n) != 0) continue;
-	                if (vis[u]) continue; 
-	                vis[u] = 1;
-	
-	                for (auto [v, w] : G[u]) {
-	                    if ((v % n) == (s % n) && (v / n) != 0) continue;
-	                    if (dis[v] > dis[u] + w) {
-	                        dis[v] = dis[u] + w;
-	                        pq.push ({dis[v], v});
-	                    } 
-	                }
-	            }   
-	        }
-	
-	        double cal () {
-	            double ans = INF;
-	            for (int i = 0; i < K + 1; i++) {
-	                int u = id[i][0];
-	                ans = min (ans, dis[u]);
-	            }
-	            if (ans == INF) return -1;
-	
-	            return ans;
-	        }
-	    };
-	
-	    /*
-	    cyberland 不能去 relax 別人
-	    Node (u, k) -> Node (v, k) 1/2^k
-	    Node (u, k) -> Node (v, k) 0 if (k=K+1)
-	    Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
-	    Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
-	    */
-	
-	    double solve(int N, int M, int K, int H, vector<int> x, vector<int> y, vector<int> c, vector<int> arr) {
-	        K = min (K, 70);
-	        vector<vector<pii>> G(N);
-	        for (int i = 0; i < M; i++) {
-	            int u = x[i], v = y[i], w = c[i];
-	            G[u].pb ({v, w}); G[v].pb ({u, w});
-	        }
-	        K++;
-	
-	        Graph g;
-	        g.init (N, K);
-	
-	        double cnt = 1;
-	        for (int k = 0; k < K + 1; k++) {
-	            if (k == K) {
-	                for (int i = 0; i < N; i++) {
-	                    for (auto [v, w] : G[i]) {
-	                        g.add_edge (i, k, v, k, 0);
-	                    }
-	                }
-	                continue;
-	            }
-	            for (int i = 0; i < N; i++) {
-	                for (auto [v, w] : G[i]) {
-	                    g.add_edge (i, k, v, k, (double) w * cnt);
-	                }
-	            }
-	            cnt *= 0.5;
-	        }
-	        cnt = 1;
-	        for (int k = 0; k < K - 1; k++) {
-	            cnt *= 0.5;
-	            for (int i = 0; i < N; i++) {
-	                for (auto [v, w] : G[i]) {
-	                    if (arr[i] == 2) g.add_edge (i, k, v, k + 1, (double) w * cnt);
-	                }
-	            }
-	        }
-	        for (int k = 0; k < K; k++) {
-	            for (int i = 0; i < N; i++) {
-	                if (arr[i] == 0) g.add_edge (i, k, i, K, 0);
-	            }
-	        }
-	
-	        g.dijkstra (H);
-	
-	        return g.cal ();
-	    }
-	    ```
-	??? note "full code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
-	    //#include "cyberland.h"
-	    #define pii pair<int, long double>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	
-	    using namespace std;
-	
-	    const long double INF = 1000000000000000.00;
-	    const int maxn = 3e5 + 5;
-	    const int M = 1e9 + 7;
-	
-	    struct Graph {
-	        int n, K, cnt;
-	        vector<vector<pii>> G;
-	        vector<vector<int>> id;
-	        vector<double> dis;
-	        vector<int> vis;
-	
-	        void init (int _n, int _k) {
-	            n = _n, K = _k;
-	            id.resize (K + 1);
-	            cnt = 0;
-	
-	            // (id + 1) % n == 0 -> cyberland
-	            // k != 0
-	            // id / n -> k
-	            for (int i = 0; i < K + 1; i++) {
-	                id[i].resize (n);
-	                for (int j = 0; j < n; j++) {
-	                    id[i][j] = cnt++; // id[k][u]
-	                }
-	            }
-	            G.resize (cnt);
-	            dis = vector<double>(cnt, INF);
-	            vis = vector<int>(cnt);
-	        }
-	
-	        void add_edge (int u, int uk, int v, int vk, double w) {
-	            int id1 = id[uk][u];
-	            int id2 = id[vk][v];
-	
-	            G[id1].pb ({id2, w});
-	        }
-	
-	        void dijkstra (int s) {
-	            priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
-	            pq.push ({0, id[0][s]}); // cyberland 為起點
-	            dis[id[0][s]] = 0;
-	
-	            while (pq.size ()) {
-	
-	                auto [dis_u, u] = pq.top (); pq.pop ();
-	
-	                if ((u % n) == (s % n) && (u / n) != 0) continue;
-	                if (vis[u]) continue; 
-	                vis[u] = 1;
-	
-	                for (auto [v, w] : G[u]) {
-	                    if ((v % n) == (s % n) && (v / n) != 0) continue;
-	                    if (dis[v] > dis[u] + w) {
-	                        dis[v] = dis[u] + w;
-	                        pq.push ({dis[v], v});
-	                    } 
-	                }
-	            }   
-	        }
-	
-	        double cal () {
-	            double ans = INF;
-	            for (int i = 0; i < K + 1; i++) {
-	                int u = id[i][0];
-	                ans = min (ans, dis[u]);
-	            }
-	            if (ans == INF) return -1;
-	
-	            return ans;
-	        }
-	    };
-	
-	    /*
-	    cyberland 不能去 relax 別人
-	    Node (u, k) -> Node (v, k) 1/2^k
-	    Node (u, k) -> Node (v, k) 0 if (k=K+1)
-	    Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
-	    Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
-	    */
-	
-	    double solve(int N, int M, int K, int H, vector<int> x, vector<int> y, vector<int> c, vector<int> arr) {
-	        K = min (K, 70);
-	        vector<vector<pii>> G(N);
-	        for (int i = 0; i < M; i++) {
-	            int u = x[i], v = y[i], w = c[i];
-	            G[u].pb ({v, w}); G[v].pb ({u, w});
-	        }
-	        K++;
-	
-	        Graph g;
-	        g.init (N, K);
-	
-	        double cnt = 1;
-	        for (int k = 0; k < K + 1; k++) {
-	            if (k == K) {
-	                for (int i = 0; i < N; i++) {
-	                    for (auto [v, w] : G[i]) {
-	                        g.add_edge (i, k, v, k, 0);
-	                    }
-	                }
-	                continue;
-	            }
-	            for (int i = 0; i < N; i++) {
-	                for (auto [v, w] : G[i]) {
-	                    g.add_edge (i, k, v, k, (double) w * cnt);
-	                }
-	            }
-	            cnt *= 0.5;
-	        }
-	        cnt = 1;
-	        for (int k = 0; k < K - 1; k++) {
-	            cnt *= 0.5;
-	            for (int i = 0; i < N; i++) {
-	                for (auto [v, w] : G[i]) {
-	                    if (arr[i] == 2) g.add_edge (i, k, v, k + 1, (double) w * cnt);
-	                }
-	            }
-	        }
-	        for (int k = 0; k < K; k++) {
-	            for (int i = 0; i < N; i++) {
-	                if (arr[i] == 0) g.add_edge (i, k, i, K, 0);
-	            }
-	        }
-	
-	        g.dijkstra (H);
-	
-	        return g.cal ();
-	    }
-	
-	    void init () {
-	        int n, m, k, h;
-	        cin >> n >> m >> k >> h;
-	        vector<int> arr (n);
-	        vector<int> x (n);
-	        vector<int> y (n);
-	        vector<int> c (n);
-	        for (int i = 0; i < n; i++) cin >> arr[i];
-	        for (int i = 0; i < m; i++) cin >> x[i] >> y[i] >> c[i];
-	
-	        cout << fixed << setprecision (12) << solve (n, m, k, h, x, y, c, arr) << "\n";
-	    }
+    
+    - $arr[i] = 1$，沒任何作用
+    
+    - $arr[i] = 2$，可讓當前已走的距離除以 $2$ 
+    
+    除了點 $H$ 外，所有點都可以重複走，只要走到點就可使用 $arr[i]$
+    
+    「除以 $2$ 」的能力總共只能使用 $K$ 次
+    
+    只要抵達 $H$ 點就代表走到終點，問抵達 $H$ 點的最短距離
+    
+    $N,M\le 10^5,K\le 10^6,c[i]\le 10^9$
+    
+    ??? note "思路"
+    	我們可以將題目的圖反著做，即從點 $H$ 開始，跑回點 $0$
+    	
+    	這樣就可以建立分層圖
+    	
+    	- 原先遇到能力為 $0$ 的點，會把當前距離設置為 $0$
+    		- 那麼現在遇到能力為 $0$ 的點，相當於讓之後走過的所有邊權都變成 $0$
+    
+    	- 原先遇到能力為 $2$ 的點，會把當前距離減半
+    		- 那麼現在遇到能力為 $2$ 的點，相當於讓之後走過的所有邊權都變成原來的一半
+    	
+    	第 $k$ 層為當前已使用「除以 $2$ 」的能力 $k$ 次
+    	
+    	我們發現，直接讓第 $k$ 層上 $u$ 和 $v$ 之間的邊權為原圖上 $u$ 和 $v$ 之間邊權的 $\displaystyle \frac{1}{2^k}$ ，就能滿足能力為 $2$ 的點。
+    	
+    	至於能力為 $0$ 的點，我們可以新建一層 $K+1$ 層，讓這一層內 $u$ 和 $v$ 之間的邊權都改成 $0$。然後讓所有 $arr[v]=0$ 的 node$(k,v)$ 直接建立單向邊到 $K+1$ 層即可。
+    	
+    	- Node (u, k) -> Node (v, k) 1/2^k
+    	
+        - Node (u, k) -> Node (v, k) 0 if (k=K+1)
+        
+        - Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
+        
+        - Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
+    	
+    	我們發現，事實上用一些次優惠政策之後，最短路會變的很低，遠遠低於精度
+    
+    	具體來說，本題中最短路最大不超過邊數乘邊權最大值，即 $10^5\times 10^9=10^{14}$
+    	
+    	只需讓這個數除以 $70$ 次 $2$ 就可以掉到 $10^{−7}$ 以下（$8\times 10^{−8}$）
+    	
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #include "cyberland.h"
+        #define pii pair<int, double>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+    
+        using namespace std;
+    
+        const double INF = 1000000000000000.00;
+    
+        struct Graph {
+            int n, K, cnt;
+            vector<vector<pii>> G;
+            vector<vector<int>> id;
+            vector<double> dis;
+            vector<int> vis;
+    
+            void init (int _n, int _k) {
+                n = _n, K = _k;
+                id.resize (K + 1);
+                cnt = 0;
+    
+                // (id + 1) % n == 0 -> cyberland
+                // k != 0
+                // id / n -> k
+                for (int i = 0; i < K + 1; i++) {
+                    id[i].resize (n);
+                    for (int j = 0; j < n; j++) {
+                        id[i][j] = cnt++; // id[k][u]
+                    }
+                }
+                G.resize (cnt);
+                dis = vector<double>(cnt, INF);
+                vis = vector<int>(cnt);
+            }
+    
+            void add_edge (int u, int uk, int v, int vk, double w) {
+                int id1 = id[uk][u];
+                int id2 = id[vk][v];
+    
+                G[id1].pb ({id2, w});
+            }
+    
+            void dijkstra (int s) {
+                priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
+                pq.push ({0, id[0][s]}); // cyberland 為起點
+                dis[id[0][s]] = 0;
+    
+                while (pq.size ()) {
+    
+                    auto [dis_u, u] = pq.top (); pq.pop ();
+    
+                    if ((u % n) == (s % n) && (u / n) != 0) continue;
+                    if (vis[u]) continue; 
+                    vis[u] = 1;
+    
+                    for (auto [v, w] : G[u]) {
+                        if ((v % n) == (s % n) && (v / n) != 0) continue;
+                        if (dis[v] > dis[u] + w) {
+                            dis[v] = dis[u] + w;
+                            pq.push ({dis[v], v});
+                        } 
+                    }
+                }   
+            }
+    
+            double cal () {
+                double ans = INF;
+                for (int i = 0; i < K + 1; i++) {
+                    int u = id[i][0];
+                    ans = min (ans, dis[u]);
+                }
+                if (ans == INF) return -1;
+    
+                return ans;
+            }
+        };
+    
+        /*
+        cyberland 不能去 relax 別人
+        Node (u, k) -> Node (v, k) 1/2^k
+        Node (u, k) -> Node (v, k) 0 if (k=K+1)
+        Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
+        Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
+        */
+    
+        double solve(int N, int M, int K, int H, vector<int> x, vector<int> y, vector<int> c, vector<int> arr) {
+            K = min (K, 70);
+            vector<vector<pii>> G(N);
+            for (int i = 0; i < M; i++) {
+                int u = x[i], v = y[i], w = c[i];
+                G[u].pb ({v, w}); G[v].pb ({u, w});
+            }
+            K++;
+    
+            Graph g;
+            g.init (N, K);
+    
+            double cnt = 1;
+            for (int k = 0; k < K + 1; k++) {
+                if (k == K) {
+                    for (int i = 0; i < N; i++) {
+                        for (auto [v, w] : G[i]) {
+                            g.add_edge (i, k, v, k, 0);
+                        }
+                    }
+                    continue;
+                }
+                for (int i = 0; i < N; i++) {
+                    for (auto [v, w] : G[i]) {
+                        g.add_edge (i, k, v, k, (double) w * cnt);
+                    }
+                }
+                cnt *= 0.5;
+            }
+            cnt = 1;
+            for (int k = 0; k < K - 1; k++) {
+                cnt *= 0.5;
+                for (int i = 0; i < N; i++) {
+                    for (auto [v, w] : G[i]) {
+                        if (arr[i] == 2) g.add_edge (i, k, v, k + 1, (double) w * cnt);
+                    }
+                }
+            }
+            for (int k = 0; k < K; k++) {
+                for (int i = 0; i < N; i++) {
+                    if (arr[i] == 0) g.add_edge (i, k, i, K, 0);
+                }
+            }
+    
+            g.dijkstra (H);
+    
+            return g.cal ();
+        }
+        ```
+    ??? note "full code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        //#include "cyberland.h"
+        #define pii pair<int, long double>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+    
+        using namespace std;
+    
+        const long double INF = 1000000000000000.00;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+    
+        struct Graph {
+            int n, K, cnt;
+            vector<vector<pii>> G;
+            vector<vector<int>> id;
+            vector<double> dis;
+            vector<int> vis;
+    
+            void init (int _n, int _k) {
+                n = _n, K = _k;
+                id.resize (K + 1);
+                cnt = 0;
+    
+                // (id + 1) % n == 0 -> cyberland
+                // k != 0
+                // id / n -> k
+                for (int i = 0; i < K + 1; i++) {
+                    id[i].resize (n);
+                    for (int j = 0; j < n; j++) {
+                        id[i][j] = cnt++; // id[k][u]
+                    }
+                }
+                G.resize (cnt);
+                dis = vector<double>(cnt, INF);
+                vis = vector<int>(cnt);
+            }
+    
+            void add_edge (int u, int uk, int v, int vk, double w) {
+                int id1 = id[uk][u];
+                int id2 = id[vk][v];
+    
+                G[id1].pb ({id2, w});
+            }
+    
+            void dijkstra (int s) {
+                priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
+                pq.push ({0, id[0][s]}); // cyberland 為起點
+                dis[id[0][s]] = 0;
+    
+                while (pq.size ()) {
+    
+                    auto [dis_u, u] = pq.top (); pq.pop ();
+    
+                    if ((u % n) == (s % n) && (u / n) != 0) continue;
+                    if (vis[u]) continue; 
+                    vis[u] = 1;
+    
+                    for (auto [v, w] : G[u]) {
+                        if ((v % n) == (s % n) && (v / n) != 0) continue;
+                        if (dis[v] > dis[u] + w) {
+                            dis[v] = dis[u] + w;
+                            pq.push ({dis[v], v});
+                        } 
+                    }
+                }   
+            }
+    
+            double cal () {
+                double ans = INF;
+                for (int i = 0; i < K + 1; i++) {
+                    int u = id[i][0];
+                    ans = min (ans, dis[u]);
+                }
+                if (ans == INF) return -1;
+    
+                return ans;
+            }
+        };
+    
+        /*
+        cyberland 不能去 relax 別人
+        Node (u, k) -> Node (v, k) 1/2^k
+        Node (u, k) -> Node (v, k) 0 if (k=K+1)
+        Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
+        Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
+        */
+    
+        double solve(int N, int M, int K, int H, vector<int> x, vector<int> y, vector<int> c, vector<int> arr) {
+            K = min (K, 70);
+            vector<vector<pii>> G(N);
+            for (int i = 0; i < M; i++) {
+                int u = x[i], v = y[i], w = c[i];
+                G[u].pb ({v, w}); G[v].pb ({u, w});
+            }
+            K++;
+    
+            Graph g;
+            g.init (N, K);
+    
+            double cnt = 1;
+            for (int k = 0; k < K + 1; k++) {
+                if (k == K) {
+                    for (int i = 0; i < N; i++) {
+                        for (auto [v, w] : G[i]) {
+                            g.add_edge (i, k, v, k, 0);
+                        }
+                    }
+                    continue;
+                }
+                for (int i = 0; i < N; i++) {
+                    for (auto [v, w] : G[i]) {
+                        g.add_edge (i, k, v, k, (double) w * cnt);
+                    }
+                }
+                cnt *= 0.5;
+            }
+            cnt = 1;
+            for (int k = 0; k < K - 1; k++) {
+                cnt *= 0.5;
+                for (int i = 0; i < N; i++) {
+                    for (auto [v, w] : G[i]) {
+                        if (arr[i] == 2) g.add_edge (i, k, v, k + 1, (double) w * cnt);
+                    }
+                }
+            }
+            for (int k = 0; k < K; k++) {
+                for (int i = 0; i < N; i++) {
+                    if (arr[i] == 0) g.add_edge (i, k, i, K, 0);
+                }
+            }
+    
+            g.dijkstra (H);
+    
+            return g.cal ();
+        }
+    
+        void init () {
+            int n, m, k, h;
+            cin >> n >> m >> k >> h;
+            vector<int> arr (n);
+            vector<int> x (n);
+            vector<int> y (n);
+            vector<int> c (n);
+            for (int i = 0; i < n; i++) cin >> arr[i];
+            for (int i = 0; i < m; i++) cin >> x[i] >> y[i] >> c[i];
+    
+            cout << fixed << setprecision (12) << solve (n, m, k, h, x, y, c, arr) << "\n";
+        }
 
 
         signed main() {
@@ -1124,8 +1124,8 @@
 		把圖複製 $k\times 2$ 層，三層三層一組，第 $k$ 層若原圖 $G$ 有邊 $(a,b,w_{a,b}),(b,c,w_{b,c})$ 就連接 $(a_k,b_{k+1},0),(b_{k+1},c_{k+2},2\times w_{b,c})$
 	
 		<figure markdown>
-          ![Image title](./images/31.png){ width="300" }
-        </figure>
+	      ![Image title](./images/31.png){ width="300" }
+	    </figure>
 
 
 ???+note "[2021 附中模競 II 惡地之路](https://drive.google.com/file/d/1ISO-o4DrQmbuqVVAgxeVQEO3ifMvcy01/view)"
@@ -1178,34 +1178,34 @@
 	- $n\le 1000$
 	- $m\le 5000$
 	- $P\le 10^5$ 且 $P$ 是質數
-
+	
 	??? note "思路 (by algoseacow)"
 		根據費馬小定理，若 $p$ 是質數，且 $1\leq d<p$，則 $d^{p-1}\bmod p$ 一定是 $1$。
 		
 		也就是說，這些邊的權重每 $p-1$ 步會循環一次。
-
-        我們可以建立一張新的圖，總共有 $(p-1) \times n$ 個節點。
-
-        node$(k, i)$ 的意義表示走完的步數 $\bmod (p-1) = k$，且停在原圖的節點 $i$。
-        新的 graph 會有 $(p-1) \times m$ 條邊。
-
-        若原圖有一個邊 $(u, v)$，則在新圖中，對所有的 $k$ 加上 node$(k, u) \rightarrow $ node$((k+1)\bmod (p-1), v)$ 的邊，權重是 $d(u, v)^{(k+1)\bmod (p-1)}\bmod p$。
-
-        題目的目標是要讓最大邊權最小化，所以一種方法是二分答案 $X$，看看只走 $\leq X$ 的邊是否從起點到終點 node$(k, t)$。
-
-        另一種方法是比較類似 MST 的 Prim 演算法。
-
-        先把設定 $X=1$，看看有沒有能走到 node$(k=0\sim (p-2), t)$ 任意一個節點，
-
-        如果不行就放寬 $X=2$，再看看能多走哪些。
-
-        如果不行就放寬 $X=3$，再看看能多走哪些。
-
-        一直放寬到可以走到 node$(k=0\sim (p-2), t)$ 任一個節點。
-
-        這題的邊權重會介於 $[0, p-1]$，所以 priority_queue 可以用開 $p-1$ 個 vector 的方式來實作，讓 push / pop 時間只要 $O(1)$。
-
-        整個圖的邊數量有 $(p-1) \times m$，總時間複雜度也是 $(p-1) \times m$。
+	
+	    我們可以建立一張新的圖，總共有 $(p-1) \times n$ 個節點。
+	
+	    node$(k, i)$ 的意義表示走完的步數 $\bmod (p-1) = k$，且停在原圖的節點 $i$。
+	    新的 graph 會有 $(p-1) \times m$ 條邊。
+	
+	    若原圖有一個邊 $(u, v)$，則在新圖中，對所有的 $k$ 加上 node$(k, u) \rightarrow $ node$((k+1)\bmod (p-1), v)$ 的邊，權重是 $d(u, v)^{(k+1)\bmod (p-1)}\bmod p$。
+	
+	    題目的目標是要讓最大邊權最小化，所以一種方法是二分答案 $X$，看看只走 $\leq X$ 的邊是否從起點到終點 node$(k, t)$。
+	
+	    另一種方法是比較類似 MST 的 Prim 演算法。
+	
+	    先把設定 $X=1$，看看有沒有能走到 node$(k=0\sim (p-2), t)$ 任意一個節點，
+	
+	    如果不行就放寬 $X=2$，再看看能多走哪些。
+	
+	    如果不行就放寬 $X=3$，再看看能多走哪些。
+	
+	    一直放寬到可以走到 node$(k=0\sim (p-2), t)$ 任一個節點。
+	
+	    這題的邊權重會介於 $[0, p-1]$，所以 priority_queue 可以用開 $p-1$ 個 vector 的方式來實作，讓 push / pop 時間只要 $O(1)$。
+	
+	    整個圖的邊數量有 $(p-1) \times m$，總時間複雜度也是 $(p-1) \times m$。
 
 ### 建立虛點
 
@@ -1244,24 +1244,24 @@
     ??? note "code"
     	```cpp linenums="1"
     	const int N = 100005;
-
+    
         void addedge(int u, int v, int c, int w);
-
+    
         std::map<int, ll> sum[N], dis[N];
         std::map<int, int> len[N], col[N];
         std::map<int, std::vector<pii>> mp[N];
-
+    
         int n, m;
-
+    
         int main() {
             read(n), read(m);
-
+    
             for (int i = 1; i <= m; ++i) {
                 int u, v, c, w;
                 read(u), read(v), read(c), read(w);
                 addedge(u, v, c, w), addedge(v, u, c, w);
             }
-
+    
             std::priority_queue<std::tuple<ll, int, int>> pq;
             auto upd = [&](int v, int c, ll udis) {
                 if (!dis[v].count(c) || dis[v][c] > udis) {
@@ -1270,14 +1270,14 @@
                 }
             };
             upd(1, 0, 0);
-
+    
             while (!pq.empty()) {
                 auto [d, u, c] = pq.top();
                 d = -d;
                 pq.pop();
-
+    
                 if (d != dis[u][c]) continue;
-
+    
                 for (auto [v, vc] : mp[u][c]) {
                     ll w;
                     if (c == vc)
@@ -1289,13 +1289,13 @@
                     upd(v, vc, d + w);
                 }
             }
-
+    
             if (dis[n].count(0)) write(dis[n][0]), EL;
             else puts("-1");
-
+    
             return 0;
         }
-
+    
         void addedge(int u, int v, int c, int w) {
             col[u][v] = c, len[u][v] = w;
             sum[u][c] += w;
@@ -1328,6 +1328,36 @@
 	    - node (u, b) = $\begin{cases} \texttt{node (u + 1, b)}+1 \\ \texttt{node (u - 1, b)}+1 \\ \texttt{node (u, b[u])}+0 \end{cases}$
 	
 	    - 其中 node (u, b) -> node (u, b[u]) 走到真正的點
+
+???+note "[LOJ #2335. 「JOI 2017 Final」足球](https://loj.ac/p/2335)"
+    有 $n$ 個球員站在 Grid 上求球從 $a_1$ 踢到 $a_n$ 的最小 $cost$
+    
+    - 球員踢球(上下左右) $A\times p + B$
+    
+    - 球員移動(上下左右) $cost=C$
+    
+    - 放下球 $cost=0$
+    
+    - 拿起球 $cost = 0$
+    
+    ??? note "思路"
+    
+        > - $0,1,2,3$ 上下左右 (自飛)
+        
+        > - $4$ 停止 (自飛)
+        
+        > - $5$ 帶飛 (往 random direction)
+    
+        - 自飛的球
+        	- 繼續移動 $0,1,2,3\rightarrow 0,1,2,3 :A$ 往自己的方向 
+        	- 被球員撿到 $4\rightarrow 5: dis_{i,j}\times C$ 
+        		- $dis_{i,j}$ 為最近的球員到 $(i,j)$ 的距離
+        	- 停下來  $0,1,2,3\rightarrow 4:0$  
+    
+        - 帶飛的球
+        	- 繼續跟著球員走 $5 \rightarrow 5:C$  四個方向
+        	- 被球員踢出去 $5 \rightarrow 0,1,2,3:B$ 
+        	- ~~停下來~~ 停下來，撿起來，浪費時間
 
 ### 次短路
 
@@ -2051,50 +2081,6 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 		
 		$s\to u \to t$，我們枚舉這 $42$ 個 $u$
 
-???+note "[LOJ #2335. 「JOI 2017 Final」足球](https://loj.ac/p/2335)"
-    有 $n$ 個球員站在 Grid 上求球從 $a_1$ 踢到 $a_n$ 的最小 $cost$
-    
-    - 球員踢球(上下左右) $A\times p + B$
-    
-    - 球員移動(上下左右) $cost=C$
-    
-    - 放下球 $cost=0$
-    
-    - 拿起球 $cost = 0$
-    
-    ??? note "思路"
-        - 最後兩點是沒用的
-            - 你拿放下球然後跑走讓另一個過來拿球(???)
-            - 你放下球然後再拿起來(???)
-    
-        - 觀察後會發現一個球員最多有一次的機會可以掌控球 (下面有證明)
-    
-        > - $0,1,2,3$ 上下左右 (自飛)
-        
-        > - $4$ 停止 (自飛)
-        
-        > - $5$ 帶飛 (往 random direction)
-    
-        - 自飛的球
-          - 繼續移動 $0,1,2,3\rightarrow 0,1,2,3 :A$ 往自己的方向 
-          - 被球員撿到 $4\rightarrow 5: dis_{i,j}\times C$ 
-              - $dis_{i,j}$ 為最近的球員到 $(i,j)$ 的距離
-          - 停下來  $0,1,2,3\rightarrow 4:0$  
-    
-        - 帶飛的球
-          - 繼續跟著球員走 $5 \rightarrow 5:C$  四個方向
-          - 被球員踢出去 $5 \rightarrow 0,1,2,3:B$ 
-          - ~~停下來~~ 停下來，撿起來，浪費時間
-    
-        > 球員跟求只能相遇一次 proof
-        
-        > - 如果相遇在同一個位置 
-        >   - cost = 球跑了大半天的 cost (完全沒必要)
-      
-        > - 如果相遇在不同位置 
-        >   - cost = 我需要移動到那個位置的 cost + 求繞了大半天的 cost
-        >   - 那其實直接報的球跑到那個位置為更好 相當於求不離身 沒有再相遇一次
-        >   - 球員有移動 跟 球員跟著球移動的 cost 相等
 
 ## Bellman Ford
 
@@ -2339,6 +2325,93 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 	求你最少要承受多少傷害
 	
 	$n,m\le 10^3$
+	
+	??? note "思路"
+		可分為不吃 ADD 與吃 ADD
+		
+		吃 ADD 的話 起點 -> ADD -> 終點 做兩張圖 dijkstra 即可
 
+???+note "[TIOJ 1572.最短路線問題(Path)](https://tioj.ck.tp.edu.tw/problems/1572)"
+	給一張 $n$ 點 $m$ 邊無向圖，邊權皆為 $1$，輸出 $s\to t$ 的字典序最小的最短路徑
+	
+	$n,m\le 10^6$
+	
+	??? note "思路"
+		從終點做回來，建立最短路徑tree，將 tree 邊反向，從起點每次 greedy 走最小的回來
+	
+???+note "[洛谷 [FJOI2014]最短路径树问题](https://www.luogu.com.cn/problem/P2993)"
+	給一張 $n$ 點 $m$ 邊無向圖，邊帶權，起點為 $1$
+	
+	先求出一顆最短路徑樹，滿足經過的頂點序列取字典序最小的
+	
+	在樹上求包含 $k$ 個點的最長路徑，求包含 $k$ 個點的最長路有幾條
+	
+	$n\le 3\times 10^4,m\le 6\times 10^4,k\le n$
+	
+	??? note "思路"
+		这个“最短路径树”，首先可以通过Dijkstra跑出最短路径DAG，然后在DAG上用dfs每次greedy走最小的點即可求出字典序最小的树
+		
+		剩下的 HLD
+		
+		https://www.cnblogs.com/wyb-sen/p/15178332.html
+	
+???+note "[Atcoder abc267 F. Exactly K Steps](https://atcoder.jp/contests/abc267/tasks/abc267_f)"
+	給一棵 $n$ 個點的樹，邊權為 $1$，進行 $q$ 次詢問，每次輸出任意一個離結點 $u$ 距離為 $k$ 的節點 
+	
+	$n,q\le 2\times 10^5$
+	
+	??? note "思路"
+		https://www.cnblogs.com/DM11/p/16701069.html
+		
+???+note "[CF 715 B. Complete The Graph](https://codeforces.com/contest/715/problem/B)"
+	給一張 $n$ 點 $m$ 邊無向圖，其中有一些邊要你指定權重
+	
+	求是否有方案使得從 $s\to t$ 的最短路恰為 $L$，輸出這些邊指定後的權重，或無法達成
+	
+	$n\le 1000,m\le 10^4$
+	
+	??? note "思路"
+		考慮邊權皆為 $1$ 的最短路，邊權皆為 INF 的最短路，有解若且唯若 $L$ 在這兩個值之間
+		
+		邊權皆為 $x$ 可得出最短路具有單調性
+	
+		小數點二分搜 $x$，將每個邊權都設為 $x$，使最短路比 $L$ 大一點點
+		
+		建立 shortest path DAG，將其中一條路徑向下取整，其他邊權即設為 INF
+
+???+note "[CF 1586 E. Moment of Bloom](https://codeforces.com/contest/1586/problem/E)"
+	給一張 $n$ 點 $m$ 邊的無向連通圖，$q$ 次操作，一開始邊權皆為 $0$
+	
+	- 對 $u\to v$ 經過的所有邊權 $+1$ 
+
+	判斷能否使得所有邊權都為偶數，如果可以，請輸出所有操作的路徑上的點
+	
+	如果不行，輸出至少還需要多少操作才能使得上述結果
+	
+	$n\le 3\times 10^5,m\le 3\times 10^5$
+	
+	??? note "思路"
+		考慮「對 $u\to v$ 經過的所有邊權 $+1$」
+		
+		若我隨便選一條路徑，需要利用一些環來 XOR 才可以變成 OPT 的路徑
+		
+		圖 : 
+		
+		這代表有環我們就可以進行「反悔」操作
+		
+		考慮圖為 tree 的 case，兩點路徑唯一，若操作結束後還有剩，就代表無法繼續
+		
+		有這個想法後，我們也可以將原本的無向圖變成 tree，也就是 MST
+		
+		我們可以將操作全部都在樹上操作，然後我們在觀察可否反悔
+		
+		由於樹上不存在環，外面的邊也都沒有剩，因此無法反悔
+		
+		所以我們只要在樹上進行樹上前綴和，加以判斷即可
+		
+		「至少還需要多少操作」的部分就看有幾個點周圍的邊至少有一個是有剩的
+		
+		這些點一定是偶數個，我們只需將這些邊隨便兩兩相連即可，故答案為點的數量除 2
+	
 - <https://drive.google.com/file/d/1a1mgK8KFJWNoXATHwi3E6ceStn22QmZl/view>
 
