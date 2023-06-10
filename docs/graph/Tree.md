@@ -972,6 +972,46 @@
 	    
 	    兩個點 merge 起來用啟發式合併，但要注意可能會算到已算過的節點，所以在 pop 的時候檢查此編號是否已經在同一個 DSU 內
 
+???+note "[CF 1586 E. Moment of Bloom](https://codeforces.com/contest/1586/problem/E)"
+	給一張 $n$ 點 $m$ 邊的無向連通圖，$q$ 次操作，一開始邊權皆為 $0$
+	
+	- 對簡單路徑 $u\to \ldots \to v$ 經過的所有邊權 $+1$ 
+	
+	判斷能否使得所有邊權都為偶數，如果可以，請輸出所有操作的路徑上的點
+	
+	如果不行，輸出至少還需要多少操作才能使得上述結果
+	
+	$n,m,q\le 3\times 10^5,n\times q\le 3\times 10^5,L\le 10^9$
+	
+	??? note "思路"
+		考慮「對 $u\to v$ 經過的所有邊權 $+1$」
+		
+		若我隨便選一條路徑，需要利用一些環來 XOR 才可以變成 OPT 的路徑
+		
+		<figure markdown>
+          ![Image title](./images/32.png){ width="300" }
+        </figure>
+
+		
+		這代表有環我們就可以進行「反悔」操作
+		
+		考慮圖為 tree 的 case，兩點路徑唯一，若操作結束後還有剩，就代表無法繼續
+		
+		有這個想法後，我們也可以將原本的無向圖變成 tree，也就是 MST
+		
+		我們可以將操作全部都在樹上操作，然後我們在觀察可否反悔
+		
+		由於樹上不存在環，外面的邊也都沒有剩，因此無法反悔
+		
+		<figure markdown>
+          ![Image title](./images/33.png){ width="300" }
+        </figure>
+		
+		所以我們只要在樹上進行樹上前綴和，加以判斷即可
+		
+		「至少還需要多少操作」的部分就看有幾個點周圍的邊至少有一個是有剩的
+		
+		這些點一定是偶數個，我們只需將這些邊隨便兩兩相連即可，故答案為這些點的數量除 2
 
 - <https://usaco.guide/gold/all-roots?lang=cpp>
 
@@ -2146,122 +2186,122 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 	??? note "code (by [becaido](https://caidocode.blogspot.com/2022/12/nhspc2022.html))"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const double mxLog = 9;
-        const int INF = 1e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-        const long double EPS = 1e-8;
-
-        int n, k;
-        int d[maxn];
-        double preLog[maxn];  // preLog[i] = log(i!)
-        int prei[maxn], pinv[maxn], pref[maxn];
-
-        void build() {
-            preLog[0] = 0;
-            for (int i = 1; i <= n; i++) {
-                preLog[i] = preLog[i - 1] + log10(i);
-            }
-
-            prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
-            for (int i = 2; i < maxn; i++) {
-                pref[i] = pref[i - 1] * i % M;
-                pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
-                prei[i] = prei[i - 1] * pinv[i] % M;
-            }
-        }
-
-        vector<int> work(int _n, int _k, const int _d[]) {
-            n = _n;
-            k = _k;
-            k--;
-            for (int i = 1; i <= n; i++) {
-                d[i] = _d[i];
-                d[i]--;
-            }
-
-            build();
-            vector<int> ans;
-            for (int t = n - 2; t >= 1; t--) {
-                int f, flag = false;
-                for (int i = 1; i <= n; i++) {
-                    if (d[i]) {
-                        f = i;
-                        break;
-                    }
-                }
-                double big = preLog[t - 1];
-                int small = pref[t - 1];
-
-                for (int i = 1; i <= n; i++) {
-                    if (i == f) {
-                        big = big - preLog[d[i] - 1];
-                        small = (small * prei[d[i] - 1]) % M;
-                    } else if (d[i]) {
-                        big = big - preLog[d[i]];
-                        small = (small * prei[d[i]]) % M;
-                    }
-                }
-                int val;
-                if (big - mxLog > EPS) {
-                    val = INF;
-                } else {
-                    val = small;
-                }
-                for (int i = 1; i <= n; i++) {
-                    if (d[i]) {
-                        if (i != f) {
-                            big += preLog[d[f] - 1] + preLog[d[i]];
-                            big -= preLog[d[f]] + preLog[d[i] - 1];
-                            small = (((small * pinv[d[f]]) % M) * d[i]) % M;
-                            if (big - mxLog > EPS) {
-                                val = INF;
-                            } else {
-                                val = small;
-                            }
-                            f = i;
-                        }
-                        if (k >= val) {
-                            k -= val;
-                        } else {
-                            ans.pb(i);
-                            d[i]--;
-                            flag = true;
-                            break;
-                        }
-                    }
-                }
-                if (flag == false) {
-                    return {-1};
-                }
-            }
-            return ans;
-        }
-
-        signed main () {
-            int n, k;
-            cin >> n >> k;
-            int d[1005];
-
-            for (int i = 1; i <= n; i++) {
-                cin >> d[i];
-            }
-
-            vector<int> ans = work (n, k, d);
-            for (auto it : ans) {
-                cout << it << "\n";
-            }
-        }
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const double mxLog = 9;
+	    const int INF = 1e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	    const long double EPS = 1e-8;
+	
+	    int n, k;
+	    int d[maxn];
+	    double preLog[maxn];  // preLog[i] = log(i!)
+	    int prei[maxn], pinv[maxn], pref[maxn];
+	
+	    void build() {
+	        preLog[0] = 0;
+	        for (int i = 1; i <= n; i++) {
+	            preLog[i] = preLog[i - 1] + log10(i);
+	        }
+	
+	        prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
+	        for (int i = 2; i < maxn; i++) {
+	            pref[i] = pref[i - 1] * i % M;
+	            pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
+	            prei[i] = prei[i - 1] * pinv[i] % M;
+	        }
+	    }
+	
+	    vector<int> work(int _n, int _k, const int _d[]) {
+	        n = _n;
+	        k = _k;
+	        k--;
+	        for (int i = 1; i <= n; i++) {
+	            d[i] = _d[i];
+	            d[i]--;
+	        }
+	
+	        build();
+	        vector<int> ans;
+	        for (int t = n - 2; t >= 1; t--) {
+	            int f, flag = false;
+	            for (int i = 1; i <= n; i++) {
+	                if (d[i]) {
+	                    f = i;
+	                    break;
+	                }
+	            }
+	            double big = preLog[t - 1];
+	            int small = pref[t - 1];
+	
+	            for (int i = 1; i <= n; i++) {
+	                if (i == f) {
+	                    big = big - preLog[d[i] - 1];
+	                    small = (small * prei[d[i] - 1]) % M;
+	                } else if (d[i]) {
+	                    big = big - preLog[d[i]];
+	                    small = (small * prei[d[i]]) % M;
+	                }
+	            }
+	            int val;
+	            if (big - mxLog > EPS) {
+	                val = INF;
+	            } else {
+	                val = small;
+	            }
+	            for (int i = 1; i <= n; i++) {
+	                if (d[i]) {
+	                    if (i != f) {
+	                        big += preLog[d[f] - 1] + preLog[d[i]];
+	                        big -= preLog[d[f]] + preLog[d[i] - 1];
+	                        small = (((small * pinv[d[f]]) % M) * d[i]) % M;
+	                        if (big - mxLog > EPS) {
+	                            val = INF;
+	                        } else {
+	                            val = small;
+	                        }
+	                        f = i;
+	                    }
+	                    if (k >= val) {
+	                        k -= val;
+	                    } else {
+	                        ans.pb(i);
+	                        d[i]--;
+	                        flag = true;
+	                        break;
+	                    }
+	                }
+	            }
+	            if (flag == false) {
+	                return {-1};
+	            }
+	        }
+	        return ans;
+	    }
+	
+	    signed main () {
+	        int n, k;
+	        cin >> n >> k;
+	        int d[1005];
+	
+	        for (int i = 1; i <= n; i++) {
+	            cin >> d[i];
+	        }
+	
+	        vector<int> ans = work (n, k, d);
+	        for (auto it : ans) {
+	            cout << it << "\n";
+	        }
+	    }
 	    ```
 
 ## Tree Isomorphism

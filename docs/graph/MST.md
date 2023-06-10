@@ -213,6 +213,13 @@ $$
 
 	$\displaystyle a=n,r=\frac{1}{2}$ 我們得到 $\displaystyle n + \frac{n}{2} + \frac{n}{4} + \dots = n\frac{1}{1-\frac{1}{2}} = 2n.$
 
+## 最大邊最小化路徑
+
+<figure markdown>
+  ![Image title](./images/34.png){ width="300" }
+</figure>
+
+
 ## 乘積生成樹
 
 ???+note "[全國賽 2016 第二可靠路網](https://sorahisa-rank.github.io/nhspc-fin/2016/problems.pdf#page=9)"

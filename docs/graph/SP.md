@@ -57,9 +57,19 @@
     }
     ```
 
+O(n) 做 dijkstra 當圖的範圍在大約 $10^5$ 的時候，可使用這個技巧
+
+要實作一個 data structure，滿足以下功能 :
+
+- push(x)
+
+- get_value() 得到當前未 visited 的點
+
+
+
 ### 練習
 
-??? note "來回 [zerojudge g733. 110北二4.漫遊高譚市](https://zerojudge.tw/ShowProblem?problemid=g733)"
+???+note "來回 [zerojudge g733. 110北二4.漫遊高譚市](https://zerojudge.tw/ShowProblem?problemid=g733)"
 	給 $n$ 點 $m$ 邊有向圖，邊帶權
 	
 	另外額外有 $k$ 條無向帶權邊，至多只能走一條這種邊
@@ -72,11 +82,50 @@
 		- 給定起點 $s$, 對於每個點 $u$ 找 $dis(s \rightarrow u) + dis(u \rightarrow v)$
 		- 正反各做一次，也就是把正圖跟反圖都各做一次 $\texttt{dijkstra}$ 起點都是 $\texttt{s}$
 
-??? note "n 平方"
+???+note "[2021 南一中校內複賽 pC 為美好的地牢獻上爆擊](https://toj.tfcis.org/oj/pro/636/)"
+	給一個 $n \times m$ 的棋盤，在某一個格子有一個 ADD 道具，其他每個格子都有一隻魔物攻擊力是 $w_{i,j}$
+	
+	你要從左上角走到右下角，如果經過的格子有魔物，那你會受到 $w_{i,j}$ 點的傷害，並把那隻魔物打倒，第二次經過這個格子就不會再遇到魔物了
+	
+	在經過 ADD 道具之後，每次你受到的傷害都會減少(但不會回血)
+	
+	求你最少要承受多少傷害
+	
+	$n,m\le 10^3$
+	
+	??? note "思路"
+		可分為不吃 ADD 與吃 ADD
+		
+		吃 ADD 的話 起點 &rarr; ADD &rarr; 終點 做兩張圖 dijkstra 即可
+
+???+note "n 平方"
 	給定 $n$ 個點，第 $i$ 點在 $(x_i,y_i)$，從 $i\to j$ 花費 $(x_i - x_j)^2 + (y_i - y_j)^2$
 	
 	問從 $s\to t$ 的最小花費
 
+???+note "字典序 [TIOJ 1572.最短路線問題(Path)](https://tioj.ck.tp.edu.tw/problems/1572)"
+	給一張 $n$ 點 $m$ 邊無向圖，邊權皆為 $1$，輸出 $s\to t$ 的字典序最小的最短路徑
+	
+	$n,m\le 10^6$
+	
+	??? note "思路"
+		從終點做回來，建立最短路徑tree，將 tree 邊反向，從起點每次 greedy 走最小的回來
+
+???+note "字典序樹 [洛谷 [FJOI2014]最短路径树问题](https://www.luogu.com.cn/problem/P2993)"
+	給一張 $n$ 點 $m$ 邊無向圖，邊帶權，起點為 $1$
+	
+	先求出一顆最短路徑樹，滿足經過的節點序列是字典序最小的
+	
+	在樹上求包含 $k$ 個點的最長路徑，求包含 $k$ 個點的最長路有幾條
+	
+	$n\le 3\times 10^4,m\le 6\times 10^4,k\le n$
+	
+	??? note "思路"
+		這個最短路徑樹，首先可以通過 Dijkstra 跑出最短路徑 DAG，然後在 DAG 上用dfs 每次 greedy 走最小的點即可求出字典序最小的樹
+		
+		剩下的 HLD
+		
+		https://www.cnblogs.com/wyb-sen/p/15178332.html
 
 ### 多源點 dijkstra
 
@@ -198,9 +247,11 @@
     ```
 	
 ???+note "[LOJ #2350. 「JOI 2018 Final」月票购买](https://loj.ac/p/2350)"
-	給一張雙向圖和 $s,t,u,v$，從 $s$ 到 $t$ 選一條**最短路徑**，將其邊權都設為 $0$
+	給一張 $n$ 點 $m$ 邊帶權無圖，從 $s$ 到 $t$ 選一條**最短路徑**，將其邊權都設為 $0$
 	
 	問 $u$ 到 $v$ 的最短路徑最小可以是多少
+	
+	$n\le 10^5,m\le 2\times 10^5$
 	
 	??? note "思路"
 		- 若有重疊，設重疊為 $x\to \ldots \to y$
@@ -2081,6 +2132,26 @@ dis(v_r,0)+w(u,v_r), dis(v_r,1)+w(u,v_r),..,dis(v_r,k)+w(u,v_r)\end{cases}$$
 		
 		$s\to u \to t$，我們枚舉這 $42$ 個 $u$
 
+???+note "[CF 715 B. Complete The Graph](https://codeforces.com/contest/715/problem/B)"
+	給一張 $n$ 點 $m$ 邊無向圖，其中有一些邊要你指定權重
+	
+	求是否有方案使得從 $s\to t$ 的最短路恰為 $L$，輸出這些邊指定後的權重，或無法達成
+	
+	$n\le 1000,m\le 10^4$
+	
+	??? note "思路"
+		考慮邊權皆為 $1$ 的最短路，邊權皆為 INF 的最短路，有解若且唯若 $L$ 在這兩個值之間
+		
+		邊權皆為 $x$ 可得出最短路具有單調性
+	
+		小數點二分搜 $x$，將每個邊權都設為 $x$，使最短路比 $L$ 大一點點
+		
+		建立 shortest path DAG，將其中一條路徑向下取整，其他邊權即設為 INF
+
+???+note "[TIOJ 2049.龜兔賽跑](https://tioj.ck.tp.edu.tw/problems/2049)"
+	給 $n$ 點 $m$ 邊無向圖，求若拔掉一個點後，$s\to t$ 的最短路徑最大會是多少
+	
+	$n,m\le 3\times 10^5$
 
 ## Bellman Ford
 
@@ -2134,7 +2205,9 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 		對於 $i ∈ {1, 2, …, k}$， 從 $u_{k + 1}$ 出發沿著 $C$ 走到 $u_i$ 的點權重和是 $s(|V(C)|) + s(i) - s(k)$。 但 $s(|V(C)|) ≥ 0$，依然有 $s(|V(C)|) + s(i) - s(k) ≥ s(i) - s(k) ≥ 0$。
 
 ???+note "找非負環"
-	Bellman Ford 可以找負環，只是有辦法找「零」環嗎
+	零環的情況發生在最小環是零環時，而最小環相當於最小平均環，所以直接找 MMC 即可
+	
+	另一種是讓每個邊剪一個數 $\epsilon$，使得正環 $1$ 還是正的，而零環可以變負環，那環上至多 $n$ 個點，若 $\epsilon = \frac{1}{n}$ 那就會使 $1\to 0$，而若減掉 $\epsilon = \frac{1}{n+1}$ 那就會使 $1$ 變成 $0.\cdots$ 還是正的，零環會變 $-0.\cdots$ 是負的
 
 ???+note "[全國賽 2021 pC](https://tioj.ck.tp.edu.tw/problems/2253)"
 	給一張 $n$ 點（城市） $m$ 邊的有向圖 $G_0$。 我們對 $G_0$ 的每條邊都加上 $k$ 個點（村莊），得到一張 $n + mk$ 節點的有向圖 $G$，並賦予點權重 $c: V(G) \to Z$（每個節點的收支）。
@@ -2310,108 +2383,10 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 	??? note "思路"
 		建表，對於每筆 query 枚舉中間點即可
 
-???+note "[TIOJ 2049.龜兔賽跑](https://tioj.ck.tp.edu.tw/problems/2049)"
-	給 $n$ 點 $m$ 邊無向圖，求若拔掉一個點後，$s\to t$ 的最短路徑最大會是多少
+???+note "[CF 1422 D. Returning Home](https://codeforces.com/problemset/problem/1422/D)"
+	在 $n\times n$ 的 grid 上，給起點終點，還有 $m$ 個特殊點，每秒可以上下左右走一格，只要與特殊點同一個 row 或 col，可以不花時間直接傳送到特殊點，問到達終點的最少時間
 	
-	$n,m\le 3\times 10^5$
+	$n\le 10^9,m\le 10^5$
 
-???+note "[2021 南一中校內複賽 pC 為美好的地牢獻上爆擊](https://toj.tfcis.org/oj/pro/636/)"
-	給一個 $n × m$ 的棋盤，在某一個格子有一個 ADD 道具，其他每個格子都有一隻魔物攻擊力是 $w_{i,j}$
-	
-	你要從左上角走到右下角，如果經過的格子有魔物，那你會受到 $w_{i,j}$ 點的傷害，並把那隻魔物打倒，第二次經過這個格子就不會再遇到魔物了
-	
-	在經過 ADD 道具之後，每次你受到的傷害都會減少(但不會回血)
-	
-	求你最少要承受多少傷害
-	
-	$n,m\le 10^3$
-	
-	??? note "思路"
-		可分為不吃 ADD 與吃 ADD
-		
-		吃 ADD 的話 起點 -> ADD -> 終點 做兩張圖 dijkstra 即可
-
-???+note "[TIOJ 1572.最短路線問題(Path)](https://tioj.ck.tp.edu.tw/problems/1572)"
-	給一張 $n$ 點 $m$ 邊無向圖，邊權皆為 $1$，輸出 $s\to t$ 的字典序最小的最短路徑
-	
-	$n,m\le 10^6$
-	
-	??? note "思路"
-		從終點做回來，建立最短路徑tree，將 tree 邊反向，從起點每次 greedy 走最小的回來
-	
-???+note "[洛谷 [FJOI2014]最短路径树问题](https://www.luogu.com.cn/problem/P2993)"
-	給一張 $n$ 點 $m$ 邊無向圖，邊帶權，起點為 $1$
-	
-	先求出一顆最短路徑樹，滿足經過的頂點序列取字典序最小的
-	
-	在樹上求包含 $k$ 個點的最長路徑，求包含 $k$ 個點的最長路有幾條
-	
-	$n\le 3\times 10^4,m\le 6\times 10^4,k\le n$
-	
-	??? note "思路"
-		这个“最短路径树”，首先可以通过Dijkstra跑出最短路径DAG，然后在DAG上用dfs每次greedy走最小的點即可求出字典序最小的树
-		
-		剩下的 HLD
-		
-		https://www.cnblogs.com/wyb-sen/p/15178332.html
-	
-???+note "[Atcoder abc267 F. Exactly K Steps](https://atcoder.jp/contests/abc267/tasks/abc267_f)"
-	給一棵 $n$ 個點的樹，邊權為 $1$，進行 $q$ 次詢問，每次輸出任意一個離結點 $u$ 距離為 $k$ 的節點 
-	
-	$n,q\le 2\times 10^5$
-	
-	??? note "思路"
-		https://www.cnblogs.com/DM11/p/16701069.html
-		
-???+note "[CF 715 B. Complete The Graph](https://codeforces.com/contest/715/problem/B)"
-	給一張 $n$ 點 $m$ 邊無向圖，其中有一些邊要你指定權重
-	
-	求是否有方案使得從 $s\to t$ 的最短路恰為 $L$，輸出這些邊指定後的權重，或無法達成
-	
-	$n\le 1000,m\le 10^4$
-	
-	??? note "思路"
-		考慮邊權皆為 $1$ 的最短路，邊權皆為 INF 的最短路，有解若且唯若 $L$ 在這兩個值之間
-		
-		邊權皆為 $x$ 可得出最短路具有單調性
-	
-		小數點二分搜 $x$，將每個邊權都設為 $x$，使最短路比 $L$ 大一點點
-		
-		建立 shortest path DAG，將其中一條路徑向下取整，其他邊權即設為 INF
-
-???+note "[CF 1586 E. Moment of Bloom](https://codeforces.com/contest/1586/problem/E)"
-	給一張 $n$ 點 $m$ 邊的無向連通圖，$q$ 次操作，一開始邊權皆為 $0$
-	
-	- 對 $u\to v$ 經過的所有邊權 $+1$ 
-
-	判斷能否使得所有邊權都為偶數，如果可以，請輸出所有操作的路徑上的點
-	
-	如果不行，輸出至少還需要多少操作才能使得上述結果
-	
-	$n\le 3\times 10^5,m\le 3\times 10^5$
-	
-	??? note "思路"
-		考慮「對 $u\to v$ 經過的所有邊權 $+1$」
-		
-		若我隨便選一條路徑，需要利用一些環來 XOR 才可以變成 OPT 的路徑
-		
-		圖 : 
-		
-		這代表有環我們就可以進行「反悔」操作
-		
-		考慮圖為 tree 的 case，兩點路徑唯一，若操作結束後還有剩，就代表無法繼續
-		
-		有這個想法後，我們也可以將原本的無向圖變成 tree，也就是 MST
-		
-		我們可以將操作全部都在樹上操作，然後我們在觀察可否反悔
-		
-		由於樹上不存在環，外面的邊也都沒有剩，因此無法反悔
-		
-		所以我們只要在樹上進行樹上前綴和，加以判斷即可
-		
-		「至少還需要多少操作」的部分就看有幾個點周圍的邊至少有一個是有剩的
-		
-		這些點一定是偶數個，我們只需將這些邊隨便兩兩相連即可，故答案為點的數量除 2
-	
 - <https://drive.google.com/file/d/1a1mgK8KFJWNoXATHwi3E6ceStn22QmZl/view>
 
