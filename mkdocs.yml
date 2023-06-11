@@ -163,6 +163,7 @@ nav:
       - 線段樹: 'ds/segment_tree.md'
       - 前綴和技巧: 'ds/prefix.md'
       - BIT: 'ds/bit.md'
+      - Treap: 'ds/treap.md'
     - 圖論:
       - 並查集 DSU: 'graph/DSU.md'
       - Cycle: 'graph/cycle.md'
