@@ -44,6 +44,7 @@
 | 王師宇 | <li>[部落格](https://utahaa.blogspot.com/)                   | <li>2019 國手                                           |
 | 郭勝威 | <li>[hackmd](https://hackmd.io/@william1070573)              | <li>2023 1!                                             |
 | 廖昀陽 | <li>[hackmd](https://hackmd.io/@Paul-Liao)                   | <li>2023 1!                                             |
+| 王政祺 | <li>[部落格](https://casperwang.pages.dev/archives/2021-05-01-cpsr/) | <li>2021 2!                                             |
 
 ## 其他網站
 
@@ -65,6 +66,7 @@
 | 競程修練心法        | <li>[hackmd](https://hackmd.io/@sa072686/cp/%2F@sa072686%2FrJap7SM_r) |
 | 建中 2015 培訓      | <li>[網站](http://pisces.ck.tp.edu.tw/~peng/index.php?)      |
 | 最短路 blog         | <li>[網站](https://konaeakira.github.io/)                    |
+| 不錯的題單          | <li>[hackmd](https://hackmd.io/@alanlai/Byh58hzIY)           |
 | 宜蘭高中自學平台    | <li>論壇(不一定跟程式有關)<br><li>[網站](https://josh930908.github.io/web/#/) |
 
 CF

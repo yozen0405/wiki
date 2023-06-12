@@ -222,6 +222,8 @@ $$
 
 ## 乘積生成樹
 
+補 : 真正的乘積生成樹
+
 ???+note "[全國賽 2016 第二可靠路網](https://sorahisa-rank.github.io/nhspc-fin/2016/problems.pdf#page=9)"
 	給一張 $n$ 點 $m$ 邊圖，每個邊上有邊權 $\displaystyle w=\frac{p}{q}$，有重邊
 	
@@ -251,3 +253,24 @@ $$
 | [CF 1245D](https://codeforces.com/problemset/problem/1245/D) |      |
 | [USACO Open 2021 Gold P2.Portals](http://www.usaco.org/index.php?page=viewproblem2&cpid=1138) |      |
 | [IOIC day2 NewWorld Online](https://judge.ioicamp.org/contests/2/problems/207) |      |
+
+## GCD MST
+
+???+note "[2023 IOIC day2 NewWorld Online](https://judge.ioicamp.org/contests/2/problems/207)"
+	給一張 $n$ 個點的圖，點有權重 $a_i$，兩點連邊的權重為 $\gcd(a_i, a_j)$，問最大 MST 
+
+	$1 \le n \le 10^5, 1 \le a_i \le 10^6$
+	
+	??? note "思路"
+		使用數論篩法技巧，每次將同一個因數的點 merge
+		
+如果這個點旁邊最小邊e1沒選
+
+把最小邊加到MST上面，會產生一個環
+
+把這個環上面最大的邊 e2 移除，可以得到一個新的生成樹
+
+新的生成樹的權重比剛剛的MST小，這樣產生矛盾
+
+http://www.usaco.org/index.php?page=viewproblem2&cpid=1138
+
