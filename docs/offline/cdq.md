@@ -556,8 +556,8 @@
 	    - C: 作為樹狀結構的 value 查詢區間最大值
 	    
 	    因為每個 tuple 的 W<sub>i</sub> 可能不同，所以可能需要兩棵線段樹
-
-        時間複雜度 : $O(n\log n)$
+	
+	    時間複雜度 : $O(n\log n)$
 
 ### TIOJ 2030
 
@@ -629,3 +629,16 @@
 		再來對每一次的刪除，我們先 query$(i,a_i,t_i)$，然後加入 tuple $(i,a_i,t_i),-1$
 		
 		對於每個 query $(i,a_i,t_i)$ 我要算那些 $j$ 滿足 $\begin{cases}i<j\\ a_i > a_j \\ t_i \ge t_j\end{cases}$
+
+### CF 1093E
+
+???+note "[CF 1093 E.Intersection of Permutations](https://codeforces.com/contest/1093/problem/E)"
+	給你兩個陣列 $a,b$，兩個陣列都恰好包含 $1 \sim n$ 的每個數字
+	
+	接下來有 m 次操作:
+	
+	- 詢問 $1 \sim n$ 有多少種數字同時出現在 $a$ 陣列的區間 $[l_a, r_a]$ 和 $b$ 陣列的區間 $[l_b, r_b]$
+
+	- 交換 $b_x$ 和 $b_y$
+	
+	$1 \le n, m \le 2 \times 10^5$

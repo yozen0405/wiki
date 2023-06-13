@@ -57,14 +57,14 @@
     當圖邊權範圍上界在 $\approx 10^5$ 的時候，可使用這個技巧
 
     實作一個 data structure，滿足以下功能 :
-
+    
     - push(x)
-
+    
     - get_value() 得到當前最小的 distance (相當於 pq.top())
-
-	因為 distance 具有單調性，故 threshold 只會遞增
-	
-	類似的技巧也應用在 [TIOJ 1915](https://tioj.ck.tp.edu.tw/problems/1915), [2023 一模 pD](/wiki/graph/SP/#_2)
+    
+    因為 distance 具有單調性，故 threshold 只會遞增
+    
+    類似的技巧也應用在 [TIOJ 1915](https://tioj.ck.tp.edu.tw/problems/1915), [2023 一模 pD](/wiki/graph/SP/#_2)
 
 ### 練習
 
@@ -1577,7 +1577,7 @@
 	        	```
 	        	1391
 	        	```
-
+	
 	??? note "思路 (by algoseacow)"
 		根據費馬小定理，若 $p$ 是質數，且 $1\leq d<p$，則 $d^{p-1}\bmod p$ 一定是 $1$。
 		
@@ -1726,6 +1726,9 @@
 	
 	$n\le 10^9,m\le 10^5$
 	
+	??? note "提示"
+		grid 的性質 : 兩點間的距離為曼哈頓距離
+		
 	??? note "思路"
 		把特殊點所在的行和列當作點
 		
@@ -1737,8 +1740,6 @@
 	    5. 起點與終點連邊，邊權為曼哈頓距離
 		
 		最後的答案記得跟起點直接到終點的答案取 min
-		
-		注意 ! grid 的性質 : 兩點間的距離為曼哈頓距離
 		
 	??? note "code"
 		```cpp linenums="1"
@@ -2057,14 +2058,14 @@
         while (pq.size()) {
             int sum = pq.top().f, u = pq.top().s;
             pq.pop();
-
+    
             if (ans[u].f == -1) ans[u].f = sum;
             else if (ans[u].s == -1) {
             	if (sum == ans[u].f) continue;// 嚴格要加這行
             	ans[u].s = sum;
             }
             else continue;
-
+    
             for (auto [v, w] : G[u])
                 pq.push({sum + w, v});
         }
@@ -2599,10 +2600,10 @@
         while (pq.size()) {
             int sum = pq.top().f, u = pq.top().s;
             pq.pop();
-
+    
             if (dis[u].size () >= k) continue;
             dis[u].pb (sum);
-
+    
             for (auto [v, w] : G[u])
                 pq.push({sum + w, v});
         }
@@ -2647,9 +2648,25 @@
 	
 	求是否有方案使得從 $s\to t$ 的最短路恰為 $L$，輸出這些邊指定後的權重，或無法達成
 	
-	$n\le 1000,m\le 10^4$
+	$n\le 1000,m\le 10^4,L\le 10^9$
 	
 	??? note "思路"
+		接下來說的「邊」都指代「邊權未知的邊」。
+
+        將所有邊都設為 $L+1$，如果 $dis(s,t) < L$ ，那麼必然無解
+
+        將所有邊都設為 $1$ ，如果 $dis(s,t) > L$ ，那麼必然無解
+
+        考慮將任意一條邊的權值 $+1$，則 $dis(s,t)$ 會 $+0$ 或者 $+1$ 
+
+        如果將所有邊按照「隨便」一個順序不斷 $+1$，直到所有邊的權值都是 $10^9$ 了，那麼在這個過程中，$dis(s,t)$ 是遞增的，而且一定在某一個時刻 $dis(s,t)=L$
+
+        這樣的話我們就可以二分答案 + dijkstra解決這個問題了
+
+        時間複雜度 $\log (mL)\times m\log m = O(m\log m \log (mL))$ 
+		
+		---
+		
 		考慮邊權皆為 $1$ 的最短路，邊權皆為 INF 的最短路，有解若且唯若 $L$ 在這兩個值之間
 		
 		邊權皆為 $x$ 可得出最短路具有單調性
@@ -2657,6 +2674,133 @@
 		小數點二分搜 $x$，將每個邊權都設為 $x$，使最短路比 $L$ 大一點點
 		
 		建立 shortest path DAG，將其中一條路徑向下取整，其他邊權即設為 INF
+
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Edge {
+            int u, v, w, id;
+        };
+
+        struct Graph {
+            int run = 0;
+            int n, m, s, t, L;
+            vector<Edge> edges;
+            vector<int> dis;
+            vector<vector<pii>> G; // {w, v}
+
+            Graph (int n, int m, int s, int t, int L) : n(n), m(m), s(s), t(t), L(L) {}
+
+            void add_edge (int u, int v, int w, int id) {
+                edges.pb ({u, v, w, id});
+            }
+
+            int dijkstra () {
+                priority_queue<pii, vector<pii>, greater<pii>> pq;
+                pq.push ({0, s});
+
+                while (pq.size ()) {
+                    auto [sum, u] = pq.top(); pq.pop();
+
+                    if (dis[u] != INF) continue;
+                    dis[u] = sum;
+
+                    for (auto [w, v] : G[u]) {
+                        pq.push ({sum + w, v});
+                    }
+                }
+                return dis[t];
+            }
+
+            int check (int x) {
+                //   0 1 2 3
+                //   4 5 6 7
+                // x = [m - 1, 10^9 * m - 1]
+                // 進行了 cnt=x/m 輪
+                // x %= m
+                // [0, x] +(cnt+1)
+                // [x + 1, m - 1] +(cnt)
+                G = vector<vector<pii>>(n, vector<pii>());
+                dis = vector<int>(n, INF);
+
+                int cnt = x / m;
+                x %= m;
+
+                for (auto [u, v, w, id] : edges) {
+                    if (w == 0) {
+                        if (id <= x) {
+                            G[u].pb ({cnt + 1, v});
+                        } 
+                        else G[u].pb ({cnt, v});
+                    }
+                    else G[u].pb({w, v});
+                }
+
+                return dijkstra();
+            }
+        }; 
+
+        int n, m, L, s, t;
+
+        void work () {
+            cin >> n >> m >> L >> s >> t;
+            Graph g(n, m, s, t, L);
+
+            for (int i = 0; i < m; i++) {
+                int u, v, w;
+                cin >> u >> v >> w;
+                g.add_edge(u, v, w, i);
+                g.add_edge(v, u, w, i);
+            }
+
+            int l = m - 1, r = (1e9) * m - 1;
+            while (l < r) {
+                int mid = (l + r) / 2;
+
+                if (g.check(mid) < L) l = mid + 1;
+                else r = mid;
+            }
+            int dis = g.check (l);
+            if (dis != L) {
+                cout << "NO\n";
+                return;
+            }
+            cout << "YES\n";
+
+            map<pii, int> mp;
+            for (int i = 0; i < n; i++) {
+                for (auto [w, v] : g.G[i]) {
+                    if (mp[{i, v}] || mp[{v, i}]) continue;
+                    cout << i << " " << v << " " << w << "\n";
+                    mp[{i, v}] = true;
+                }
+            }
+        } 
+
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            //cin >> t;
+            while (t--) {
+                work();
+            }
+        } 
+        ```
 
 ???+note "[TIOJ 2049.龜兔賽跑](https://tioj.ck.tp.edu.tw/problems/2049)"
 	給 $n$ 點 $m$ 邊無向圖，求若拔掉一個點後，$s\to t$ 的最短路徑最大會是多少
@@ -2737,15 +2881,15 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 	
 	??? note "思路"
 		假設所求的平均最小值為 X，環上各個邊的權值分別為 A1,A2...Ak，可以得到 :
-
+	
 		X=(A1+A2+A3+...+Ak)/K
-
+	
 		A1+A2+A3+...+Ak=X*K
-
+	
 		移項可得：(A1-X)+(A2-X)+(A3-X)+...+(Ak-X)=0
-
+	
 		即判斷：(A1-ans)+(A2-ans)+(A3-ans)+...+(Ak-ans)<=0
-
+	
 		最後問題就變成了二分一個最大的 ans 滿足邊權為 w - ans 的圖不存在負環
 
 在看下面全國賽的題目前，我們先來看一道題目（與 Bellman-Ford 無關）
@@ -2762,36 +2906,36 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 		假設起點為 k，令 suf[i] 為 c[i]+...+c[n]，那麼 k 是一個合法的起點若且唯若
 		
 		- i = k...n 這段不能為負
-
+	
 		- i = 1...(k - 1) 不能為負
-
+	
 		也就是可表示成
 		
 		- suf[k] - suf[i] >= 0
-
+	
 		- suf[k] + (suf[1] - suf[i]) >= 0
-
+	
 		顯然，suf[k] 越大越好，所以我們只需找 suf 最大的點即可
 		
 	??? note "code"
 		```cpp linenums="1"
 		class Solution {
-        public:
-            int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
-                int mx = -1e9, suf = 0, start = -1;
-                for (int i = gas.size()-1; i >= 0; i--) {
-                    suf += gas[i] - cost[i];
-
-                    if (suf > mx) {
-                        mx = suf;
-                        start = i;
-                    }
-                }
-
-                return (suf >= 0) ? start : -1;
-            }
-        };
-        ```
+	    public:
+	        int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+	            int mx = -1e9, suf = 0, start = -1;
+	            for (int i = gas.size()-1; i >= 0; i--) {
+	                suf += gas[i] - cost[i];
+	
+	                if (suf > mx) {
+	                    mx = suf;
+	                    start = i;
+	                }
+	            }
+	
+	            return (suf >= 0) ? start : -1;
+	        }
+	    };
+	    ```
 
 從上面的題目我們可以觀察到以下性質
 

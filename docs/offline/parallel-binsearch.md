@@ -1677,7 +1677,7 @@ $$
 		對每個 $i$ 二分搜第幾次操作後權重 $\ge k$
 		
 		對每個 $j$ 計算有幾個 $i$ 滿足 $\begin{cases}\texttt{in}_i \ge \texttt{in}_j \\ \texttt{out}_i \le \texttt{out}_j \end{cases}$，cost 就是這些的 $x$ 相加
-		
+
 ### YTP 2022 早上好YTP
 
 ???+note "[2022 YTP 初賽 p6 早上好YTP](https://www.tw-ytp.org/wp-content/uploads/2022/12/YTP2022PreliminaryContest_S1.pdf#page=32)"
@@ -1687,4 +1687,14 @@ $$
     
     $N,M\le 2\times 10^5$
 
+???+note "[CSES - New Roads Queries](https://cses.fi/problemset/task/2101)"
+	給一張 $n$ 個點的圖，依序加入 $m$ 條邊，回答 $q$ 筆詢問 :
+	
+    - $a,b$ 在加入第幾條邊時連通，或沒有連通
+	
+	$n,q\le 2\times 10^5$
+	
+	??? note "思路"
+		用 Atcoder 那題的「存 $\log m$ 個 $n\text{-vertex graph}$」技巧
+	
 [^1]: 每個邊只會往一邊走，上一層用完了就可以刪掉，所以同一時間只有 $m$ 條邊在跑，每個邊只出現在一個地方 
