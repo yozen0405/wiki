@@ -1,4 +1,4 @@
-!!! abstract ""
+!!! abt ""
 	<font color="#448aff">:octicons-info-16:</font>&nbsp;&nbsp;基本上全部都在[這裡](https://sorahisa-rank.github.io/oi-toi/)
 
 ### 2023

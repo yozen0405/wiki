@@ -133,8 +133,8 @@
   font-size: 16px;
 }
 
-.md-typeset .admonition.abstract, 
-.md-typeset details.abstract {
+.md-typeset .admonition.abt, 
+.md-typeset details.abt {
   background-color: var(--md-abt-color);
   border: 1px solid var(--md-abt-border-color);
   border-left: 4px solid var(--md-abt-border-left-color);

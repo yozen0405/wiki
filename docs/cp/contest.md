@@ -1,10 +1,12 @@
 以下幾個網址幾乎涵蓋了所有的比賽資料，這邊主要是整理這些網站沒整理到的資料
 
-!!! abstract ""
-    - [sorahisa-rank.github.io](https://sorahisa-rank.github.io/)
-    - [twpca](https://github.com/twpca)
-    - [TOI 邪惡表格](https://docs.google.com/spreadsheets/d/15wk-ahKKEDJTHlHolr5GoQiCsdj2GBDvgTDzJ00uuW8/edit)
-    - [google drive 題本](https://drive.google.com/drive/folders/1dqC9RmkRz-_Tb6EaRLmR3B0V-V6bzhBy)
+- [sorahisa-rank.github.io](https://sorahisa-rank.github.io/)
+
+- [twpca](https://github.com/twpca)
+
+- [TOI 邪惡表格](https://docs.google.com/spreadsheets/d/15wk-ahKKEDJTHlHolr5GoQiCsdj2GBDvgTDzJ00uuW8/edit)
+
+- [google drive 題本](https://drive.google.com/drive/folders/1dqC9RmkRz-_Tb6EaRLmR3B0V-V6bzhBy)
 
 ## 目錄
 

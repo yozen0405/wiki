@@ -1,4 +1,4 @@
-!!! abstract ""
+!!! abt ""
 	<font color="#448aff">:octicons-info-16:</font>&nbsp;&nbsp;基本上都可以在[這裡](https://sorahisa-rank.github.io/#%E6%A0%A1%E5%85%A7%E8%B3%BD)找到
 
 ### 附中模競

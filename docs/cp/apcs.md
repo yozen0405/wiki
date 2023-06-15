@@ -2,7 +2,7 @@
 
 ### 觀念題
 
-!!! abstract ""
+!!! abt ""
 	<font color="#448aff">:octicons-info-16:</font>&nbsp;&nbsp;[考試範圍](https://hackmd.io/@algoseacow/apps-written)
 
 - [2016 3 月](/wiki/cp/images/1.pdf)
