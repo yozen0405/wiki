@@ -9,11 +9,13 @@
 
 - <https://drive.google.com/file/d/1q2mP9uHYAauroE2mjtYKti9khs0H9qaJ/view>
 
+!!! info "歐拉迴路計數 - BEST 定理"
+
 ???+note "模板 [LOJ #10105. 「一本通 3.7 例 1」欧拉回路](https://loj.ac/p/10105)"
 	給一張圖，找出歐拉迴路，即在圖中找一個環使得每條邊都在環上出現恰好一次，有兩個子任務
 	
 	- 這張圖是無向圖
-
+	
 	- 這張圖是有向圖
-
+	
 	$n\le 10^5,m\le 2\times 10^5$

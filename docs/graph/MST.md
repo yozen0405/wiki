@@ -26,16 +26,16 @@
     long long Kruskal() {
         sort(edges.begin(), edges.end(), cmp);
         long long ans = 0;
-
+    
         for (int i = 0; i < m; i++) {
             Edge e = edges[i];
-
+    
             if (find(e.u) != find(e.v)) {
                 merge(e.u, e.v);
                 ans += e.w;
             }
         }
-
+    
         return ans;
     }
     ```
@@ -239,12 +239,12 @@
 	    }
 	    ```
 
-???+note "[CF 1550 F.Jumping Around](https://codeforces.com/problemset/problem/1550/f)"
-	給數線上 $n$ 個點 $a_1,\ldots, a_n$，起點為 $a_s$，$q$ 筆詢問 ：
+???+note "[CF 1550 F. Jumping Around](https://codeforces.com/problemset/problem/1550/f)"
+	給數線上 $n$ 個點 $a_1,\ldots, a_n$，和 $d$，起點為 $a_s$，$q$ 筆詢問 ：
 
 	- 給 $x, k$ ，每步可以從當前的位置跳到值域在 $[d-k, d+k]$ 內的 $a_i$，問能否從 $a_s$ 抵達 $a_x$
 	
-	$n,q \le 10^6,d,k \le 10^6$
+	$n,q \le 2\times 10^5,k,a_i \le 10^6$
 
 ### 習題
 
@@ -680,16 +680,28 @@ $$
     給一張 $n$ 個點 $m$ 邊無向圖，邊有三種 type ：
 
     - Alice 的邊
-
+    
     - Bob 的邊
-
+    
     - Alice 跟 Bob 的邊
-
+    
     最多可以移除多少條邊使得分別對於 Bob 跟 Alice 圖都還是連通的
-
+    
     $n,m \le 10^5$
 
 ???+note "[USACO Open 2021 Gold P2.Portals](http://www.usaco.org/index.php?page=viewproblem2&cpid=1138)"
+	有一個由 $N$ 個編號為 $1\dots N$ 的結點以及 $2N$ 個編號為 $1\cdots 2N$ 的結構。每個傳送門連接兩個不同的結點 $u$ 和 $v$（$u≠v$）。可能有多個傳送門連接同一對結點。
+
+	每個點與四個不同的傳送門相連，與 $v$ 相連的傳送門是 $p_v=[p_{v,1},p_{v,2},p_{v,3},p_{v,4}]$ 
+
+	當前的位置可用 pair$(v,p_{v,i})$ 表示，可用以下操作改變位置：
+
+	1. 由穿過當前傳送門來改變當前結點
+	2. $(v,p_{v,2})$ 跟 $(v,p_{v,1})$ 之間有雙向邊，$(v,p_{v,3})$ 跟 $(v,p_{v,4})$ 之間有雙向邊
+
+	對每個點，可以花費 $c_v$，重新排列 $v$ 的 $p_v=[p_{v,1},p_{v,2},p_{v,3},p_{v,4}]$，目標使所有 $(v,p_{v,i})$ 連通
+
+	$2\le N \le 10^5,\le c_v\le 10^3$
 
 ???+note "[Atcoder abc210 E. Ring MST](https://atcoder.jp/contests/abc210/tasks/abc210_e)"
 	
