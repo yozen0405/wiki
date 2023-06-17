@@ -23,4 +23,4 @@
 
 - const **double** EPS = 1e-8 not **const int**
 
-  
+- 當權重有負的時候，還將 `-1` 設為 IMPOSSIBLE 的代表
