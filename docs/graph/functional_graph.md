@@ -8,12 +8,13 @@
 - https://www.cnblogs.com/cly-none/p/9314812.html
 - https://www.cnblogs.com/A-sc/p/13554630.html
 - https://www.luogu.com.cn/blog/ShadderLeave/ji-huan-shu-bi-ji
+- https://www.luogu.com.cn/problem/P4381
 
 !!! quote ""
 	- binary jump (query)
 
 	- topo sort (get rid of tree)
-
+	
 	- tree dp (壓縮 subtree + 分 case) 
 
 

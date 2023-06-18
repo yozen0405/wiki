@@ -94,14 +94,14 @@
     #define int long long
 
     using namespace std;
-
+    
     using Graph = vector<vector<int>>;
-
+    
     struct DSU {
         int cc;
         vector<int> par, sz;
         vector<set<int>> S;
-
+    
         DSU (int n = 0) : cc(n), par(n), sz(n, 1), S(n) {
             for (int i = 0; i < n; i++) {
                 par[i] = i;
@@ -125,39 +125,39 @@
             return true;
         }
     };
-
+    
     struct Edge {
         int u, v;
         int cost;
     };
-
+    
     bool operator<(const Edge &a, const Edge &b) {
         return a.cost < b.cost;
     }
-
+    
     const int INF = 2e18;
-
+    
     int MST(int n, vector<Edge> edges) {
         int m = edges.size();
-
+    
         DSU dsu(n);
         vector<Edge> nei(n);
-
+    
         int mst_ans = 0;
-
+    
         int conti = true;
         while (conti) {
             conti = false;
             fill(nei.begin(), nei.end(), Edge{-1, -1, INF});
-
+    
             for (auto [u, v, cost] : edges) {
                 int fu = dsu.find(u), fv = dsu.find(v);
                 if (fu == fv) continue;
-				
+    			
                 nei[fu] = min(nei[fu], {u, v, cost});
                 nei[fv] = min(nei[fv], {v, u, cost});
             }
-
+    
             for (int i = 0; i < n; i++) {
                 auto e = nei[i];
                 if (e.u == -1) continue;
@@ -168,22 +168,22 @@
                 }
             }
         }
-
+    
         return mst_ans;
     }
-
+    
     signed main() {
         int n, m;
         cin >> n >> m;
         vector<Edge> edges;
-
+    
         int u, v, w;
         for (int i = 0; i < m; i++) {
             cin >> u >> v >> w;
             u--, v--;
             edges.push_back ({u, v, w});
         }
-
+    
         cout << MST(n, edges) << "\n";
     }
     ```
@@ -195,7 +195,7 @@
 	
 	要求將這些點連起來形成樹的最小花費代價
 	
-	$n,m\le 2\times 10^5,a_i\le 10^{12}$
+	$n,m\le 10^5,a_i,w\le 10^{7}$
 	
 	??? note "思路"
 		我們利用 borovka 的想法，每次對連通塊選「非特殊邊」之中的最小邊，放進去一個 `vector`，直到整張圖做完，或做不下去
@@ -365,14 +365,14 @@
 		考慮 borovka，要怎麼快速找到 $a_i \oplus a_j$ 呢 ? 0-1 字典樹
 		
 		<figure markdown>
-          ![Image title](./images/35.png){ width="300" }
-        </figure>
-        
-        我們將 0-1 字典樹畫出來，會觀察到我們要對於每層的每個節點分治算答案
-        
-        如圖，也就是說要去兩個連通塊分別找最小的 $a_i,a_j$ 
-        
-        > 參考 : [CSDN](https://frozenguardian.blog.csdn.net/article/details/107603404?ydreferer=aHR0cHM6Ly9ibG9nLmNzZG4ubmV0Lw%3D%3D)
+	      ![Image title](./images/35.png){ width="300" }
+	    </figure>
+	    
+	    我們將 0-1 字典樹畫出來，會觀察到我們要對於每層的每個節點分治算答案
+	    
+	    如圖，也就是說要去兩個連通塊分別找最小的 $a_i,a_j$ 
+	    
+	    > 參考 : [CSDN](https://frozenguardian.blog.csdn.net/article/details/107603404?ydreferer=aHR0cHM6Ly9ibG9nLmNzZG4ubmV0Lw%3D%3D)
 
 ???+note "[CF 1550 F. Jumping Around](https://codeforces.com/problemset/problem/1550/f)"
 	給數線上 $n$ 個點 $a_1,\ldots, a_n$，和 $d$，起點為 $a_s$，$q$ 筆詢問 ：
@@ -385,7 +385,7 @@
 		問題可以轉換成 : 建立完全圖，每邊的邊權定為 $|w-d|$，對每個 query 回答 $s\to x$ 的邊上的最大值是否 $\le k$ 
 		
 		> 以下提到的「距離」為兩點之間的邊權
-
+	
 		> 「距離」越小代表在原圖上兩點之間的邊權越接近 $d$
 		
 		對於每個點要去找當前不同連通塊且距離最小的點，我們可以把這個看作是一個詢問，存成 tuple($a_i, a_i + d,$ 所屬的連通塊)
@@ -393,11 +393,9 @@
 		我們現在來一起處理每個點丟出來的 tuple。我們可以從左到右掃過去，維護當前最後兩個不同連通塊的點（必免到時候找到在相同連通塊的點）。當我們碰到一個 tuple 的 $a_i+d$ 時，我們就可以從這兩個 tuple 挑一個出來，將答案 $\min$ 進去所屬的連通塊
 		 
 		<figure markdown>
-          ![Image title](./images/36.png){ width="500" }
-          <figcaption>$d=11,$已經做好第一輪 Borovka</figcaption>
-        </figure>
-		
-		
+	      ![Image title](./images/36.png){ width="500" }
+	      <figcaption>$d=11,$已經做好第一輪 Borovka</figcaption>
+	    </figure>
 
 ### 習題
 
@@ -416,24 +414,88 @@
 	$n,m\le 2\times 10^5,k\le 10^9$
 	
 	??? note "思路"
-	    kruskal
+	    分情況討論： 
 	    
-	    [題解](https://blog.csdn.net/weixin_51797626/article/details/124066368?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-124066368-blog-113801758.topnsimilarv1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-124066368-blog-113801758.topnsimilarv1&utm_relevant_index=2)
+	    (一) 只用小於 $k$ 的邊即可連通所有點
+	    
+	    - 額外選一條邊，替換樹中的邊，$\text{cost}=|k-w|$
+
+	    - 選樹中的邊，將他的權重加到 $k$，$\text{cost}=|k-w|$
+
+	    (二) 只用小於 $k$ 的邊不可連通所有點
+	    
+	    - 額外再選一些邊，$\text{cost}=\sum (w-k)$
+
+		> 參考 : [CSDN](https://blog.csdn.net/weixin_51797626/article/details/124066368?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-124066368-blog-113801758.topnsimilarv1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-124066368-blog-113801758.topnsimilarv1&utm_relevant_index=2)
 
 ???+note "[CF 1095 F. Make It Connected](https://codeforces.com/problemset/problem/1095/F)"
 	給定 $n$ 個點，點有權值 $a_i$，$i,j$ 加邊的花費為 $a_i+a_j$
 	
-	另外給 $m$ 條特殊道路 : 表示對 $u,v$ 加邊，花費也可以為 $w$
+	另外給 $m$ 條特殊邊 : 表示對 $u,v$ 加邊，花費也可以為 $w$
 	
 	要求將這些點連起來形成樹的最小花費代價
 	
-	$n,m\le 2\times 10^5,a_i\le 10^{12}$
+	$n,m\le 2\times 10^5,a_i,w\le 10^{12}$
 	
 	??? note "思路"
 	
-	    kruskal
-	    貪心
-	    edge_w = a_x+a_y or w
+	    我們真的需要 $n^2$ 枚舉 $a_i+a_j$ 嗎 ?
+	    
+	    先將 $a_i$ 小到大 sort，依據 Prim 的想法，假設我們一開始在 $a_1$，我們會去找 $a_i$ 不在連通塊裡最小的那個，用連通塊裡 $a_i$ 最小的跟他連邊，也就是 $a_1\leftrightarrow a_2$，接下來會找到 $a_3$，$a_1\leftrightarrow a_3$，接著 $a_1\leftrightarrow a_4\ldots$
+	    
+	    也就是我們只需考慮 $a_1$，連接到所有點即可，然後在跟特殊邊一起丟進 Kruskal 跑 MST
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+        int n,m,arr[1000000],pal[1000000];
+        struct edge{
+            int u,v,w;
+        };
+        int find(int u){
+            if(pal[u]==u) return u;
+            pal[u]=find(pal[u]);
+            return pal[u];
+        }
+        int cmp(edge a,edge b){
+            return a.w<b.w;
+        }
+        signed main(){
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            cin>>n>>m;
+            int mi=1e13,idx;
+            for(int i=1;i<=n;i++){
+                cin>>arr[i];
+                if(arr[i]<mi){
+                    mi=arr[i],idx=i;
+                } 
+            }
+            vector<edge> G;
+            for(int i=1,u,v,w;i<=m;i++){
+                cin>>u>>v>>w;
+                G.push_back({u,v,w});
+            }
+            for(int i=1;i<=n;i++){
+                G.push_back({idx,i,arr[idx]+arr[i]});
+            }
+            for(int i=1;i<=n;i++) pal[i]=i;
+            sort(G.begin(),G.end(),cmp);
+            int ans=0;
+            for(auto [u,v,w]:G){
+                int x=find(u);
+                int y=find(v);
+                if(x==y) continue;
+                else{
+                    pal[x]=y;
+                    ans+=w;
+                }
+            }
+            cout<<ans<<"\n";
+        }
+        ```
 
 ???+note "[Atcode abc282 E. Choose Two and Eat One](https://atcoder.jp/contests/abc282/tasks/abc282_e) "
 	一個盒子中有 $N$ 個球，每個球上寫著一個介於 $1$ 和 $M-1$ 之間的數字。對於 $i=1,2,...,N$，第 $i$ 個球上寫著數字 $A_i$。
@@ -499,103 +561,103 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <algorithm>
-        #include <cstdlib>
-        #include <iostream>
-        #include <vector>
-
-        #define int long long
-        #define double long double
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        using namespace std;
-
-        struct Edge {
-            int u, v;
-            double w;
-            int id;
-        };
-
-        const int INF = 2e18;
-        const int maxn = 2e5 + 5;
-        int n, m, k, par[maxn];
-        double ans;
-        vector<int> ret;
-        vector<Edge> E;
-
-        int find(int x) {
-            if (par[x] == x)
-                return x;
-            else
-                return par[x] = find(par[x]);
-        }
-
-        void merge(int a, int b) {
-            int x = find(a), y = find(b);
-            par[x] = y;
-        }
-
-        void init() {
-            cin >> n >> m >> k;
-            int u, v, w;
-            for (int i = 0; i < m; i++) {
-                cin >> u >> v >> w;
-                E.pb({u, v, 1.0 * w, i + 1});
-            }
-        }
-
-        int check(double w, int isAns) {
-            for (int i = 1; i <= n; i++) par[i] = i;
-            vector<Edge> Eg;
-            for (int i = 0; i < m; i++) {
-                if (E[i].u == 1 || E[i].v == 1)
-                    Eg.pb({E[i].u, E[i].v, E[i].w + w, E[i].id});
-                else
-                    Eg.pb(E[i]);
-            }
-
-            sort(Eg.begin(), Eg.end(), [](Edge a, Edge b) { return a.w < b.w; });
-            double res = 0;
-            int cnt = 0;
-            for (int i = 0; i < m; i++) {
-                if (find(Eg[i].u) != find(Eg[i].v)) {
-                    merge(Eg[i].u, Eg[i].v);
-                    if (isAns) ret.pb(Eg[i].id);
-                    if (Eg[i].u == 1 || Eg[i].v == 1) cnt++;
-                    res += Eg[i].w;
-                }
-            }
-            ans = res - cnt * w;
-            if (isAns) return cnt == k;
-            return cnt >= k;
-        }
-
-        void solve() {
-            double l = -INF, r = INF;
-            for (int i = 0; i < 200; i++) {
-                double mid = (l + r) / 2;
-                if (check(mid, 0)) {  // 選太多邊 -> w 上升
-                    l = mid;
-                } else {  // cnt < k
-                    r = mid;
-                }
-            }
-            int tmp = check(l, 1);
-            if (!tmp) {
-                cout << -1 << '\n';
-                exit(0);
-            }
-            cout << ret.size() << "\n";
-            sort(ret.begin(), ret.end());
-            for (auto ele : ret) cout << ele << " ";
-        }
-
-        signed main() {
-            init();
-            solve();
-        }
-        ```
+	    #include <cstdlib>
+	    #include <iostream>
+	    #include <vector>
+	
+	    #define int long long
+	    #define double long double
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    using namespace std;
+	
+	    struct Edge {
+	        int u, v;
+	        double w;
+	        int id;
+	    };
+	
+	    const int INF = 2e18;
+	    const int maxn = 2e5 + 5;
+	    int n, m, k, par[maxn];
+	    double ans;
+	    vector<int> ret;
+	    vector<Edge> E;
+	
+	    int find(int x) {
+	        if (par[x] == x)
+	            return x;
+	        else
+	            return par[x] = find(par[x]);
+	    }
+	
+	    void merge(int a, int b) {
+	        int x = find(a), y = find(b);
+	        par[x] = y;
+	    }
+	
+	    void init() {
+	        cin >> n >> m >> k;
+	        int u, v, w;
+	        for (int i = 0; i < m; i++) {
+	            cin >> u >> v >> w;
+	            E.pb({u, v, 1.0 * w, i + 1});
+	        }
+	    }
+	
+	    int check(double w, int isAns) {
+	        for (int i = 1; i <= n; i++) par[i] = i;
+	        vector<Edge> Eg;
+	        for (int i = 0; i < m; i++) {
+	            if (E[i].u == 1 || E[i].v == 1)
+	                Eg.pb({E[i].u, E[i].v, E[i].w + w, E[i].id});
+	            else
+	                Eg.pb(E[i]);
+	        }
+	
+	        sort(Eg.begin(), Eg.end(), [](Edge a, Edge b) { return a.w < b.w; });
+	        double res = 0;
+	        int cnt = 0;
+	        for (int i = 0; i < m; i++) {
+	            if (find(Eg[i].u) != find(Eg[i].v)) {
+	                merge(Eg[i].u, Eg[i].v);
+	                if (isAns) ret.pb(Eg[i].id);
+	                if (Eg[i].u == 1 || Eg[i].v == 1) cnt++;
+	                res += Eg[i].w;
+	            }
+	        }
+	        ans = res - cnt * w;
+	        if (isAns) return cnt == k;
+	        return cnt >= k;
+	    }
+	
+	    void solve() {
+	        double l = -INF, r = INF;
+	        for (int i = 0; i < 200; i++) {
+	            double mid = (l + r) / 2;
+	            if (check(mid, 0)) {  // 選太多邊 -> w 上升
+	                l = mid;
+	            } else {  // cnt < k
+	                r = mid;
+	            }
+	        }
+	        int tmp = check(l, 1);
+	        if (!tmp) {
+	            cout << -1 << '\n';
+	            exit(0);
+	        }
+	        cout << ret.size() << "\n";
+	        sort(ret.begin(), ret.end());
+	        for (auto ele : ret) cout << ele << " ";
+	    }
+	
+	    signed main() {
+	        init();
+	        solve();
+	    }
+	    ```
 
 ## 完全圖轉換
 
@@ -611,25 +673,23 @@
 
 ## 補圖技巧
 
-一般題目都會上限 $m=\text{min}(2\times 10^5, \frac{n\times (n-1)}{2})$, 其中 $m$ 代表 $(u,v)$ 沒有邊的數量
+給一張完全圖，給 $m$ 補邊，代表除了這 $m$ 條邊外，其他 $(u,v)$ 之間都有邊
 
 實作上維護一個還沒分到組的 `set`，分到組時把他從 `set` 刪掉
 
 ??? note "code"
     ```cpp linenums="1"
-    void dfs(int u){
+    void dfs (int u) {
         vis[u] = 1;
-        st.erase(u);
+
         vector<int> ret;
-        // v 還沒加進集合的
-        for(int v : st) { // 沒出現 -> 有邊
-            if(!G[u].count(v)) ret.vush_back(v);
+        for (int v : all) { // 沒出現 -> 有邊
+            if(!G[u].count(v) && !vis[v]) ret.push_back(v);
         }
-        for(int ele : ret){
-            st.erase(ele);
+        for (int ele : ret) { // 已分到組
+            all.erase(ele);
         }
-        for(int ele : ret){
-            vis[ele]=1;
+        for (int ele : ret) {
             dfs(ele);
         }
     }
@@ -639,11 +699,133 @@
 	給定 $n$ 個點的無向圖，$m$ 條補邊(除了這 $m$條邊，其餘都存在)，求每個連通塊的大小
 	
 	$n,m\le 2\times 10^5$
+	
+	??? note "思路"
+		用一般的補圖 DFS 去看有幾個連通塊即可
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        #define pii pair<int, int>
+        using namespace std;
 
+        const int maxn = 3e5 + 5;
+        const int INF = 0x3f3f3f3f;
+        const int M = 1e9 + 7;
+        set<int> G[maxn];
+        set<int> all;
+        int n, m, vis[maxn], cnt = 0;
+
+        int dfs (int u) {
+            vis[u] = 1;
+
+            vector<int> ret;
+            for (int v : all) { // 沒出現 -> 有邊
+                if(!G[u].count(v) && !vis[v]) ret.push_back(v);
+            }
+            for (int ele : ret) {
+                all.erase(ele);
+            }
+            int sum = 1;
+            for (int ele : ret) {
+                sum += dfs(ele);
+            }
+            return sum;
+        }
+
+        signed main() {
+            //ios::sync_with_stdio(0);
+            //cin.tie(0);
+            cin >> n >> m;
+
+            for (int i = 1; i <= n; i++)
+                all.insert(i);
+
+            for (int i = 0, u, v; i < m; i++) {
+                cin >> u >> v;
+                G[u].insert(v);
+                G[v].insert(u);
+            }
+
+            vector<int> sz;
+            for (int i = 1; i <= n; i++) {
+                if (vis[i] == 0) {
+                    sz.pb (dfs(i));
+                    cnt++;
+                }
+            }
+
+            sort (sz.begin(), sz.end());
+            cout << cnt << "\n";
+            for (auto ele : sz) cout << ele << " ";
+        }
+        ```
 ???+note "[CF 1242 B. 0-1 MST](https://codeforces.com/problemset/problem/1242/B)"
-	給 $n$ 個點的完全圖，邊權只有 $0$ 或 $1$，問最小生成樹
+	給 $n$ 個點的完全圖，給 $m$ 條邊權為 $1$ 的邊，其餘邊權為 $0$，問最小生成樹
 	
 	$n,m\le 10^5$
+	
+	??? note "思路"
+		將邊權是 $0$ 一定要先選，所以我們可以將 $0$ 的邊選起來，會構成一些連通塊，這個可以用上一題的方法做到
+		
+		然後再看還缺幾條邊
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        #define pii pair<int, int>
+        using namespace std;
+
+        const int maxn = 3e5 + 5;
+        const int INF = 0x3f3f3f3f;
+        const int M = 1e9 + 7;
+        set<int> G[maxn];
+        set<int> all;
+        int n, m, vis[maxn], cnt = 0;
+
+        void dfs (int u) {
+            vis[u] = 1;
+
+            vector<int> ret;
+            for (int v : all) { // 沒出現 -> 有邊
+                if(!G[u].count(v) && !vis[v]) ret.push_back(v);
+            }
+            for (int ele : ret) {
+                all.erase(ele);
+            }
+            for (int ele : ret) {
+                dfs(ele);
+            }
+        }
+
+        signed main() {
+            //ios::sync_with_stdio(0);
+            //cin.tie(0);
+            cin >> n >> m;
+
+            for (int i = 1; i <= n; i++)
+                all.insert(i);
+
+            for (int i = 0, u, v; i < m; i++) {
+                cin >> u >> v;
+                G[u].insert(v);
+                G[v].insert(u);
+            }
+
+            for (int i = 1; i <= n; i++) {
+                if (vis[i] == 0) {
+                    dfs(i);
+                    cnt++;
+                }
+            }
+
+            cout << cnt - 1;
+        }
+        ```
 
 ## MST 的唯一性
 
@@ -724,194 +906,194 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <algorithm>
-        #include <cstdlib>
-        #include <iostream>
-        #include <utility>
-        #include <vector>
-
-        #define int long long
-        #define double long double
-        #define x first
-        #define y second
-        #define mk make_pair
-        #define lowbit (x & (-x))
-        #define pb push_back
-        #define pii pair<long long, long long>
-        using namespace std;
-
-        struct Edge {
-            int u, v, w, id;
-        };
-
-        struct node {
-            int mx = -1, sec = -1;
-        };
-
-        const int INF = 9e18;
-        const int lg = 20;
-
-        int n, m, pre;
-        vector<Edge> E;
-        vector<vector<pii>> G;
-        vector<vector<node>> dp;
-        vector<int> par;
-        vector<vector<int>> p;
-        vector<int> dep;
-
-        int find(int x) {
-            if (par[x] == x)
-                return x;
-            else
-                return par[x] = find(par[x]);
-        }
-
-        void merge(int a, int b) {
-            int x = find(a), y = find(b);
-
-            if (x == y)
-                return;
-
-            par[x] = y;
-        }
-
-        void MST() {
-            for (int i = 1; i <= n; i++)
-                par[i] = i;
-
-            sort(E.begin(), E.end(), [](Edge a, Edge b) {
-                return a.w < b.w;
-            });
-
-            for (auto &[u, v, w, id] : E) {
-                if (find(u) != find(v)) {
-                    pre += w;
-                    G[u].pb({v, w});
-                    G[v].pb({u, w});
-                    merge(u, v);
-                    id = 1;
-                }
-            }
-        }
-
-        void dfs(int u, int pa) {
-            for (auto [v, w] : G[u]) {
-                if (v == pa)
-                    continue;
-
-                dep[v] = dep[u] + 1;
-                p[v][0] = u;
-                dp[v][0].mx = w;
-                dfs(v, u);
-            }
-        }
-
-        node cal(node a, node b) {
-            vector<int> vec;
-
-            if (a.mx != -1)
-                vec.pb(a.mx);
-
-            if (a.sec != -1)
-                vec.pb(a.sec);
-
-            if (b.mx != -1)
-                vec.pb(b.mx);
-
-            if (b.sec != -1)
-                vec.pb(b.sec);
-
-            sort(vec.begin(), vec.end(), greater<int>());
-            vec.resize(unique(vec.begin(), vec.end()) - vec.begin());
-            vec.push_back(-1);
-            vec.push_back(-1);
-            return {vec[0], vec[1]};
-        }
-
-        void build() {
-            dfs(1, -1);
-
-            for (int j = 1; j < lg; j++) {
-                for (int i = 1; i <= n; i++) {
-                    p[i][j] = p[p[i][j - 1]][j - 1];
-                    dp[i][j] = cal(dp[i][j - 1], dp[p[i][j - 1]][j - 1]);
-                }
-            }
-        }
-
-        node LCA(int a, int b) {
-            if (dep[a] < dep[b])
-                swap(a, b);  // dep[a] > dep[b]
-
-            int dif = dep[a] - dep[b];
-            node ret;
-
-            for (int i = lg - 1; i >= 0; i--) {
-                if (dif & (1 << i)) {
-                    ret = cal(dp[a][i], ret);
-                    a = p[a][i];
-                }
-            }
-
-            if (a == b)
-                return ret;
-
-            for (int i = lg - 1; i >= 0; i--) {
-                if (p[a][i] != p[b][i]) {
-                    ret = cal(dp[b][i], cal(ret, dp[a][i]));
-                    a = p[a][i];
-                    b = p[b][i];
-                }
-            }
-
-            return cal(ret, cal(dp[a][0], dp[b][0]));
-        }
-
-        void solve() {
-            MST();
-            build();
-            int ans = INF;
-
-            for (int i = 0; i < m; i++) {
-                if (!E[i].id) {
-                    if (E[i].u == E[i].v)
-                        continue;
-
-                    node ret = LCA(E[i].u, E[i].v);
-                    int cmp = ret.mx;
-
-                    if (E[i].w == ret.mx)
-                        cmp = ret.sec;
-
-                    if (cmp == -1)
-                        continue;
-
-                    ans = min(pre + E[i].w - cmp, ans);
-                }
-            }
-
-            cout << (ans == INF ? -1 : ans);
-        }
-
-        void init() {
-            cin >> n >> m;
-
-            G = vector<vector<pii>>(n + 1);
-            dp = vector<vector<node>>(n + 1, vector<node>(lg));
-            par = vector<int>(n + 1);
-            p = vector<vector<int>>(n + 1, vector<int>(lg));
-            dep = vector<int>(n + 1);
-
-            for (int i = 0, u, v, w; i < m; i++) {
-                cin >> u >> v >> w;
-                E.pb({u, v, w, 0});
-            }
-        }
-
-        signed main() {
-            init();
-            solve();
-        }
-        ```
+	    #include <cstdlib>
+	    #include <iostream>
+	    #include <utility>
+	    #include <vector>
+	
+	    #define int long long
+	    #define double long double
+	    #define x first
+	    #define y second
+	    #define mk make_pair
+	    #define lowbit (x & (-x))
+	    #define pb push_back
+	    #define pii pair<long long, long long>
+	    using namespace std;
+	
+	    struct Edge {
+	        int u, v, w, id;
+	    };
+	
+	    struct node {
+	        int mx = -1, sec = -1;
+	    };
+	
+	    const int INF = 9e18;
+	    const int lg = 20;
+	
+	    int n, m, pre;
+	    vector<Edge> E;
+	    vector<vector<pii>> G;
+	    vector<vector<node>> dp;
+	    vector<int> par;
+	    vector<vector<int>> p;
+	    vector<int> dep;
+	
+	    int find(int x) {
+	        if (par[x] == x)
+	            return x;
+	        else
+	            return par[x] = find(par[x]);
+	    }
+	
+	    void merge(int a, int b) {
+	        int x = find(a), y = find(b);
+	
+	        if (x == y)
+	            return;
+	
+	        par[x] = y;
+	    }
+	
+	    void MST() {
+	        for (int i = 1; i <= n; i++)
+	            par[i] = i;
+	
+	        sort(E.begin(), E.end(), [](Edge a, Edge b) {
+	            return a.w < b.w;
+	        });
+	
+	        for (auto &[u, v, w, id] : E) {
+	            if (find(u) != find(v)) {
+	                pre += w;
+	                G[u].pb({v, w});
+	                G[v].pb({u, w});
+	                merge(u, v);
+	                id = 1;
+	            }
+	        }
+	    }
+	
+	    void dfs(int u, int pa) {
+	        for (auto [v, w] : G[u]) {
+	            if (v == pa)
+	                continue;
+	
+	            dep[v] = dep[u] + 1;
+	            p[v][0] = u;
+	            dp[v][0].mx = w;
+	            dfs(v, u);
+	        }
+	    }
+	
+	    node cal(node a, node b) {
+	        vector<int> vec;
+	
+	        if (a.mx != -1)
+	            vec.pb(a.mx);
+	
+	        if (a.sec != -1)
+	            vec.pb(a.sec);
+	
+	        if (b.mx != -1)
+	            vec.pb(b.mx);
+	
+	        if (b.sec != -1)
+	            vec.pb(b.sec);
+	
+	        sort(vec.begin(), vec.end(), greater<int>());
+	        vec.resize(unique(vec.begin(), vec.end()) - vec.begin());
+	        vec.push_back(-1);
+	        vec.push_back(-1);
+	        return {vec[0], vec[1]};
+	    }
+	
+	    void build() {
+	        dfs(1, -1);
+	
+	        for (int j = 1; j < lg; j++) {
+	            for (int i = 1; i <= n; i++) {
+	                p[i][j] = p[p[i][j - 1]][j - 1];
+	                dp[i][j] = cal(dp[i][j - 1], dp[p[i][j - 1]][j - 1]);
+	            }
+	        }
+	    }
+	
+	    node LCA(int a, int b) {
+	        if (dep[a] < dep[b])
+	            swap(a, b);  // dep[a] > dep[b]
+	
+	        int dif = dep[a] - dep[b];
+	        node ret;
+	
+	        for (int i = lg - 1; i >= 0; i--) {
+	            if (dif & (1 << i)) {
+	                ret = cal(dp[a][i], ret);
+	                a = p[a][i];
+	            }
+	        }
+	
+	        if (a == b)
+	            return ret;
+	
+	        for (int i = lg - 1; i >= 0; i--) {
+	            if (p[a][i] != p[b][i]) {
+	                ret = cal(dp[b][i], cal(ret, dp[a][i]));
+	                a = p[a][i];
+	                b = p[b][i];
+	            }
+	        }
+	
+	        return cal(ret, cal(dp[a][0], dp[b][0]));
+	    }
+	
+	    void solve() {
+	        MST();
+	        build();
+	        int ans = INF;
+	
+	        for (int i = 0; i < m; i++) {
+	            if (!E[i].id) {
+	                if (E[i].u == E[i].v)
+	                    continue;
+	
+	                node ret = LCA(E[i].u, E[i].v);
+	                int cmp = ret.mx;
+	
+	                if (E[i].w == ret.mx)
+	                    cmp = ret.sec;
+	
+	                if (cmp == -1)
+	                    continue;
+	
+	                ans = min(pre + E[i].w - cmp, ans);
+	            }
+	        }
+	
+	        cout << (ans == INF ? -1 : ans);
+	    }
+	
+	    void init() {
+	        cin >> n >> m;
+	
+	        G = vector<vector<pii>>(n + 1);
+	        dp = vector<vector<node>>(n + 1, vector<node>(lg));
+	        par = vector<int>(n + 1);
+	        p = vector<vector<int>>(n + 1, vector<int>(lg));
+	        dep = vector<int>(n + 1);
+	
+	        for (int i = 0, u, v, w; i < m; i++) {
+	            cin >> u >> v >> w;
+	            E.pb({u, v, w, 0});
+	        }
+	    }
+	
+	    signed main() {
+	        init();
+	        solve();
+	    }
+	    ```
 
 ???+note "[全國賽 2016 第二可靠路網](https://sorahisa-rank.github.io/nhspc-fin/2016/problems.pdf#page=9)"
 	給一張 $n$ 點 $m$ 邊圖，每個邊上有邊權 $\displaystyle w=\frac{p}{q}$，有重邊
@@ -1079,11 +1261,10 @@ $$
     求該圖的一棵生成樹 $T$ ，使得以下的 $\text{cost}$ 最小
     
     $$\text{cost}=\left(\sum_{e\in T}a_e\right)\times\left(\sum_{e\in T}b_e\right)$$
-    
-    
+
     ??? note "思路"
-		<https://www.luogu.com.cn/blog/user42506/solution-p5540>
-		
+    	<https://www.luogu.com.cn/blog/user42506/solution-p5540>
+
 ## 因數
 
 ???+note "[LOJ #6807. 「THUPC 2022 初赛」最小公倍树](https://loj.ac/p/6807)"
@@ -1171,9 +1352,9 @@ $$
     	
     	然後再接著跑 Alice，Bob，這時候若發現是在同一個連通塊時會刪掉的就是 only Alice 或 only Bob 的邊，不會是共用邊
         
-	??? note "code"
-		```cpp linenums="1"
-		class Solution {
+    ??? note "code"
+    	```cpp linenums="1"
+    	class Solution {
         public:
             int findParent(vector<int>&parent, int node)
             {
@@ -1212,7 +1393,7 @@ $$
                 for (vector<int>&edge : edges)
                 {
                     if (edge[0] != 3) continue;
-
+    
                     bool merged = merge(parent, rank, edge[1], edge[2]);
                     if (!merged) notUsed++;
                     else componentCount--;
@@ -1245,7 +1426,7 @@ $$
                 if (bobComponentCount != 1) return -1;  //still not connected, so return -1
                 //================================================================================
                 return notUsed;//not used edges will be removed
-
+    
             }
         };
         ```
@@ -1268,18 +1449,17 @@ $$
 		依照題目的二為座標點的意義，我們將圖畫出來
 		
 		<figure markdown>
-          ![Image title](./images/38.png){ width="500" }
-        </figure>
-        
-        每個點的 degree 都只有 2，所以會形成很多 cycle
-        
-        再觀察花費 $c_v$ 重新排列的意義
-        
-        <figure markdown>
-          ![Image title](./images/39.png){ width="500" }
-        </figure>
-        
-        
+	      ![Image title](./images/38.png){ width="500" }
+	    </figure>
+	    
+	    每個點的 degree 都只有 2，所以會形成很多 cycle
+	    
+	    再觀察花費 $c_v$ 重新排列的意義
+	    
+	    <figure markdown>
+	      ![Image title](./images/39.png){ width="500" }
+	    </figure>
+
         花費 $c_v$ 可以將兩個 cycle 接起來，而 $p_{v,1},p_{v,2}$ 再同一個 cycle， $p_{v,3},p_{v,4}$ 再同一個 cycle，所以我們可以建邊 $p_{v,1}\leftrightarrow p_{v,3}$ 權重為 $c_v$
         
         其他預設好的邊權重都為 $0$，下去跑 MST 即可
@@ -1317,88 +1497,88 @@ $$
 		只是我們不一定會蓋港口或機場，所以分 4 個 case
 		
 		- Kruskal(橋)
-
+	
 		- Kruskal(橋 + 港口)
-
+	
 		- Kruskal(橋 + 機場)
-
+	
 		- Kruskal(橋 + 港口 + 機場)
 		
 	??? note "code"
 		```cpp linenums="1"
 		??? note "code"
-    	```cpp linenums="1"
-    	#include<bits/stdc++.h>
-        #define int long long
-        #define x first
-        #define y second
-        #define PII pair <int, int>
-        #define endl '\n'
-        const int INF = 1e18;
-
-        using namespace std;
-        const int N = 200005;
-
-        struct Edge {
-            int u, v, w;
-        }e[N], g[N * 3];
-        int q[N], x[N], y[N];
-
-        bool cmp(Edge a, Edge b) {
-            return a.w < b.w;
-        }
-
-        int find(int x) {
-            if (x != q[x]) q[x] = find(q[x]);
-            return q[x];
-        }
-
-        int Kruskal(int n, int m) {
-            sort(g + 1, g + m + 1, cmp);
-            for (int i = 1; i <= n; i ++) q[i] = i;
-
-            int res = 0;
-            int cnt = 0;
-            for (int i = 1; i <= m; i ++) {
-                auto [u, v, w] = g[i];
-                int fu = find(u), fv = find(v);
-
-                if (fu != fv) {
-                    q[fu] = fv;
-                    res += w;
-                    cnt ++;
-                }
-            }
-
-            if (cnt == n - 1) return res;
-            else return INF;
-        }
+		```cpp linenums="1"
+		#include<bits/stdc++.h>
+	    #define int long long
+	    #define x first
+	    #define y second
+	    #define PII pair <int, int>
+	    #define endl '\n'
+	    const int INF = 1e18;
+	
+	    using namespace std;
+	    const int N = 200005;
+	
+	    struct Edge {
+	        int u, v, w;
+	    }e[N], g[N * 3];
+	    int q[N], x[N], y[N];
+	
+	    bool cmp(Edge a, Edge b) {
+	        return a.w < b.w;
+	    }
+	
+	    int find(int x) {
+	        if (x != q[x]) q[x] = find(q[x]);
+	        return q[x];
+	    }
+	
+	    int Kruskal(int n, int m) {
+	        sort(g + 1, g + m + 1, cmp);
+	        for (int i = 1; i <= n; i ++) q[i] = i;
+	
+	        int res = 0;
+	        int cnt = 0;
+	        for (int i = 1; i <= m; i ++) {
+	            auto [u, v, w] = g[i];
+	            int fu = find(u), fv = find(v);
+	
+	            if (fu != fv) {
+	                q[fu] = fv;
+	                res += w;
+	                cnt ++;
+	            }
+	        }
+	
+	        if (cnt == n - 1) return res;
+	        else return INF;
+	    }
 
 
         void solve() {
             int n , m;
             cin >> n >> m;
-
+    
             int res = 1e18;
-
+    
             for (int i = 1; i <= n; i ++) {
                 cin >> x[i];
             }
             for (int i = 1; i <= n; i ++) {
                 cin >> y[i];
             }
-
+    
             for (int i = 1; i <= m; i ++) {
                 int u, v, w;
                 cin >> u >> v >> w;
                 e[i] = {u, v, w};
             }
-
+    
             for (int i = 1; i <= m; i ++) {
                 g[i] = e[i];
             }
             res = min(res, Kruskal(n, m));
-
+    
             //飞机
             for (int i = 1; i <= m; i ++) {
                     g[i] = e[i];
@@ -1415,7 +1595,7 @@ $$
                 g[i + m] = {i, n + 1, y[i]};
             }
             res = min(res, Kruskal(n + 1, m + n));
-
+    
             //飞机和海
             for (int i = 1; i <= m; i ++) {
                 g[i] = e[i];
@@ -1427,21 +1607,21 @@ $$
                 g[i + n + m] = {i, n + 2, y[i]};
             }
             res = min(res, Kruskal(n + 2, m + n + n));
-
+    
             cout << res;
-
+    
         }
         signed main(){
             ios::sync_with_stdio(false);
             cin.tie(nullptr);
-
+    
             int t; t = 1;
             //cin >> t;
-
+    
             while (t --) {
                 solve();
             }
-
+    
             return 0;
         }
         ```
@@ -1450,12 +1630,15 @@ $$
 	給一張 $n$ 點 $m$ 邊的連通圖，其中有 $k$ 個點是特殊點。一開始在編號 $1$ 的點，在一個特殊點上時，你可以傳送到任意一個走過的特殊點，問走過所有特殊點的最小的距離總和
 	
 	$n,m,k\le 10^5$
+	
+	??? note "思路"
+		首先先利用多源點 dijkstra 跑出與每個點最近的特殊點 $p_i$，與跟這個特殊點的距離 $d_i$。再來枚舉重疊邊，代表特殊點兩兩之間的權重，最後跑 dijkstra，答案記得加起始點 $1$ 與最近的特殊點的距離
 
 ???+note "[LOJ #3696. 「JOISC 2022 Day4」复兴计划](https://loj.ac/p/3696)"
 	給一張 $n$ 點 $m$ 邊帶權無向圖，有 $q$ 個詢問 :
 	
 	- 給 $x$，此時圖上的邊權定為 $|x-w|$，求最小生成樹
-
+	
 	$n\le 500,m\le 10^5,q\le 10^6,x,w,\le 10^9$
 	
 	??? note "思路"
@@ -1469,10 +1652,9 @@ $$
 		pre[i - 1] 做完 MST 只有挑 n - 1 個邊，將 i 這條邊加進去重做一次 Kruskal，即得到 n - 1 條邊的 pre[i]，以此類推，suffix 也一樣
 		
 		<figure markdown>
-          ![Image title](./images/37.png){ width="400" }
-        </figure>
+	      ![Image title](./images/37.png){ width="400" }
+	    </figure>
 
-		
 		因為具有單調性，故 Kruskal 並不需要重新排序，是 $O(n\times \log^* n)$
 		
 		雖然 $q$ 到 $10^6$，但實際能差入的縫只有 $m$ 個，所以我們先將每個縫左邊的 prefix，右邊的 suffix 一起再 Kruskal 一次，兩邊都知道自己要出動哪一些邊，就可以 $O(1)$ 回答查詢

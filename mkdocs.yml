@@ -165,10 +165,6 @@ nav:
       - BIT: 'ds/bit.md'
       - Treap: 'ds/treap.md'
     - 圖論:
-      - 並查集 DSU: 'graph/DSU.md'
-      - Cycle: 'graph/cycle.md'
-      - topo sort: 'graph/topo_sort.md'
-      - MST: 'graph/MST.md'
       - 樹論: 
         - 樹論: 'graph/Tree.md'
         - 倍增法與 LCA: 'graph/LCA.md'
@@ -181,6 +177,10 @@ nav:
       - 迴路:
         - 歐拉迴路: 'graph/euler_path.md'
         - 漢米頓迴路: 'graph/hamiltonian.md'
+      - 並查集 DSU: 'graph/DSU.md'
+      - Cycle: 'graph/cycle.md'
+      - topo sort: 'graph/topo_sort.md'
+      - MST: 'graph/MST.md'
       - 最短路: 'graph/SP.md'
       - 連通元件圖論: 'graph/scc.md'
       - 網路流: 'graph/flow.md'

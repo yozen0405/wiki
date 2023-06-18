@@ -23,3 +23,10 @@
 - DFS 暴力找最大環
   - [詳解](https://blog.csdn.net/jin739738709/article/details/108083553)
 - 正環性質 : 存在點繞一圈路徑權重和皆為正 nhspc 2021 pC
+
+Floyd cycle detection
+
+O(1) 額外空間找環
+
+就是一個人每次走一步，一個人每次走兩步，停在同一個位置就表示找到環了
+
