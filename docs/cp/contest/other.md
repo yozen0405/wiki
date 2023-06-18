@@ -86,6 +86,7 @@
 #### 資料
 
 - [2022 官網](https://contest.cc.ntu.edu.tw/npsc2022/schedule.asp)
+- [2014 官網](https://contest.cc.ntu.edu.tw/npsc2014/schedule.asp)
 
 #### 賽制
 

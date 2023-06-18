@@ -1,3 +1,5 @@
+大家在講的 `dfn[]` 就是我這邊的 `t[]`
+
 ## LCA
 ```cpp linenums="1"
 // LCA
@@ -67,7 +69,6 @@ int dfs(int u, int par) {
 int dfs(int u, int par) {
     low[u] = t[u] = stamp++;
     for (auto v : G[u]) {
-        if (v == par) continue;
         if (t[v] == 0) {
             dfs(v, u);
             low[u] = min(low[u], low[v]);
@@ -75,12 +76,34 @@ int dfs(int u, int par) {
                 // is bridge
             }
         }
-        else {
+        else if (v != par) {
             low[u] = min(low[u], t[v]);
         }
     }
 }
 ```
+
+以上的 code 在重邊的情況會壞掉，如果要能判重邊的話如下
+
+```cpp linenums="1"
+// bridge
+int dfs(int u, int pre_eid) {
+    low[u] = t[u] = stamp++;
+    for (auto [v, eid] : G[u]) {
+        if (t[v] == 0) {
+            dfs(v, u);
+            low[u] = min(low[u], low[v]);
+            if (low[v] >= t[v]) {
+                // is bridge
+            }
+        }
+        else if (pre_eid != eid) {
+            low[u] = min(low[u], t[v]);
+        }
+    }
+}
+```
+
 ## AP
 ```cpp linenums="1"
 // AP

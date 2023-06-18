@@ -419,13 +419,13 @@
 	    (一) 只用小於 $k$ 的邊即可連通所有點
 	    
 	    - 額外選一條邊，替換樹中的邊，$\text{cost}=|k-w|$
-
+	
 	    - 選樹中的邊，將他的權重加到 $k$，$\text{cost}=|k-w|$
-
+	
 	    (二) 只用小於 $k$ 的邊不可連通所有點
 	    
 	    - 額外再選一些邊，$\text{cost}=\sum (w-k)$
-
+	
 		> 參考 : [CSDN](https://blog.csdn.net/weixin_51797626/article/details/124066368?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-124066368-blog-113801758.topnsimilarv1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-124066368-blog-113801758.topnsimilarv1&utm_relevant_index=2)
 
 ???+note "[CF 1095 F. Make It Connected](https://codeforces.com/problemset/problem/1095/F)"
@@ -448,54 +448,54 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-        int n,m,arr[1000000],pal[1000000];
-        struct edge{
-            int u,v,w;
-        };
-        int find(int u){
-            if(pal[u]==u) return u;
-            pal[u]=find(pal[u]);
-            return pal[u];
-        }
-        int cmp(edge a,edge b){
-            return a.w<b.w;
-        }
-        signed main(){
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cin>>n>>m;
-            int mi=1e13,idx;
-            for(int i=1;i<=n;i++){
-                cin>>arr[i];
-                if(arr[i]<mi){
-                    mi=arr[i],idx=i;
-                } 
-            }
-            vector<edge> G;
-            for(int i=1,u,v,w;i<=m;i++){
-                cin>>u>>v>>w;
-                G.push_back({u,v,w});
-            }
-            for(int i=1;i<=n;i++){
-                G.push_back({idx,i,arr[idx]+arr[i]});
-            }
-            for(int i=1;i<=n;i++) pal[i]=i;
-            sort(G.begin(),G.end(),cmp);
-            int ans=0;
-            for(auto [u,v,w]:G){
-                int x=find(u);
-                int y=find(v);
-                if(x==y) continue;
-                else{
-                    pal[x]=y;
-                    ans+=w;
-                }
-            }
-            cout<<ans<<"\n";
-        }
-        ```
+	    #define int long long
+	    using namespace std;
+	    int n,m,arr[1000000],pal[1000000];
+	    struct edge{
+	        int u,v,w;
+	    };
+	    int find(int u){
+	        if(pal[u]==u) return u;
+	        pal[u]=find(pal[u]);
+	        return pal[u];
+	    }
+	    int cmp(edge a,edge b){
+	        return a.w<b.w;
+	    }
+	    signed main(){
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin>>n>>m;
+	        int mi=1e13,idx;
+	        for(int i=1;i<=n;i++){
+	            cin>>arr[i];
+	            if(arr[i]<mi){
+	                mi=arr[i],idx=i;
+	            } 
+	        }
+	        vector<edge> G;
+	        for(int i=1,u,v,w;i<=m;i++){
+	            cin>>u>>v>>w;
+	            G.push_back({u,v,w});
+	        }
+	        for(int i=1;i<=n;i++){
+	            G.push_back({idx,i,arr[idx]+arr[i]});
+	        }
+	        for(int i=1;i<=n;i++) pal[i]=i;
+	        sort(G.begin(),G.end(),cmp);
+	        int ans=0;
+	        for(auto [u,v,w]:G){
+	            int x=find(u);
+	            int y=find(v);
+	            if(x==y) continue;
+	            else{
+	                pal[x]=y;
+	                ans+=w;
+	            }
+	        }
+	        cout<<ans<<"\n";
+	    }
+	    ```
 
 ???+note "[Atcode abc282 E. Choose Two and Eat One](https://atcoder.jp/contests/abc282/tasks/abc282_e) "
 	一個盒子中有 $N$ 個球，每個球上寫著一個介於 $1$ 和 $M-1$ 之間的數字。對於 $i=1,2,...,N$，第 $i$ 個球上寫著數字 $A_i$。
@@ -545,7 +545,156 @@
 	
 		建立超級源點連接每個點，邊權為 $c_i$，共 $n+1$ 個點做 MST
 
-???+note "[CF 125 E. MST Company](https://codeforces.com/problemset/problem/125/E)"
+???+note "[Atcoder abc270 F. Transportation](https://atcoder.jp/contests/abc270/tasks/abc270_f)"
+	
+	有 $n$ 個島嶼，序列 $X, Y$，和 $m$ 條建邊的方案 $(u, v, w)$，每次可以建立以下三種道路
+	
+	- 兩個島嶼直接連接一個橋，花費 $w$
+	
+	- 在某一個島上建立港口，花費 $X_i$，所有建立港口的島嶼之間可以互相抵達
+	
+	- 在某一個島上建立機場，花費 $Y_i$，所有建立機場的島嶼之間可以互相抵達
+	
+	求最小花費使得所有島嶼跟島嶼連通
+	
+	$n,m\le 2\times 10^5,X_i,Y_i,w_i\le 10^9$
+	
+	??? note "思路"
+		建立兩個超級源點，連接每個點，代表蓋港口或機場
+		
+		只是我們不一定會蓋港口或機場，所以分 4 個 case
+		
+		- Kruskal(橋)
+	
+		- Kruskal(橋 + 港口)
+	
+		- Kruskal(橋 + 機場)
+	
+		- Kruskal(橋 + 港口 + 機場)
+		
+	??? note "code"
+		```cpp linenums="1"
+		??? note "code"
+		```cpp linenums="1"
+		#include<bits/stdc++.h>
+	    #define int long long
+	    #define x first
+	    #define y second
+	    #define PII pair <int, int>
+	    #define endl '\n'
+	    const int INF = 1e18;
+	
+	    using namespace std;
+	    const int N = 200005;
+	
+	    struct Edge {
+	        int u, v, w;
+	    }e[N], g[N * 3];
+	    int q[N], x[N], y[N];
+	
+	    bool cmp(Edge a, Edge b) {
+	        return a.w < b.w;
+	    }
+	
+	    int find(int x) {
+	        if (x != q[x]) q[x] = find(q[x]);
+	        return q[x];
+	    }
+	
+	    int Kruskal(int n, int m) {
+	        sort(g + 1, g + m + 1, cmp);
+	        for (int i = 1; i <= n; i ++) q[i] = i;
+	
+	        int res = 0;
+	        int cnt = 0;
+	        for (int i = 1; i <= m; i ++) {
+	            auto [u, v, w] = g[i];
+	            int fu = find(u), fv = find(v);
+	
+	            if (fu != fv) {
+	                q[fu] = fv;
+	                res += w;
+	                cnt ++;
+	            }
+	        }
+	
+	        if (cnt == n - 1) return res;
+	        else return INF;
+	    }
+
+
+        void solve() {
+            int n , m;
+            cin >> n >> m;
+    
+            int res = 1e18;
+    
+            for (int i = 1; i <= n; i ++) {
+                cin >> x[i];
+            }
+            for (int i = 1; i <= n; i ++) {
+                cin >> y[i];
+            }
+    
+            for (int i = 1; i <= m; i ++) {
+                int u, v, w;
+                cin >> u >> v >> w;
+                e[i] = {u, v, w};
+            }
+    
+            for (int i = 1; i <= m; i ++) {
+                g[i] = e[i];
+            }
+            res = min(res, Kruskal(n, m));
+    
+            //飞机
+            for (int i = 1; i <= m; i ++) {
+                    g[i] = e[i];
+            }
+            for (int i = 1; i <= n; i ++) {
+                g[i + m] = {i, n + 1, x[i]};
+            }
+            res = min(res, Kruskal(n + 1, m + n));
+            //海
+            for (int i = 1; i <= m; i ++) {
+                g[i] = e[i];
+            }
+            for (int i = 1; i <= n; i ++) {
+                g[i + m] = {i, n + 1, y[i]};
+            }
+            res = min(res, Kruskal(n + 1, m + n));
+    
+            //飞机和海
+            for (int i = 1; i <= m; i ++) {
+                g[i] = e[i];
+            }
+            for (int i = 1; i <= n; i ++) {
+                g[i + m] = {i, n + 1, x[i]};
+            }
+            for (int i = 1; i <= n; i ++) {
+                g[i + n + m] = {i, n + 2, y[i]};
+            }
+            res = min(res, Kruskal(n + 2, m + n + n));
+    
+            cout << res;
+    
+        }
+        signed main(){
+            ios::sync_with_stdio(false);
+            cin.tie(nullptr);
+    
+            int t; t = 1;
+            //cin >> t;
+    
+            while (t --) {
+                solve();
+            }
+    
+            return 0;
+        }
+        ```
+
+???+danger "K 度限制生成樹 [CF 125 E. MST Company](https://codeforces.com/problemset/problem/125/E)"
 	給 $n$ 點 $m$ 邊連通圖，求最小生成樹滿足與點 $1$ 的度數要恰為 $k$
 	
 	$n,k\le 5000,m\le 10^5,w_i\le 10^5$
@@ -659,6 +808,138 @@
 	    }
 	    ```
 
+???+note "[LeetCode 1579. Remove Max Number of Edges to Keep Graph Fully Traversable](https://leetcode.com/problems/remove-max-number-of-edges-to-keep-graph-fully-traversable/)"
+    給一張 $n$ 個點 $m$ 邊無向圖，邊有三種 type ：
+
+    - Alice 的邊
+    
+    - Bob 的邊
+    
+    - Alice 跟 Bob 的邊
+    
+    最多可以移除多少條邊使得分別對於 Bob 跟 Alice 圖都還是連通的
+    
+    $n,m \le 10^5$
+    
+    ??? note "思路"
+    	刪掉的邊其實就是 Kruskal 內發現兩邊已在同一個連通塊的情況
+    	
+    	因為沒有邊權，依 Kruskal 的正確性，邊的順序是不重要的。顯然我們共用邊要比只有一個人的邊還更不容易被刪掉，因為刪掉他的話會影響 Alice 跟 Bob 兩人的貢獻
+    	
+    	我們先跑 Kruskal(共用邊)，先把共用邊選起來這樣等等就不會被刪掉
+    	
+    	然後再接著跑 Alice，Bob，這時候若發現是在同一個連通塊時會刪掉的就是 only Alice 或 only Bob 的邊，不會是共用邊
+        
+    ??? note "code"
+    	前往 [LeetCode solution](https://leetcode.com/problems/remove-max-number-of-edges-to-keep-graph-fully-traversable/solutions/3468042/clean-code-easy-to-understand-union-find/)
+
+???+note "[USACO Open 2021 Gold P2.Portals](http://www.usaco.org/index.php?page=viewproblem2&cpid=1138)"
+	有一個由 $N$ 個編號為 $1\dots N$ 的結點以及 $2N$ 個編號為 $1\cdots 2N$ 的結構。每個傳送門連接兩個不同的結點 $u$ 和 $v$（$u≠v$）。可能有多個傳送門連接同一對結點。
+
+	每個點與四個不同的傳送門相連，與 $v$ 相連的傳送門是 $p_v=[p_{v,1},p_{v,2},p_{v,3},p_{v,4}]$ 
+	
+	當前的位置可用 pair$(v,p_{v,i})$ 表示，可用以下操作改變位置：
+	
+	1. 由穿過當前傳送門來改變當前結點
+	2. $(v,p_{v,2})$ 跟 $(v,p_{v,1})$ 之間有雙向邊，$(v,p_{v,3})$ 跟 $(v,p_{v,4})$ 之間有雙向邊
+	
+	對於每個點，可以花費 $c_v$，重新排列 $v$ 的 $p_v=[p_{v,1},p_{v,2},p_{v,3},p_{v,4}]$，目標使這 $4N$ 個點連通，求最小花費
+	
+	$2\le N \le 10^5,\le c_v\le 10^3$
+	
+	??? note "思路"
+		依照題目的二為座標點的意義，我們將圖畫出來
+		
+		<figure markdown>
+	      ![Image title](./images/38.png){ width="500" }
+	    </figure>
+	    
+	    每個點的 degree 都只有 2，所以會形成很多 cycle
+	    
+	    再觀察花費 $c_v$ 重新排列的意義
+	    
+	    <figure markdown>
+	      ![Image title](./images/39.png){ width="500" }
+	    </figure>
+	
+	    花費 $c_v$ 可以將兩個 cycle 接起來，而 $p_{v,1},p_{v,2}$ 再同一個 cycle， $p_{v,3},p_{v,4}$ 再同一個 cycle，所以我們可以建邊 $p_{v,1}\leftrightarrow p_{v,3}$ 權重為 $c_v$
+	    
+	    其他預設好的邊權重都為 $0$，下去跑 MST 即可
+	    
+	    每個點的 degree 只有 2，所以邊最多也就 $2n$ 個，複雜度 ok
+
+???+note "[CF 196 E.Opening Portals](https://codeforces.com/contest/196/problem/E)"
+	給一張 $n$ 點 $m$ 邊的連通圖，其中有 $k$ 個點是特殊點。一開始在編號 $1$ 的點，在一個特殊點上時，你可以傳送到任意一個走過的特殊點，問走過所有特殊點的最小的距離總和
+	
+	$n,m,k\le 10^5$
+	
+	??? note "思路"
+		首先先利用多源點 dijkstra 跑出與每個點最近的特殊點 $p_i$，與跟這個特殊點的距離 $d_i$。再來枚舉重疊邊，代表特殊點兩兩之間的權重，最後跑 dijkstra，答案記得加起始點 $1$ 與最近的特殊點的距離	
+
+???+note "[LOJ #3696. 「JOISC 2022 Day4」复兴计划](https://loj.ac/p/3696)"
+	給一張 $n$ 點 $m$ 邊帶權無向圖，有 $q$ 個詢問 :
+	
+	- 給 $x$，此時圖上的邊權定為 $|x-w|$，求最小生成樹
+	
+	$n\le 500,m\le 10^5,q\le 10^6,x,w,\le 10^9$
+	
+	??? note "思路"
+		
+		引理 : $\texttt{MST}(\texttt{MST}(E_1) \cup \texttt{MST}(E_2))= \texttt{MST}(E_1 \cup E_2)$
+		
+		我們先將邊權 $w$ 從小到大排序
+		
+		將每個 prefix 跟 suffix 都建立 MST，建立的方法是
+		
+		pre[i - 1] 做完 MST 只有挑 n - 1 個邊，將 i 這條邊加進去重做一次 Kruskal，即得到 n - 1 條邊的 pre[i]，以此類推，suffix 也一樣
+		
+		<figure markdown>
+	      ![Image title](./images/37.png){ width="400" }
+	    </figure>
+	
+		因為具有單調性，故 Kruskal 並不需要重新排序，是 $O(n\times \log^* n)$
+		
+		雖然 $q$ 到 $10^6$，但實際能差入的縫只有 $m$ 個，所以我們先將每個縫左邊的 prefix，右邊的 suffix 一起再 Kruskal 一次，兩邊都知道自己要出動哪一些邊，就可以 $O(1)$ 回答查詢
+		
+		複雜度為 $O(m\times n \log^* n)$，差不多 $10^5\times 500\times 4\times 2=4\times 10^8$
+
+???+danger "[洛谷 P5540 [BalkanOI2011] timeismoney | 最小乘积生成树](https://www.luogu.com.cn/problem/P5540)"
+	給出一個 $n$ 個點 $m$ 條邊的無向圖，第 $i$ 條邊有兩個權值 $a_i$ 和 $b_i$ 。
+
+    求該圖的一棵生成樹 $T$ ，使得以下的 $\text{cost}$ 最小
+    
+    $$\text{cost}=\left(\sum_{e\in T}a_e\right)\times\left(\sum_{e\in T}b_e\right)$$
+    
+    $n\le 200$
+    
+    ??? note "思路"
+    	<https://www.luogu.com.cn/blog/user42506/solution-p5540>
+
+???+note "最優比率樹 [POJ 2728](https://vjudge.net/problem/POJ-2728)"
+	給出一個 $n$ 個點 $m$ 條邊的無向圖，第 $i$ 條邊有兩個權值 $a_i$ 和 $b_i$ 。
+
+    求該圖的一棵生成樹 $T$ ，使得以下的 $\text{cost}$ 最小
+    
+    $$\text{cost}=\cfrac{\sum \limits_{e\in T}a_e}{\sum \limits_{e\in T}b_e}$$
+    
+    $n\le 1000$
+    
+    ??? note "思路"
+    	考慮 [0-1 分數規劃](https://oi-wiki.org/misc/frac-programming/)
+    
+    	令 $\cfrac{\sum a}{\sum b}=t$，那麼 $\sum a = t\times \sum b$，令 $f(t) = \sum(a - t\times b)$
+    	
+    	在最優解的時候 $f(t)$ 恰為 $0$
+    	
+    	<figure markdown>
+          ![Image title](./images/40.png){ width="300" }
+        </figure>
+
+???+danger "[洛谷 P3623 [APIO2008] 免费道路](https://www.luogu.com.cn/problem/P3623)"
+	給 $n$ 點 $m$ 邊無向圖，邊權非 $0$ 即 $1$，求一個生成樹使得其所有邊的權重和恰為 $k$，輸出任意組解或是輸出無解
+
+	$n\le 2\times 10^5,m\le 10^5$
+
 ## 完全圖轉換
 
 ???+note "[Atcoder arc076 B.Built?](https://atcoder.jp/contests/arc076/tasks/arc076_b)"
@@ -706,62 +987,62 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define pii pair<int, int>
-        using namespace std;
-
-        const int maxn = 3e5 + 5;
-        const int INF = 0x3f3f3f3f;
-        const int M = 1e9 + 7;
-        set<int> G[maxn];
-        set<int> all;
-        int n, m, vis[maxn], cnt = 0;
-
-        int dfs (int u) {
-            vis[u] = 1;
-
-            vector<int> ret;
-            for (int v : all) { // 沒出現 -> 有邊
-                if(!G[u].count(v) && !vis[v]) ret.push_back(v);
-            }
-            for (int ele : ret) {
-                all.erase(ele);
-            }
-            int sum = 1;
-            for (int ele : ret) {
-                sum += dfs(ele);
-            }
-            return sum;
-        }
-
-        signed main() {
-            //ios::sync_with_stdio(0);
-            //cin.tie(0);
-            cin >> n >> m;
-
-            for (int i = 1; i <= n; i++)
-                all.insert(i);
-
-            for (int i = 0, u, v; i < m; i++) {
-                cin >> u >> v;
-                G[u].insert(v);
-                G[v].insert(u);
-            }
-
-            vector<int> sz;
-            for (int i = 1; i <= n; i++) {
-                if (vis[i] == 0) {
-                    sz.pb (dfs(i));
-                    cnt++;
-                }
-            }
-
-            sort (sz.begin(), sz.end());
-            cout << cnt << "\n";
-            for (auto ele : sz) cout << ele << " ";
-        }
-        ```
+	    #define int long long
+	    #define pb push_back
+	    #define pii pair<int, int>
+	    using namespace std;
+	
+	    const int maxn = 3e5 + 5;
+	    const int INF = 0x3f3f3f3f;
+	    const int M = 1e9 + 7;
+	    set<int> G[maxn];
+	    set<int> all;
+	    int n, m, vis[maxn], cnt = 0;
+	
+	    int dfs (int u) {
+	        vis[u] = 1;
+	
+	        vector<int> ret;
+	        for (int v : all) { // 沒出現 -> 有邊
+	            if(!G[u].count(v) && !vis[v]) ret.push_back(v);
+	        }
+	        for (int ele : ret) {
+	            all.erase(ele);
+	        }
+	        int sum = 1;
+	        for (int ele : ret) {
+	            sum += dfs(ele);
+	        }
+	        return sum;
+	    }
+	
+	    signed main() {
+	        //ios::sync_with_stdio(0);
+	        //cin.tie(0);
+	        cin >> n >> m;
+	
+	        for (int i = 1; i <= n; i++)
+	            all.insert(i);
+	
+	        for (int i = 0, u, v; i < m; i++) {
+	            cin >> u >> v;
+	            G[u].insert(v);
+	            G[v].insert(u);
+	        }
+	
+	        vector<int> sz;
+	        for (int i = 1; i <= n; i++) {
+	            if (vis[i] == 0) {
+	                sz.pb (dfs(i));
+	                cnt++;
+	            }
+	        }
+	
+	        sort (sz.begin(), sz.end());
+	        cout << cnt << "\n";
+	        for (auto ele : sz) cout << ele << " ";
+	    }
+	    ```
 ???+note "[CF 1242 B. 0-1 MST](https://codeforces.com/problemset/problem/1242/B)"
 	給 $n$ 個點的完全圖，給 $m$ 條邊權為 $1$ 的邊，其餘邊權為 $0$，問最小生成樹
 	
@@ -775,57 +1056,57 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define pii pair<int, int>
-        using namespace std;
-
-        const int maxn = 3e5 + 5;
-        const int INF = 0x3f3f3f3f;
-        const int M = 1e9 + 7;
-        set<int> G[maxn];
-        set<int> all;
-        int n, m, vis[maxn], cnt = 0;
-
-        void dfs (int u) {
-            vis[u] = 1;
-
-            vector<int> ret;
-            for (int v : all) { // 沒出現 -> 有邊
-                if(!G[u].count(v) && !vis[v]) ret.push_back(v);
-            }
-            for (int ele : ret) {
-                all.erase(ele);
-            }
-            for (int ele : ret) {
-                dfs(ele);
-            }
-        }
-
-        signed main() {
-            //ios::sync_with_stdio(0);
-            //cin.tie(0);
-            cin >> n >> m;
-
-            for (int i = 1; i <= n; i++)
-                all.insert(i);
-
-            for (int i = 0, u, v; i < m; i++) {
-                cin >> u >> v;
-                G[u].insert(v);
-                G[v].insert(u);
-            }
-
-            for (int i = 1; i <= n; i++) {
-                if (vis[i] == 0) {
-                    dfs(i);
-                    cnt++;
-                }
-            }
-
-            cout << cnt - 1;
-        }
-        ```
+	    #define int long long
+	    #define pb push_back
+	    #define pii pair<int, int>
+	    using namespace std;
+	
+	    const int maxn = 3e5 + 5;
+	    const int INF = 0x3f3f3f3f;
+	    const int M = 1e9 + 7;
+	    set<int> G[maxn];
+	    set<int> all;
+	    int n, m, vis[maxn], cnt = 0;
+	
+	    void dfs (int u) {
+	        vis[u] = 1;
+	
+	        vector<int> ret;
+	        for (int v : all) { // 沒出現 -> 有邊
+	            if(!G[u].count(v) && !vis[v]) ret.push_back(v);
+	        }
+	        for (int ele : ret) {
+	            all.erase(ele);
+	        }
+	        for (int ele : ret) {
+	            dfs(ele);
+	        }
+	    }
+	
+	    signed main() {
+	        //ios::sync_with_stdio(0);
+	        //cin.tie(0);
+	        cin >> n >> m;
+	
+	        for (int i = 1; i <= n; i++)
+	            all.insert(i);
+	
+	        for (int i = 0, u, v; i < m; i++) {
+	            cin >> u >> v;
+	            G[u].insert(v);
+	            G[v].insert(u);
+	        }
+	
+	        for (int i = 1; i <= n; i++) {
+	            if (vis[i] == 0) {
+	                dfs(i);
+	                cnt++;
+	            }
+	        }
+	
+	        cout << cnt - 1;
+	    }
+	    ```
 
 ## MST 的唯一性
 
@@ -869,8 +1150,89 @@
     求最小操作次數
     
     $n,m\le 2\times 10^5$
+    
+    ??? note "思路"
+    	邊會衝突若且唯若環上至少有一個邊跟我相等，所以我只要將我權值 $+1$ 即可
+    	
+    	$+1$ 後不會變成更高權重的選項，因為能衝突就代表自己的邊權是環上最大的
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #define int long long
+        #define double long double
+        #define x first
+        #define y second
+        #define mk make_pair
+        #define pb push_back
+        #define pii pair<long long, long long>
+        using namespace std;
+    
+        struct Edge {
+            int u, v, w;
+        };
+    
+        const int INF = 9e18;
+        const int maxn = 2e5 + 5;
+        const int maxm = 5e5 + 5;
+        const int lg = 20;
+        vector<Edge> E;
+        vector<pii> G[maxn];
+        int n, m;
+        int dsu[maxn], par[maxn];
+    
+        int find (int x) {
+            if (par[x] == x) return x;
+            else return par[x] = find(par[x]);
+        }
+    
+        void merge (int a, int b) {
+            int x = find(a), y = find(b);
+            if (x == y) return;
+            par[x] = y;
+        }
+    
+        void solve () {
+            for (int i = 1; i <= n; i++) par[i] = i;
+            sort(E.begin(), E.end(), [](Edge a, Edge b) { return a.w < b.w; });
+            int cnt = 0;
+            for (int i = 0; i < m;) {
+                int r = i;
+                while (E[i].w == E[r + 1].w) r++; //[i, r]
+                // 判斷有多少合法邊
+                for (int j = i; j <= r; j++) {
+                    int x = find(E[j].u), y = find(E[j].v);
+                    if (x == y) continue;
+                    cnt++; 
+                }
+                // 判斷
+                for (int j = i; j <= r; j++) {
+                    int x = find(E[j].u), y = find(E[j].v);
+                    if (x == y) continue; // 已經被併過了, 屬於同一方案
+                    // 再不同的集合, 唯一的方案
+                    merge(x, y), cnt--;
+                }
+                // ans = 重複相同權重的邊 = (合法邊) - (唯一方案數) = 其實加了是重複的方案的邊 
+                i = r + 1;
+            }
+            cout << cnt << "\n";
+        }
+    
+        void init () {
+            cin >> n >> m;
+            for (int i = 0, u, v, w; i < m; i++) {
+                cin >> u >> v >> w;
+                E.pb({u, v, w});
+            }
+        }
+    
+        signed main () {
+            init();
+            solve();
+        }
+        ```
 
-???+note "[CF 160 D. Edges in MST](https://codeforces.com/contest/160/problem/D)"
+???+danger "[CF 160 D. Edges in MST](https://codeforces.com/contest/160/problem/D)"
     給 $n$ 點 $m$ 邊無向帶權連通圖，判斷每個邊的 type
 
     1. 出現在所有方案中
@@ -880,12 +1242,9 @@
     $n,m\le 10^5$
     
     ??? note "思路"
-    	因為對於每條邊都需要看他是哪種性質，所以要判斷特定的邊是否是唯一的就不能只算唯一方案數了，必須用 BCC 去看如下
-        ![](https://cdn.discordapp.com/attachments/972879937180692551/1014553797806272583/858cfd42763fb554.png)
-    
-        [網址](https://blog.csdn.net/m0_56280274/article/details/123765300?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1-123765300-blog-101834844.topnsimilarv1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1-123765300-blog-101834844.topnsimilarv1&utm_relevant_index=2)
-    
-        他只是想看他是不是"對於跟他邊權一樣"的這些 edge ，唯一的 edge 而已，所以並不需考慮之前邊權比較小的時候留下來的邊，等同於新建一張圖
+		![](https://cdn.discordapp.com/attachments/972879937180692551/1014553797806272583/858cfd42763fb554.png)
+		
+        code 可以參考[這篇博客](https://blog.csdn.net/m0_56280274/article/details/123765300?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1-123765300-blog-101834844.topnsimilarv1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1-123765300-blog-101834844.topnsimilarv1&utm_relevant_index=2)
 
 ## 維護環技巧
 
@@ -1114,19 +1473,19 @@
 		
 		然後就套用次小生乘樹模板即可
 
-???+note "[CF 609 E. Minimum spanning tree for each edge](https://codeforces.com/contest/609/problem/E)"
+???+danger "[CF 609 E. Minimum spanning tree for each edge](https://codeforces.com/contest/609/problem/E)"
     給 $n$ 點 $m$ 邊無向帶權連通圖，對每條邊輸出包含那條邊的最小生成樹
     
     $n, m \le 2\times 10^5$
 
-???+note "[CSES - New Roads Queries](https://cses.fi/problemset/task/2101)"
+???+danger "[CSES - New Roads Queries](https://cses.fi/problemset/task/2101)"
 	給一張 $n$ 個點的圖，依序加入 $m$ 條邊，回答 $q$ 筆詢問 :
 	
     - $a,b$ 在加入第幾條邊時連通，或沒有連通
     
     $n,q\le 2\times 10^5$
 
-???+note "[CF 891 C.Envy](https://codeforces.com/contest/891/problem/C)"
+???+danger "[CF 891 C.Envy](https://codeforces.com/contest/891/problem/C)"
 	給一張 $n$ 點 $m$ 邊的連通圖，有 $q$ 筆詢問，每次給一個集合，包含 $k_i$ 條圖上的邊，求存不存在一棵最小生成樹包含集合內所有的邊
 	
 	$n,m,q\le 10^5$
@@ -1238,7 +1597,7 @@ $$
 
 最大邊最小化路徑
 
-???+note "[LOJ #136. 最小瓶颈路](https://loj.ac/p/136)"
+???+danger "[LOJ #136. 最小瓶颈路](https://loj.ac/p/136)"
 	給定一個 $n$ 點 $m$ 邊的圖，邊有權值，回答 $k$ 個詢問 : 
 	
 	- 從 $s$ 到 $t$ 的一條路徑，使得路徑上權值最大的一條邊權值最小
@@ -1252,22 +1611,9 @@ $$
   ![Image title](./images/34.png){ width="300" }
 </figure>
 
-
-## 乘積生成樹
-
-???+note "[洛谷 P5540 [BalkanOI2011] timeismoney | 最小乘积生成树](https://www.luogu.com.cn/problem/P5540)"
-	給出一個 $n$ 個點 $m$ 條邊的無向圖，第 $i$ 條邊有兩個權值 $a_i$ 和 $b_i$ 。
-
-    求該圖的一棵生成樹 $T$ ，使得以下的 $\text{cost}$ 最小
-    
-    $$\text{cost}=\left(\sum_{e\in T}a_e\right)\times\left(\sum_{e\in T}b_e\right)$$
-
-    ??? note "思路"
-    	<https://www.luogu.com.cn/blog/user42506/solution-p5540>
-
 ## 因數
 
-???+note "[LOJ #6807. 「THUPC 2022 初赛」最小公倍树](https://loj.ac/p/6807)"
+???+danger "[LOJ #6807. 「THUPC 2022 初赛」最小公倍树](https://loj.ac/p/6807)"
 	給一張點從 $L\sim R$ 編號的無向完全圖，$(u,v)$ 之間的邊權為 $\text{lcm}(u,v)$，求最小生成樹
 	
 	$1\le L \le R \le 10^6,R-L\le 10^5$
@@ -1330,143 +1676,6 @@ $$
 	    }
 	    ```
 
-???+note "[LeetCode 1579. Remove Max Number of Edges to Keep Graph Fully Traversable](https://leetcode.com/problems/remove-max-number-of-edges-to-keep-graph-fully-traversable/)"
-    給一張 $n$ 個點 $m$ 邊無向圖，邊有三種 type ：
-
-    - Alice 的邊
-    
-    - Bob 的邊
-    
-    - Alice 跟 Bob 的邊
-    
-    最多可以移除多少條邊使得分別對於 Bob 跟 Alice 圖都還是連通的
-    
-    $n,m \le 10^5$
-    
-    ??? note "思路"
-    	刪掉的邊其實就是 Kruskal 內發現兩邊已在同一個連通塊的情況
-    	
-    	因為沒有邊權，依 Kruskal 的正確性，邊的順序是不重要的。顯然我們共用邊要比只有一個人的邊還更不容易被刪掉，因為刪掉他的話會影響 Alice 跟 Bob 兩人的貢獻
-    	
-    	我們先跑 Kruskal(共用邊)，先把共用邊選起來這樣等等就不會被刪掉
-    	
-    	然後再接著跑 Alice，Bob，這時候若發現是在同一個連通塊時會刪掉的就是 only Alice 或 only Bob 的邊，不會是共用邊
-        
-    ??? note "code"
-    	```cpp linenums="1"
-    	class Solution {
-        public:
-            int findParent(vector<int>&parent, int node)
-            {
-                if (parent[node] == node) return node;
-                else return findParent(parent, parent[node]);
-            }
-            bool merge(vector<int>&parent, vector<int>&rank, int node1, int node2)
-            {
-                int parent1 = findParent(parent, node1);
-                int parent2 = findParent(parent, node2);
-                if (parent1 == parent2) return false;
-                else
-                {
-                    //NON-OPTIMAL WAY => { parent[parent1] = parent2 or parent[parent2] = parent2; return; :)} 
-                    //OPTIMAL WAY=> merge based on rank to reduce complexity in 'FINDING PARENT' next time
-                    if (rank[parent1] == rank[parent2])  //both at same level
-                    {
-                        parent[parent1] = parent2; 
-                        rank[parent2]++; 
-                    }
-                    else if (rank[parent1] < rank[parent2]) //parent2 is at higher level
-                        parent[parent1] = parent2; 
-                    else  //parent1 is at higher level
-                        parent[parent2] = parent1;
-                    return true;
-                }
-            }
-            int maxNumEdgesToRemove(int n, vector<vector<int>>& edges) 
-            {
-                int notUsed = 0, componentCount = n;
-                vector<int>parent(n + 1);
-                vector<int>rank(n + 1, 0);
-                for (int i = 1; i <= n; i++) parent[i] = i;
-                //===========================================================================
-                //COMMON FOR BOTH
-                for (vector<int>&edge : edges)
-                {
-                    if (edge[0] != 3) continue;
-    
-                    bool merged = merge(parent, rank, edge[1], edge[2]);
-                    if (!merged) notUsed++;
-                    else componentCount--;
-                }
-                //===========================================================================
-                //ONLY FOR ALICE
-                vector<int>aliceParent = parent, aliceRank = rank;
-                int aliceComponentCount = componentCount;
-                for (vector<int>&edge : edges)
-                {
-                    if (edge[0] != 1) continue;
-                    bool merged = merge(aliceParent, aliceRank, edge[1], edge[2]);
-                    if (!merged) notUsed++;
-                    else aliceComponentCount--;
-                }
-                if (aliceComponentCount != 1) return -1;  //still not connected, so return -1
-                //==============================================================================
-                //ONLY FOR BOB
-                //could have used tha main 'parent', 'rank', 'componentCount'...
-                //made duplicate copies here also only to explain 
-                vector<int>bobParent = parent, bobRank = rank; 
-                int bobComponentCount = componentCount;
-                for (vector<int>&edge : edges)
-                {
-                    if (edge[0] != 2) continue;
-                    bool merged = merge(bobParent, bobRank, edge[1], edge[2]);
-                    if (!merged) notUsed++;
-                    else bobComponentCount--;
-                }
-                if (bobComponentCount != 1) return -1;  //still not connected, so return -1
-                //================================================================================
-                return notUsed;//not used edges will be removed
-    
-            }
-        };
-        ```
-
-???+note "[USACO Open 2021 Gold P2.Portals](http://www.usaco.org/index.php?page=viewproblem2&cpid=1138)"
-	有一個由 $N$ 個編號為 $1\dots N$ 的結點以及 $2N$ 個編號為 $1\cdots 2N$ 的結構。每個傳送門連接兩個不同的結點 $u$ 和 $v$（$u≠v$）。可能有多個傳送門連接同一對結點。
-
-	每個點與四個不同的傳送門相連，與 $v$ 相連的傳送門是 $p_v=[p_{v,1},p_{v,2},p_{v,3},p_{v,4}]$ 
-	
-	當前的位置可用 pair$(v,p_{v,i})$ 表示，可用以下操作改變位置：
-	
-	1. 由穿過當前傳送門來改變當前結點
-	2. $(v,p_{v,2})$ 跟 $(v,p_{v,1})$ 之間有雙向邊，$(v,p_{v,3})$ 跟 $(v,p_{v,4})$ 之間有雙向邊
-	
-	對於每個點，可以花費 $c_v$，重新排列 $v$ 的 $p_v=[p_{v,1},p_{v,2},p_{v,3},p_{v,4}]$，目標使這 $4N$ 個點連通，求最小花費
-	
-	$2\le N \le 10^5,\le c_v\le 10^3$
-	
-	??? note "思路"
-		依照題目的二為座標點的意義，我們將圖畫出來
-		
-		<figure markdown>
-	      ![Image title](./images/38.png){ width="500" }
-	    </figure>
-	    
-	    每個點的 degree 都只有 2，所以會形成很多 cycle
-	    
-	    再觀察花費 $c_v$ 重新排列的意義
-	    
-	    <figure markdown>
-	      ![Image title](./images/39.png){ width="500" }
-	    </figure>
-
-        花費 $c_v$ 可以將兩個 cycle 接起來，而 $p_{v,1},p_{v,2}$ 再同一個 cycle， $p_{v,3},p_{v,4}$ 再同一個 cycle，所以我們可以建邊 $p_{v,1}\leftrightarrow p_{v,3}$ 權重為 $c_v$
-        
-        其他預設好的邊權重都為 $0$，下去跑 MST 即可
-        
-        每個點的 degree 只有 2，所以邊最多也就 $2n$ 個，複雜度 ok
-
-
 ???+note "[Atcoder abc210 E. Ring MST](https://atcoder.jp/contests/abc210/tasks/abc210_e)"
 	
     給一張 $n$ 點無向圖，點編號 $0,\ldots ,n - 1$，一開始沒有任何邊，有 $m$ 種操作，每種操作都可做任意次 ：
@@ -1476,187 +1685,52 @@ $$
     輸出最少讓圖連通的花費
     
     $n\le 10^9,m\le 10^5$
-
-???+note "[Atcoder abc270 F. Transportation](https://atcoder.jp/contests/abc270/tasks/abc270_f)"
-	
-	有 $n$ 個島嶼，序列 $X, Y$，和 $m$ 條建邊的方案 $(u, v, w)$，每次可以建立以下三種道路
-	
-	- 兩個島嶼直接連接一個橋，花費 $w$
-	
-	- 在某一個島上建立港口，花費 $X_i$，所有建立港口的島嶼之間可以互相抵達
-	
-	- 在某一個島上建立機場，花費 $Y_i$，所有建立機場的島嶼之間可以互相抵達
-	
-	求最小花費使得所有島嶼跟島嶼連通
-	
-	$n,m\le 2\times 10^5,X_i,Y_i,w_i\le 10^9$
-	
-	??? note "思路"
-		建立兩個超級源點，連接每個點，代表蓋港口或機場
-		
-		只是我們不一定會蓋港口或機場，所以分 4 個 case
-		
-		- Kruskal(橋)
-	
-		- Kruskal(橋 + 港口)
-	
-		- Kruskal(橋 + 機場)
-	
-		- Kruskal(橋 + 港口 + 機場)
-		
-	??? note "code"
-		```cpp linenums="1"
-		??? note "code"
-		```cpp linenums="1"
-		#include<bits/stdc++.h>
-	    #define int long long
-	    #define x first
-	    #define y second
-	    #define PII pair <int, int>
-	    #define endl '\n'
-	    const int INF = 1e18;
-	
-	    using namespace std;
-	    const int N = 200005;
-	
-	    struct Edge {
-	        int u, v, w;
-	    }e[N], g[N * 3];
-	    int q[N], x[N], y[N];
-	
-	    bool cmp(Edge a, Edge b) {
-	        return a.w < b.w;
-	    }
-	
-	    int find(int x) {
-	        if (x != q[x]) q[x] = find(q[x]);
-	        return q[x];
-	    }
-	
-	    int Kruskal(int n, int m) {
-	        sort(g + 1, g + m + 1, cmp);
-	        for (int i = 1; i <= n; i ++) q[i] = i;
-	
-	        int res = 0;
-	        int cnt = 0;
-	        for (int i = 1; i <= m; i ++) {
-	            auto [u, v, w] = g[i];
-	            int fu = find(u), fv = find(v);
-	
-	            if (fu != fv) {
-	                q[fu] = fv;
-	                res += w;
-	                cnt ++;
-	            }
-	        }
-	
-	        if (cnt == n - 1) return res;
-	        else return INF;
-	    }
-
-
-        void solve() {
-            int n , m;
+    
+    ??? note "思路"
+    	先將操作從 $c_i$ 小到大排序
+    	
+    	我們設加上前 $i$ 種邊後，最佳解有 $x_i$ 個連通塊。特別地，$x_0=n$，如此一來，答案就是 :
+    
+    	$$\sum ^m_{i=1}c_i\cdot (x_{i-1}-x_{i})$$
+    	
+    	$u$ 能跟 $v$ 能連通若且唯若存在整數 $k_1,k_2,\ldots k_t$ 滿足 
+    	
+    	$$\begin{align} &u\equiv v+k_1\times a_1 + k_2\times a_2 +\ldots +k_t\times a_t\pmod{n} \\ & u\equiv v+ k_0 \times n+k_1\times a_1 + k_2\times a_2 +\ldots +k_t\times a_t \\  & u\equiv v + kd_t \\  & u\equiv v\pmod{d_t}\end{align}$$
+    	
+    	其中 $d_t=\gcd (n, a_1,\ldots ,a_t)$
+    	
+    	這時 mod 出來的數字只會是 $0,1,\ldots, d_t - 1$，每個數字代表一個獨立的連通塊，故連通塊的數量為 $d_t$
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        using namespace std;
+        const int maxn = 1e5 + 5;
+        int n, m;
+    
+        struct node {
+            int a, c;
+            friend bool operator < (const node &A, const node &B) {
+                return A.c < B.c;
+            }
+        } arr[maxn];
+    
+        int main() {
             cin >> n >> m;
+            for (int i = 1; i <= m; i++) cin >> arr[i].a >> arr[i].c;
     
-            int res = 1e18;
+            sort(arr + 1, arr + m + 1);
+            long long ans = 0;
+            int x_i = n;
     
-            for (int i = 1; i <= n; i ++) {
-                cin >> x[i];
-            }
-            for (int i = 1; i <= n; i ++) {
-                cin >> y[i];
-            }
-    
-            for (int i = 1; i <= m; i ++) {
-                int u, v, w;
-                cin >> u >> v >> w;
-                e[i] = {u, v, w};
+            for (int i = 1; i <= m; i++) {
+                int last = x_i;
+                x_i = __gcd(x_i, arr[i].a);
+                ans += 1ll * (last - x_i) * arr[i].c;
             }
     
-            for (int i = 1; i <= m; i ++) {
-                g[i] = e[i];
-            }
-            res = min(res, Kruskal(n, m));
-    
-            //飞机
-            for (int i = 1; i <= m; i ++) {
-                    g[i] = e[i];
-            }
-            for (int i = 1; i <= n; i ++) {
-                g[i + m] = {i, n + 1, x[i]};
-            }
-            res = min(res, Kruskal(n + 1, m + n));
-            //海
-            for (int i = 1; i <= m; i ++) {
-                g[i] = e[i];
-            }
-            for (int i = 1; i <= n; i ++) {
-                g[i + m] = {i, n + 1, y[i]};
-            }
-            res = min(res, Kruskal(n + 1, m + n));
-    
-            //飞机和海
-            for (int i = 1; i <= m; i ++) {
-                g[i] = e[i];
-            }
-            for (int i = 1; i <= n; i ++) {
-                g[i + m] = {i, n + 1, x[i]};
-            }
-            for (int i = 1; i <= n; i ++) {
-                g[i + n + m] = {i, n + 2, y[i]};
-            }
-            res = min(res, Kruskal(n + 2, m + n + n));
-    
-            cout << res;
-    
-        }
-        signed main(){
-            ios::sync_with_stdio(false);
-            cin.tie(nullptr);
-    
-            int t; t = 1;
-            //cin >> t;
-    
-            while (t --) {
-                solve();
-            }
-    
-            return 0;
+            if (x_i != 1) cout << -1 << "\n";
+            else cout << ans << "\n";
         }
         ```
 
-???+note "[CF 196 E.Opening Portals](https://codeforces.com/contest/196/problem/E)"
-	給一張 $n$ 點 $m$ 邊的連通圖，其中有 $k$ 個點是特殊點。一開始在編號 $1$ 的點，在一個特殊點上時，你可以傳送到任意一個走過的特殊點，問走過所有特殊點的最小的距離總和
-	
-	$n,m,k\le 10^5$
-	
-	??? note "思路"
-		首先先利用多源點 dijkstra 跑出與每個點最近的特殊點 $p_i$，與跟這個特殊點的距離 $d_i$。再來枚舉重疊邊，代表特殊點兩兩之間的權重，最後跑 dijkstra，答案記得加起始點 $1$ 與最近的特殊點的距離
-
-???+note "[LOJ #3696. 「JOISC 2022 Day4」复兴计划](https://loj.ac/p/3696)"
-	給一張 $n$ 點 $m$ 邊帶權無向圖，有 $q$ 個詢問 :
-	
-	- 給 $x$，此時圖上的邊權定為 $|x-w|$，求最小生成樹
-	
-	$n\le 500,m\le 10^5,q\le 10^6,x,w,\le 10^9$
-	
-	??? note "思路"
-		
-		引理 : $\texttt{MST}(\texttt{MST}(E_1) \cup \texttt{MST}(E_2))= \texttt{MST}(E_1 \cup E_2)$
-		
-		我們先將邊權 $w$ 從小到大排序
-		
-		將每個 prefix 跟 suffix 都建立 MST，建立的方法是
-		
-		pre[i - 1] 做完 MST 只有挑 n - 1 個邊，將 i 這條邊加進去重做一次 Kruskal，即得到 n - 1 條邊的 pre[i]，以此類推，suffix 也一樣
-		
-		<figure markdown>
-	      ![Image title](./images/37.png){ width="400" }
-	    </figure>
-
-		因為具有單調性，故 Kruskal 並不需要重新排序，是 $O(n\times \log^* n)$
-		
-		雖然 $q$ 到 $10^6$，但實際能差入的縫只有 $m$ 個，所以我們先將每個縫左邊的 prefix，右邊的 suffix 一起再 Kruskal 一次，兩邊都知道自己要出動哪一些邊，就可以 $O(1)$ 回答查詢
-		
-		複雜度為 $O(m\times n \log^* n)$，差不多 $10^5\times 500\times 4\times 2=4\times 10^8$
