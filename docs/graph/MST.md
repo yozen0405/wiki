@@ -1,7 +1,5 @@
 - <https://drive.google.com/file/d/1a1mgK8KFJWNoXATHwi3E6ceStn22QmZl/view>
 
-- IOIC 習題
-
 ## 算法概要
 
 ???+note "模板 [LOJ #123. 最小生成树](https://loj.ac/p/123)"
@@ -200,7 +198,13 @@
 	??? note "思路"
 		我們利用 borovka 的想法，每次對連通塊選「非特殊邊」之中的最小邊，放進去一個 `vector`，直到整張圖做完，或做不下去
 		
+		至於怎麼用 borovka 選邊，我們先看當前連通塊 $a_i$ 最小的點是否可以連項不同連通塊的 $a_j$，$a_j$ 滿足 $(i,j)$ 非特殊邊的 $j$ 之中最小的。若都沒辦法的話，那就要從小到大枚舉連通塊內的 $a_i$，和不在連通塊的 $a_j$，滿足 $(i,j)$ 非特殊邊的 $j$ 之中最小的，無法連接的情況最多只會有 $m$ 次（$m$ 條特殊邊），所以複雜度是合理的
+		
 		最後用 Kruskal 在特殊邊和剛剛用 borovka 選的邊上選 MST
+		
+		Borovka 每次執行會有二分搜 $O(n\log n)$，共有 $O(\log n)$ 輪，複雜度  $O(n\log^2 n)$，Kruskal 因為 Borovka 只會挑出 $n - 1$ 條邊，所以，複雜度還是 $O(n\log n)$，所以共 $O(n\log^2 n)$
+		
+		實作上詳見代碼
 	    
 	??? note "code"
 		```cpp linenums="1"
@@ -398,13 +402,6 @@
 	    </figure>
 
 ### 習題
-
-???+note "[TIOJ 1795. 咕嚕咕嚕呱啦呱啦](https://tioj.ck.tp.edu.tw/problems/1795)"
-	給一張 $n$ 點 $m$ 邊無向圖，邊權非 $0$ 即 $1$，問是否存在一個生成樹邊權總合為 $k$
-	
-	??? note "思路"
-	
-		先算最大 MST 的花費，最小 MST 的花費，看 $k$ 是否介於兩者的花費之間
 
 ???+note "[CF 1468 J. Road Reform](https://codeforces.com/problemset/problem/1468/J)"
 	給 $n$ 點 $m$ 邊無向圖，選出一棵生成樹，可以對樹上的邊權值 $+1$ 或 $-1$
@@ -694,18 +691,13 @@
         }
         ```
 
-???+danger "K 度限制生成樹 [CF 125 E. MST Company](https://codeforces.com/problemset/problem/125/E)"
-	給 $n$ 點 $m$ 邊連通圖，求最小生成樹滿足與點 $1$ 的度數要恰為 $k$
+???+note "K 度限制生成樹 [CF 125 E. MST Company](https://codeforces.com/problemset/problem/125/E)"
+	給 $n$ 點 $m$ 邊連通圖，求最小生成樹滿足與點 $1$ 的度數要恰為 $k$，印出樹上的邊，或無解
 	
 	$n,k\le 5000,m\le 10^5,w_i\le 10^5$
 	
 	??? note "思路"
-	    Aliens 優化
-	
-	    <figure markdown>
-	      ![Image title](./images/1.png){ width="300" }
-	      <figcaption>範例圖</figcaption>
-	    </figure>
+	    根據 Aliens 優化，我們將跟點 $1$ 連接的邊的邊權都加上一個權值 $t$，二分搜這個 $t$ 直到恰好選擇 $k$ 條度數，其中 $t$ 可以正或負且可為小數
 	    
 	??? note "code"
 		```cpp linenums="1"
@@ -935,12 +927,28 @@
           ![Image title](./images/40.png){ width="300" }
         </figure>
 
-???+danger "[洛谷 P3623 [APIO2008] 免费道路](https://www.luogu.com.cn/problem/P3623)"
-	給 $n$ 點 $m$ 邊無向圖，邊權非 $0$ 即 $1$，求一個生成樹使得其所有邊的權重和恰為 $k$，輸出任意組解或是輸出無解
+???+note "[TIOJ 1795. 咕嚕咕嚕呱啦呱啦](https://tioj.ck.tp.edu.tw/problems/1795)"
+	給一張 $n$ 點 $m$ 邊無向圖，邊權非 $0$ 即 $1$，問是否存在一個生成樹邊權總合為 $k$
+	
+	$n\le 10^5,m\le 3\times 10^5$
+	
+	??? note "思路"
+	
+		先算最大 MST 的花費，最小 MST 的花費，看 $k$ 是否介於兩者的花費之間
+
+???+note "[洛谷 P3623 [APIO2008] 免费道路](https://www.luogu.com.cn/problem/P3623)"
+	給一張 $n$ 點 $m$ 邊無向圖，邊權非 $0$ 即 $1$，問是否存在一個生成樹邊權總合為 $k$，輸出**任意組解**或是輸出無解
 
 	$n\le 2\times 10^5,m\le 10^5$
-
-## 完全圖轉換
+	
+	??? note "思路"
+		跟上面 TIOJ 1795 一樣，我們要判斷有沒有解就看 $k$ 是否介於最小與最大 MST 之間，如果 MST 不連通也是無解
+		
+		最大 MST 的構造可以先加入所有最小 MST 有用到的邊權為 $1$ 的邊，然後再將剩下沒選到的邊權為 $1$ 的邊加入，這樣就不會發生有邊權為 $1$ 的邊最大 MST 沒選到但最小 MST 有選到的情況
+		
+		最後要構造權重和恰為 $k$ 的 MST，這時我們就將最小 MST 開始枚舉自己沒用到但最大 MST 有用到的權重為 $1$ 的邊加入，直到權重和為 $k$。這時，再將邊權為 $0$ 的邊加入直到形成 MST 為止，即完成構造
+		
+		正確性的話因為最小 MST 有用到權重為 $1$ 的邊，權重為 $k$ 的 MST 都有用到的，而最小 MST 在這之後加入了邊權為 $0$ 的邊可以形成 MST，權重為 $k$ 的 MST 可能還多一些權重為 $1$ 的邊，再加入 $0$ 的邊也一定會形成 MST
 
 ???+note "[Atcoder arc076 B.Built?](https://atcoder.jp/contests/arc076/tasks/arc076_b)"
 	給 $n$ 個二維座標點 $(x_i, y_i)$，兩點要建邊的 $\text{cost} = \min(|x_i - x_j|, |y_i - y_j|)$，求最小生成樹
@@ -1112,33 +1120,29 @@
 
 判斷 MST 是否唯一，如果並非唯一，代表它可以被相同權重的邊給替換，$\Rightarrow$ 對於相同的邊一起去跑
 
+在 $w$ 以下的邊都做好 Kruskal 後，會形成若干連通塊，而且這些來通塊各個都是樹，我們稱整張圖為最小生成森林
+
+??? info "將 $w$ 以下的邊以哪種順序做好 Kruskal 後會形成的最小生成森林都是一樣的"
+	不管同一個權重 w 的邊用甚麼順序去 merge，每個點最後會被分到的連通塊都是相同的，只有每個連通塊內「用甚麼邊去將這些點接起來」有差別而已，這些邊能接起來的點集都是相同的。整體來說，不管什麼順序，將每個連通塊縮點後圖都是一模一樣的
+
 ??? note "code"
     ```cpp linenums="1"
     void solve () {
         for (int i = 1; i <= n; i++) par[i] = i;
         sort(E.begin(), E.end(), [](Edge a, Edge b) { return a.w < b.w; });
-        int cnt = 0;
         for (int i = 0; i < m;) {
             int r = i;
             while (E[i].w == E[r + 1].w) r++; //[i, r]
-            // 判斷有多少合法邊
+            
+            // 這邊一般會寫題目要做的事情
+            
             for (int j = i; j <= r; j++) {
                 int x = find(E[j].u), y = find(E[j].v);
-                if (x == y) continue;
-                // 是 MST 有可能選到的
-                cnt++; 
+                if (x == y) continue; 
+                merge(x, y);
             }
-            // 判斷真正的唯一方案數有幾個
-            for (int j = i; j <= r; j++) {
-                int x = find(E[j].u), y = find(E[j].v);
-                if (x == y) continue; // 已經被併過了, 屬於同一方案
-                // 再不同的集合, 唯一的方案
-                merge(x, y), cnt--;
-            }
-            // ans = (合法邊) - (唯一方案數) = 其實加了是重複的方案的邊 
             i = r + 1;
         }
-        cout << cnt << "\n";
     }
     ```
 
@@ -1242,9 +1246,23 @@
     $n,m\le 10^5$
     
     ??? note "思路"
-		![](https://cdn.discordapp.com/attachments/972879937180692551/1014553797806272583/858cfd42763fb554.png)
-		
+    	![](https://cdn.discordapp.com/attachments/972879937180692551/1014553797806272583/858cfd42763fb554.png)
+    	
         code 可以參考[這篇博客](https://blog.csdn.net/m0_56280274/article/details/123765300?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1-123765300-blog-101834844.topnsimilarv1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1-123765300-blog-101834844.topnsimilarv1&utm_relevant_index=2)
+
+???+note "[CF 891 C.Envy](https://codeforces.com/contest/891/problem/C)"
+	給一張 $n$ 點 $m$ 邊的連通圖，有 $q$ 筆詢問，每次給一個集合，包含 $k_i$ 條圖上的邊，求存不存在一棵最小生成樹包含集合內所有的邊
+	
+	$n,m,q\le 10^5,\sum k_i\le 10^5$
+	
+	??? note "思路"
+		對於一個 $k_i$，不同邊權之間是**沒有影響的**。因為根據上面「將 $w$ 以下的邊以哪種順序做好 Kruskal 後會形成的最小生成森林都是一樣的」這個性質，若現在要加入邊權為 $w$ 的邊，只要加入後合法，最後能形成的森林是唯一的，所以我們不必擔心不同權重的邊會互相影響。
+		
+		要是權重為 $w$ 的邊加入後不合法，那後面也不能做下去了，ans[k[i]] = false
+	
+		現在要來看如何判斷合法，不合法。跟上面的模板一樣，每次同時考慮一堆權值均爲 $x$ 的邊，接著要枚舉 $k_i$，考慮 $k_i$ 內權值爲 $x$ 的邊聯集後是否會「形成環」，若出現了環則 ans[k[i]] = false，然後 undo $k_i$ 的這些權值為 $x$ 的邊，然後考慮 $k_{i+1}$ 內權值爲 $x$ 的邊聯集後是否形成環...。考慮完所有的涉及到的 $k_i$ 後，將題目給的原圖權值爲 $x$ merge 後，繼續考慮下一層權值的邊。這時根據上面講的，不管邊用哪些順序加入，連通塊都是一樣的，所以每層權值的邊是互相獨立的，故正確性足夠。
+		
+		> 參考 : [台部落](https://www.twblogs.net/a/5ee942b7da5a4e62b6f8bf1a)
 
 ## 維護環技巧
 
@@ -1473,22 +1491,25 @@
 		
 		然後就套用次小生乘樹模板即可
 
-???+danger "[CF 609 E. Minimum spanning tree for each edge](https://codeforces.com/contest/609/problem/E)"
+???+note "[CF 609 E. Minimum spanning tree for each edge](https://codeforces.com/contest/609/problem/E)"
     給 $n$ 點 $m$ 邊無向帶權連通圖，對每條邊輸出包含那條邊的最小生成樹
     
     $n, m \le 2\times 10^5$
+    
+    ??? note "思路"
+    	若邊不在 MST 上，那就看環上最大邊是多少，把它拆掉把自己加上去
 
-???+danger "[CSES - New Roads Queries](https://cses.fi/problemset/task/2101)"
+???+note "[CSES - New Roads Queries](https://cses.fi/problemset/task/2101)"
 	給一張 $n$ 個點的圖，依序加入 $m$ 條邊，回答 $q$ 筆詢問 :
 	
     - $a,b$ 在加入第幾條邊時連通，或沒有連通
     
     $n,q\le 2\times 10^5$
-
-???+danger "[CF 891 C.Envy](https://codeforces.com/contest/891/problem/C)"
-	給一張 $n$ 點 $m$ 邊的連通圖，有 $q$ 筆詢問，每次給一個集合，包含 $k_i$ 條圖上的邊，求存不存在一棵最小生成樹包含集合內所有的邊
-	
-	$n,m,q\le 10^5$
+    
+    ??? note "思路"
+    	觀察會發現兩個點第一次相連的時候會恰好形成一條 path，所以我們可以以「時間戳記」當作邊權做最小生成樹，兩點第一次相連的答案就是他們 path 上的權重最大值
+    	
+		要記得判斷「到最後都沒連通」的情況
 
 ## 最小差值生成樹
 
@@ -1547,13 +1568,6 @@
     
     $n, q\le 10^5$
 
-???+note "[Zerojudge j125. 4. 蓋步道](https://zerojudge.tw/ShowProblem?problemid=j125)"
-	給一個 $n\times n$ 的 grid，每個點有高度 $h_{i,j}$
-	
-	求從 $(1,1)$ 走到 $(n, n)$ 的最大高度差最小可以是多少
-	
-	$n \le 300, h_{i,j} \le 10^6$
-
 ### 法1 : Greedy
 
 從小到大枚舉 => Kruskal 最大生成樹
@@ -1597,19 +1611,117 @@ $$
 
 最大邊最小化路徑
 
-???+danger "[LOJ #136. 最小瓶颈路](https://loj.ac/p/136)"
+### 法 1 : Kruskal
+
+???+note "[LOJ #136. 最小瓶颈路](https://loj.ac/p/136)"
 	給定一個 $n$ 點 $m$ 邊的圖，邊有權值，回答 $k$ 個詢問 : 
 	
 	- 從 $s$ 到 $t$ 的一條路徑，使得路徑上權值最大的一條邊權值最小
 	
 	$n\le 1000,m\le 10^5,k\le 1000$
 
-1. Kruskal 建最小生成樹，跑 LCA
-2. Prim 變化
+Kruskal 建最小生成樹，跑 LCA，這個適用在多筆詢問的時候
+
+### 法 2 : Prim 變化
+
+???+note "經典題"
+	給定一個 $n$ 點 $m$ 邊的帶權無向圖，從 $s\to t$ 最大邊權最小可以是多少
+
+我們使用類似 Prim 的方法，每次選當前周圍權值最小的邊，更新 threshold
 
 <figure markdown>
   ![Image title](./images/34.png){ width="300" }
+  <figcaption>點上的權值代表走到該點最大邊權最小可以是多少</figcaption>
 </figure>
+
+??? note "code"
+	```cpp linenums="1"
+	int Prim (int s, int t) {
+        vector<int> vis(n);
+        priority_queue<pii, vector<pii>, greater<pii>> pq;
+        pq.push({0, s});
+        
+        int threshold = 0;
+        while (pq.size()) {
+            auto [d, u] = pq.top();
+            pq.pop();
+            
+            threshold = max(threshold, d);
+            if (u == t) break; 
+            if (vis[u]) continue;
+            vis[u] = true;
+
+            for (auto [v, w] : G[u]) {
+                pq.push({max(w, threshold), v});
+            }
+        }
+        return threshold;
+    }
+    ```
+
+若題目的邊權在 $\approx 10^5$ 的時候，可以使用以下資料結構，可以壓到線性時間，適用於固定起點，固定終點
+
+??? note "線性資料結構"
+	```cpp linenums="1"
+	struct DS {
+        vector<vector<node>> pq;
+        int max_val = 0, threshold = 0;
+
+        void init (int _max_val) {
+            max_val = _max_val;
+            pq = vector<vector<node>> (max_val + 1);
+        }
+
+        void push (pii x) { // pair<dis, u>
+            pq[max (threshold, x.second)].pb (x);
+        }
+
+        pii get_value () {
+            while (threshold <= max_val && pq[threshold].size () == 0) threshold++;
+
+            if (threshold <= max_val && pq[threshold].size () > 0) {
+                pii ret = pq[threshold].back ();
+                pq[threshold].pop_back ();
+                return ret;
+            }
+            else return {-1, -1};
+        }
+    } pq;
+    
+    int Prim (int s, int t) {
+        vector<int> vis(n);
+        pq.init(max_edge);
+        pq.push({0, s});
+        
+        while (pq.size()) {
+            auto [d, u] = pq.get_value();
+            
+            if (u == t) break; 
+            if (vis[u]) continue;
+            vis[u] = true;
+
+            for (auto [v, w] : G[u]) {
+                pq.push({w, v});
+            }
+        }
+        return pq.threshold;
+    }
+    ```
+
+以下是「Prim 變化」的類題
+
+???+note "[Zerojudge j125. 4. 蓋步道](https://zerojudge.tw/ShowProblem?problemid=j125)"
+	給一個 $n\times n$ 的 grid，每個點有高度 $h_{i,j}$，求從 $(1,1)$ 走到 $(n, n)$ 的最大高度差最小可以是多少，還有在這個前提下 $(1,1)$ 走到 $(n, n)$ 最少可以只經過幾個點
+	
+	$n \le 300, h_{i,j} \le 10^6$
+	
+	??? note "思路"
+		從 $(1,1)$ 開始用 Prim 變化的方法慢慢去擴展直到抵達 $(n,n)$，用上面的資料結構可以壓到 $O(n)$
+		
+		「最少可以只經過幾個點」就直接在權重 <= threshold 的邊 BFS 找最短路即可 
+	
+???+note "[2023 TOI 一模 pD.安逸旅行路線 (jaunt)](https://drive.google.com/file/d/1_sx9DvDSjpn0RCR280MKsS_FNfrr-iqy/view)"
+	見[此處](/wiki/graph/SP/#_2)
 
 ## 因數
 

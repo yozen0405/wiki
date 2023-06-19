@@ -1,6 +1,6 @@
 ## 自學
 
-!!! abstract ""
+!!! abt ""
 	<font color="#448aff">:octicons-info-16:</font>&nbsp;&nbsp;[<font>什麼是競程 ?</font>](https://hackmd.io/@LittlePants/Hyw_rueGK)
     
 ### 營隊

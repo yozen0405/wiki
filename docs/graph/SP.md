@@ -54,7 +54,7 @@
     ```
 
 !!! info "補充 : O(n) 做 dijkstra"
-    當圖邊權範圍上界在 $\approx 10^5$ 的時候，可使用這個技巧
+    當圖邊權範圍上界在 $\approx 10^5$ 的時候，且權值具有單調性，可使用這個技巧
 
     實作一個 data structure，滿足以下功能 :
     
@@ -2652,18 +2652,18 @@
 	
 	??? note "思路"
 		接下來說的「邊」都指代「邊權未知的邊」。
-
-        將所有邊都設為 $L+1$，如果 $dis(s,t) < L$ ，那麼必然無解
-
-        將所有邊都設為 $1$ ，如果 $dis(s,t) > L$ ，那麼必然無解
-
-        考慮將任意一條邊的權值 $+1$，則 $dis(s,t)$ 會 $+0$ 或者 $+1$ 
-
-        如果將所有邊按照「隨便」一個順序不斷 $+1$，直到所有邊的權值都是 $10^9$ 了，那麼在這個過程中，$dis(s,t)$ 是遞增的，而且一定在某一個時刻 $dis(s,t)=L$
-
-        這樣的話我們就可以二分答案 + dijkstra解決這個問題了
-
-        時間複雜度 $\log (mL)\times m\log m = O(m\log m \log (mL))$ 
+	
+	    將所有邊都設為 $L+1$，如果 $dis(s,t) < L$ ，那麼必然無解
+	
+	    將所有邊都設為 $1$ ，如果 $dis(s,t) > L$ ，那麼必然無解
+	
+	    考慮將任意一條邊的權值 $+1$，則 $dis(s,t)$ 會 $+0$ 或者 $+1$ 
+	
+	    如果將所有邊按照「隨便」一個順序不斷 $+1$，直到所有邊的權值都是 $10^9$ 了，那麼在這個過程中，$dis(s,t)$ 是遞增的，而且一定在某一個時刻 $dis(s,t)=L$
+	
+	    這樣的話我們就可以二分答案 + dijkstra解決這個問題了
+	
+	    時間複雜度 $\log (mL)\times m\log m = O(m\log m \log (mL))$ 
 		
 		---
 		
@@ -2674,133 +2674,133 @@
 		小數點二分搜 $x$，將每個邊權都設為 $x$，使最短路比 $L$ 大一點點
 		
 		建立 shortest path DAG，將其中一條路徑向下取整，其他邊權即設為 INF
-
+	
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        struct Edge {
-            int u, v, w, id;
-        };
-
-        struct Graph {
-            int run = 0;
-            int n, m, s, t, L;
-            vector<Edge> edges;
-            vector<int> dis;
-            vector<vector<pii>> G; // {w, v}
-
-            Graph (int n, int m, int s, int t, int L) : n(n), m(m), s(s), t(t), L(L) {}
-
-            void add_edge (int u, int v, int w, int id) {
-                edges.pb ({u, v, w, id});
-            }
-
-            int dijkstra () {
-                priority_queue<pii, vector<pii>, greater<pii>> pq;
-                pq.push ({0, s});
-
-                while (pq.size ()) {
-                    auto [sum, u] = pq.top(); pq.pop();
-
-                    if (dis[u] != INF) continue;
-                    dis[u] = sum;
-
-                    for (auto [w, v] : G[u]) {
-                        pq.push ({sum + w, v});
-                    }
-                }
-                return dis[t];
-            }
-
-            int check (int x) {
-                //   0 1 2 3
-                //   4 5 6 7
-                // x = [m - 1, 10^9 * m - 1]
-                // 進行了 cnt=x/m 輪
-                // x %= m
-                // [0, x] +(cnt+1)
-                // [x + 1, m - 1] +(cnt)
-                G = vector<vector<pii>>(n, vector<pii>());
-                dis = vector<int>(n, INF);
-
-                int cnt = x / m;
-                x %= m;
-
-                for (auto [u, v, w, id] : edges) {
-                    if (w == 0) {
-                        if (id <= x) {
-                            G[u].pb ({cnt + 1, v});
-                        } 
-                        else G[u].pb ({cnt, v});
-                    }
-                    else G[u].pb({w, v});
-                }
-
-                return dijkstra();
-            }
-        }; 
-
-        int n, m, L, s, t;
-
-        void work () {
-            cin >> n >> m >> L >> s >> t;
-            Graph g(n, m, s, t, L);
-
-            for (int i = 0; i < m; i++) {
-                int u, v, w;
-                cin >> u >> v >> w;
-                g.add_edge(u, v, w, i);
-                g.add_edge(v, u, w, i);
-            }
-
-            int l = m - 1, r = (1e9) * m - 1;
-            while (l < r) {
-                int mid = (l + r) / 2;
-
-                if (g.check(mid) < L) l = mid + 1;
-                else r = mid;
-            }
-            int dis = g.check (l);
-            if (dis != L) {
-                cout << "NO\n";
-                return;
-            }
-            cout << "YES\n";
-
-            map<pii, int> mp;
-            for (int i = 0; i < n; i++) {
-                for (auto [w, v] : g.G[i]) {
-                    if (mp[{i, v}] || mp[{v, i}]) continue;
-                    cout << i << " " << v << " " << w << "\n";
-                    mp[{i, v}] = true;
-                }
-            }
-        } 
-
-        signed main() {
-            // ios::sync_with_stdio(0);
-            // cin.tie(0);
-            int t = 1;
-            //cin >> t;
-            while (t--) {
-                work();
-            }
-        } 
-        ```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Edge {
+	        int u, v, w, id;
+	    };
+	
+	    struct Graph {
+	        int run = 0;
+	        int n, m, s, t, L;
+	        vector<Edge> edges;
+	        vector<int> dis;
+	        vector<vector<pii>> G; // {w, v}
+	
+	        Graph (int n, int m, int s, int t, int L) : n(n), m(m), s(s), t(t), L(L) {}
+	
+	        void add_edge (int u, int v, int w, int id) {
+	            edges.pb ({u, v, w, id});
+	        }
+	
+	        int dijkstra () {
+	            priority_queue<pii, vector<pii>, greater<pii>> pq;
+	            pq.push ({0, s});
+	
+	            while (pq.size ()) {
+	                auto [sum, u] = pq.top(); pq.pop();
+	
+	                if (dis[u] != INF) continue;
+	                dis[u] = sum;
+	
+	                for (auto [w, v] : G[u]) {
+	                    pq.push ({sum + w, v});
+	                }
+	            }
+	            return dis[t];
+	        }
+	
+	        int check (int x) {
+	            //   0 1 2 3
+	            //   4 5 6 7
+	            // x = [m - 1, 10^9 * m - 1]
+	            // 進行了 cnt=x/m 輪
+	            // x %= m
+	            // [0, x] +(cnt+1)
+	            // [x + 1, m - 1] +(cnt)
+	            G = vector<vector<pii>>(n, vector<pii>());
+	            dis = vector<int>(n, INF);
+	
+	            int cnt = x / m;
+	            x %= m;
+	
+	            for (auto [u, v, w, id] : edges) {
+	                if (w == 0) {
+	                    if (id <= x) {
+	                        G[u].pb ({cnt + 1, v});
+	                    } 
+	                    else G[u].pb ({cnt, v});
+	                }
+	                else G[u].pb({w, v});
+	            }
+	
+	            return dijkstra();
+	        }
+	    }; 
+	
+	    int n, m, L, s, t;
+	
+	    void work () {
+	        cin >> n >> m >> L >> s >> t;
+	        Graph g(n, m, s, t, L);
+	
+	        for (int i = 0; i < m; i++) {
+	            int u, v, w;
+	            cin >> u >> v >> w;
+	            g.add_edge(u, v, w, i);
+	            g.add_edge(v, u, w, i);
+	        }
+	
+	        int l = m - 1, r = (1e9) * m - 1;
+	        while (l < r) {
+	            int mid = (l + r) / 2;
+	
+	            if (g.check(mid) < L) l = mid + 1;
+	            else r = mid;
+	        }
+	        int dis = g.check (l);
+	        if (dis != L) {
+	            cout << "NO\n";
+	            return;
+	        }
+	        cout << "YES\n";
+	
+	        map<pii, int> mp;
+	        for (int i = 0; i < n; i++) {
+	            for (auto [w, v] : g.G[i]) {
+	                if (mp[{i, v}] || mp[{v, i}]) continue;
+	                cout << i << " " << v << " " << w << "\n";
+	                mp[{i, v}] = true;
+	            }
+	        }
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            work();
+	        }
+	    } 
+	    ```
 
 ???+note "[TIOJ 2049.龜兔賽跑](https://tioj.ck.tp.edu.tw/problems/2049)"
 	給 $n$ 點 $m$ 邊無向圖，求若拔掉一個點後，$s\to t$ 的最短路徑最大會是多少
