@@ -1,5 +1,3 @@
-- <https://drive.google.com/file/d/1a1mgK8KFJWNoXATHwi3E6ceStn22QmZl/view>
-
 ## 算法概要
 
 ???+note "模板 [LOJ #123. 最小生成树](https://loj.ac/p/123)"
@@ -906,6 +904,8 @@
     
     ??? note "思路"
     	<https://www.luogu.com.cn/blog/user42506/solution-p5540>
+    	
+    	<https://blog.csdn.net/hongkongreporter/article/details/108566637>
 
 ???+note "最優比率樹 [POJ 2728](https://vjudge.net/problem/POJ-2728)"
 	給出一個 $n$ 個點 $m$ 條邊的無向圖，第 $i$ 條邊有兩個權值 $a_i$ 和 $b_i$ 。
@@ -1236,7 +1236,7 @@
         }
         ```
 
-???+danger "[CF 160 D. Edges in MST](https://codeforces.com/contest/160/problem/D)"
+???+note "[CF 160 D. Edges in MST](https://codeforces.com/contest/160/problem/D)"
     給 $n$ 點 $m$ 邊無向帶權連通圖，判斷每個邊的 type
 
     1. 出現在所有方案中
@@ -1509,7 +1509,7 @@
     ??? note "思路"
     	觀察會發現兩個點第一次相連的時候會恰好形成一條 path，所以我們可以以「時間戳記」當作邊權做最小生成樹，兩點第一次相連的答案就是他們 path 上的權重最大值
     	
-		要記得判斷「到最後都沒連通」的情況
+    	要記得判斷「到最後都沒連通」的情況
 
 ## 最小差值生成樹
 
@@ -1650,7 +1650,7 @@ Kruskal 建最小生成樹，跑 LCA，這個適用在多筆詢問的時候
             if (u == t) break; 
             if (vis[u]) continue;
             vis[u] = true;
-
+    
             for (auto [v, w] : G[u]) {
                 pq.push({max(w, threshold), v});
             }
@@ -1671,14 +1671,14 @@ Kruskal 建最小生成樹，跑 LCA，這個適用在多筆詢問的時候
             max_val = _max_val;
             pq = vector<vector<node>> (max_val + 1);
         }
-
+    
         void push (pii x) { // pair<dis, u>
             pq[max (threshold, x.second)].pb (x);
         }
-
+    
         pii get_value () {
             while (threshold <= max_val && pq[threshold].size () == 0) threshold++;
-
+    
             if (threshold <= max_val && pq[threshold].size () > 0) {
                 pii ret = pq[threshold].back ();
                 pq[threshold].pop_back ();
@@ -1699,7 +1699,7 @@ Kruskal 建最小生成樹，跑 LCA，這個適用在多筆詢問的時候
             if (u == t) break; 
             if (vis[u]) continue;
             vis[u] = true;
-
+    
             for (auto [v, w] : G[u]) {
                 pq.push({w, v});
             }
@@ -1719,7 +1719,7 @@ Kruskal 建最小生成樹，跑 LCA，這個適用在多筆詢問的時候
 		從 $(1,1)$ 開始用 Prim 變化的方法慢慢去擴展直到抵達 $(n,n)$，用上面的資料結構可以壓到 $O(n)$
 		
 		「最少可以只經過幾個點」就直接在權重 <= threshold 的邊 BFS 找最短路即可 
-	
+
 ???+note "[2023 TOI 一模 pD.安逸旅行路線 (jaunt)](https://drive.google.com/file/d/1_sx9DvDSjpn0RCR280MKsS_FNfrr-iqy/view)"
 	見[此處](/wiki/graph/SP/#_2)
 
