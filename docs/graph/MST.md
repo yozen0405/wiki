@@ -515,7 +515,7 @@
         使用 Prim 算法 n<sup>2</sup> 求解
 
 ???+note "歐幾里得最小生成樹 [TIOJ 2164. 運送蛋餅](https://tioj.ck.tp.edu.tw/problems/2164)"
-	給 $n$ 個三維座標點，$i,j$ 連邊的花費為 $(x_i-x_j)^ 2 + (y_i-y_j)^ 2 + (z_i-z_j)^ 2$，求最小生成樹
+	給 $n$ 個三維座標點，$i,j$ 連邊的花費為 $(x_i-x_j)^ 2 + (y_i-y_j)^ 2 + (z_i-z_j)^ 2$，求最小生成樹權值
 	
 	$n\le 5000,|x_i|, |y_i|, |z_i| \leq 10^ 5$
 	
@@ -690,7 +690,7 @@
         ```
 
 ???+note "K 度限制生成樹 [CF 125 E. MST Company](https://codeforces.com/problemset/problem/125/E)"
-	給 $n$ 點 $m$ 邊連通圖，求最小生成樹滿足與點 $1$ 的度數要恰為 $k$，印出樹上的邊，或無解
+	給 $n$ 點 $m$ 邊連通圖，找最小生成樹滿足與點 $1$ 的度數要恰為 $k$，印出樹上的邊，或無解
 	
 	$n,k\le 5000,m\le 10^5,w_i\le 10^5$
 	
@@ -951,7 +951,7 @@
 		正確性的話因為最小 MST 有用到權重為 $1$ 的邊，權重為 $k$ 的 MST 都有用到的，而最小 MST 在這之後加入了邊權為 $0$ 的邊可以形成 MST，權重為 $k$ 的 MST 可能還多一些權重為 $1$ 的邊，再加入 $0$ 的邊也一定會形成 MST
 
 ???+note "[Atcoder arc076 B.Built?](https://atcoder.jp/contests/arc076/tasks/arc076_b)"
-	給 $n$ 個二維座標點 $(x_i, y_i)$，兩點要建邊的 $\text{cost} = \min(|x_i - x_j|, |y_i - y_j|)$，求最小生成樹
+	給 $n$ 個二維座標點 $(x_i, y_i)$，兩點要建邊的 $\text{cost} = \min(|x_i - x_j|, |y_i - y_j|)$，求最小生成樹權值
 
 	$n\le 10^5, x_i, y_i \le 10^9$
 	
@@ -1052,7 +1052,7 @@
 	    }
 	    ```
 ???+note "[CF 1242 B. 0-1 MST](https://codeforces.com/problemset/problem/1242/B)"
-	給 $n$ 個點的完全圖，給 $m$ 條邊權為 $1$ 的邊，其餘邊權為 $0$，問最小生成樹
+	給 $n$ 個點的完全圖，給 $m$ 條邊權為 $1$ 的邊，其餘邊權為 $0$，問最小生成樹權值
 	
 	$n,m\le 10^5$
 	
@@ -1492,7 +1492,7 @@
 		然後就套用次小生乘樹模板即可
 
 ???+note "[CF 609 E. Minimum spanning tree for each edge](https://codeforces.com/contest/609/problem/E)"
-    給 $n$ 點 $m$ 邊無向帶權連通圖，對每條邊輸出包含那條邊的最小生成樹
+    給 $n$ 點 $m$ 邊無向帶權連通圖，對每條邊輸出包含那條邊的最小生成樹權值
     
     $n, m \le 2\times 10^5$
     
@@ -1607,11 +1607,9 @@ $$
 
 	$\displaystyle a=n,r=\frac{1}{2}$ 我們得到 $\displaystyle n + \frac{n}{2} + \frac{n}{4} + \dots = n\frac{1}{1-\frac{1}{2}} = 2n.$
 
-## 最小瓶頸路
+## 最大邊最小化路徑
 
-最大邊最小化路徑
-
-### 法 1 : Kruskal
+### Kruskal
 
 ???+note "[LOJ #136. 最小瓶颈路](https://loj.ac/p/136)"
 	給定一個 $n$ 點 $m$ 邊的圖，邊有權值，回答 $k$ 個詢問 : 
@@ -1622,7 +1620,184 @@ $$
 
 Kruskal 建最小生成樹，跑 LCA，這個適用在多筆詢問的時候
 
-### 法 2 : Prim 變化
+Kruskal 複雜度的瓶頸在於 sort，在某些題目我們可以使用 Radix sort，將 sorting 的過程壓到線性
+
+具體應用可以參考下面這題
+
+???+note "[Zerojudge j125. 4. 蓋步道](https://zerojudge.tw/ShowProblem?problemid=j125)"
+	給一個 $n\times n$ 的 grid，每個點有高度 $h_{i,j}$，求從 $(1,1)$ 走到 $(n, n)$ 的最大高度差最小可以是多少，還有在這個前提下 $(1,1)$ 走到 $(n, n)$ 最少可以只經過幾個點
+	
+	$n \le 300, h_{i,j} \le 10^6$
+	
+	??? note "思路"
+		用 Kruskal 長生成樹直到 $(1,1)$ 與 $(n,n)$ 連通
+		
+		這邊我們有線性時間的做法。Kruskal 的瓶頸在於 $n\log n$ sort，我們可以使用 Radix sort 做到 $O(n)$。具體來說，將數字以 $1024$ 區分，將所有 edges 以 $1024$ 以下的 bit 的大小加入 `vector`，這時候邊權為 $1024$ 以下的邊已排序完成。以這個前提下，再將大家以 1024 以上的 bit 的大小加入 `vector`，這時不會影響 $1024$ 以下的邊，$1024$ 以上的邊就會完成排序。
+		
+		為什麼是 $1024$ 呢 ? 因為 $\log_2 10^6\approx 19.\cdots$，切一半的話就 $10,10$，$2^{10}=1024$。說明講的不太清楚，詳見代碼
+		
+		<figure markdown>
+          ![Image title](./images/41.png){ width="400" }
+          <figcaption>Radix sort 範例</figcaption>
+        </figure>
+		
+		「最少可以只經過幾個點」就直接在權重 <= threshold 的邊 BFS 找最短路即可 
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <array>
+        #include <cstdlib>
+        #include <iostream>
+        #include <queue>
+        #include <utility>
+        #include <vector>
+
+        using namespace std;
+
+        using Edge = pair<int, int>;  // <weight, to>
+        using Graph = vector<vector<Edge>>;
+
+        int n;
+        int answ, anslen;
+        Graph g;
+        vector<array<int, 3>> edges;  // <weight, from, to>
+        vector<int> dis;              // for bfs
+
+        // Disjoint Set
+        vector<int> par;
+
+        int find(int x) {
+            if (par[x] == x) return x;
+            return par[x] = find(par[x]);
+        }
+
+        inline int idx(int i, int j) {
+            return i * n + j;
+        }
+
+        void init() {
+            cin >> n;
+            g = Graph(n * n);
+
+            vector<vector<int>> A(n, vector<int>(n));
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    cin >> A[i][j];
+                    if (i > 0) {
+                        int u = idx(i, j);
+                        int v = idx(i - 1, j);
+                        int w = abs(A[i][j] - A[i - 1][j]);
+                        g[u].push_back({w, v});
+                        g[v].push_back({w, u});
+                        edges.push_back({w, u, v});
+                    }
+                    if (j > 0) {
+                        int u = idx(i, j);
+                        int v = idx(i, j - 1);
+                        int w = abs(A[i][j] - A[i][j - 1]);
+                        g[u].push_back({w, v});
+                        g[v].push_back({w, u});
+                        edges.push_back({w, u, v});
+                    }
+                }
+            }
+        }
+
+        const int M = 1024;
+        vector<array<int, 3>> bucket[M];
+        void sortEdges() {
+            // sort(edges.begin(), edges.end());
+            // Radix sort (1024 進位)
+
+            {
+            	// 先考慮 1024 以下的位元
+                for (auto e : edges) {
+                    int w = e[0];
+                    bucket[w & 1023].push_back(e);
+                }
+                // 讓 edges 裡面的 edge 以 1024 以下的位元排序
+                int pos = 0;
+                for (int i = 0; i < M; i++) {
+                    for (auto e : bucket[i]) {
+                        edges[pos++] = e;
+                    }
+                }
+                for (int i = 0; i < M; i++) bucket[i].clear();
+            }
+            {
+            	// 在 edge 以 1024 以下的位元排序後的前提下
+            	// 再考慮 1024 以上的位元
+                for (auto e : edges) {
+                    int w = e[0];
+                    bucket[w >> 10].push_back(e);
+                }
+                int pos = 0;
+                for (int i = 0; i < M; i++) {
+                    for (auto e : bucket[i]) {
+                        edges[pos++] = e;
+                    }
+                }
+            }
+        }
+
+        void kruskal() {
+            par = vector<int>(n * n);
+            for (int i = 0; i < n * n; i++) par[i] = i;
+
+            int src = idx(0, 0);
+            int dst = idx(n - 1, n - 1);
+
+            for (auto [w, u, v] : edges) {
+                if (find(u) != find(v)) {
+                    par[find(u)] = find(v);
+                }
+                if (find(src) == find(dst)) {
+                    answ = w;
+                    break;
+                }
+            }
+        }
+
+        void bfs() {
+            dis = vector<int>(n * n, -1);
+
+            int src = idx(0, 0);
+            int dst = idx(n - 1, n - 1);
+
+            queue<int> que;
+            que.push(src);
+            dis[src] = 0;
+            while (dis[dst] == -1) {
+                int u = que.front();
+                que.pop();
+                for (auto [w, v] : g[u]) {
+                    if (w > answ) continue;
+                    if (dis[v] == -1) {
+                        dis[v] = dis[u] + 1;
+                        que.push(v);
+                    }
+                }
+            }
+            anslen = dis[dst];
+        }
+
+        int main() {
+            cin.tie(0);
+            cin.sync_with_stdio(0);
+
+            init();
+            sortEdges();
+            kruskal();
+            bfs();
+
+            cout << answ << '\n';
+            cout << anslen << '\n';
+
+            return 0;
+        }
+        ```
+
+### Prim 變化
 
 ???+note "經典題"
 	給定一個 $n$ 點 $m$ 邊的帶權無向圖，從 $s\to t$ 最大邊權最小可以是多少
@@ -1659,7 +1834,7 @@ Kruskal 建最小生成樹，跑 LCA，這個適用在多筆詢問的時候
     }
     ```
 
-若題目的邊權在 $\approx 10^5$ 的時候，可以使用以下資料結構，可以壓到線性時間，適用於固定起點，固定終點
+Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若題目的邊權在 $\approx 10^5$ 的時候，可以使用以下資料結構，可以壓到線性時間，適用於固定起點，固定終點
 
 ??? note "線性資料結構"
 	```cpp linenums="1"
@@ -1708,17 +1883,7 @@ Kruskal 建最小生成樹，跑 LCA，這個適用在多筆詢問的時候
     }
     ```
 
-以下是「Prim 變化」的類題
-
-???+note "[Zerojudge j125. 4. 蓋步道](https://zerojudge.tw/ShowProblem?problemid=j125)"
-	給一個 $n\times n$ 的 grid，每個點有高度 $h_{i,j}$，求從 $(1,1)$ 走到 $(n, n)$ 的最大高度差最小可以是多少，還有在這個前提下 $(1,1)$ 走到 $(n, n)$ 最少可以只經過幾個點
-	
-	$n \le 300, h_{i,j} \le 10^6$
-	
-	??? note "思路"
-		從 $(1,1)$ 開始用 Prim 變化的方法慢慢去擴展直到抵達 $(n,n)$，用上面的資料結構可以壓到 $O(n)$
-		
-		「最少可以只經過幾個點」就直接在權重 <= threshold 的邊 BFS 找最短路即可 
+下面是有應用到上面線性資料結構的題目
 
 ???+note "[2023 TOI 一模 pD.安逸旅行路線 (jaunt)](https://drive.google.com/file/d/1_sx9DvDSjpn0RCR280MKsS_FNfrr-iqy/view)"
 	見[此處](/wiki/graph/SP/#_2)
@@ -1726,7 +1891,7 @@ Kruskal 建最小生成樹，跑 LCA，這個適用在多筆詢問的時候
 ## 因數
 
 ???+danger "[LOJ #6807. 「THUPC 2022 初赛」最小公倍树](https://loj.ac/p/6807)"
-	給一張點從 $L\sim R$ 編號的無向完全圖，$(u,v)$ 之間的邊權為 $\text{lcm}(u,v)$，求最小生成樹
+	給一張點從 $L\sim R$ 編號的無向完全圖，$(u,v)$ 之間的邊權為 $\text{lcm}(u,v)$，求最小生成樹權值
 	
 	$1\le L \le R \le 10^6,R-L\le 10^5$
 
