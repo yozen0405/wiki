@@ -989,10 +989,11 @@
 		若我隨便選一條路徑，需要利用一些環來 XOR 才可以變成 OPT 的路徑
 		
 		<figure markdown>
-          ![Image title](./images/32.png){ width="300" }
-        </figure>
+	      ![Image title](./images/32.png){ width="300" }
+	    </figure>
 
-		
+
+​		
 		這代表有環我們就可以進行「反悔」操作
 		
 		考慮圖為 tree 的 case，兩點路徑唯一，若操作結束後還有剩，就代表無法繼續
@@ -1004,8 +1005,8 @@
 		由於樹上不存在環，外面的邊也都沒有剩，因此無法反悔
 		
 		<figure markdown>
-          ![Image title](./images/33.png){ width="300" }
-        </figure>
+	      ![Image title](./images/33.png){ width="300" }
+	    </figure>
 		
 		所以我們只要在樹上進行樹上前綴和，加以判斷即可
 		
@@ -1310,6 +1311,14 @@
 		樹上背包
 
 ## 樹上啟發式合併
+
+對於每個節點 $u$，找出最大 size 的 $v_\max$ 稱作重兒子， 剩下 $v$ 稱作輕兒子，將輕兒子維護的東西一個個併入 $v_\max$
+
+??? info "證明 : 從 $\texttt{root}$ 到任意點的輕邊數量 $\le \log n$"
+
+    對於每個輕邊，$size_v$ 必小於 $size_u/2$（不然就是重兒子了），因此排除 size 特別大的重邊，每次往上走一層，子數大小都會變至少 $2$ 倍，所以高度最多 $O(\log n)$，每個點被跑過的次數也為 $O(\log n)$，所以總複雜度也 $O(n\log n)$。
+
+    （補充 : 如果從 $\texttt{root}$ 來看的話，子節點越多也代表深度會越淺，雖然 $\texttt{root}$ 會跑到較多輕兒子，但輕兒子被跑到的次數也相對會較少）
 
 ???+note "[CSES Distinct Colors](https://cses.fi/problemset/task/1139/)"
 	給出一棵 $n$ 個節點以 $1$ 為根的樹，節點 $u$ 的顏色為 $c_u$
