@@ -14,6 +14,146 @@
 	- 啟發式合併複雜度 (oi wiki)
 - 持久化線段樹
 
+## 一般的並查集
+
+### 模板
+
+??? note "code"
+	```cpp linenums="1"
+	struct DSU {
+        vector<int> par, sz;
+
+        DSU (int n = 0) : par(n), sz(n, 1) {
+            for (int i = 0; i < n; i++) {
+                par[i] = i;
+            }
+        }
+        int find (int x) {
+            if (par[x] == x) return x;
+            return par[x] = find(par[x]);
+        }
+        bool merge (int u, int v) {
+            u = find(u), v = find(v);
+            if (u == v) return false;
+            if (sz[u] < sz[v]) swap(u, v);
+            par[v] = u;
+            sz[u] += sz[v];
+            return true;
+        }
+    };
+    ```
+
+### 複雜度
+
+#### 啟發式合併
+
+??? info "並查集中節點數為 $n$ 的樹，高度至多為 $\lfloor \log n \rfloor$"
+	
+	> 說明
+	
+	因為合併的時候是啟發式合併，子樹大小比較小的放在比較大的下面。這樣合併出來的樹，每次往上走一層，子樹大小都會變至少兩倍，所以高度最多 $O(\log n)$
+	
+	如果上面看不懂的話，假設目前的子樹的根為 $u$，要合併進來的子樹的根為 $v$。我們分兩種 case 討論。假設 $u,v$ 的子樹都符合 「高度至多為 $\log n$」這個條件
+	
+	1. $size_u\ge size_v$
+
+	2. $size_u< size_v$
+
+	對於第一種 case，因為 $size_u\ge size_v$，所以 $v$ 會接在 $u$ 上。顯然 $v$ 的高度一定 $\le u$ 的高度，所以 $v$ 接在 $u$ 上並不會增加 $u$ 的子樹的高度
+	
+	對於第二種 case，因為 $size_u< size_v$，所以 $u$ 會接在 $v$ 上。顯然 $v$ 的高度一定 $\ge u$ 的高度，所以 $u$ 接在 $v$ 上對於原本 $u$ 的子樹來說 $size$ 變成了兩倍之多，而 $u$ 上面多了一層
+	
+	所以每次往上走一層，$size$ 都至少變兩倍，因為點數只有 $n$ 個，所以最多只會有 $\log n$ 層，也就是高度至多為 $\log n$
+	
+	---
+	
+	> 嚴謹一點的證明
+	
+	【引理】：在並查集中高度為 $k$ 的樹，節點數至少為 $2^k$。
+
+    使用歸納法證明這個引理
+    
+    basecase :  $k = 0$ 時，成立
+    
+    假設 $k \le L - 1$ 時成立。當 $k = L$ 時，存在一次使得樹從高度 $L - 1$ 變成高度 $L$ 的操作。在這次操作前，兩棵樹的高度必然為 $L - 1$，因此它們的節點數總數至少為 $2\times 2^{L-1}=2^L$。
+    
+    設一個並查集內的樹的節點有 $n$ 個，高度是 $h$。根據引理，$n \ge 2^h$，則 $\log  n \ge h$。故並查集中節點數為 $n$ 的樹，高度至多為 $\lfloor \log n \rfloor$
+
+依照上面的性質，`find(x)` 的複雜度是 $O(\log n)$。`merge(u, v)` 的複雜度是兩個 `find` 也是 $O(\log n)$，所以整體的複雜度是 $O(\log n)$
+
+#### 路徑壓縮 
+
+若將「路徑壓縮」和「啟發式合併」都用上的話複雜度是 $O(\alpha (n))$[^1]
+
+若不使用「啟發式合併」，平均複雜度依然是 $O(\alpha (n))$，但 worst case $O(\log n)$
+	
+## rollback DSU
+
+### 模板
+
+???+note "模板 [CF EDU DSU A. DSU with rollback](https://codeforces.com/edu/course/2/lesson/7/3/practice/contest/289392/problem/A)"
+	
+	有 $n$ 個點與 $m$ 個以下操作 : 
+	
+	- $\text{union}(u,v):$ 將 $u,v$ 所在的連通塊合併成同一個連通塊
+
+	- $\text{persist}:$ 新增一個 checkpoint
+
+	- $\text{rollback:}$ 回到上一個還沒被 rollback 的 checkpoint
+
+	$n,m\le 2\times 10^5$
+	
+??? note "code"
+	```cpp linenums="1"
+	struct Graph {
+        Graph (int n) : n(n) {
+            sz = vector<int>(n, 1);
+            par = vector<int>(n);
+            cnt = n;
+            for (int i = 0; i < n; i++) {
+                par[i] = i;
+            }
+        }
+        void add_edge (int u, int v) {
+            int x = find (u), y = find (v);
+            if (x == y) {
+                stk.push ({x, x});
+                return;
+            }
+
+            if (sz[x] < sz[y]) swap (x, y);
+            sz[x] += sz[y]; par[y] = x;
+            cnt--;
+            stk.push ({x, y});
+        }
+        void undo () {
+            auto [x, y] = stk.top ();
+            stk.pop ();
+            if (x == y) return;
+            sz[x] -= sz[y]; par[y] = y;
+            cnt++;
+        }
+        int size () {
+            return cnt;
+        }
+
+        private :
+            int n, cnt;
+            vector<int> sz;
+            vector<int> par;
+            stack<pii> stk;
+
+            int find (int x) {
+                if (par[x] == x) return x;
+                else return find (par[x]);
+            }
+    };
+    ```
+
+### 複雜度
+
+不能使用路徑壓縮（但還是可以啟發式合併），故複雜度 $O(\log n)$
+
 ## 用途
 
 ???+note "[洛谷 P2024 [NOI2001] 食物链](https://www.luogu.com.cn/problem/P2024)"
@@ -63,11 +203,10 @@
 		- 如果 $\text{find}(x_A)=\text{find}(y_C)$ 或 $\text{find}(x_A)=\text{find}(y_A)$ 則矛盾
 		
 		---
-
 		
 		他們每個 col 將會以 $A \rightarrow B \rightarrow C$ 的順序旋轉
 		所以當你知道其中一個關係的時候其實就能推得其餘的關係
-		
+
 		例如今天 $1$ 吃 $2$，$2$ 吃 $3$ 關西如下圖
 		
 		<figure markdown>
@@ -374,7 +513,7 @@
 	            }
 	        }
 	        ```
-	        
+
 ### 組別最大編號
 
 ???+note "海牛 class11 P9"
@@ -387,19 +526,19 @@
 	- $\text{MoveGroup}(x,y):$ 把包含物品 $x$ 與物品 $y$ 的兩個組別合併成一個
 	
 	- $\text{GroupMax}(x):$ 求跟物品 $x$ 同一組的物品中，編號最大的物品編號
-
+	
 	$n,q\le 2\times 10^5$
 	
 	??? note "思路"
 		維護很多個 priority_queue
 		
-        每個 pq 裡面存很多 $\texttt{pair}(x, t)$，$x$ 就是有的元素，$t$ 是時間戳記
-
-        每次 Move 不要真的把東西搬到別的 Group, 而是直接新增一個時間戳記比較大的 $(x, t')$
-
-        找最大值的時候，一直看這個 pq 的 $\max$
-        
-        如果時間戳記已經過期了就丟掉元素，一直到找到一個不是過期的元素
+	    每個 pq 裡面存很多 $\texttt{pair}(x, t)$，$x$ 就是有的元素，$t$ 是時間戳記
+	
+	    每次 Move 不要真的把東西搬到別的 Group, 而是直接新增一個時間戳記比較大的 $(x, t')$
+	
+	    找最大值的時候，一直看這個 pq 的 $\max$
+	    
+	    如果時間戳記已經過期了就丟掉元素，一直到找到一個不是過期的元素
 
 
 
@@ -416,3 +555,5 @@
 
 - <https://zhuanlan.zhihu.com/p/553192435>
 - [Codeforces Edu DSU (需加入 group)](https://codeforces.com/edu/course/2/lesson/7)
+
+[^1]: 詳見 [oiwiki](https://oi-wiki.org/ds/dsu-complexity/)

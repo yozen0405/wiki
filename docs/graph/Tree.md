@@ -992,10 +992,8 @@
 	      ![Image title](./images/32.png){ width="300" }
 	    </figure>
 
-
-​		
 		這代表有環我們就可以進行「反悔」操作
-		
+
 		考慮圖為 tree 的 case，兩點路徑唯一，若操作結束後還有剩，就代表無法繼續
 		
 		有這個想法後，我們也可以將原本的無向圖變成 tree，也就是 MST
@@ -1317,7 +1315,7 @@
 ??? info "證明 : 從 $\texttt{root}$ 到任意點的輕邊數量 $\le \log n$"
 
     對於每個輕邊，$size_v$ 必小於 $size_u/2$（不然就是重兒子了），因此排除 size 特別大的重邊，每次往上走一層，子數大小都會變至少 $2$ 倍，所以高度最多 $O(\log n)$，每個點被跑過的次數也為 $O(\log n)$，所以總複雜度也 $O(n\log n)$。
-
+    
     （補充 : 如果從 $\texttt{root}$ 來看的話，子節點越多也代表深度會越淺，雖然 $\texttt{root}$ 會跑到較多輕兒子，但輕兒子被跑到的次數也相對會較少）
 
 ???+note "[CSES Distinct Colors](https://cses.fi/problemset/task/1139/)"
