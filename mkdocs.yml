@@ -229,6 +229,9 @@ nav:
       - bitset加速: 'other/bitset.md'
       - 分數運算: 'other/fraction.md'
       - 平面距離: 'other/distance.md'
+    - 學校:
+      - 生物: 'school/生物.md'
+      - 地科: 'school/地科.md'
     
     
     
