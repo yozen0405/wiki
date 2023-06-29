@@ -1,8 +1,11 @@
 ## 換根 DP
-- 又稱全方位木 DP，solving for all roots
+
+又稱全方位木 DP，solving for all roots
 
 ???+note "[CSES Tree Distances I](https://cses.fi/problemset/task/1132/)"
 	給一顆有 $n$ 個點的樹，對於每個點求該點到其他點的最遠距離
+	
+	$n\le 2\times 10^5$
 	
 	??? note "思路"
 		> 法 1 : 換根 dp
@@ -240,9 +243,9 @@
 
 
 ???+note "[Atcoder Educational DP Contest V - Subtree](https://atcoder.jp/contests/dp/tasks/dp_v)"
-	給你一個無向圖，問說在裡面的一些點圖黑色，其他點圖白色，且在圖黑色的點要連通
+	給你一個 $n$ 點的樹，問說在裡面的一些點圖黑色，其他點圖白色，且在圖黑色的點要連通，輸出有幾種圖法
 	
-	這種圖法有幾種
+	$n\le 10^5$
 	
 	??? note "思路"
 		$dp(u,0/1):$ $u$ 是白/黑，黑色要能連通的能塗色的方法數
@@ -361,7 +364,6 @@
 	        }
 	    } 
 	    ```
-
 
 ## 樹 DP
 
@@ -991,9 +993,9 @@
 		<figure markdown>
 	      ![Image title](./images/32.png){ width="300" }
 	    </figure>
-
+	
 		這代表有環我們就可以進行「反悔」操作
-
+	
 		考慮圖為 tree 的 case，兩點路徑唯一，若操作結束後還有剩，就代表無法繼續
 		
 		有這個想法後，我們也可以將原本的無向圖變成 tree，也就是 MST

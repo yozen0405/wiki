@@ -9,6 +9,7 @@
 - https://www.cnblogs.com/A-sc/p/13554630.html
 - https://www.luogu.com.cn/blog/ShadderLeave/ji-huan-shu-bi-ji
 - https://www.luogu.com.cn/problem/P4381
+- https://en.m.wikipedia.org/wiki/Pseudoforest
 
 !!! quote ""
 	- binary jump (query)

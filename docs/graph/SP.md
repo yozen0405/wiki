@@ -2807,6 +2807,20 @@
 	
 	$n,m\le 3\times 10^5$
 
+???+note "[JOI #3490. 「JOISC 2021 Day2」逃跑路线](https://loj.ac/p/3490)"
+	有一張 $N$ 點 $M$ 邊無向圖，每天的長度是 $S$，第 $i$ 條邊連接 $A_i,B_i$，在那一天的時間小於等於 $L_i$ 的時候可以行走，費時 $C_i$（也就是要在 $L_i-C_i$ 當下或之前出發），有 $Q$ 筆詢問，第 $j$ 筆問從第一天的時間點 $T_j$ 開始，從 $U_i$ 走到 $V_i$ 要多久
+	
+	- $2 \leq N \leq 90,\,M \leq \frac{N(N-1)}{2}$
+
+	- $2 \leq S \leq 10^{15},\,1 \leq L_i \leq C_i < S$
+
+	- $1 \leq Q \leq 3 \times 10^6,\,0 \leq T_j < S$
+
+	- 圖是連通、沒有自環也沒有重邊的
+
+	??? note "思路"
+		<https://littlecube8152.github.io/posts/joisc-2021-escape-route/>
+
 ## Bellman Ford/SPFA
 
 ### Bellman Ford
@@ -3084,6 +3098,16 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 	
 	??? note "思路"
 		建表，對於每筆 query 枚舉中間點即可
+
+???+note "[2021 一模 pA.挑選路徑(Shortcut)](https://drive.google.com/file/d/1iqPCeaaj49-CSO4BnjggvVCgDlsNt-dZ/view)"
+	定義一張圖的總花費是所有點對之間的最短距離總和。
+	
+	給定一張 $n$ 點 $m$ 邊的簡單無向連通圖，在你可以加一條邊的情況下，和原圖相比最多可以減少多少總花費？又有幾種加邊的方式可以減少那麼多花費？
+	
+	$3 \leq n \leq 500,n-1 \leq m \leq \frac{n(n-1)}{2}-1$
+	
+	??? note "思路"
+		<https://omeletwithoutegg.github.io/2021/09/22/toi-2021-sols/#p1-shortcut>
 
 ---
 
