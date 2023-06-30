@@ -2811,13 +2811,13 @@
 	有一張 $N$ 點 $M$ 邊無向圖，每天的長度是 $S$，第 $i$ 條邊連接 $A_i,B_i$，在那一天的時間小於等於 $L_i$ 的時候可以行走，費時 $C_i$（也就是要在 $L_i-C_i$ 當下或之前出發），有 $Q$ 筆詢問，第 $j$ 筆問從第一天的時間點 $T_j$ 開始，從 $U_i$ 走到 $V_i$ 要多久
 	
 	- $2 \leq N \leq 90,\,M \leq \frac{N(N-1)}{2}$
-
+	
 	- $2 \leq S \leq 10^{15},\,1 \leq L_i \leq C_i < S$
-
+	
 	- $1 \leq Q \leq 3 \times 10^6,\,0 \leq T_j < S$
-
+	
 	- 圖是連通、沒有自環也沒有重邊的
-
+	
 	??? note "思路"
 		<https://littlecube8152.github.io/posts/joisc-2021-escape-route/>
 
@@ -2953,24 +2953,20 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 
 從上面的題目我們可以觀察到以下性質
 
-!!! question "正環性質"
-	正環（非負環）必存在至少一個起點 $u$，過程中權重和都 $\ge 0$，且 suf 最大的必定滿足
+??? info "非負環必存在至少一個起點 $u$，過程中權重和都 $\ge 0$，且 suf 最大的必定滿足"
 	
-	??? question "說明"
-		非負環 $\Rightarrow$ suf[1] >= 0
-		
-		suf[k] = max (suf)
-		
-		因為 suf[k] 是最大的，所以 suf[k] - suf[i] 至少 >= 0
-		
-		- suf[k]+(suf[1] - suf[i]) >= 0
-	
-		- suf[k] - suf[i] >= 0
+    非負環 $\Rightarrow$ suf[1] >= 0
 
-???+note "找非負環"
-	零環的情況發生在最小環是零環時，而最小環相當於最小平均環，所以直接找 MMC 即可
-	
-	另一種是讓每個邊剪一個數 $\epsilon$，使得正環 $1$ 還是正的，而零環可以變負環，那環上至多 $n$ 個點，若 $\epsilon = \frac{1}{n}$ 那就會使 $1\to 0$，而若減掉 $\epsilon = \frac{1}{n+1}$ 那就會使 $1$ 變成 $0.\cdots$ 還是正的，零環會變 $-0.\cdots$ 是負的
+    suf[k] = max (suf)
+
+    因為 suf[k] 是最大的，所以 suf[k] - suf[i] 至少 >= 0
+
+    - suf[k]+(suf[1] - suf[i]) >= 0
+
+    - suf[k] - suf[i] >= 0
+
+???+question "如何找非負環 ?"
+	讓每個邊減一個數 $\epsilon$，使得正環 $1$ 還是正的，而零環可以變負環，那環上至多 $n$ 個點，若 $\epsilon = \frac{1}{n}$ 那就會使 $1\to 0$，而若減掉 $\epsilon = \frac{1}{n+1}$ 那就會使 $1$ 變成 $0.\cdots$ 還是正的，零環會變 $-0.\cdots$ 是負的
 
 ???+note "[全國賽 2021 pC](https://tioj.ck.tp.edu.tw/problems/2253)"
 	給一張 $n$ 點（城市） $m$ 邊的有向圖 $G_0$。 我們對 $G_0$ 的每條邊都加上 $k$ 個點（村莊），得到一張 $n + mk$ 節點的有向圖 $G$，並賦予點權重 $c: V(G) \to Z$（每個節點的收支）。

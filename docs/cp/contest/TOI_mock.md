@@ -5,7 +5,7 @@
     - [解答](https://hackmd.io/@aacp/r14C6LRkc#/)
     - [影片](https://youtu.be/tj7ubm4cUqw)
 - 第二場
-    - <a href="/wiki/cp/contest/images/TOI-2022-2.pdf" target="_blank">題目</a>[題目]
+    - <a href="/wiki/cp/contest/images/TOI-2022-2.pdf" target="_blank">題目</a>
     - [解答](https://hackmd.io/@aacp/HkQsDGnJ9#/)
     - [影片](https://youtu.be/xIVihMvNGAc)
 - 第三場
