@@ -98,270 +98,320 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 	
 	$n,q\le 2\times 10^5$
 
-??? note "code 1"
-	```cpp linenums="1"
-	#include <algorithm>
-    #include <cstdlib>
-    #include <iostream>
-    #include <string>
-    #include <utility>
+    ??? note "code 1"
+        ```cpp linenums="1"
+        #include <algorithm>
+        #include <cstdlib>
+        #include <iostream>
+        #include <string>
+        #include <utility>
 
-    using namespace std;
-    
-    struct Node {
-        // int key;
-        char val;
-        int pri;
-        int sz = 1;
-        int h = 0;
-        Node* lc = nullptr;
-        Node* rc = nullptr;
-    
-        Node(char val) : val(val), pri(rand()) {
+        using namespace std;
+
+        struct Node {
+            // int key;
+            char val;
+            int pri;
+            int sz = 1;
+            int h = 0;
+            Node* lc = nullptr;
+            Node* rc = nullptr;
+
+            Node(char val) : val(val), pri(rand()) {
+            }
+            void pull() {
+                h = 0;
+                if (lc) h = max(h, lc->h + 1);
+                if (rc) h = max(h, rc->h + 1);
+                sz = 1;
+                if (lc) sz += lc->sz;
+                if (rc) sz += rc->sz;
+            }
+        };
+
+        // 假設 a 的 key 都小於 b 的 key
+        Node* Merge(Node* a, Node* b) {
+            if (!a) return b;
+            if (!b) return a;
+
+            if (a->pri > b->pri) {
+                a->rc = Merge(a->rc, b);
+                a->pull();
+                return a;
+            } else {
+                b->lc = Merge(a, b->lc);
+                b->pull();
+                return b;
+            }
         }
-        void pull() {
-            h = 0;
-            if (lc) h = max(h, lc->h + 1);
-            if (rc) h = max(h, rc->h + 1);
-            sz = 1;
-            if (lc) sz += lc->sz;
-            if (rc) sz += rc->sz;
+
+        // 把一個 treap split 成兩個 treap，滿足左邊的 treap 剛好有 k 個節點，
+        // 這 k 個節點是本來 treap 中序輸出的前 k 個節點
+        //
+        // 左邊 treap 的 key < 右邊 treap 的key
+        pair<Node*, Node*> SplitBySize(Node* root, int k) {
+            if (!root) return {nullptr, nullptr};
+
+            int cntL;  // 左子樹＋root 節點
+            if (root->lc) {
+                cntL = root->lc->sz + 1;
+            } else {
+                cntL = 1;
+            }
+
+            if (cntL <= k) {  // root 放左邊
+                auto [A, B] = SplitBySize(root->rc, k - cntL);
+                root->rc = A;
+                root->pull();
+                return {root, B};
+            } else {
+                auto [A, B] = SplitBySize(root->lc, k);
+                root->lc = B;
+                root->pull();
+                return {A, root};
+            }
         }
-    };
-    
-    // 假設 a 的 key 都小於 b 的 key
-    Node* Merge(Node* a, Node* b) {
-        if (!a) return b;
-        if (!b) return a;
-    
-        if (a->pri > b->pri) {
-            a->rc = Merge(a->rc, b);
-            a->pull();
-            return a;
-        } else {
-            b->lc = Merge(a, b->lc);
-            b->pull();
-            return b;
+
+        /*
+        pair<Node*, Node*> Split(Node* root, int val) {
+            if (!root) return {nullptr, nullptr};
+
+            if (root->key <= val) {
+                auto [A, B] = Split(root->rc, val);
+                root->rc = A;
+                root->pull();
+                return {root, B};
+            } else {
+                auto [A, B] = Split(root->lc, val);
+                root->lc = B;
+                root->pull();
+                return {A, root};
+            }
         }
-    }
-    
-    // 把一個 treap split 成兩個 treap，滿足左邊的 treap 剛好有 k 個節點，
-    // 這 k 個節點是本來 treap 中序輸出的前 k 個節點
-    //
-    // 左邊 treap 的 key < 右邊 treap 的key
-    pair<Node*, Node*> SplitBySize(Node* root, int k) {
-        if (!root) return {nullptr, nullptr};
-    
-        int cntL;  // 左子樹＋root 節點
-        if (root->lc) {
-            cntL = root->lc->sz + 1;
-        } else {
-            cntL = 1;
+        */
+
+        int main() {
+            int n, q;
+            string str;
+
+            cin >> n >> q;
+            cin >> str;
+
+            Node* root = nullptr;
+            for (int i = 0; i < n; i++) {
+                Node* x = new Node(str[i]);
+                root = Merge(root, x);
+            }
+
+            while (q--) {
+                int l, r;
+                cin >> l >> r;
+                auto [tmp, C] = SplitBySize(root, r);
+                auto [A, B] = SplitBySize(tmp, l - 1);
+                root = Merge(A, Merge(C, B));
+            }
+
+            for (int i = 0; i < n; i++) {
+                auto [x, tmp] = SplitBySize(root, 1);
+                cout << x->val;
+                root = tmp;
+            }
+
+            return 0;
         }
-    
-        if (cntL <= k) {  // root 放左邊
-            auto [A, B] = SplitBySize(root->rc, k - cntL);
-            root->rc = A;
-            root->pull();
-            return {root, B};
-        } else {
-            auto [A, B] = SplitBySize(root->lc, k);
-            root->lc = B;
-            root->pull();
-            return {A, root};
-        }
-    }
-    
-    /*
-    pair<Node*, Node*> Split(Node* root, int val) {
-        if (!root) return {nullptr, nullptr};
-    
-        if (root->key <= val) {
-            auto [A, B] = Split(root->rc, val);
-            root->rc = A;
-            root->pull();
-            return {root, B};
-        } else {
-            auto [A, B] = Split(root->lc, val);
-            root->lc = B;
-            root->pull();
-            return {A, root};
-        }
-    }
-    */
-    
-    int main() {
-        int n, q;
-        string str;
-    
-        cin >> n >> q;
-        cin >> str;
-    
-        Node* root = nullptr;
-        for (int i = 0; i < n; i++) {
-            Node* x = new Node(str[i]);
-            root = Merge(root, x);
-        }
-    
-        while (q--) {
-            int l, r;
-            cin >> l >> r;
-            auto [tmp, C] = SplitBySize(root, r);
-            auto [A, B] = SplitBySize(tmp, l - 1);
-            root = Merge(A, Merge(C, B));
-        }
-    
-        for (int i = 0; i < n; i++) {
-            auto [x, tmp] = SplitBySize(root, 1);
-            cout << x->val;
-            root = tmp;
-        }
-    
-        return 0;
-    }
-    ```
+        ```
 
 ???+note "[CSES - Substring Reversals](https://cses.fi/problemset/task/2073)"
 	給你一個長度為 $n$ 的字母串，$q$ 次 reverse$(l, r)$，問最後的字母串
 	
 	$n,q\le 2\times 10^5$
 
-??? note "code2"
-	```cpp linenums="1"
-	#include <algorithm>
-    #include <cstdlib>
-    #include <iostream>
-    #include <string>
-    #include <utility>
+    ??? note "code"
+        ```cpp linenums="1"
+        #include <algorithm>
+        #include <cstdlib>
+        #include <iostream>
+        #include <string>
+        #include <utility>
 
-    using namespace std;
-    
-    struct Node {
-        // int key;
-        char val;
-        int pri;
-        int sz = 1;
-        int h = 0;
-        bool rev = false;  // 是否要反轉
-        Node* lc = nullptr;
-        Node* rc = nullptr;
-    
-        Node(char val) : val(val), pri(rand()) {
-        }
-        void pull() {
-            h = 0;
-            if (lc) h = max(h, lc->h + 1);
-            if (rc) h = max(h, rc->h + 1);
-            sz = 1;
-            if (lc) sz += lc->sz;
-            if (rc) sz += rc->sz;
-        }
-        void push() {
-            if (rev) {
-                swap(lc, rc);
-                if (lc) lc->rev ^= 1;
-                if (rc) rc->rev ^= 1;
-                rev = false;
+        using namespace std;
+
+        struct Node {
+            // int key;
+            char val;
+            int pri;
+            int sz = 1;
+            int h = 0;
+            bool rev = false;  // 是否要反轉
+            Node* lc = nullptr;
+            Node* rc = nullptr;
+
+            Node(char val) : val(val), pri(rand()) {
+            }
+            void pull() {
+                h = 0;
+                if (lc) h = max(h, lc->h + 1);
+                if (rc) h = max(h, rc->h + 1);
+                sz = 1;
+                if (lc) sz += lc->sz;
+                if (rc) sz += rc->sz;
+            }
+            void push() {
+                if (rev) {
+                    swap(lc, rc);
+                    if (lc) lc->rev ^= 1;
+                    if (rc) rc->rev ^= 1;
+                    rev = false;
+                }
+            }
+        };
+
+        // 假設 a 的 key 都小於 b 的 key
+        Node* Merge(Node* a, Node* b) {
+            if (!a) return b;
+            if (!b) return a;
+
+            if (a->pri > b->pri) {
+                a->push();
+                a->rc = Merge(a->rc, b);
+                a->pull();
+                return a;
+            } else {
+                b->push();
+                b->lc = Merge(a, b->lc);
+                b->pull();
+                return b;
             }
         }
-    };
-    
-    // 假設 a 的 key 都小於 b 的 key
-    Node* Merge(Node* a, Node* b) {
-        if (!a) return b;
-        if (!b) return a;
-    
-        if (a->pri > b->pri) {
-            a->push();
-            a->rc = Merge(a->rc, b);
-            a->pull();
-            return a;
-        } else {
-            b->push();
-            b->lc = Merge(a, b->lc);
-            b->pull();
-            return b;
+
+        // 把一個 treap split 成兩個 treap，滿足左邊的 treap 剛好有 k 個節點，
+        // 這 k 個節點是本來 treap 中序輸出的前 k 個節點
+        //
+        // 左邊 treap 的 key < 右邊 treap 的key
+        pair<Node*, Node*> SplitBySize(Node* root, int k) {
+            if (!root) return {nullptr, nullptr};
+
+            root->push();
+
+            int cntL;  // 左子樹＋root 節點
+            if (root->lc) {
+                cntL = root->lc->sz + 1;
+            } else {
+                cntL = 1;
+            }
+
+            if (cntL <= k) {  // root 放左邊
+                auto [A, B] = SplitBySize(root->rc, k - cntL);
+                root->rc = A;
+                root->pull();
+                return {root, B};
+            } else {
+                auto [A, B] = SplitBySize(root->lc, k);
+                root->lc = B;
+                root->pull();
+                return {A, root};
+            }
         }
-    }
-    
-    // 把一個 treap split 成兩個 treap，滿足左邊的 treap 剛好有 k 個節點，
-    // 這 k 個節點是本來 treap 中序輸出的前 k 個節點
-    //
-    // 左邊 treap 的 key < 右邊 treap 的key
-    pair<Node*, Node*> SplitBySize(Node* root, int k) {
-        if (!root) return {nullptr, nullptr};
-    
-        root->push();
-    
-        int cntL;  // 左子樹＋root 節點
-        if (root->lc) {
-            cntL = root->lc->sz + 1;
-        } else {
-            cntL = 1;
+
+        /*
+        pair<Node*, Node*> Split(Node* root, int val) {
+            if (!root) return {nullptr, nullptr};
+
+            if (root->key <= val) {
+                auto [A, B] = Split(root->rc, val);
+                root->rc = A;
+                root->pull();
+                return {root, B};
+            } else {
+                auto [A, B] = Split(root->lc, val);
+                root->lc = B;
+                root->pull();
+                return {A, root};
+            }
         }
-    
-        if (cntL <= k) {  // root 放左邊
-            auto [A, B] = SplitBySize(root->rc, k - cntL);
-            root->rc = A;
-            root->pull();
-            return {root, B};
-        } else {
-            auto [A, B] = SplitBySize(root->lc, k);
-            root->lc = B;
-            root->pull();
-            return {A, root};
+        */
+
+        int main() {
+            int n, q;
+            string str;
+
+            cin >> n >> q;
+            cin >> str;
+
+            Node* root = nullptr;
+            for (int i = 0; i < n; i++) {
+                Node* x = new Node(str[i]);
+                root = Merge(root, x);
+            }
+
+            while (q--) {
+                int l, r;
+                cin >> l >> r;
+                auto [tmp, C] = SplitBySize(root, r);
+                auto [A, B] = SplitBySize(tmp, l - 1);
+                B->rev ^= 1;
+                root = Merge(A, Merge(B, C));
+            }
+
+            for (int i = 0; i < n; i++) {
+                auto [x, tmp] = SplitBySize(root, 1);
+                cout << x->val;
+                root = tmp;
+            }
+
+            return 0;
         }
-    }
+        ```
+
+???+note "區間數字個數"
+	給一個長度為 $n$ 陣列，$q$ 筆詢問 :
+	
+	- $\text{query}(l,r,x):a_l,\ldots ,a_r$，$x$ 出現的次數
+
+	- $\text{update}(i,x):$ 將 $a_i=x$
+
+	$n,q\le 2\times 10^5,x\le 10^9$
+	
+	??? note "思路"
+		沒 update : vec[x] 放 $a_i=x$ 的所有 $x$
+		
+		有 update : DS[x] 支援 
+		
+		- insert(i)
+
+		- erase(i)
+
+		- lower_bound(i)
+
+		使用 Treap 或 `pb_ds::tree`
     
-    /*
-    pair<Node*, Node*> Split(Node* root, int val) {
-        if (!root) return {nullptr, nullptr};
+???+note "[資芽 OJ 794 — 區間絕對眾數](https://neoj.sprout.tw/problem/794/)"
+
+    輸入一個長度為 $N$ 的正整數序列 $a_1, \ldots, a_N$，接下來有 $Q$ 筆詢問。
     
-        if (root->key <= val) {
-            auto [A, B] = Split(root->rc, val);
-            root->rc = A;
-            root->pull();
-            return {root, B};
-        } else {
-            auto [A, B] = Split(root->lc, val);
-            root->lc = B;
-            root->pull();
-            return {A, root};
-        }
-    }
-    */
+    每筆詢問輸入 $l_i, r_i$，輸出區間 $[l_i, r_i]$ 的絕對眾數，若不存在請輸出 $0$。
     
-    int main() {
-        int n, q;
-        string str;
+    $N, Q \leq 5 \times 10^5, 1 \leq a_i \leq 5 \times 10^5$
     
-        cin >> n >> q;
-        cin >> str;
+    ??? note "思路"
+    	<figure markdown>
+          ![Image title](./images/3.png){ width="300" }
+        </figure>
+
+
+???+note "[TIOJ 2140. 殿壬愛序列](https://tioj.ck.tp.edu.tw/problems/2140)"
+    給一個長度為 $n$ 的序列，請支援三種操作：
+
+    1. 給定 $p,k$，將 $a_p$ 設成 $k$
+    2. 給定 $l,r,k$，$\forall l\le i\le r,a_i=\lfloor \frac{a_i}{k} \rfloor$
+    3. 給定 $l,r$，輸出 $a_l,a_{l+1},\ldots ,a_r$ 的絕對多數，若不存在輸出 $-1$
     
-        Node* root = nullptr;
-        for (int i = 0; i < n; i++) {
-            Node* x = new Node(str[i]);
-            root = Merge(root, x);
-        }
+    $T$ 個數若存在絕對多數 $x$，代表 $x$ 出現的次數 $\ge \lfloor \frac{T+2}{2} \rfloor$
     
-        while (q--) {
-            int l, r;
-            cin >> l >> r;
-            auto [tmp, C] = SplitBySize(root, r);
-            auto [A, B] = SplitBySize(tmp, l - 1);
-            B->rev ^= 1;
-            root = Merge(A, Merge(B, C));
-        }
+    $n,q\le 10^5$
     
-        for (int i = 0; i < n; i++) {
-            auto [x, tmp] = SplitBySize(root, 1);
-            cout << x->val;
-            root = tmp;
-        }
-    
-        return 0;
-    }
-    ```
+    ??? note "思路"
+    	<https://abc864197532.github.io/2021/02/07/tioj-2140/>
 
 ???+note "[POJ-3580 SuperMemo](https://vjudge.net/problem/POJ-3580)"
 	給定一個長度為 N 的序列 `A[]`，M 個以下操作:
