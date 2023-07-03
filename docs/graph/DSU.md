@@ -20,9 +20,9 @@
 	維護一個 $n$ 點的無向圖，支持： 
 	
 	- 加入一條連接 $u$ 和 $v$ 的無向邊
-
+	
 	- 查詢 $u$ 和 $v$ 的連通性
-
+	
 	$n\le 4\times 10^6,m\le 8\times 10^6$
 
 ### 模板
@@ -369,14 +369,19 @@
 	給定 $n$ 個集合，第 $i$ 個集合內初始狀態下只有一個數，為 $i$。
 
     有 $m$ 次操作。操作分為 $3$ 種：
-
+    
      - $1\space a\space b:$ 合併 $a,b$ 所在集合
-
+    
      - $2\space k:$ 回到第 $k$ 次操作之後的狀態
-
+    
      - $3 \space a\space b$ 詢問 $a,b$ 是否屬於同一集合
 
-	
+### 複雜度
+
+跟 rollback DSU 一樣，不做路徑壓縮，做啟發式合併
+
+因為 `find(x)` 的時候至多需要做 $\log n$ 次單點查詢，故 `find(x)` 複雜度 $O(\log^2 n)$
+
 ## 用途
 
 ???+note "並查集做二分圖"
@@ -387,57 +392,57 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define pii pair<int, int>
-        using namespace std;
-
-        const int maxn = 3e5 + 5;
-        const int INF = 0x3f3f3f3f;
-        int M=1e9+7;
-        int n,m;
-        bool ans=false;
-        vector<pii> Edge;
-        int dsu[maxn];
-
-        void dsu_init () {
-            for (int i = 1; i <= 2 * n; i++) {
-                dsu[i] = i;
-            }
-        }
-
-        int find (int x) {
-            if (dsu[x] == x) return x;
-            else return dsu[x] = find(dsu[x]);
-        }
-
-        void merge (int a, int b) {
-            int x = find(a);
-            int y = find(b);
-            if (x == y) return;
-            dsu[x] = y;
-        }
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cin>>n>>m;
-            dsu_init(); // important
-            for(int i=0,u,v;i<m;i++){
-                cin>>u>>v;
-                Edge.pb({u, v});
-            }
-            for (auto [u, v] : Edge) {
-                merge(u, v + n);
-                merge(v, u + n);
-                if (find(u) == find(u + n) || find(v) == find(v + n)) {
-                    cout << "No";
-                    exit(0);
-                }
-            }
-            cout<<"Yes";
-        }
-        ```
+	    #define int long long
+	    #define pb push_back
+	    #define pii pair<int, int>
+	    using namespace std;
+	
+	    const int maxn = 3e5 + 5;
+	    const int INF = 0x3f3f3f3f;
+	    int M=1e9+7;
+	    int n,m;
+	    bool ans=false;
+	    vector<pii> Edge;
+	    int dsu[maxn];
+	
+	    void dsu_init () {
+	        for (int i = 1; i <= 2 * n; i++) {
+	            dsu[i] = i;
+	        }
+	    }
+	
+	    int find (int x) {
+	        if (dsu[x] == x) return x;
+	        else return dsu[x] = find(dsu[x]);
+	    }
+	
+	    void merge (int a, int b) {
+	        int x = find(a);
+	        int y = find(b);
+	        if (x == y) return;
+	        dsu[x] = y;
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin>>n>>m;
+	        dsu_init(); // important
+	        for(int i=0,u,v;i<m;i++){
+	            cin>>u>>v;
+	            Edge.pb({u, v});
+	        }
+	        for (auto [u, v] : Edge) {
+	            merge(u, v + n);
+	            merge(v, u + n);
+	            if (find(u) == find(u + n) || find(v) == find(v + n)) {
+	                cout << "No";
+	                exit(0);
+	            }
+	        }
+	        cout<<"Yes";
+	    }
+	    ```
 
 ???+note "[洛谷 P2024 [NOI2001] 食物链](https://www.luogu.com.cn/problem/P2024)"
 	有三類動物 $A,B,C$，這三類動物的⾷物鏈構成如下：$A$ 吃 $B$，
@@ -534,7 +539,7 @@
 			}
 		}
 		```
-		
+
 ???+note "[zerojudge f292. 11987 - Almost Union-Find](https://zerojudge.tw/ShowProblem?problemid=f292)"
 	有個 $n$ 物品，每個物品一開始都是自己一組
 	
