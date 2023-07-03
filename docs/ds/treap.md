@@ -12,6 +12,26 @@
 
 ## 基本操作
 
+### struct
+
+???+note "code"
+	```cpp linenums="1"
+	struct Node {
+        int pri;
+        char val;
+        Node *lc = nullptr;
+        Node *rc = nullptr;
+        int sz = 1;
+
+        Node (char val) : val(val), pri(rand()) {}
+
+        void pull() {
+            sz = 1;
+            if (lc) sz += lc->sz;
+            if (rc) sz += rc->sz;
+        }
+    };
+    ```
 ### Merge
 
 merge(a, b)：把兩個 treap a, b 合併成一個 treap，用中序看 a 在左邊，b 在右邊
@@ -467,3 +487,10 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     - `MIN x y` : 輸出 `A[x, y]` 中的最小值
     
     $n,m\le 10^6$
+    
+???+note "[POJ 2761 - Feed the Dogs](https://vjudge.net/problem/POJ-2761)"
+	給定一個長度為 $n$ 的序列 $a$，$q$ 個以下操作 : 
+	
+	- 給定求 $a_i,\ldots ,a_j$ 中的第 $k$ 小元素
+
+	$n,m\le 10^6$
