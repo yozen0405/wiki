@@ -1,10 +1,10 @@
-site_name: coffee's wiki
+site_name: yozen & rah wiki
 site_description: 
 site_author: 
 copyright: 
 site_url: https://yozen0405.github.io/wiki/
 repo_url: 'https://github.com/yozen0405/wiki/'
-repo_name: coffee's wiki
+repo_name: yozen0405.github.io
 edit_uri: 'https://raw.githubusercontent.com/yozen0405/wiki/main/docs/'
 
 theme: 

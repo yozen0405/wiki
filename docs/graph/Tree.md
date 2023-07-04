@@ -1199,33 +1199,6 @@
 	$n\le 10^5$
 	
 	??? note "思路"
-		觀察到要連接的是 leaf 跟 leaf
-		
-		若不是的話往 leaf 的方向那段會斷掉
-		
-		<figure markdown>
-	      ![Image title](./images/24.png){ width="300" }
-	    </figure>
-		
-		leaf 跟 leaf 連接會形成一個類似 cycle 的結構
-		
-		<figure markdown>
-	      ![Image title](./images/25.png){ width="300" }
-	    </figure>
-	    
-	    在這個 cycle 有覆蓋到的地方，就不會有 bridge
-	    
-	    代表因為 cycle 要形成至少需要 $2$ 個 leaf
-	     
-	    所以答案一定至少要是 $k/2$，其中 $k$ 是 leaf 的數量
-	    
-	    觀察到不能讓某些邊沒有被 cycle 給覆蓋到
-	    
-	    我們希望每個 leaf 到 root 的這個 path 都有被覆蓋到
-	    
-	    root 的 degree 要 >= 2
-	    
-	    ---
 	    
 	    > 參考 : <https://www.youtube.com/watch?v=tRTezLvPZ3k>
 	    
@@ -1237,17 +1210,15 @@
 	      ![Image title](./images/24.png){ width="300" }
 	    </figure>
 	    
-	    所以我們**至少**需要 $P_T/2$ 個才能將圖給覆蓋
+	    所以我們**至少**需要 $P_T/2$ 個才能將圖給覆蓋，其中 $P_T$ 為 leaf 的數量
 	    
 	    因為如果 hooked 的地方不是 leaf，那下面的 edge 就不會被覆蓋到
 	    
 	    存在一個 pedant centriod，若將樹 rerooted as the pendant centriod
 	    
-	    每個 subtree 中的 leaf 的數量將會 <= $P_T /2$
+	    每個 subtree 中的 leaf 的數量將會 <= $P_T /2$，所以我們可以 greedy 的每次配當前最大的兩個 subtree，用 prioiryt_queue 可以做到，這個是 $O(n\log P)$ 的解法。
 	    
-	    那你就用 i 跟 i + $P_T/2$ 配就一定可以配到「同一個子樹之外」
-	    
-	    那假如我們的 root 定在任意點，因為 euler 序列的順序不會因為 root 的改變而改變，所以依然可以照上面的方法將 i 跟 i + $P_T/2$ 配
+	    其實可以用 i 跟 i + $P_T/2$ 配就一定可以配到「同一個子樹之外」。那假如我們的 root 定在任意點，因為 euler 序列的順序不會因為 root 的改變而改變，所以依然可以照上面的方法將 i 跟 i + $P_T/2$ 配，這個解法是線性時間。
 
 ???+note "[2021 全國賽模擬賽 pF. 地洞遊戲](https://tioj.ck.tp.edu.tw/pmisc/pre-nhspc-2021-statements/Cave.pdf)"
 	給定一棵 $N$ 點的有根樹，邊是由根往底下連的
@@ -1792,6 +1763,8 @@
 
 ## Greedy
 
+利用到一些 Tree 的性質，例如有些問題可以從 leaf 開始想之類的
+
 ???+note "[TOI 2022 pC](https://tioj.ck.tp.edu.tw/problems/2248)"
 	給定一顆 $n$ 個點邊有權重的樹，$w_{i}$ 代表第 $i$ 個點一開始有幾台車
 	
@@ -1828,7 +1801,6 @@
 	        return need;
 	    }
 	    ```
-
 
 ???+note "[BOI 2020 B1. Village (Minimum)](https://codeforces.com/contest/1387/problem/B1)"
 	給一顆 $N$ 個點的樹
@@ -1965,7 +1937,7 @@
 	      <figcaption>可以證明上界是可以達到的，上圖為一個例子<caption>
 	    </figure>
 		
-		觀察到這個試子跟樹重心的試子蠻像的
+		觀察到這個試子跟樹重心的試子蠻像的，有點變成這題（CSES - Network Renovation）
 		
 		考慮樹重心為根，每個子樹的大小 $\le n/2$
 		
@@ -2047,6 +2019,101 @@
 	    }
 	    ```
 
+???+note "[CF 963 B. Destruction of a Tree](https://codeforces.com/contest/963/problem/B)"
+	給你一棵 $n$ 個點的樹，只能刪除度數為偶數的節點，節點刪除後，與它相連的邊也會刪除，問你能否把所有點刪除，可以的話構造任意一組解。
+	
+	$n\le 2\times 10^5$
+	
+	??? note "思路"
+        > 網路上常見方法 : 
+        
+        對於一個子樹，若子樹邊總和為偶數，那麼每次刪掉偶數邊的節點，最後一定會留下偶數邊，就可以刪完，剩下就只要證明為何不會出現總和偶邊子樹上的節點都是奇數邊而無法刪除的情況。
+
+        > 證明 :
+        
+        設偶數邊為 $2x$，奇數點為 $2x+1$
+        對於每個邊，都會被節點算兩次，所以將 $2x\times2=4x$
+        若要使節點都無法開始刪點（都是奇數邊），那麼節點邊數加總要等於 $4x$，但奇數個奇數總和必等於奇數，也就不符合邊數總和是奇數的假設，因此偶數邊必可以刪完。
+
+        > 我的思路 : 
+        
+        對於每個葉節點，邊數必為 $1$，那麼要刪除此葉節點，只能從他的父節點先刪除，有這個想法後，發現帶到一般節點邊數遍歷後剩奇數的情況亦相同。
+
+        那麼遍歷後剩偶數邊的情況，以下圖來說，若先刪 $pa$ 後刪 $u$，會造成 $u$ 變成奇數邊，這樣 $u$ 和 $v$ 也無法被刪 ，因為這邊的 $dfs$ 是底部遍歷上來，所以需要先刪除的子節點已刪除（接下來會寫甚麼情況必須先刪除），不存在再將 $u$ 的子節點刪掉，$u$ 又可以被刪除的情況，因此必須先刪 $u$ 後刪 $pa$。
+
+        總結來說，對於 $pa$ 的子節點會存在兩種情況 : 
+
+        1. 子節點為奇數邊，需先刪除 $pa$ 才能刪除子節點。
+
+        2. 子節點為偶數邊，需先刪除子節點。
+
+        <figure markdown>
+          ![Image title](./images/1.jpg){ width="300" }
+        </figure>
+
+        > 簡單說明實作方法 :
+
+        先用 $dfs1$ 從葉節點跑上去看每一個節點遍歷後剩下奇邊還是偶邊，若奇邊，會將該點 push_back 進 $ans$（case1），若偶邊，用 $vis$ 紀錄未加入 $ans$（case2）。
+
+        再用 $dfs2$ 從父節點跑下去，將未加入 $ans$ 加到裡面。
+
+        $ans$ 可以視為 $stack$ 的型態，先加入的代表後刪除。
+        
+	??? note "code(by rahlin1004)"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        using namespace std;
+
+        const int MAXN=2e5+10,INF=1e18;
+        int n,vis[MAXN];
+        vector<vector<int>> G(MAXN);
+        vector<int> ans;
+
+        void dfs2(int u,int pa){
+            if(!vis[u]) ans.pb(u);
+            for(int v:G[u]){
+                if(v==pa) continue;
+                dfs2(v,u);
+            }
+        }
+
+        bool dfs1(int u,int pa){
+            int deg=G[u].size();
+            for(int v:G[u]){
+                if(v==pa) continue;
+                if(dfs1(v,u)) deg--;
+            }
+            if(deg%2==1){ //boom no
+                ans.pb(u);
+                vis[u]=1;
+                return false;
+            }
+            return true;
+        }
+
+        signed main(){
+            cin.tie(0);
+            cin.sync_with_stdio(0);
+
+            cin>>n;
+            for(int i=1;i<=n;i++){
+                int p;
+                cin>>p;
+                if(p==0) continue;
+                G[i].pb(p);
+                G[p].pb(i);
+            }
+
+            if(!dfs1(1,0)) cout<<"NO\n";
+            else{
+                cout<<"YES\n";
+                dfs2(1,0);
+                for(int i=ans.size()-1;i>=0;i--) cout<<ans[i]<<"\n";
+            }
+        }
+        ```
 
 ## Prufer code
 - [Oi wiki Prüfer code](https://oi-wiki.org/graph/prufer/#pr%C3%BCfer-%E5%BA%8F%E5%88%97%E7%9A%84%E6%80%A7%E8%B4%A8)
