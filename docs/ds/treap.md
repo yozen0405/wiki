@@ -296,6 +296,9 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 	
 	$n,q\le 2\times 10^5$
 	
+	??? note "思路"
+		打上懶標，注意 reverse 操作懶標再更改時是 xor 
+	
 	??? note "code"
 	    ```cpp linenums="1"
 	    #include <algorithm>

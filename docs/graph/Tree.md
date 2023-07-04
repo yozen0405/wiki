@@ -1803,11 +1803,9 @@
 	    ```
 
 ???+note "[BOI 2020 B1. Village (Minimum)](https://codeforces.com/contest/1387/problem/B1)"
-	給一顆 $N$ 個點的樹
+	給一顆 $N$ 個點的樹，請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$。構造 $v_1,v_2,\ldots,v_n$，使得花費**最少**
 	
-	請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$
-	
-	構造 $v_1,v_2,\ldots,v_n$，使得花費**最少**
+	$N\le 10^5$
 	
 	??? note "提示"
 		先考慮 leaf，leaf 一定至少需要跟他的父親交換
@@ -1910,11 +1908,9 @@
 
 
 ???+note "[BOI 2020 B2. Village (Maximum)](https://codeforces.com/contest/1387/problem/B2)"
-	給一顆 $N$ 個點的樹
+	給一顆 $N$ 個點的樹，請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$。構造 $v_1,v_2,\ldots,v_n$，使得花費**最多**
 	
-	請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$
-	
-	構造 $v_1,v_2,\ldots,v_n$，使得花費**最多**
+	$N\le 10^5$
 	
 	??? note "提示"
 		若考慮以樹重心為根 ? 
@@ -2202,11 +2198,7 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 	    ```
 
 ???+note "[全國賽 2022 pG](https://sorahisa-rank.github.io/nhspc-fin/2022/problems.pdf#page=21)"
-	設 $T$ 為一棵有 $n$ 個節點的樹，節點編號 $1, 2, \ldots , n$
-	
-	已知 $T$ 每個節點的 degree 為 $d_1,d_2,\ldots ,d_n$，其中 $d_i$ 為點 $i$ 的 degree
-	
-	求出 $T$ 所有可能的 Prüfer 序列中，字典序第 $k$ 小的，如果沒有輸出 $-1$
+	設 $T$ 為一棵有 $n$ 個節點的樹，節點編號 $1, 2, \ldots , n$，已知 $T$ 每個節點的 degree 為 $d_1,d_2,\ldots ,d_n$，其中 $d_i$ 為點 $i$ 的 degree，求出 $T$ 所有可能的 Prüfer 序列中，字典序第 $k$ 小的，如果沒有輸出 $-1$
 	
 	$3<n\le 10^3,1\le k\le 10^9$
 	
@@ -2219,169 +2211,142 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 		
 		我們填 $i$，填完剩 $d_i-1$ 個 $i$，還剩 $n$ 個空格可以填
 		
-		$$\frac{n!}{d_1!\times d_2!\times \ldots \times (d_i-1)! \times \ldots \times d_n!}$$
+		$$\frac{n!}{a!\times b!\times c! \times d!}$$
 		
-		在這邊要知道一個公式 
+		我們可以用取 $\log$ 的方法來估計「大概」的答案，同時也用 $C^n_k\pmod{10^9+7}$ 的方法算出「精確」的答案。
 		
-		$$\frac{(\sum a_i+\sum b_i)!}{\prod a_i!\prod b_i!}=\frac{(\sum a_i)!}{\prod a_i!}\times\frac{(\sum b_i)!}{\prod b_i!}\times C_{\sum a_i}^{\sum a_i+\sum b_i}$$
+		$\log$ 的方法是因為 $\frac{n!}{a!\times b!\times c! \times d!}=\log n!-\log a!-\log b! - \log c! - \log d!$。可以先預處裡 $\log n!=\sum_{i=1}^n \log i$
 		
-		令 $\sum a_i=\sum\limits_{1}^{i-1} d_i,\sum b_i=\sum\limits_{i+1}^n d_i$
+		因為最後的答案 $\le 10^9$，依照**模逆元的正確性**，將 $\frac{n!}{a!\times b!\times c! \times d!}$ 直接算出來再 $\pmod{10^9+7}$ 跟 $\frac{n!}{a!\times b!\times c! \times d!}$ 利用組合數 + 模逆元的方法算出來是相同的
 		
-		令 $\prod a_i!=\prod\limits_{1}^{i-1} d_i!,\prod b_i!=\prod\limits_{i+1}^n d_i!$
+		那麼換選另一個數的時候 :
 		
-		先建好以 $d_1\sim d_{i-1}$ 排列的答案，也就是 $\frac{(\sum a_i)!}{\prod a_i!}$
+		<figure markdown>
+          ![Image title](./images/8.png){ width="300" }
+        </figure>
 		
-		也算 $d_{i+1}\sim d_n$ 的答案，也就是 $\frac{(\sum b_i)!}{\prod b_i!}$
+		$\log$ 的計算 : $-\log(a-1)! + \log a! - \log b! + \log (a-1)!$
 		
-		這邊計算的方式就是單純的排列，可以採用 TIOJ 2052 的 $C^n_k$ 計算方式
-		
-		兩個合併起來的時候利用上面的公式
-		
-		要再乘上 $C_{(\sum a_i)!}^{(\sum a_i)!+(\sum b_i)!}$，其實就是 $\frac{(\sum a_i)!+(\sum b_i)!}{(\sum a_i)!\times (\sum b_i)!}$
-		
-		所以就是
-		
-		$$\frac{(\sum a_i)!}{\prod a_i!}\times\frac{(\sum b_i)!}{\prod b_i!}\times C_{\sum a_i}^{\sum a_i+\sum b_i}=\frac{(\sum a_i+\sum b_i)!}{\prod a_i!\prod b_i!}$$
-		
-		只是我們還要再加入 $d_i-1$ 的貢獻
-		
-		所以利用上面的公式，還要再乘上 $C_{(\sum a_i+\sum b_i)!}^{n!}$，其實就是 $\frac{n!}{(\sum a_i+\sum b_i)!\times (d_i-1)!}$
-		
-		所以就是
-		
-		$$\frac{(\sum a_i+\sum b_i)!}{\prod a_i!\prod b_i!}\times C_{(\sum a_i+\sum b_i)!}^{n!}=\frac{n!}{d_1!\times d_2!\times \ldots \times (d_i-1)! \times \ldots \times d_n!}$$
-		
-		這邊做這些事情都是為了避免 overflow
-		
-		用 $C^n_k$ 的好處是可以預先建表，還可以將過大的設為 `INF`
-		
-		而若直接乘的話可能 $n!$ 是 $1000!$ 的時候就直接爆掉了  
+		$C^n_k\pmod{10^9+7}$ 的計算 : $\times b \times \text{inv}(a)$
 		
 		---
 	
-	??? note "code (by [becaido](https://caidocode.blogspot.com/2022/12/nhspc2022.html))"
+	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	
-	    using namespace std;
-	
-	    const double mxLog = 9;
-	    const int INF = 1e18;
-	    const int maxn = 3e5 + 5;
-	    const int M = 1e9 + 7;
-	    const long double EPS = 1e-8;
-	
-	    int n, k;
-	    int d[maxn];
-	    double preLog[maxn];  // preLog[i] = log(i!)
-	    int prei[maxn], pinv[maxn], pref[maxn];
-	
-	    void build() {
-	        preLog[0] = 0;
-	        for (int i = 1; i <= n; i++) {
-	            preLog[i] = preLog[i - 1] + log10(i);
-	        }
-	
-	        prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
-	        for (int i = 2; i < maxn; i++) {
-	            pref[i] = pref[i - 1] * i % M;
-	            pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
-	            prei[i] = prei[i - 1] * pinv[i] % M;
-	        }
-	    }
-	
-	    vector<int> work(int _n, int _k, const int _d[]) {
-	        n = _n;
-	        k = _k;
-	        k--;
-	        for (int i = 1; i <= n; i++) {
-	            d[i] = _d[i];
-	            d[i]--;
-	        }
-	
-	        build();
-	        vector<int> ans;
-	        for (int t = n - 2; t >= 1; t--) {
-	            int f, flag = false;
-	            for (int i = 1; i <= n; i++) {
-	                if (d[i]) {
-	                    f = i;
-	                    break;
-	                }
-	            }
-	            double big = preLog[t - 1];
-	            int small = pref[t - 1];
-	
-	            for (int i = 1; i <= n; i++) {
-	                if (i == f) {
-	                    big = big - preLog[d[i] - 1];
-	                    small = (small * prei[d[i] - 1]) % M;
-	                } else if (d[i]) {
-	                    big = big - preLog[d[i]];
-	                    small = (small * prei[d[i]]) % M;
-	                }
-	            }
-	            int val;
-	            if (big - mxLog > EPS) {
-	                val = INF;
-	            } else {
-	                val = small;
-	            }
-	            for (int i = 1; i <= n; i++) {
-	                if (d[i]) {
-	                    if (i != f) {
-	                        big += preLog[d[f] - 1] + preLog[d[i]];
-	                        big -= preLog[d[f]] + preLog[d[i] - 1];
-	                        small = (((small * pinv[d[f]]) % M) * d[i]) % M;
-	                        if (big - mxLog > EPS) {
-	                            val = INF;
-	                        } else {
-	                            val = small;
-	                        }
-	                        f = i;
-	                    }
-	                    if (k >= val) {
-	                        k -= val;
-	                    } else {
-	                        ans.pb(i);
-	                        d[i]--;
-	                        flag = true;
-	                        break;
-	                    }
-	                }
-	            }
-	            if (flag == false) {
-	                return {-1};
-	            }
-	        }
-	        return ans;
-	    }
-	
-	    signed main () {
-	        int n, k;
-	        cin >> n >> k;
-	        int d[1005];
-	
-	        for (int i = 1; i <= n; i++) {
-	            cin >> d[i];
-	        }
-	
-	        vector<int> ans = work (n, k, d);
-	        for (auto it : ans) {
-	            cout << it << "\n";
-	        }
-	    }
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const double mxLog = 9;
+        const int INF = 1e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+        const long double EPS = 1e-8;
+
+        int n, k;
+        int d[maxn];
+        double preLog[maxn];  // preLog[i] = log(i!)
+        int prei[maxn], pinv[maxn], pref[maxn];
+
+        void build() {
+            preLog[0] = 0;
+            for (int i = 1; i <= n; i++) {
+                preLog[i] = preLog[i - 1] + log10(i);
+            }
+
+            prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
+            for (int i = 2; i < maxn; i++) {
+                pref[i] = pref[i - 1] * i % M;
+                pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
+                prei[i] = prei[i - 1] * pinv[i] % M;
+            }
+        }
+
+        vector<int> work(int _n, int _k, const int _d[]) {
+            n = _n;
+            k = _k;
+            k--;
+            for (int i = 1; i <= n; i++) {
+                d[i] = _d[i];
+                d[i]--;
+            }
+
+            build();
+            vector<int> ans;
+            for (int t = n - 2; t >= 1; t--) {
+                int f, flag = false;
+                for (int i = 1; i <= n; i++) {
+                    if (d[i]) {
+                        f = i;
+                        break;
+                    }
+                }
+                double big = preLog[t - 1];
+                int small = pref[t - 1];
+
+                for (int i = 1; i <= n; i++) {
+                    if (i == f) {
+                        big = big - preLog[d[i] - 1];
+                        small = (small * prei[d[i] - 1]) % M;
+                    } else if (d[i]) {
+                        big = big - preLog[d[i]];
+                        small = (small * prei[d[i]]) % M;
+                    }
+                }
+                int val;
+                if (big - mxLog > EPS) {
+                    val = INF;
+                } else {
+                    val = small;
+                }
+                for (int i = 1; i <= n; i++) {
+                    if (d[i]) {
+                        if (i != f) {
+                            big += preLog[d[f] - 1] + preLog[d[i]];
+                            big -= preLog[d[f]] + preLog[d[i] - 1];
+                            small = (((small * pinv[d[f]]) % M) * d[i]) % M;
+                            if (big - mxLog > EPS) {
+                                val = INF;
+                            } else {
+                                val = small;
+                            }
+                            f = i;
+                        }
+                        if (k >= val) {
+                            k -= val;
+                        } else {
+                            ans.pb(i);
+                            d[i]--;
+                            flag = true;
+                            break;
+                        }
+                    }
+                }
+                if (flag == false) {
+                    return {-1};
+                }
+            }
+            return ans;
+        }
+
+        signed main() {
+            int n, k;
+            cin >> n >> k;
+            int d[1005];
+            for (int i = 1; i <= n; i++) cin >> d[i];
+            vector<int> ans = work(n, k, d);
+            for (auto ele : ans) cout << ele << '\n';
+        }
 	    ```
 
 ## Tree Isomorphism
-- [題解](https://github.com/yozen0405/c-projects/blob/main/markdown/1700.md)
 
 ???+note "[CSES - Tree Isomorphism I](https://cses.fi/problemset/task/1700)"
 	給兩顆 $n$ 個點的有根樹
