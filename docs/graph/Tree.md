@@ -1018,10 +1018,105 @@
 
 ## 樹直徑
 
+???+note "[CSES - Tree Diameter](https://cses.fi/problemset/task/1131/)"
+	給一顆 $n$ 點的樹，求樹直徑
+	
+	$n\le 2\times 10^5$
+	
 - 樹直徑性質 (APCSC)
 
 - 兩次 dfs 找樹直徑 - 正確性證明
 	- code in CF 1085D 
+
+??? note "兩次 dfs code"
+	```cpp linenums="1"
+	#include <bits/stdc++.h>
+    using namespace std;
+
+    const int MAXN = 2e5 + 5;
+    vector<int> G[MAXN];
+
+    int x = 0;
+    int mx = 0;
+    void dfs(int u, int par, int dist) {
+        if (dist > mx) {
+            mx = dist;
+            x = u;
+        }
+        for (int v : G[u]) {
+            if (v == par) continue;
+            dfs(v, u, dist+1);
+        }
+    }
+
+    void solve() {
+        int n; cin >> n;
+        for (int i=0; i<n-1; i++) {
+            int u, v;
+            cin >> u >> v;
+            u--; v--;
+            G[u].push_back(v);
+            G[v].push_back(u);
+        }
+
+        dfs(0, -1, 0);
+        mx = 0;
+        dfs(x, -1, 0);
+
+        cout << mx << endl;
+    }
+
+    int main() {
+        ios::sync_with_stdio(0);
+        cin.tie(0);
+        int t = 1;
+        while (t--) {
+            solve();
+        }
+    }
+    ```
+
+??? note "dp code"
+	```cpp linenums="1"
+	#include <bits/stdc++.h>
+    #define int long long
+    using namespace std;
+    int n,ans=0,h[1000000],dp[1000000];
+    vector<int> G[1000000];
+    void dfs(int u, int parent){
+        int maxi=0,sec=0;
+        for(auto v:G[u]){
+            if(v==parent) continue;
+            dfs(v, u);
+            dp[u]=max(dp[u],dp[v]);
+            if(h[v]>=maxi){
+                sec=maxi;
+                maxi=h[v];
+            }
+            else if(h[v]>=sec)
+                sec=h[v];
+        }
+        h[u]=maxi+1;
+        dp[u]=max(dp[u],maxi+sec+1);
+    }
+    signed main(){
+        cin>>n;
+        int u,v;
+        for(int i=0;i<n-1;i++){
+            cin>>u>>v;
+            G[u].push_back(v);
+            G[v].push_back(u);
+        }
+        dfs(1, 1);
+        cout<<dp[1]-1<<"\n";
+    }
+    ```
+
+!!! warning "若邊權有負，要用樹 dp，不能用兩次 DFS"
+
+### 題目
+
+這篇 [CF Blog](https://codeforces.com/blog/entry/101271) 上面的
 
 ???+note "[CF 1085 D.A Wide, Wide Graph](https://codeforces.com/contest/1805/problem/D)"
 	給一顆有 $n$ 個點的樹
@@ -2021,95 +2116,95 @@
 	$n\le 2\times 10^5$
 	
 	??? note "思路"
-        > 網路上常見方法 : 
-        
-        對於一個子樹，若子樹邊總和為偶數，那麼每次刪掉偶數邊的節點，最後一定會留下偶數邊，就可以刪完，剩下就只要證明為何不會出現總和偶邊子樹上的節點都是奇數邊而無法刪除的情況。
-
-        > 證明 :
-        
-        設偶數邊為 $2x$，奇數點為 $2x+1$
-        對於每個邊，都會被節點算兩次，所以將 $2x\times2=4x$
-        若要使節點都無法開始刪點（都是奇數邊），那麼節點邊數加總要等於 $4x$，但奇數個奇數總和必等於奇數，也就不符合邊數總和是奇數的假設，因此偶數邊必可以刪完。
-
-        > 我的思路 : 
-        
-        對於每個葉節點，邊數必為 $1$，那麼要刪除此葉節點，只能從他的父節點先刪除，有這個想法後，發現帶到一般節點邊數遍歷後剩奇數的情況亦相同。
-
-        那麼遍歷後剩偶數邊的情況，以下圖來說，若先刪 $pa$ 後刪 $u$，會造成 $u$ 變成奇數邊，這樣 $u$ 和 $v$ 也無法被刪 ，因為這邊的 $dfs$ 是底部遍歷上來，所以需要先刪除的子節點已刪除（接下來會寫甚麼情況必須先刪除），不存在再將 $u$ 的子節點刪掉，$u$ 又可以被刪除的情況，因此必須先刪 $u$ 後刪 $pa$。
-
-        總結來說，對於 $pa$ 的子節點會存在兩種情況 : 
-
-        1. 子節點為奇數邊，需先刪除 $pa$ 才能刪除子節點。
-
-        2. 子節點為偶數邊，需先刪除子節點。
-
-        <figure markdown>
-          ![Image title](./images/1.jpg){ width="300" }
-        </figure>
-
-        > 簡單說明實作方法 :
-
-        先用 $dfs1$ 從葉節點跑上去看每一個節點遍歷後剩下奇邊還是偶邊，若奇邊，會將該點 push_back 進 $ans$（case1），若偶邊，用 $vis$ 紀錄未加入 $ans$（case2）。
-
-        再用 $dfs2$ 從父節點跑下去，將未加入 $ans$ 加到裡面。
-
-        $ans$ 可以視為 $stack$ 的型態，先加入的代表後刪除。
-        
+	    > 網路上常見方法 : 
+	    
+	    對於一個子樹，若子樹邊總和為偶數，那麼每次刪掉偶數邊的節點，最後一定會留下偶數邊，就可以刪完，剩下就只要證明為何不會出現總和偶邊子樹上的節點都是奇數邊而無法刪除的情況。
+	
+	    > 證明 :
+	    
+	    設偶數邊為 $2x$，奇數點為 $2x+1$
+	    對於每個邊，都會被節點算兩次，所以將 $2x\times2=4x$
+	    若要使節點都無法開始刪點（都是奇數邊），那麼節點邊數加總要等於 $4x$，但奇數個奇數總和必等於奇數，也就不符合邊數總和是奇數的假設，因此偶數邊必可以刪完。
+	
+	    > 我的思路 : 
+	    
+	    對於每個葉節點，邊數必為 $1$，那麼要刪除此葉節點，只能從他的父節點先刪除，有這個想法後，發現帶到一般節點邊數遍歷後剩奇數的情況亦相同。
+	
+	    那麼遍歷後剩偶數邊的情況，以下圖來說，若先刪 $pa$ 後刪 $u$，會造成 $u$ 變成奇數邊，這樣 $u$ 和 $v$ 也無法被刪 ，因為這邊的 $dfs$ 是底部遍歷上來，所以需要先刪除的子節點已刪除（接下來會寫甚麼情況必須先刪除），不存在再將 $u$ 的子節點刪掉，$u$ 又可以被刪除的情況，因此必須先刪 $u$ 後刪 $pa$。
+	
+	    總結來說，對於 $pa$ 的子節點會存在兩種情況 : 
+	
+	    1. 子節點為奇數邊，需先刪除 $pa$ 才能刪除子節點。
+	
+	    2. 子節點為偶數邊，需先刪除子節點。
+	
+	    <figure markdown>
+	      ![Image title](./images/1.jpg){ width="300" }
+	    </figure>
+	
+	    > 簡單說明實作方法 :
+	
+	    先用 $dfs1$ 從葉節點跑上去看每一個節點遍歷後剩下奇邊還是偶邊，若奇邊，會將該點 push_back 進 $ans$（case1），若偶邊，用 $vis$ 紀錄未加入 $ans$（case2）。
+	
+	    再用 $dfs2$ 從父節點跑下去，將未加入 $ans$ 加到裡面。
+	
+	    $ans$ 可以視為 $stack$ 的型態，先加入的代表後刪除。
+	    
 	??? note "code(by rahlin1004)"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        using namespace std;
-
-        const int MAXN=2e5+10,INF=1e18;
-        int n,vis[MAXN];
-        vector<vector<int>> G(MAXN);
-        vector<int> ans;
-
-        void dfs2(int u,int pa){
-            if(!vis[u]) ans.pb(u);
-            for(int v:G[u]){
-                if(v==pa) continue;
-                dfs2(v,u);
-            }
-        }
-
-        bool dfs1(int u,int pa){
-            int deg=G[u].size();
-            for(int v:G[u]){
-                if(v==pa) continue;
-                if(dfs1(v,u)) deg--;
-            }
-            if(deg%2==1){ //boom no
-                ans.pb(u);
-                vis[u]=1;
-                return false;
-            }
-            return true;
-        }
-
-        signed main(){
-            cin.tie(0);
-            cin.sync_with_stdio(0);
-
-            cin>>n;
-            for(int i=1;i<=n;i++){
-                int p;
-                cin>>p;
-                if(p==0) continue;
-                G[i].pb(p);
-                G[p].pb(i);
-            }
-
-            if(!dfs1(1,0)) cout<<"NO\n";
-            else{
-                cout<<"YES\n";
-                dfs2(1,0);
-                for(int i=ans.size()-1;i>=0;i--) cout<<ans[i]<<"\n";
-            }
-        }
-        ```
+	    #define int long long
+	    #define pb push_back
+	    using namespace std;
+	
+	    const int MAXN=2e5+10,INF=1e18;
+	    int n,vis[MAXN];
+	    vector<vector<int>> G(MAXN);
+	    vector<int> ans;
+	
+	    void dfs2(int u,int pa){
+	        if(!vis[u]) ans.pb(u);
+	        for(int v:G[u]){
+	            if(v==pa) continue;
+	            dfs2(v,u);
+	        }
+	    }
+	
+	    bool dfs1(int u,int pa){
+	        int deg=G[u].size();
+	        for(int v:G[u]){
+	            if(v==pa) continue;
+	            if(dfs1(v,u)) deg--;
+	        }
+	        if(deg%2==1){ //boom no
+	            ans.pb(u);
+	            vis[u]=1;
+	            return false;
+	        }
+	        return true;
+	    }
+	
+	    signed main(){
+	        cin.tie(0);
+	        cin.sync_with_stdio(0);
+	
+	        cin>>n;
+	        for(int i=1;i<=n;i++){
+	            int p;
+	            cin>>p;
+	            if(p==0) continue;
+	            G[i].pb(p);
+	            G[p].pb(i);
+	        }
+	
+	        if(!dfs1(1,0)) cout<<"NO\n";
+	        else{
+	            cout<<"YES\n";
+	            dfs2(1,0);
+	            for(int i=ans.size()-1;i>=0;i--) cout<<ans[i]<<"\n";
+	        }
+	    }
+	    ```
 
 ## Prufer code
 - [Oi wiki Prüfer code](https://oi-wiki.org/graph/prufer/#pr%C3%BCfer-%E5%BA%8F%E5%88%97%E7%9A%84%E6%80%A7%E8%B4%A8)
@@ -2222,8 +2317,8 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 		那麼換選另一個數的時候 :
 		
 		<figure markdown>
-          ![Image title](./images/8.png){ width="300" }
-        </figure>
+	      ![Image title](./images/8.png){ width="300" }
+	    </figure>
 		
 		$\log$ 的計算 : $-\log(a-1)! + \log a! - \log b! + \log (a-1)!$
 		
@@ -2234,116 +2329,116 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const double mxLog = 9;
-        const int INF = 1e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-        const long double EPS = 1e-8;
-
-        int n, k;
-        int d[maxn];
-        double preLog[maxn];  // preLog[i] = log(i!)
-        int prei[maxn], pinv[maxn], pref[maxn];
-
-        void build() {
-            preLog[0] = 0;
-            for (int i = 1; i <= n; i++) {
-                preLog[i] = preLog[i - 1] + log10(i);
-            }
-
-            prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
-            for (int i = 2; i < maxn; i++) {
-                pref[i] = pref[i - 1] * i % M;
-                pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
-                prei[i] = prei[i - 1] * pinv[i] % M;
-            }
-        }
-
-        vector<int> work(int _n, int _k, const int _d[]) {
-            n = _n;
-            k = _k;
-            k--;
-            for (int i = 1; i <= n; i++) {
-                d[i] = _d[i];
-                d[i]--;
-            }
-
-            build();
-            vector<int> ans;
-            for (int t = n - 2; t >= 1; t--) {
-                int f, flag = false;
-                for (int i = 1; i <= n; i++) {
-                    if (d[i]) {
-                        f = i;
-                        break;
-                    }
-                }
-                double big = preLog[t - 1];
-                int small = pref[t - 1];
-
-                for (int i = 1; i <= n; i++) {
-                    if (i == f) {
-                        big = big - preLog[d[i] - 1];
-                        small = (small * prei[d[i] - 1]) % M;
-                    } else if (d[i]) {
-                        big = big - preLog[d[i]];
-                        small = (small * prei[d[i]]) % M;
-                    }
-                }
-                int val;
-                if (big - mxLog > EPS) {
-                    val = INF;
-                } else {
-                    val = small;
-                }
-                for (int i = 1; i <= n; i++) {
-                    if (d[i]) {
-                        if (i != f) {
-                            big += preLog[d[f] - 1] + preLog[d[i]];
-                            big -= preLog[d[f]] + preLog[d[i] - 1];
-                            small = (((small * pinv[d[f]]) % M) * d[i]) % M;
-                            if (big - mxLog > EPS) {
-                                val = INF;
-                            } else {
-                                val = small;
-                            }
-                            f = i;
-                        }
-                        if (k >= val) {
-                            k -= val;
-                        } else {
-                            ans.pb(i);
-                            d[i]--;
-                            flag = true;
-                            break;
-                        }
-                    }
-                }
-                if (flag == false) {
-                    return {-1};
-                }
-            }
-            return ans;
-        }
-
-        signed main() {
-            int n, k;
-            cin >> n >> k;
-            int d[1005];
-            for (int i = 1; i <= n; i++) cin >> d[i];
-            vector<int> ans = work(n, k, d);
-            for (auto ele : ans) cout << ele << '\n';
-        }
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const double mxLog = 9;
+	    const int INF = 1e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	    const long double EPS = 1e-8;
+	
+	    int n, k;
+	    int d[maxn];
+	    double preLog[maxn];  // preLog[i] = log(i!)
+	    int prei[maxn], pinv[maxn], pref[maxn];
+	
+	    void build() {
+	        preLog[0] = 0;
+	        for (int i = 1; i <= n; i++) {
+	            preLog[i] = preLog[i - 1] + log10(i);
+	        }
+	
+	        prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
+	        for (int i = 2; i < maxn; i++) {
+	            pref[i] = pref[i - 1] * i % M;
+	            pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
+	            prei[i] = prei[i - 1] * pinv[i] % M;
+	        }
+	    }
+	
+	    vector<int> work(int _n, int _k, const int _d[]) {
+	        n = _n;
+	        k = _k;
+	        k--;
+	        for (int i = 1; i <= n; i++) {
+	            d[i] = _d[i];
+	            d[i]--;
+	        }
+	
+	        build();
+	        vector<int> ans;
+	        for (int t = n - 2; t >= 1; t--) {
+	            int f, flag = false;
+	            for (int i = 1; i <= n; i++) {
+	                if (d[i]) {
+	                    f = i;
+	                    break;
+	                }
+	            }
+	            double big = preLog[t - 1];
+	            int small = pref[t - 1];
+	
+	            for (int i = 1; i <= n; i++) {
+	                if (i == f) {
+	                    big = big - preLog[d[i] - 1];
+	                    small = (small * prei[d[i] - 1]) % M;
+	                } else if (d[i]) {
+	                    big = big - preLog[d[i]];
+	                    small = (small * prei[d[i]]) % M;
+	                }
+	            }
+	            int val;
+	            if (big - mxLog > EPS) {
+	                val = INF;
+	            } else {
+	                val = small;
+	            }
+	            for (int i = 1; i <= n; i++) {
+	                if (d[i]) {
+	                    if (i != f) {
+	                        big += preLog[d[f] - 1] + preLog[d[i]];
+	                        big -= preLog[d[f]] + preLog[d[i] - 1];
+	                        small = (((small * pinv[d[f]]) % M) * d[i]) % M;
+	                        if (big - mxLog > EPS) {
+	                            val = INF;
+	                        } else {
+	                            val = small;
+	                        }
+	                        f = i;
+	                    }
+	                    if (k >= val) {
+	                        k -= val;
+	                    } else {
+	                        ans.pb(i);
+	                        d[i]--;
+	                        flag = true;
+	                        break;
+	                    }
+	                }
+	            }
+	            if (flag == false) {
+	                return {-1};
+	            }
+	        }
+	        return ans;
+	    }
+	
+	    signed main() {
+	        int n, k;
+	        cin >> n >> k;
+	        int d[1005];
+	        for (int i = 1; i <= n; i++) cin >> d[i];
+	        vector<int> ans = work(n, k, d);
+	        for (auto ele : ans) cout << ele << '\n';
+	    }
 	    ```
 
 ## Tree Isomorphism

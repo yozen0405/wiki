@@ -434,7 +434,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 	    }
 	    ```
 
-???+note "Treap - rank tree [洛谷 P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)"
+???+note "Treap - rank tree [LOJ #104. 普通平衡树](https://loj.ac/p/104)"
 	實作 Treap，支援以下功能：
 
     1. 插入 $x$
@@ -718,31 +718,31 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     #define ALL(x) x.begin(), x.end()
 
     using namespace std;
-
+    
     const int INF = 2e18;
     const int maxn = 3e5 + 5;
     const int M = 1e9 + 7;
-
+    
     struct Node {
         int key, pri;
         Node *lc = nullptr;
         Node *rc = nullptr;
         int sz = 1;
         int cnt = 1;
-
+    
         Node (int key) : key(key), pri(rand()) {}
-
+    
         void pull() {
             sz = cnt;
             if (lc) sz += lc->sz;
             if (rc) sz += rc->sz;
         }
     };
-
+    
     Node* Merge(Node* a, Node* b) {
         if (!a) return b;
         if (!b) return a;
-
+    
         if (a->pri > b->pri) {
             a->rc = Merge(a->rc, b);
             a->pull();
@@ -753,10 +753,10 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             return b;
         }
     }
-
+    
     pair<Node*, Node*> Split(Node* root, int val) {
         if (!root) return {nullptr, nullptr};
-
+    
         if (root->key <= val) {
             auto [A, B] = Split(root->rc, val);
             root->rc = A;
@@ -769,14 +769,14 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             return {A, root};
         }
     }
-
+    
     Node* find_kth(Node* root, int k) {
         if (!root) return nullptr;
-
+    
         int cntL;
         if (root->lc) cntL = root->lc->sz;
         else cntL = 0;
-
+    
         if (cntL >= k) { // in left
             return find_kth(root->lc, k);
         } else if (cntL + root->cnt >= k) {
@@ -785,17 +785,17 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             return find_kth(root->rc, k - cntL - root->cnt);
         }
     }
-
+    
     void DFS(Node* root) {
         if (root == nullptr) return;
         if (root->lc) DFS(root->lc);
         cout << "DFS:" << root->key << "\n";
         if (root->rc) DFS(root->rc);
     }
-
+    
     struct DS {
         Node* root = nullptr;
-
+    
         void insert(int x) {
             auto [A, B] = Split(root, x - 1);
             auto [C, D] = Split(B, x);
@@ -807,7 +807,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             C->cnt++;
             root = Merge(A, Merge(C, D));
         }
-
+    
         int erase(int x) {
             auto [A, B] = Split(root, x - 1);
             auto [C, D] = Split(B, x);
@@ -823,7 +823,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             root = Merge(A, Merge(C, D));
             return 1;
         }
-
+    
         int find_rank(int x) {
             auto [A, B] = Split(root, x - 1);
             if (A == nullptr) {
@@ -834,13 +834,13 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             root = Merge(A, B);
             return ans;
         }
-
+    
         int find_by_order(int k) {
             Node* x = find_kth(root, k);
             if (x == nullptr) return -1;
             return x->key;
         }
-
+    
         int find_largest_less(int x) {
             auto [A, B] = Split(root, x - 1);
             if (A == nullptr) {
@@ -852,7 +852,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             if (tmp == nullptr) return -1;
             return tmp->key;
         }
-
+    
         int find_smallest_greater(int x) {
             auto [A, B] = Split(root, x);
             if (B == nullptr) {
@@ -864,18 +864,18 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             if (tmp == nullptr) return -1;
             return tmp->key;
         }
-
+    
         void print() {
             DFS(root);
         }
     };
-
+    
     signed main() {
         int q;
         cin >> q;
-
+    
         DS rank_tree;
-
+    
         int op, x;
         while (q--) {
             cin >> op >> x;
