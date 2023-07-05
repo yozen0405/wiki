@@ -31,11 +31,13 @@
 	
 	</div>
 	
-	$$\begin{align} & H(n)=\frac{1}{2}\left(H(\frac{3}{4}n)+1\right)+\frac{1}{2}\left( H(n-1)+1 \right) \\ & H(n) \le \frac{1}{2} H(\frac{3}{4}n)+1 + \frac{1}{2}H(n) \\ & \frac{1}{2}H(n) \le \frac{1}{2} H(\frac{3}{4}n)+1 \\ & H(n)\le H(\frac{3}{4}n)+2 \end{align} \\ & H(n) = H(\frac{3}{4}n)+2 \\ & H(n) = O(2\times \log_{\frac{4}{3}}2\times \log_2 n)$$
+	$$
+	\begin{align} & H(n)=\frac{1}{2}\left(H(\frac{3}{4}n)+1\right)+\frac{1}{2}\left( H(n-1)+1 \right) \\ & \Rightarrow H(n) \le \frac{1}{2} H(\frac{3}{4}n)+1 + \frac{1}{2}H(n) \\ & \Rightarrow \frac{1}{2}H(n) \le \frac{1}{2} H(\frac{3}{4}n)+1 \\ & \Rightarrow H(n)\le H(\frac{3}{4}n)+2 \\ & \Rightarrow H(n) = H(\frac{3}{4}n)+2 \\ & \Rightarrow H(n) = O(2\times \log_{\frac{4}{3}} n)\end{align}
+	$$
 	
 	> 換底公式 : $\log_a n=\log_a b \times \log_b n$
 	
-	根據換底公式 : $2\log_{\frac{3}{4}}n=2\times \log_{\frac{4}{3}}2\times \log_2 n$
+	根據換底公式 : $2\log_{\frac{4}{3}}n=2\times \log_{\frac{4}{3}}2\times \log_2 n$
 	
 	所以 $H(n)=O(2\times \log_{\frac{4}{3}}2\times \log_2 n)=O(\log n)$
 	
@@ -703,7 +705,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     每一次操作都是基於某一個歷史版本，同時生成一個新的版本
     
     $1 \le n \le 2 \times {10}^5$，$|x_i| < {10}^6$。
-    
+
 ???+note "code"
 	```cpp linenums="1"
 	#include <bits/stdc++.h>
@@ -726,11 +728,12 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
         Node *lc = nullptr;
         Node *rc = nullptr;
         int sz = 1;
+        int cnt = 1;
 
         Node (int key) : key(key), pri(rand()) {}
 
         void pull() {
-            sz = 1;
+            sz = cnt;
             if (lc) sz += lc->sz;
             if (rc) sz += rc->sz;
         }
@@ -751,79 +754,91 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
         }
     }
 
-    pair<Node*, Node*> Split(Node* root, int k) {
+    pair<Node*, Node*> Split(Node* root, int val) {
         if (!root) return {nullptr, nullptr};
 
-        if (root->key <= k) {
-            auto [A, B] = Split(root->rc, k);
+        if (root->key <= val) {
+            auto [A, B] = Split(root->rc, val);
             root->rc = A;
             root->pull();
             return {root, B};
         } else {
-            auto [A, B] = Split(root->lc, k);
+            auto [A, B] = Split(root->lc, val);
             root->lc = B;
             root->pull();
             return {A, root};
         }
     }
 
-    pair<Node*, Node*> SplitBySize(Node* root, int k) {
-        if (!root) return {nullptr, nullptr};
+    Node* find_kth(Node* root, int k) {
+        if (!root) return nullptr;
 
         int cntL;
-        if (root->lc) cntL = root->lc->sz + 1;
-        else cntL = 1;
+        if (root->lc) cntL = root->lc->sz;
+        else cntL = 0;
 
-        if (cntL <= k) {
-            auto [A, B] = SplitBySize(root->rc, k - cntL);
-            root->rc = A;
-            root->pull();
-            return {root, B};
+        if (cntL >= k) { // in left
+            return find_kth(root->lc, k);
+        } else if (cntL + root->cnt >= k) {
+            return root;
         } else {
-            auto [A, B] = SplitBySize(root->lc, k);
-            root->lc = B;
-            root->pull();
-            return {A, root};
+            return find_kth(root->rc, k - cntL - root->cnt);
         }
+    }
+
+    void DFS(Node* root) {
+        if (root == nullptr) return;
+        if (root->lc) DFS(root->lc);
+        cout << "DFS:" << root->key << "\n";
+        if (root->rc) DFS(root->rc);
     }
 
     struct DS {
         Node* root = nullptr;
 
         void insert(int x) {
-            auto [A, B] = Split(root, x);
-            Node* tmp = new Node(x);
-            root = Merge(Merge(A, tmp), B);
+            auto [A, B] = Split(root, x - 1);
+            auto [C, D] = Split(B, x);
+            if (C == nullptr) {
+                Node* tmp = new Node(x);
+                root = Merge(A, Merge(tmp, D));
+                return;
+            }
+            C->cnt++;
+            root = Merge(A, Merge(C, D));
         }
 
         int erase(int x) {
             auto [A, B] = Split(root, x - 1);
             auto [C, D] = Split(B, x);
             if (C == nullptr) {
-                root = Merge(A, Merge(C, D));
+                root = Merge(A, D);
                 return -1;
             }
-            auto [E, F] = SplitBySize(C, 1);
-            root = Merge(A, Merge(F, D));
+            C->cnt--;
+            if (C->cnt == 0) {
+                root = Merge(A, D);
+                return 1;
+            }
+            root = Merge(A, Merge(C, D));
             return 1;
         }
 
         int find_rank(int x) {
             auto [A, B] = Split(root, x - 1);
+            if (A == nullptr) {
+                root = Merge(A, B);
+                return 1;
+            }
             int ans = A->sz + 1;
             root = Merge(A, B);
             return ans;
         }
 
-        int find_by_order(int x) {
-            auto [A, B] = SplitBySize(root, x);
-            auto [C, D] = SplitBySize(A, x - 1);
-            if (D == nullptr) {
-                root = Merge(A, Merge(C, D));
-                return -1;
-            }
-            int ans = D->key;
-            root = Merge(Merge(C, D), B);
+        int find_by_order(int k) {
+            Node* x = find_kth(root, k);
+            if (x == nullptr) return -1;
+            return x->key;
         }
 
         int find_largest_less(int x) {
@@ -832,10 +847,10 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 root = Merge(A, B);
                 return -1;
             }
-            auto [C, D] = SplitBySize(A, A->sz - 1);
-            int ans = D->key;
-            root = Merge(Merge(C, D), B);
-            return ans;
+            Node* tmp = find_kth(A, A->sz);
+            root = Merge(A, B);
+            if (tmp == nullptr) return -1;
+            return tmp->key;
         }
 
         int find_smallest_greater(int x) {
@@ -844,10 +859,14 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 root = Merge(A, B);
                 return -1;
             }
-            auto [C, D] = SplitBySize(B, 1);
-            int ans = C->key;
-            root = Merge(A, Merge(C, D));
-            return ans;
+            Node* tmp = find_kth(B, 1);
+            root = Merge(A, B);
+            if (tmp == nullptr) return -1;
+            return tmp->key;
+        }
+
+        void print() {
+            DFS(root);
         }
     };
 
@@ -862,6 +881,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             cin >> op >> x;
             if(op == 1) {
                 rank_tree.insert(x);
+                //rank_tree.print();
             } else if (op == 2) {
                 rank_tree.erase(x);
             } else if (op == 3) {
