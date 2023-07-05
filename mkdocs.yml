@@ -155,6 +155,17 @@ nav:
         - 支線比賽: 'cp/contest/other.md'
         - 各國 OI: 'cp/contest/OI.md'
         - 比賽晉級路線圖: 'cp/contest/path.md'
+    - 基礎算法:
+      - 時間複雜度: 'basic/time_complexity.md'
+      - 貪心:
+        - 經典問題: 'basic/greedy/classic.md'
+        - 區段問題: 
+            - 區間問題: 'basic/greedy/interval.md'
+            - 排程問題: 'basic/greedy/interval_scheduling.md'
+            - 應用: 'basic/greedy/interval_hard.md'
+        - 資結貪心: 'basic/greedy/ds.md'
+        - maximum subarray: 'basic/greedy/max_subarray.md'
+        - 其他: 'basic/greedy/other.md'
     - 搜索算法:
       - 二分搜: 'search/binary_search.md'
       - 三分搜: 'search/tenary_search.md'
@@ -195,15 +206,6 @@ nav:
           - mex: 'math/special/mex.md'
           - 中位數: 'math/special/median.md'
           - 平均數: 'math/special/average.md'
-    - 貪心:
-        - 經典問題: 'greedy/classic.md'
-        - 區段問題: 
-            - 區間問題: 'greedy/interval.md'
-            - 排程問題: 'greedy/interval_scheduling.md'
-            - 應用: 'greedy/interval_hard.md'
-        - 資結貪心: 'greedy/ds.md'
-        - maximum subarray: 'greedy/max_subarray.md'
-        - 其他: 'greedy/other.md'
     - 分治與離線:
         - 分治:
             - 基礎技巧:  'offline/DC.md'
