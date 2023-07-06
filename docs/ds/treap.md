@@ -159,6 +159,68 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     }
     ```
 
+## pb_ds::tree
+
+<font style='font-size:12px'>:octicons-dash-16: <font style='font-size:11px'>參考自 [fhvirus](https://fhvirus.github.io/blog/2021/pbds-tree/)</font></font>
+
+- find_by_order(k) ：像陣列一樣回傳第 k 個值
+
+- order_of_key(k) ：回傳 k 是集合裡第幾大
+
+??? note "型別宣告"
+	```cpp linenums="1"
+	// 好長對吧？分開來看看
+    tree<
+      int,				// 資料型別
+        null_type,	// 當作 map 使用的時候要對應什麼資料型態，
+                                // 要當作 set 就用 null_type
+        less<int>,	// key value 要用什麼方式比較
+                                // 類似 priority_queue 的用法
+        rb_tree_tag,// 這顆 tree 要用哪種結構
+                                // 大多時候會用紅黑樹（rb_tree）
+        tree_order_statistics_node_update
+                            // 神秘的黑魔法，待補
+    >;
+	```
+
+???+note "pb_ds - rank tree [LOJ #104. 普通平衡树](https://loj.ac/p/104)"
+	實作 pb_ds::tree，支援以下功能：
+
+    1. 插入 $x$
+    2. 刪除 $x$
+    3. 查詢 $x$ 的是第幾小
+    4. 查詢第 $k$ 小的數
+    5. 求小於 $x$，最大的數
+    6. 求大於 $x$，最小的數
+    
+    $1 \leq n \leq 10^5,|x|\le 10^7$
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include<bits/stdc++.h>
+        #include<bits/extc++.h>
+        using namespace std;
+        using namespace __gnu_pbds;
+        typedef int64_t ll;
+        template<typename T> using rbt = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+        int32_t main(){
+            ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+            int n;
+            rbt<ll> eek;
+            cin >> n;
+            for(ll opt, x; n; --n){
+                cin >> opt >> x;
+                if(opt == 1) eek.insert((x<<20) + n);
+                else if(opt == 2) eek.erase(eek.lower_bound(x<<20));
+                else if(opt == 3) cout << eek.order_of_key(x<<20) + 1 << '\n';
+                else if(opt == 4) cout << (*eek.find_by_order(x-1) >> 20) << '\n';
+                else if(opt == 5) cout << (*--eek.lower_bound(x<<20) >> 20) << '\n';
+                else if(opt == 6) cout << (*eek.lower_bound((x+1)<<20) >> 20) << '\n';
+            }
+            return 0;
+        }
+        ```
+
 ## 例題
 
 ???+note "[CSES - Cut and Paste](https://cses.fi/problemset/task/2072)"
@@ -294,8 +356,8 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 	
 	$n,q\le 2\times 10^5$
 	
-	??? note "思路"
-		打上懶標，注意 reverse 操作懶標再更改時是 xor 
+	??? note "實作細節"
+		注意 reverse 懶標再更改時是 xor 
 	
 	??? note "code"
 	    ```cpp linenums="1"
@@ -433,6 +495,144 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 	        return 0;
 	    }
 	    ```
+
+???+note "[CSES - Reversals and Sums](https://cses.fi/problemset/task/2074)"
+	給長度為 $n$ 的陣列 $a_1,\ldots, a_n$，$q$ 次以下操作 :
+	
+	- $\text{reverse}(l,r)$
+
+	- $\text{sum}(l,r):$ 輸出 $a_l+\ldots+a_r$ 
+
+	$n,q\le 2\times 10^5$
+	
+	??? note "實作細節"
+		在 `Node (int val) : val(val), pri(rand()), sum(val) {}` 裡面要記得加 `sum(val)` 
+	
+	??? note "code"	
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        using namespace std;
+
+        struct Node {
+            int pri;
+            int val;
+            int sz = 1;
+            Node* lc = nullptr;
+            Node* rc = nullptr;
+            int rev = 0;
+            int sum;
+
+            Node (int val) : val(val), pri(rand()), sum(val) {}
+
+            void pull () {
+                sum = val;
+                sz = 1;
+                if (lc) {
+                    sz += lc->sz;
+                    sum += lc->sum;
+                }
+                if (rc) {
+                    sz += rc->sz;
+                    sum += rc->sum;
+                }
+            }
+
+            void push () {
+                if (rev) {
+                    swap (lc, rc);
+                    if (lc) lc->rev ^= 1;
+                    if (rc) rc->rev ^= 1;
+                    rev = false;
+                }
+            }
+        };
+
+        Node* Merge(Node* a, Node* b) {
+            if (!a) return b;
+            if (!b) return a;
+
+            if (a->pri > b->pri) {
+                a->push();
+                a->rc = Merge(a->rc, b);
+                a->pull();
+                return a;
+            } else {
+                b->push();
+                b->lc = Merge(a, b->lc);
+                b->pull();
+                return b;
+            }
+        }
+
+        pair<Node*, Node*> SplitBySize(Node* root, int k) {
+            if (!root) return {nullptr, nullptr};
+
+            root->push();
+
+            int cntL;
+            if (root->lc) cntL = root->lc->sz + 1;
+            else cntL = 1;
+
+            if (cntL <= k) {
+                auto [A, B] = SplitBySize(root->rc, k - cntL);
+                root->rc = A;
+                root->pull();
+                return {root, B};
+            } else {
+                auto [A, B] = SplitBySize(root->lc, k);
+                root->lc = B;
+                root->pull();
+                return {A, root};
+            }
+        }
+
+        signed main() {
+            int n, q;
+            cin >> n >> q;
+
+            Node* root = nullptr;
+            for (int i = 0; i < n; i++) {
+                int x;
+                cin >> x; 
+                Node* tmp = new Node(x);
+                root = Merge(root, tmp);
+            }
+
+            while(q--) {
+                int op, l, r;
+                cin >> op >> l >> r;
+                if (op == 1) {
+                    auto [A, B] = SplitBySize(root, r);
+                    auto [C, D] = SplitBySize(A, l - 1);
+                    D->rev ^= 1;
+                    root = Merge(Merge(C, D), B);
+                } else {
+                    auto [A, B] = SplitBySize(root, r);
+                    auto [C, D] = SplitBySize(A, l - 1);
+                    cout << D->sum << '\n';
+                    root = Merge(Merge(C, D), B);
+                }
+            }
+        } 
+        ```
+	
+???+note "帶旋轉區間連續最大和"
+	給長度為 $n$ 的陣列 $a_1,\ldots, a_n$，$q$ 次以下操作 :
+	
+	- $\text{reverse}(l,r)$
+
+	- $\text{query}(l,r):$ 輸出 $a_l,\ldots, a_r$ 的最大連續和
+
+	$n,q\le 2\times 10^5$
+	
+	??? note "思路"
+		在 pull 的時候就照線段樹那樣操作就好，只是在 push 的時候如下
+		
+		<figure markdown>
+          ![Image title](./images/1.jpg){ width="400" }
+          <figcaption>lc, rc 的 pre, suf 要 swap，而 ans, sum 不用變</figcaption>
+        </figure>
+
 
 ???+note "Treap - rank tree [LOJ #104. 普通平衡树](https://loj.ac/p/104)"
 	實作 Treap，支援以下功能：
