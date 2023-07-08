@@ -177,6 +177,7 @@ nav:
       - 前綴和技巧: 'ds/prefix.md'
       - BIT: 'ds/bit.md'
       - Treap: 'ds/treap.md'
+      - pb_ds: 'ds/pb_ds.md'
       - 持久化: 'ds/persistent.md'
     - 圖論:
       - 樹論: 

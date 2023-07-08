@@ -127,7 +127,7 @@ split(t, k)：把 treap 按照 key 分成兩顆，第一顆的 key 都要小於�
 
 splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰好 k 個 node，第二棵包含剩下的 n-k 個 node
 
-【前提】: 左邊 treap 的 key < 右邊 treap 的key
+【前提】: 左邊 treap 的 key < 右邊 treap 的 key
 
 ??? note "code"
 	```cpp linenums="1"
@@ -158,68 +158,6 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
         }
     }
     ```
-
-## pb_ds::tree
-
-<font style='font-size:12px'>:octicons-dash-16: <font style='font-size:11px'>參考自 [fhvirus](https://fhvirus.github.io/blog/2021/pbds-tree/)</font></font>
-
-- find_by_order(k) ：像陣列一樣回傳第 k 個值
-
-- order_of_key(k) ：回傳 k 是集合裡第幾大
-
-??? note "型別宣告"
-	```cpp linenums="1"
-	// 好長對吧？分開來看看
-    tree<
-      int,				// 資料型別
-        null_type,	// 當作 map 使用的時候要對應什麼資料型態，
-                                // 要當作 set 就用 null_type
-        less<int>,	// key value 要用什麼方式比較
-                                // 類似 priority_queue 的用法
-        rb_tree_tag,// 這顆 tree 要用哪種結構
-                                // 大多時候會用紅黑樹（rb_tree）
-        tree_order_statistics_node_update
-                            // 神秘的黑魔法，待補
-    >;
-	```
-
-???+note "pb_ds - rank tree [LOJ #104. 普通平衡树](https://loj.ac/p/104)"
-	實作 pb_ds::tree，支援以下功能：
-
-    1. 插入 $x$
-    2. 刪除 $x$
-    3. 查詢 $x$ 的是第幾小
-    4. 查詢第 $k$ 小的數
-    5. 求小於 $x$，最大的數
-    6. 求大於 $x$，最小的數
-    
-    $1 \leq n \leq 10^5,|x|\le 10^7$
-    
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include<bits/stdc++.h>
-        #include<bits/extc++.h>
-        using namespace std;
-        using namespace __gnu_pbds;
-        typedef int64_t ll;
-        template<typename T> using rbt = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
-        int32_t main(){
-            ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
-            int n;
-            rbt<ll> eek;
-            cin >> n;
-            for(ll opt, x; n; --n){
-                cin >> opt >> x;
-                if(opt == 1) eek.insert((x<<20) + n);
-                else if(opt == 2) eek.erase(eek.lower_bound(x<<20));
-                else if(opt == 3) cout << eek.order_of_key(x<<20) + 1 << '\n';
-                else if(opt == 4) cout << (*eek.find_by_order(x-1) >> 20) << '\n';
-                else if(opt == 5) cout << (*--eek.lower_bound(x<<20) >> 20) << '\n';
-                else if(opt == 6) cout << (*eek.lower_bound((x+1)<<20) >> 20) << '\n';
-            }
-            return 0;
-        }
-        ```
 
 ## 例題
 
@@ -500,9 +438,9 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 	給長度為 $n$ 的陣列 $a_1,\ldots, a_n$，$q$ 次以下操作 :
 	
 	- $\text{reverse}(l,r)$
-
+	
 	- $\text{sum}(l,r):$ 輸出 $a_l+\ldots+a_r$ 
-
+	
 	$n,q\le 2\times 10^5$
 	
 	??? note "實作細節"
@@ -511,127 +449,127 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 	??? note "code"	
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        using namespace std;
-
-        struct Node {
-            int pri;
-            int val;
-            int sz = 1;
-            Node* lc = nullptr;
-            Node* rc = nullptr;
-            int rev = 0;
-            int sum;
-
-            Node (int val) : val(val), pri(rand()), sum(val) {}
-
-            void pull () {
-                sum = val;
-                sz = 1;
-                if (lc) {
-                    sz += lc->sz;
-                    sum += lc->sum;
-                }
-                if (rc) {
-                    sz += rc->sz;
-                    sum += rc->sum;
-                }
-            }
-
-            void push () {
-                if (rev) {
-                    swap (lc, rc);
-                    if (lc) lc->rev ^= 1;
-                    if (rc) rc->rev ^= 1;
-                    rev = false;
-                }
-            }
-        };
-
-        Node* Merge(Node* a, Node* b) {
-            if (!a) return b;
-            if (!b) return a;
-
-            if (a->pri > b->pri) {
-                a->push();
-                a->rc = Merge(a->rc, b);
-                a->pull();
-                return a;
-            } else {
-                b->push();
-                b->lc = Merge(a, b->lc);
-                b->pull();
-                return b;
-            }
-        }
-
-        pair<Node*, Node*> SplitBySize(Node* root, int k) {
-            if (!root) return {nullptr, nullptr};
-
-            root->push();
-
-            int cntL;
-            if (root->lc) cntL = root->lc->sz + 1;
-            else cntL = 1;
-
-            if (cntL <= k) {
-                auto [A, B] = SplitBySize(root->rc, k - cntL);
-                root->rc = A;
-                root->pull();
-                return {root, B};
-            } else {
-                auto [A, B] = SplitBySize(root->lc, k);
-                root->lc = B;
-                root->pull();
-                return {A, root};
-            }
-        }
-
-        signed main() {
-            int n, q;
-            cin >> n >> q;
-
-            Node* root = nullptr;
-            for (int i = 0; i < n; i++) {
-                int x;
-                cin >> x; 
-                Node* tmp = new Node(x);
-                root = Merge(root, tmp);
-            }
-
-            while(q--) {
-                int op, l, r;
-                cin >> op >> l >> r;
-                if (op == 1) {
-                    auto [A, B] = SplitBySize(root, r);
-                    auto [C, D] = SplitBySize(A, l - 1);
-                    D->rev ^= 1;
-                    root = Merge(Merge(C, D), B);
-                } else {
-                    auto [A, B] = SplitBySize(root, r);
-                    auto [C, D] = SplitBySize(A, l - 1);
-                    cout << D->sum << '\n';
-                    root = Merge(Merge(C, D), B);
-                }
-            }
-        } 
-        ```
+	    using namespace std;
 	
+	    struct Node {
+	        int pri;
+	        int val;
+	        int sz = 1;
+	        Node* lc = nullptr;
+	        Node* rc = nullptr;
+	        int rev = 0;
+	        int sum;
+	
+	        Node (int val) : val(val), pri(rand()), sum(val) {}
+	
+	        void pull () {
+	            sum = val;
+	            sz = 1;
+	            if (lc) {
+	                sz += lc->sz;
+	                sum += lc->sum;
+	            }
+	            if (rc) {
+	                sz += rc->sz;
+	                sum += rc->sum;
+	            }
+	        }
+	
+	        void push () {
+	            if (rev) {
+	                swap (lc, rc);
+	                if (lc) lc->rev ^= 1;
+	                if (rc) rc->rev ^= 1;
+	                rev = false;
+	            }
+	        }
+	    };
+	
+	    Node* Merge(Node* a, Node* b) {
+	        if (!a) return b;
+	        if (!b) return a;
+	
+	        if (a->pri > b->pri) {
+	            a->push();
+	            a->rc = Merge(a->rc, b);
+	            a->pull();
+	            return a;
+	        } else {
+	            b->push();
+	            b->lc = Merge(a, b->lc);
+	            b->pull();
+	            return b;
+	        }
+	    }
+	
+	    pair<Node*, Node*> SplitBySize(Node* root, int k) {
+	        if (!root) return {nullptr, nullptr};
+	
+	        root->push();
+	
+	        int cntL;
+	        if (root->lc) cntL = root->lc->sz + 1;
+	        else cntL = 1;
+	
+	        if (cntL <= k) {
+	            auto [A, B] = SplitBySize(root->rc, k - cntL);
+	            root->rc = A;
+	            root->pull();
+	            return {root, B};
+	        } else {
+	            auto [A, B] = SplitBySize(root->lc, k);
+	            root->lc = B;
+	            root->pull();
+	            return {A, root};
+	        }
+	    }
+	
+	    signed main() {
+	        int n, q;
+	        cin >> n >> q;
+	
+	        Node* root = nullptr;
+	        for (int i = 0; i < n; i++) {
+	            int x;
+	            cin >> x; 
+	            Node* tmp = new Node(x);
+	            root = Merge(root, tmp);
+	        }
+	
+	        while(q--) {
+	            int op, l, r;
+	            cin >> op >> l >> r;
+	            if (op == 1) {
+	                auto [A, B] = SplitBySize(root, r);
+	                auto [C, D] = SplitBySize(A, l - 1);
+	                D->rev ^= 1;
+	                root = Merge(Merge(C, D), B);
+	            } else {
+	                auto [A, B] = SplitBySize(root, r);
+	                auto [C, D] = SplitBySize(A, l - 1);
+	                cout << D->sum << '\n';
+	                root = Merge(Merge(C, D), B);
+	            }
+	        }
+	    } 
+	    ```
+
 ???+note "帶旋轉區間連續最大和"
 	給長度為 $n$ 的陣列 $a_1,\ldots, a_n$，$q$ 次以下操作 :
 	
 	- $\text{reverse}(l,r)$
-
+	
 	- $\text{query}(l,r):$ 輸出 $a_l,\ldots, a_r$ 的最大連續和
-
+	
 	$n,q\le 2\times 10^5$
 	
 	??? note "思路"
 		在 pull 的時候就照線段樹那樣操作就好，只是在 push 的時候如下
 		
 		<figure markdown>
-          ![Image title](./images/1.jpg){ width="400" }
-          <figcaption>lc, rc 的 pre, suf 要 swap，而 ans, sum 不用變</figcaption>
-        </figure>
+	      ![Image title](./images/1.jpg){ width="400" }
+	      <figcaption>lc, rc 的 pre, suf 要 swap，而 ans, sum 不用變</figcaption>
+	    </figure>
 
 
 ???+note "Treap - rank tree [LOJ #104. 普通平衡树](https://loj.ac/p/104)"
@@ -645,6 +583,226 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     6. 求大於 $x$，最小的數
     
     $1 \leq n \leq 10^5,|x|\le 10^7$
+    
+    ??? note "思路"
+    	可以寫一個 find_kth() 的 function，以方便查找（因為是 multiset 所以 SplitBySize 會壞掉，所以用 find_kth() 代替）
+    
+    ??? note "實作細節"
+    	在更動 cnt 時記得 sz 也要一起改變
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <cstdlib>
+        #include <iostream>
+        #include <utility>
+    
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+    
+        using namespace std;
+    
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+    
+        struct Node {
+            int key, pri;
+            Node* lc = nullptr;
+            Node* rc = nullptr;
+            int sz = 1;
+            int cnt = 1;
+    
+            Node(int key) : key(key), pri(rand()) {
+            }
+    
+            void pull() {
+                sz = cnt;
+                if (lc) sz += lc->sz;
+                if (rc) sz += rc->sz;
+            }
+        };
+    
+        Node* Merge(Node* a, Node* b) {
+            if (!a) return b;
+            if (!b) return a;
+    
+            if (a->pri > b->pri) {
+                a->rc = Merge(a->rc, b);
+                a->pull();
+                return a;
+            } else {
+                b->lc = Merge(a, b->lc);
+                b->pull();
+                return b;
+            }
+        }
+    
+        // [A, B] : A <= val, B > val
+        pair<Node*, Node*> Split(Node* root, int val) {
+            if (!root) return {nullptr, nullptr};
+    
+            if (root->key <= val) {
+                auto [A, B] = Split(root->rc, val);
+                root->rc = A;
+                root->pull();
+                return {root, B};
+            } else {
+                auto [A, B] = Split(root->lc, val);
+                root->lc = B;
+                root->pull();
+                return {A, root};
+            }
+        }
+    
+        Node* find_kth(Node* root, int k) {
+            if (!root) return nullptr;
+    
+            int cntL;
+            if (root->lc) {
+                cntL = root->lc->sz;
+            } else {
+                cntL = 0;
+            }
+    
+            if (cntL >= k) {  // in left
+                return find_kth(root->lc, k);
+            } else if (cntL + root->cnt >= k) {
+                return root;
+            } else {
+                return find_kth(root->rc, k - cntL - root->cnt);
+            }
+        }
+    
+        void DFS(Node* root) { // debug
+            if (root == nullptr) return;
+            if (root->lc) DFS(root->lc);
+            cerr << root->key << " ";
+            if (root->rc) DFS(root->rc);
+        }
+        void print(Node* root) { // debug
+            cerr << "DFS: ";
+            DFS(root);
+            cerr << '\n';
+        }
+    
+        struct DS {
+            Node* root = nullptr;
+    
+            void insert(int x) {
+                auto [A, B] = Split(root, x - 1);
+                auto [C, D] = Split(B, x);
+                if (C == nullptr) {
+                    Node* tmp = new Node(x);
+                    root = Merge(A, Merge(tmp, D));
+                    return;
+                }
+                C->cnt++;
+                C->sz++;
+                root = Merge(A, Merge(C, D));
+            }
+    
+            int erase(int x) {
+                auto [A, B] = Split(root, x - 1);
+                auto [C, D] = Split(B, x);
+                if (C == nullptr) {
+                    root = Merge(A, D);
+                    return -1;
+                }
+                C->cnt--;
+                C->sz--;
+                if (C->cnt == 0) {
+                    delete C;
+                    C = nullptr;
+                }
+                root = Merge(A, Merge(C, D));
+                return 1;
+            }
+    
+            int find_rank(int x) {
+                auto [A, B] = Split(root, x - 1);
+                // cerr << "A :";
+                // ::print(A);
+                // cerr << "B :";
+                // ::print(B);
+                if (A == nullptr) {
+                    root = Merge(A, B);
+                    return 1;
+                }
+                int ans = A->sz + 1;
+                root = Merge(A, B);
+                return ans;
+            }
+    
+            int find_by_order(int k) {
+                Node* x = find_kth(root, k);
+                if (x == nullptr) return -1;
+                return x->key;
+            }
+    
+            int find_largest_less(int x) {
+                auto [A, B] = Split(root, x - 1);
+                if (A == nullptr) {
+                    root = Merge(A, B);
+                    return -1;
+                }
+                Node* tmp = find_kth(A, A->sz);
+                root = Merge(A, B);
+                if (tmp == nullptr) return -1;
+                return tmp->key;
+            }
+    
+            int find_smallest_greater(int x) {
+                auto [A, B] = Split(root, x);
+                if (B == nullptr) {
+                    root = Merge(A, B);
+                    return -1;
+                }
+                Node* tmp = find_kth(B, 1);
+                root = Merge(A, B);
+                if (tmp == nullptr) return -1;
+                return tmp->key;
+            }
+    
+            void print() { // debug
+                cerr << "DFS: ";
+                DFS(root);
+                cerr << '\n';
+            }
+        };
+    
+        signed main() {
+            cin.tie(0);
+            cin.sync_with_stdio(0);
+    
+            int q;
+            cin >> q;
+    
+            DS rank_tree;
+    
+            int op, x;
+            while (q--) {
+                cin >> op >> x;
+                if (op == 1) {
+                    rank_tree.insert(x);
+                } else if (op == 2) {
+                    rank_tree.erase(x);
+                } else if (op == 3) {
+                    cout << rank_tree.find_rank(x) << '\n';
+                } else if (op == 4) {
+                    cout << rank_tree.find_by_order(x) << '\n';
+                } else if (op == 5) {
+                    cout << rank_tree.find_largest_less(x) << '\n';
+                } else if (op == 6) {
+                    cout << rank_tree.find_smallest_greater(x) << '\n';
+                }
+            }
+        }
+        ```
 
 ???+note "[TIOJ 2140. 殿壬愛序列](https://tioj.ck.tp.edu.tw/problems/2140)"
     給一個長度為 $n$ 的序列，請支援三種操作：
@@ -694,6 +852,161 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     	<figure markdown>
           ![Image title](./images/3.png){ width="300" }
         </figure>
+        
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #include <bits/extc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+        using namespace __gnu_pbds;
+
+        tree<pii,null_type,less<pii>,rb_tree_tag,tree_order_statistics_node_update> T;
+
+        const int INF = 2e18;
+        const int maxn = 5e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Node {
+            Node* lc = nullptr;
+            Node* rc = nullptr;
+            int l, r;
+            int id = -1, cnt = 0;
+
+            Node(int l, int r) : l(l), r(r) {}
+
+            void pull () {
+                if (lc->cnt == 0) {
+                    id = rc->id;
+                    cnt = rc->cnt;
+                    return;
+                } 
+                if (rc->cnt == 0) {
+                    id = lc->id;
+                    cnt = lc->cnt;
+                    return;
+                }
+                if (lc->id == rc->id) {
+                    id = lc->id;
+                    cnt = lc->cnt + rc->cnt;
+                } else {
+                    if (lc->cnt > rc->cnt) {
+                        id = lc->id;
+                        cnt = lc->cnt - rc->cnt;
+                    } else {
+                        id = rc->id;
+                        cnt = rc->cnt - lc->cnt;
+                    }
+                }
+            }
+        };
+
+        int n, q;
+        int a[maxn];
+
+        Node* build (int l, int r) {
+            Node* root = new Node(l, r);
+            if (l == r) {
+                root->id = a[l];
+                root->cnt = 1;
+                return root;
+            }
+
+            int mid = (l + r) / 2;
+            root->lc = build(l, mid);
+            root->rc = build(mid + 1, r);
+            root->pull();
+            return root;
+        }
+
+        pii query(const Node* root, int ql, int qr) {
+            if (qr < root->l || root->r < ql) return {-1, 0};
+            if (ql <= root->l && root->r <= qr) {
+                return {root->id, root->cnt};
+            } 
+
+            pii tmp = {-1, 0};
+            if (ql <= root->lc->r) {
+                pii ret = query(root->lc, ql, qr);
+                if (tmp.S == 0) {
+                    tmp = ret;
+                } else if (ret.S != 0) {
+                    if (ret.F == tmp.F) {
+                        tmp.S += ret.S;
+                    } else {
+                        if (ret.S > tmp.S) {
+                            tmp.F = ret.F;
+                            tmp.S = ret.S - tmp.S;
+                        } else {
+                            tmp.S = tmp.S - ret.S;
+                        }
+                    }
+                }
+            }
+            if (root->rc->l <= qr) {
+                pii ret = query(root->rc, ql, qr);
+                if (tmp.S == 0) {
+                    tmp = ret;
+                } else if (ret.S != 0) {
+                    if (ret.F == tmp.F) {
+                        tmp.S += ret.S;
+                    } else {
+                        if (ret.S > tmp.S) {
+                            tmp.F = ret.F;
+                            tmp.S = ret.S - tmp.S;
+                        } else {
+                            tmp.S = tmp.S - ret.S;
+                        }
+                    }
+                }
+            }
+            return tmp;
+        }
+
+        void init() {
+            cin >> n >> q;
+            for (int i = 0; i < n; i++) {
+                cin >> a[i];
+                T.insert ({a[i], i});
+            }
+        }
+
+        void solve() {
+            Node* root = build(0, n - 1);
+            while (q--) {
+                int l, r;
+                cin >> l >> r;
+                l--, r--;
+
+                auto [id, c] = query(root, l, r);
+                if (c == 0) {
+                    cout << 0 << '\n';
+                    continue;
+                }
+                int cnt = T.order_of_key(mk(id, r + 1)) - T.order_of_key(mk(id, l)); 
+                if (cnt > (r - l + 1) / 2) {
+                    cout << id << '\n';
+                } else {
+                    cout << 0 << '\n';
+                }
+            }
+        }
+
+        signed main() {
+            int t = 1;
+            while (t--) {
+                init();
+                solve();
+            }
+        } 
+        ```
 
 ???+note "[POJ-3580 SuperMemo](https://vjudge.net/problem/POJ-3580)"
 	給定一個長度為 N 的序列 `A[]`，M 個以下操作:
@@ -712,12 +1025,12 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     
     $n,m\le 10^6$
 
-???+note "區間第 k 小 [POJ 2761 - Feed the Dogs](https://vjudge.net/problem/POJ-2761)"
-	給定一個長度為 $n$ 的序列 $a$，$q$ 個以下操作 : 
+???+note "[洛谷 P3834 - 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)"
+	給長度為 $n$ 的序列，$q$ 筆詢問
 	
-	- 給定求 $a_i,\ldots ,a_j$ 中的第 $k$ 小元素
+	- $\text{query(}a_l\sim a_r,k):$ 回答 $a_l\sim a_r$ 中第 $k$ 小的數值是多少<br>
 	
-	$n,m\le 10^6$
+	$n,q\le 2\times 10^5,|a_i|\le 10^9$
 	
 	??? note "思路"
 		離線解決，把區間排序好，區間移動時，把不用的元素刪掉，還沒加進 Treap 的元素加進去
@@ -905,194 +1218,3 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     每一次操作都是基於某一個歷史版本，同時生成一個新的版本
     
     $1 \le n \le 2 \times {10}^5$，$|x_i| < {10}^6$。
-
-???+note "code"
-	```cpp linenums="1"
-	#include <bits/stdc++.h>
-    #define int long long
-    #define pii pair<int, int>
-    #define pb push_back
-    #define mk make_pair
-    #define F first
-    #define S second
-    #define ALL(x) x.begin(), x.end()
-
-    using namespace std;
-    
-    const int INF = 2e18;
-    const int maxn = 3e5 + 5;
-    const int M = 1e9 + 7;
-    
-    struct Node {
-        int key, pri;
-        Node *lc = nullptr;
-        Node *rc = nullptr;
-        int sz = 1;
-        int cnt = 1;
-    
-        Node (int key) : key(key), pri(rand()) {}
-    
-        void pull() {
-            sz = cnt;
-            if (lc) sz += lc->sz;
-            if (rc) sz += rc->sz;
-        }
-    };
-    
-    Node* Merge(Node* a, Node* b) {
-        if (!a) return b;
-        if (!b) return a;
-    
-        if (a->pri > b->pri) {
-            a->rc = Merge(a->rc, b);
-            a->pull();
-            return a;
-        } else {
-            b->lc = Merge(a, b->lc);
-            b->pull();
-            return b;
-        }
-    }
-    
-    pair<Node*, Node*> Split(Node* root, int val) {
-        if (!root) return {nullptr, nullptr};
-    
-        if (root->key <= val) {
-            auto [A, B] = Split(root->rc, val);
-            root->rc = A;
-            root->pull();
-            return {root, B};
-        } else {
-            auto [A, B] = Split(root->lc, val);
-            root->lc = B;
-            root->pull();
-            return {A, root};
-        }
-    }
-    
-    Node* find_kth(Node* root, int k) {
-        if (!root) return nullptr;
-    
-        int cntL;
-        if (root->lc) cntL = root->lc->sz;
-        else cntL = 0;
-    
-        if (cntL >= k) { // in left
-            return find_kth(root->lc, k);
-        } else if (cntL + root->cnt >= k) {
-            return root;
-        } else {
-            return find_kth(root->rc, k - cntL - root->cnt);
-        }
-    }
-    
-    void DFS(Node* root) {
-        if (root == nullptr) return;
-        if (root->lc) DFS(root->lc);
-        cout << "DFS:" << root->key << "\n";
-        if (root->rc) DFS(root->rc);
-    }
-    
-    struct DS {
-        Node* root = nullptr;
-    
-        void insert(int x) {
-            auto [A, B] = Split(root, x - 1);
-            auto [C, D] = Split(B, x);
-            if (C == nullptr) {
-                Node* tmp = new Node(x);
-                root = Merge(A, Merge(tmp, D));
-                return;
-            }
-            C->cnt++;
-            root = Merge(A, Merge(C, D));
-        }
-    
-        int erase(int x) {
-            auto [A, B] = Split(root, x - 1);
-            auto [C, D] = Split(B, x);
-            if (C == nullptr) {
-                root = Merge(A, D);
-                return -1;
-            }
-            C->cnt--;
-            if (C->cnt == 0) {
-                root = Merge(A, D);
-                return 1;
-            }
-            root = Merge(A, Merge(C, D));
-            return 1;
-        }
-    
-        int find_rank(int x) {
-            auto [A, B] = Split(root, x - 1);
-            if (A == nullptr) {
-                root = Merge(A, B);
-                return 1;
-            }
-            int ans = A->sz + 1;
-            root = Merge(A, B);
-            return ans;
-        }
-    
-        int find_by_order(int k) {
-            Node* x = find_kth(root, k);
-            if (x == nullptr) return -1;
-            return x->key;
-        }
-    
-        int find_largest_less(int x) {
-            auto [A, B] = Split(root, x - 1);
-            if (A == nullptr) {
-                root = Merge(A, B);
-                return -1;
-            }
-            Node* tmp = find_kth(A, A->sz);
-            root = Merge(A, B);
-            if (tmp == nullptr) return -1;
-            return tmp->key;
-        }
-    
-        int find_smallest_greater(int x) {
-            auto [A, B] = Split(root, x);
-            if (B == nullptr) {
-                root = Merge(A, B);
-                return -1;
-            }
-            Node* tmp = find_kth(B, 1);
-            root = Merge(A, B);
-            if (tmp == nullptr) return -1;
-            return tmp->key;
-        }
-    
-        void print() {
-            DFS(root);
-        }
-    };
-    
-    signed main() {
-        int q;
-        cin >> q;
-    
-        DS rank_tree;
-    
-        int op, x;
-        while (q--) {
-            cin >> op >> x;
-            if(op == 1) {
-                rank_tree.insert(x);
-                //rank_tree.print();
-            } else if (op == 2) {
-                rank_tree.erase(x);
-            } else if (op == 3) {
-                cout << rank_tree.find_rank(x) << '\n';
-            } else if (op == 4) {
-                cout << rank_tree.find_by_order(x) << '\n';
-            } else if (op == 5) {
-                cout << rank_tree.find_largest_less(x) << '\n';
-            } else if (op == 6) {
-                cout << rank_tree.find_smallest_greater(x) << '\n';
-            }
-        }
-    } 
-    ```
