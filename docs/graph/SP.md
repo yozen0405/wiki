@@ -1893,6 +1893,131 @@
 	    } 
 		```
 
+???+note "[CF 1846 G. Rudolf and CodeVid-23](https://codeforces.com/contest/1846/problem/G)"
+	以下提到的 $01$ bit-string 長度皆為 $n$。給一個 $01$ bit-string，代表目前有的症狀，有 $m$ 個藥可以使用，每個藥有緩解的 $01$ bit-string $a_i$，與副作用 $01$ bit-string $b_i$，與花費 $d_i$。每種藥吃完即消失。問最少花費使所有症狀消失
+	
+	$n\le 10,m\le 1000$
+	
+	??? note "思路"
+		這題的關鍵是能不能想出可以用圖論的觀點看。
+		
+		將每種 $01$ bit-string 的狀態看成一個點，依照題意將狀態之間連有向邊，邊權為 $d_i$，答案就是從一開始的 $01$ bit-string 到 $0$ 的最短路
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<long long, long long>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct data {
+            int a, b, d;
+        } a[maxn];
+
+        struct Graph {
+            vector<vector<pii>> G;
+            int n = 0;
+
+            int add_node () {
+                n++;
+                G.pb ({});
+                return n - 1;
+            }
+
+            void add_edge (int u, int v, int w) {
+                G[u].pb ({v, w});
+            }
+
+            int dijkstra (int s, int t) {
+                vector<int> dis (n, INF);
+                priority_queue<pii, vector<pii>, greater<pii>> pq;
+                pq.push ({0, s});
+                dis[s] = 0;
+
+                while (pq.size ()) {
+                    auto [dis_u, u] = pq.top(); pq.pop();
+                    if (dis[u] < dis_u) continue;
+                    dis[u] = dis_u;
+
+                    for (auto [v, w] : G[u]) {
+                        if (dis[v] > dis[u] + w) {
+                            dis[v] = dis[u] + w;
+                            pq.push ({dis[v], v});
+                        }
+                    } 
+                }
+                if (dis[t] == INF) return -1;
+                return dis[t];
+            }
+            void clear() {
+                for (int i = 0; i < n; i++) {
+                    G[i].clear();
+                }
+            }
+        } g;
+
+        int n, m;
+        int now;
+        int id[(1 << 20)];
+
+        void init() {
+            cin >> n >> m;
+            string s;
+            cin >> s;
+            now = 0;
+            for (int i = n - 1; i >= 0; i--) {
+                now += (s[i] - '0') * (1 << i);
+            }
+            for (int t = 0; t < m; t++) {
+                cin >> a[t].d;
+                string s1, s2;
+                cin >> s1 >> s2;
+                a[t].a = 0, a[t].b = 0;
+                for (int i = n - 1; i >= 0; i--) {
+                    a[t].a += (s1[i] - '0') * (1 << i);
+                }
+                for (int i = n - 1; i >= 0; i--) {
+                    a[t].b += (s2[i] - '0') * (1 << i);
+                }
+            }
+        }
+
+        void solve() {
+            for (int mask = 0; mask < (1 << n); mask++) {
+                for (int i = 0; i < m; i++) {
+                    int S = mask & (((1 << 20) - 1) ^ a[i].a);
+                    S |= a[i].b;
+                    g.add_edge(id[mask], id[S], a[i].d);
+                }
+            } 
+            int ans = g.dijkstra(id[now], id[0]);
+            cout << ans << '\n';
+        }
+
+        signed main() {
+            for (int mask = 0; mask < (1 << 20); mask++) {
+                id[mask] = g.add_node();
+            } 
+            int t = 1;
+            cin >> t;
+            while (t--) {
+                g.clear();
+                init();
+                solve();
+            }
+        } 
+        ```
+	
 ### 建立虛點
 
 ???+note "[LOJ #3471. [JOI 2021 Final] Robot](https://loj.ac/p/3471)"
@@ -2956,13 +3081,13 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 ??? info "非負環必存在至少一個起點 $u$，過程中權重和都 $\ge 0$，且 suf 最大的必定滿足"
 	
     非負環 $\Rightarrow$ suf[1] >= 0
-
+    
     suf[k] = max (suf)
-
+    
     因為 suf[k] 是最大的，所以 suf[k] - suf[i] 至少 >= 0
-
+    
     - suf[k]+(suf[1] - suf[i]) >= 0
-
+    
     - suf[k] - suf[i] >= 0
 
 ???+question "如何找非負環 ?"

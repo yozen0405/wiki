@@ -22,28 +22,44 @@ case 3: $n^{c+\epsilon} = O(f(n)) \Rightarrow T(n) = \Theta( f(n) )$
 
 ## recursive function 
 
-- $\displaystyle T(n) = 2T(\frac{n}{2}) + O(n) = O(n \log n)$
-    - merge sort
-        - common divide and conquer algorithms
+$$
+\displaystyle T(n) = 2T(\frac{n}{2}) + O(n) = O(n \log n)
+$$
 
-- $\displaystyle T(n) = T(\frac{n}{2}) + O(1) = O(\log n)$
-	- binary search
+- merge sort
+    - common divide and conquer algorithms
 
-- $\displaystyle T(n) = T(\frac{n}{2}) + O(n) = O(n)$
-	- STL nth_element
+$$
+\displaystyle T(n) = T(\frac{n}{2}) + O(1) = O(\log n)
+$$
 
-- $\displaystyle T(n) = 2T(\frac{n}{2}) + O(n\log n) = O(n \log^2 n)$
+- binary search
 
-	- some BBST
-    - suffix array using std::sort
+$$
+\displaystyle T(n) = T(\frac{n}{2}) + O(n) = O(n)
+$$
 
-- $\displaystyle T(n) = 2T(\frac{n}{2}) + O(\frac{n}{\log n}) = O(n \log\log n)$
+- STL nth_element
 
-	- harmonic series (Riemann zeta function when s = 1)
+$$
+\displaystyle T(n) = 2T(\frac{n}{2}) + O(n\log n) = O(n \log^2 n)
+$$
 
-		- $\displaystyle \frac{1}{1} + \frac{1}{2} + \frac{1}{3} + \frac{1}{4} + \ldots + \frac{1}{n} = O(\log n)$
+- some BBST
 
-- $\displaystyle T(n) = 2T(\frac{n}{2}) + O(\frac{n}{\log^2 n}) = O(n)$
-	- Basel problem (Riemann zeta function when s = 2)
-		- $\displaystyle (\frac{1}{1})^2 + (\frac{1}{2})^2 + \ldots + (\frac{1}{n})^2+\ldots = \frac{\pi^2}{6} = O(1)$
+- suffix array using std::sort
+
+$$
+\displaystyle T(n) = 2T(\frac{n}{2}) + O(\frac{n}{\log n}) = O(n \log\log n)
+$$
+
+- harmonic series (Riemann zeta function when s = 1)
+	- $\displaystyle \frac{1}{1} + \frac{1}{2} + \frac{1}{3} + \frac{1}{4} + \ldots + \frac{1}{n} = O(\log n)$
+
+$$
+\displaystyle T(n) = 2T(\frac{n}{2}) + O(\frac{n}{\log^2 n}) = O(n)
+$$
+
+- Basel problem (Riemann zeta function when s = 2)
+	- $\displaystyle (\frac{1}{1})^2 + (\frac{1}{2})^2 + \ldots + (\frac{1}{n})^2+\ldots = \frac{\pi^2}{6} = O(1)$
 
