@@ -48,6 +48,8 @@
 
 ### struct
 
+#### 變數
+
 - key：比較的依據，在中序要由小到大
 
 - priority ：維持 treap 形狀的依據，最大值在 root
@@ -55,6 +57,12 @@
 - val：要儲存的資料
 
 - lc, rc：左右子樹的 pointer
+
+#### 函式
+
+- push()：把 root 的資訊傳遞給子樹（呼叫時放在要用到 lc, rc 之前）
+
+- pull()：把子樹的資訊更新到 root
 
 ??? note "code"
 	```cpp linenums="1"
@@ -74,6 +82,7 @@
         }
     };
     ```
+    
 ### Merge
 
 merge(a, b)：把兩個 treap a, b 合併成一個 treap，用中序看 a 在左邊，b 在右邊
@@ -804,226 +813,8 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
         }
         ```
 
-???+note "[TIOJ 2140. 殿壬愛序列](https://tioj.ck.tp.edu.tw/problems/2140)"
-    給一個長度為 $n$ 的序列，請支援三種操作：
-
-    1. 給定 $p,k$，將 $a_p$ 設成 $k$
-    2. 給定 $l,r,k$，$\forall l\le i\le r,a_i=\lfloor \frac{a_i}{k} \rfloor$
-    3. 給定 $l,r$，輸出 $a_l,a_{l+1},\ldots ,a_r$ 的絕對多數，若不存在輸出 $-1$
-    
-    $T$ 個數若存在絕對多數 $x$，代表 $x$ 出現的次數 $\ge \lfloor \frac{T+2}{2} \rfloor$
-    
-    $n,q\le 10^5$
-    
-    ??? note "思路"
-    	<https://abc864197532.github.io/2021/02/07/tioj-2140/>
-
-???+note "區間數字個數"
-	給一個長度為 $n$ 陣列，$q$ 筆詢問 :
-	
-	- $\text{query}(l,r,x):a_l,\ldots ,a_r$，$x$ 出現的次數
-	
-	- $\text{update}(i,x):$ 將 $a_i=x$
-	
-	$n,q\le 2\times 10^5,x\le 10^9$
-	
-	??? note "思路"
-		（靜態）沒 update : vec[x] 放 $a_i=x$ 的所有 $x$
-		
-		（動態）有 update : DS[x] 支援 
-		
-		- insert(i)
-	
-		- erase(i)
-	
-		- lower_bound(i)
-	
-		使用 Treap 或 `pb_ds::tree`
-	
-	??? note "code"
-		```cpp linenums="1"
-		// using pbds
-		tree<pii,null_type,less<pii>,rb_tree_tag,tree_order_statistics_node_update> T;
-		
-		// update(i, x)
-		T.erase({a[i], i});
-		a[i] = x;
-		T.insert({a[i], i});
-		
-		// query(l, r, x)
-		cout << T.order_of_key(mk(id, r + 1)) - T.order_of_key(mk(id, l)); 
-		```
-
-???+note "[資芽 OJ 794 — 區間絕對眾數](https://neoj.sprout.tw/problem/794/)"
-
-    輸入一個長度為 $N$ 的正整數序列 $a_1, \ldots, a_N$，接下來有 $Q$ 筆詢問。
-    
-    每筆詢問輸入 $l_i, r_i$，輸出區間 $[l_i, r_i]$ 的絕對眾數，若不存在請輸出 $0$。
-    
-    $N, Q \leq 5 \times 10^5, 1 \leq a_i \leq 5 \times 10^5$
-    
-    ??? note "思路"
-    	<figure markdown>
-          ![Image title](./images/3.png){ width="300" }
-        </figure>
-        
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        #include <bits/extc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-    
-        using namespace std;
-        using namespace __gnu_pbds;
-    
-        tree<pii,null_type,less<pii>,rb_tree_tag,tree_order_statistics_node_update> T;
-    
-        const int INF = 2e18;
-        const int maxn = 5e5 + 5;
-        const int M = 1e9 + 7;
-    
-        struct Node {
-            Node* lc = nullptr;
-            Node* rc = nullptr;
-            int l, r;
-            int id = -1, cnt = 0;
-    
-            Node(int l, int r) : l(l), r(r) {}
-    
-            void pull () {
-                if (lc->cnt == 0) {
-                    id = rc->id;
-                    cnt = rc->cnt;
-                    return;
-                } 
-                if (rc->cnt == 0) {
-                    id = lc->id;
-                    cnt = lc->cnt;
-                    return;
-                }
-                if (lc->id == rc->id) {
-                    id = lc->id;
-                    cnt = lc->cnt + rc->cnt;
-                } else {
-                    if (lc->cnt > rc->cnt) {
-                        id = lc->id;
-                        cnt = lc->cnt - rc->cnt;
-                    } else {
-                        id = rc->id;
-                        cnt = rc->cnt - lc->cnt;
-                    }
-                }
-            }
-        };
-    
-        int n, q;
-        int a[maxn];
-    
-        Node* build (int l, int r) {
-            Node* root = new Node(l, r);
-            if (l == r) {
-                root->id = a[l];
-                root->cnt = 1;
-                return root;
-            }
-    
-            int mid = (l + r) / 2;
-            root->lc = build(l, mid);
-            root->rc = build(mid + 1, r);
-            root->pull();
-            return root;
-        }
-    
-        pii query(const Node* root, int ql, int qr) {
-            if (qr < root->l || root->r < ql) return {-1, 0};
-            if (ql <= root->l && root->r <= qr) {
-                return {root->id, root->cnt};
-            } 
-    
-            pii tmp = {-1, 0};
-            if (ql <= root->lc->r) {
-                pii ret = query(root->lc, ql, qr);
-                if (tmp.S == 0) {
-                    tmp = ret;
-                } else if (ret.S != 0) {
-                    if (ret.F == tmp.F) {
-                        tmp.S += ret.S;
-                    } else {
-                        if (ret.S > tmp.S) {
-                            tmp.F = ret.F;
-                            tmp.S = ret.S - tmp.S;
-                        } else {
-                            tmp.S = tmp.S - ret.S;
-                        }
-                    }
-                }
-            }
-            if (root->rc->l <= qr) {
-                pii ret = query(root->rc, ql, qr);
-                if (tmp.S == 0) {
-                    tmp = ret;
-                } else if (ret.S != 0) {
-                    if (ret.F == tmp.F) {
-                        tmp.S += ret.S;
-                    } else {
-                        if (ret.S > tmp.S) {
-                            tmp.F = ret.F;
-                            tmp.S = ret.S - tmp.S;
-                        } else {
-                            tmp.S = tmp.S - ret.S;
-                        }
-                    }
-                }
-            }
-            return tmp;
-        }
-    
-        void init() {
-            cin >> n >> q;
-            for (int i = 0; i < n; i++) {
-                cin >> a[i];
-                T.insert ({a[i], i});
-            }
-        }
-    
-        void solve() {
-            Node* root = build(0, n - 1);
-            while (q--) {
-                int l, r;
-                cin >> l >> r;
-                l--, r--;
-    
-                auto [id, c] = query(root, l, r);
-                if (c == 0) {
-                    cout << 0 << '\n';
-                    continue;
-                }
-                int cnt = T.order_of_key(mk(id, r + 1)) - T.order_of_key(mk(id, l)); 
-                if (cnt > (r - l + 1) / 2) {
-                    cout << id << '\n';
-                } else {
-                    cout << 0 << '\n';
-                }
-            }
-        }
-    
-        signed main() {
-            int t = 1;
-            while (t--) {
-                init();
-                solve();
-            }
-        } 
-        ```
-
 ???+note "[POJ-3580 SuperMemo](https://vjudge.net/problem/POJ-3580)"
-	給定一個長度為 N 的序列 `A[]`，M 個以下操作:
+	給定一個長度為 $n$ 的序列 `A[]`，$m$ 個以下操作:
 
     - `ADD l r k` : 將 `A[l, r]` 的每一項都加上 `k`
     
@@ -1039,9 +830,27 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     
     $n,m\le 10^6$
     
+    ??? note "實作細節"
+    	因為是 POJ 版本舊的關係要
+    	
+    	```cpp
+    	#define nullptr NULL
+    	```
+    	
+    	也不能使用 auto，所以改用 `pair<Node*, Node*>` 
+    	
+    	還有 struct 裡面不能直接 assign 變數的預設值
+    	
+    	還有 Node 不要維護多餘的資訊（例如 sum），不然會 TLE　
+    
     ??? note "code"
     	```cpp linenums="1"
-    	#include <bits/stdc++.h>
+    	#include <algorithm>
+        #include <cstdlib>
+        #include <iostream>
+        #include <string>
+        #include <utility>
+        #include <vector>
         #define int long long
         #define pii pair<int, int>
         #define pb push_back
@@ -1049,28 +858,25 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
         #define F first
         #define S second
         #define ALL(x) x.begin(), x.end()
+        #define nullptr NULL
 
         using namespace std;
 
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
         struct Node {
             int pri;
-            Node* lc = nullptr;
-            Node* rc = nullptr;
+            Node* lc;
+            Node* rc;
             // lazy tag
-            int rev = 0;
-            int add = 0;
+            int rev;
+            int add;
             // original data
-            int sz = 1;
-            int val;
+            int sz;
             // extra data
-            int sum;
+            int val;
             int mn;
 
-            Node (int val) : val(val), sum(val), mn(val) , pri(rand()) {}
+            Node (int val) : val(val), mn(val) , pri(rand()), 
+                             lc(nullptr), rc(nullptr), sz(1), rev(0), add(0) {}
 
             void push() {
                 if (rev) {
@@ -1081,35 +887,36 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 }
                 if (add) {
                     if (lc) {
-                        lc->sum += add * lc->sz;
                         lc->add += add;
+                        lc->val += add;
+                        lc->mn += add;
                     }
                     if (rc) {
-                        rc->sum += add * rc->sz;
                         rc->add += add;
+                        rc->val += add;
+                        rc->mn += add;
                     }
                     add = 0;
                 }
             }
 
             void pull() {
-                sum = val;
                 mn = val;
+                sz = 1;
                 if (lc) {
-                    sum += lc->sum;
                     mn = min(lc->mn, mn);
+                    sz += lc->sz;
                 }
                 if (rc) {
-                    sum += rc->sum;
                     mn = min(rc->mn, mn);
+                    sz += rc->sz;
                 }
             }
         };
 
         struct DS {
-            Node* root = nullptr;
-
             void init(const vector<int> &a) {
+                root = nullptr;
                 for (int i = 0; i < (int)a.size(); i++) {
                     Node* tmp = new Node(a[i]);
                     root = Merge(root, tmp);
@@ -1122,36 +929,35 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 root = Merge(p1.F, Merge(tmp, p1.S));
             }
 
-            int erase(int k) {
+            void erase(int k) {
                 pair<Node*, Node*> p1 = SplitBySize(root, k - 1);
                 pair<Node*, Node*> p2 = SplitBySize(p1.S, 1);
                 if (p2.F == nullptr) {
                     root = Merge(p1.F, p2.S);
-                    return -1;
+                    return;
                 }
-                root = Merge(p1.F, Merge(p2.F, p2.S));
+                root = Merge(p1.F, p2.S);
             }
 
-            int add(int l, int r, int k) {
+            void add(int l, int r, int k) {
                 pair<Node*, Node*> p1 = SplitBySize(root, r);
                 pair<Node*, Node*> p2 = SplitBySize(p1.F, l - 1);
                 if (p2.S == nullptr) {
                     root = Merge(p2.F, p1.S);
-                    return -1;
+                    return;
                 }
                 p2.S->add += k;
-                p2.S->sum += k * p2.S->sz;
                 p2.S->mn += k;
                 p2.S->val += k;
                 root = Merge(Merge(p2.F, p2.S), p1.S);
             }
 
-            int reverse(int l, int r) { // 1-base param
+            void reverse(int l, int r) {
                 pair<Node*, Node*> p1 = SplitBySize(root, r);
                 pair<Node*, Node*> p2 = SplitBySize(p1.F, l - 1);
                 if (p2.S == nullptr) {
                     root = Merge(p2.F, p1.S);
-                    return -1;
+                    return;
                 }
                 p2.S->rev ^= 1;
                 root = Merge(Merge(p2.F, p2.S), p1.S);
@@ -1169,19 +975,44 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 return ans;
             }
 
-            int revolve(int l, int r, int k) {
+            void revolve(int l, int r, int k) {
                 k %= (r - l + 1);
                 pair<Node*, Node*> p1 = SplitBySize(root, r);
                 pair<Node*, Node*> p2 = SplitBySize(p1.F, l - 1);
                 if (p2.S == nullptr) {
                     root = Merge(p2.F, p1.S);
-                    return -1;
+                    return;
                 }
                 pair<Node*, Node*> p3 = SplitBySize(p2.S, (r - l + 1) - k);
                 root = Merge(Merge(p2.F, Merge(p3.S, p3.F)), p1.S);
             }
 
+            int get_val(int k) { // debug
+                pair<Node*, Node*> p1 = SplitBySize(root, k - 1);
+                pair<Node*, Node*> p2 = SplitBySize(p1.S, 1);
+                if (p2.F == nullptr) {
+                    root = Merge(p1.F, p2.S);
+                    return -1;
+                }
+                int ans = p2.F->val;
+                root = Merge(p1.F, Merge(p2.F, p2.S));
+                return ans;
+            }
+
+            void print() { // debug
+                if (root == nullptr) {
+                    cout << "print failed\n";
+                    return;
+                }
+                int n = root->sz;
+                for (int i = 1; i <= n; i++) {
+                    cout << "i:" << i << ",val:" << get_val(i) << "\n";
+                }
+            }
+
             private:
+
+            Node* root;
 
             Node* Merge(Node* a, Node* b) {
                 if (!a) return b;
@@ -1223,11 +1054,21 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                     return make_pair(p.F, root);
                 }
             }
+
+            void DFS(Node* root) { // debug
+                if (!root) return;
+                DFS(root->lc);
+                cout << root->val << '\n';
+                DFS(root->rc);
+            }
         };
 
         int n, q;
 
         signed main() {
+            cin.tie(0);
+            cin.sync_with_stdio(0);
+
             cin >> n;
             vector<int> a(n);
             for (int i = 0; i < n; i++) cin >> a[i];
@@ -1256,10 +1097,16 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                     int i, x;
                     cin >> i >> x;
                     ds.insert(i, x);
-                } else if (s == "ERASE") {
+                } else if (s == "DELETE") {
                     int i;
                     cin >> i;
                     ds.erase(i);
+                } else if (s == "MIN") {
+                    int l, r;
+                    cin >> l >> r;
+                    cout << ds.min(l, r) << '\n';
+                } else if (s == "PRINT") { // debug
+                    ds.print();
                 }
             }
         } 
