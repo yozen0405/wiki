@@ -828,9 +828,9 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 	$n,q\le 2\times 10^5,x\le 10^9$
 	
 	??? note "思路"
-		沒 update : vec[x] 放 $a_i=x$ 的所有 $x$
+		（靜態）沒 update : vec[x] 放 $a_i=x$ 的所有 $x$
 		
-		有 update : DS[x] 支援 
+		（動態）有 update : DS[x] 支援 
 		
 		- insert(i)
 	
@@ -839,6 +839,20 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 		- lower_bound(i)
 	
 		使用 Treap 或 `pb_ds::tree`
+	
+	??? note "code"
+		```cpp linenums="1"
+		// using pbds
+		tree<pii,null_type,less<pii>,rb_tree_tag,tree_order_statistics_node_update> T;
+		
+		// update(i, x)
+		T.erase({a[i], i});
+		a[i] = x;
+		T.insert({a[i], i});
+		
+		// query(l, r, x)
+		cout << T.order_of_key(mk(id, r + 1)) - T.order_of_key(mk(id, l)); 
+		```
 
 ???+note "[資芽 OJ 794 — 區間絕對眾數](https://neoj.sprout.tw/problem/794/)"
 
@@ -864,24 +878,24 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
         #define F first
         #define S second
         #define ALL(x) x.begin(), x.end()
-
+    
         using namespace std;
         using namespace __gnu_pbds;
-
+    
         tree<pii,null_type,less<pii>,rb_tree_tag,tree_order_statistics_node_update> T;
-
+    
         const int INF = 2e18;
         const int maxn = 5e5 + 5;
         const int M = 1e9 + 7;
-
+    
         struct Node {
             Node* lc = nullptr;
             Node* rc = nullptr;
             int l, r;
             int id = -1, cnt = 0;
-
+    
             Node(int l, int r) : l(l), r(r) {}
-
+    
             void pull () {
                 if (lc->cnt == 0) {
                     id = rc->id;
@@ -907,10 +921,10 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 }
             }
         };
-
+    
         int n, q;
         int a[maxn];
-
+    
         Node* build (int l, int r) {
             Node* root = new Node(l, r);
             if (l == r) {
@@ -918,20 +932,20 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 root->cnt = 1;
                 return root;
             }
-
+    
             int mid = (l + r) / 2;
             root->lc = build(l, mid);
             root->rc = build(mid + 1, r);
             root->pull();
             return root;
         }
-
+    
         pii query(const Node* root, int ql, int qr) {
             if (qr < root->l || root->r < ql) return {-1, 0};
             if (ql <= root->l && root->r <= qr) {
                 return {root->id, root->cnt};
             } 
-
+    
             pii tmp = {-1, 0};
             if (ql <= root->lc->r) {
                 pii ret = query(root->lc, ql, qr);
@@ -969,7 +983,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             }
             return tmp;
         }
-
+    
         void init() {
             cin >> n >> q;
             for (int i = 0; i < n; i++) {
@@ -977,14 +991,14 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 T.insert ({a[i], i});
             }
         }
-
+    
         void solve() {
             Node* root = build(0, n - 1);
             while (q--) {
                 int l, r;
                 cin >> l >> r;
                 l--, r--;
-
+    
                 auto [id, c] = query(root, l, r);
                 if (c == 0) {
                     cout << 0 << '\n';
@@ -998,7 +1012,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 }
             }
         }
-
+    
         signed main() {
             int t = 1;
             while (t--) {
@@ -1011,19 +1025,245 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 ???+note "[POJ-3580 SuperMemo](https://vjudge.net/problem/POJ-3580)"
 	給定一個長度為 N 的序列 `A[]`，M 個以下操作:
 
-    - `ADD x y k` : 將 `A[x, y]` 的每一項都加上 `k`
+    - `ADD l r k` : 將 `A[l, r]` 的每一項都加上 `k`
     
-    - `REVERSE x y` : 將 `A[x, y]` 反轉
+    - `REVERSE l r` : 將 `A[l, r]` 反轉
     
-    - `REVOLVE x y k` : 將 `A[x, y]` 右旋 `k` 格
+    - `REVOLVE l r k` : 將 `A[l, r]` 右旋 `k` 格
     
-    - `INSERT x val` : 將 `val` 插入到 `A[x]` 這一項的後面
+    - `INSERT i x` : 將 `x` 插入到 `A[i]` 這一項的後面
     
-    - `DELETE x` : 刪除 `A[x]` 這一項
+    - `DELETE i` : 刪除 `A[i]` 這一項
     
-    - `MIN x y` : 輸出 `A[x, y]` 中的最小值
+    - `MIN l r` : 輸出 `A[l, r]` 中的最小值
     
     $n,m\le 10^6$
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Node {
+            int pri;
+            Node* lc = nullptr;
+            Node* rc = nullptr;
+            // lazy tag
+            int rev = 0;
+            int add = 0;
+            // original data
+            int sz = 1;
+            int val;
+            // extra data
+            int sum;
+            int mn;
+
+            Node (int val) : val(val), sum(val), mn(val) , pri(rand()) {}
+
+            void push() {
+                if (rev) {
+                    swap(lc, rc);
+                    if (lc) lc->rev ^= 1;
+                    if (rc) rc->rev ^= 1;
+                    rev = 0;
+                }
+                if (add) {
+                    if (lc) {
+                        lc->sum += add * lc->sz;
+                        lc->add += add;
+                    }
+                    if (rc) {
+                        rc->sum += add * rc->sz;
+                        rc->add += add;
+                    }
+                    add = 0;
+                }
+            }
+
+            void pull() {
+                sum = val;
+                mn = val;
+                if (lc) {
+                    sum += lc->sum;
+                    mn = min(lc->mn, mn);
+                }
+                if (rc) {
+                    sum += rc->sum;
+                    mn = min(rc->mn, mn);
+                }
+            }
+        };
+
+        struct DS {
+            Node* root = nullptr;
+
+            void init(const vector<int> &a) {
+                for (int i = 0; i < (int)a.size(); i++) {
+                    Node* tmp = new Node(a[i]);
+                    root = Merge(root, tmp);
+                }
+            }
+
+            void insert(int k, int x) {
+                pair<Node*, Node*> p1 = SplitBySize(root, k);
+                Node* tmp = new Node(x);
+                root = Merge(p1.F, Merge(tmp, p1.S));
+            }
+
+            int erase(int k) {
+                pair<Node*, Node*> p1 = SplitBySize(root, k - 1);
+                pair<Node*, Node*> p2 = SplitBySize(p1.S, 1);
+                if (p2.F == nullptr) {
+                    root = Merge(p1.F, p2.S);
+                    return -1;
+                }
+                root = Merge(p1.F, Merge(p2.F, p2.S));
+            }
+
+            int add(int l, int r, int k) {
+                pair<Node*, Node*> p1 = SplitBySize(root, r);
+                pair<Node*, Node*> p2 = SplitBySize(p1.F, l - 1);
+                if (p2.S == nullptr) {
+                    root = Merge(p2.F, p1.S);
+                    return -1;
+                }
+                p2.S->add += k;
+                p2.S->sum += k * p2.S->sz;
+                p2.S->mn += k;
+                p2.S->val += k;
+                root = Merge(Merge(p2.F, p2.S), p1.S);
+            }
+
+            int reverse(int l, int r) { // 1-base param
+                pair<Node*, Node*> p1 = SplitBySize(root, r);
+                pair<Node*, Node*> p2 = SplitBySize(p1.F, l - 1);
+                if (p2.S == nullptr) {
+                    root = Merge(p2.F, p1.S);
+                    return -1;
+                }
+                p2.S->rev ^= 1;
+                root = Merge(Merge(p2.F, p2.S), p1.S);
+            }
+
+            int min(int l, int r) {
+                pair<Node*, Node*> p1 = SplitBySize(root, r);
+                pair<Node*, Node*> p2 = SplitBySize(p1.F, l - 1);
+                if (p2.S == nullptr) {
+                    root = Merge(p2.F, p1.S);
+                    return -1;
+                }
+                int ans = p2.S->mn;
+                root = Merge(Merge(p2.F, p2.S), p1.S);
+                return ans;
+            }
+
+            int revolve(int l, int r, int k) {
+                k %= (r - l + 1);
+                pair<Node*, Node*> p1 = SplitBySize(root, r);
+                pair<Node*, Node*> p2 = SplitBySize(p1.F, l - 1);
+                if (p2.S == nullptr) {
+                    root = Merge(p2.F, p1.S);
+                    return -1;
+                }
+                pair<Node*, Node*> p3 = SplitBySize(p2.S, (r - l + 1) - k);
+                root = Merge(Merge(p2.F, Merge(p3.S, p3.F)), p1.S);
+            }
+
+            private:
+
+            Node* Merge(Node* a, Node* b) {
+                if (!a) return b;
+                if (!b) return a;
+
+                if (a->pri > b->pri) {
+                    a->push();
+                    a->rc = Merge(a->rc, b);
+                    a->pull();
+                    return a;
+                } else {
+                    b->push();
+                    b->lc = Merge(a, b->lc);
+                    b->pull();
+                    return b;
+                }
+            }
+
+            pair<Node*, Node*> SplitBySize(Node* root, int k) {
+                if (!root) return {nullptr, nullptr};
+
+                root->push();
+                int cntL;
+                if (root->lc) {
+                    cntL = root->lc->sz + 1;
+                } else {
+                    cntL = 1;
+                }
+
+                if (cntL <= k) {
+                    pair<Node*, Node*> p = SplitBySize(root->rc, k - cntL);
+                    root->rc = p.F;
+                    root->pull();
+                    return make_pair(root, p.S);
+                } else {
+                    pair<Node*, Node*> p = SplitBySize(root->lc, k);
+                    root->lc = p.S;
+                    root->pull();
+                    return make_pair(p.F, root);
+                }
+            }
+        };
+
+        int n, q;
+
+        signed main() {
+            cin >> n;
+            vector<int> a(n);
+            for (int i = 0; i < n; i++) cin >> a[i];
+
+            DS ds;
+            ds.init(a);
+
+            cin >> q;
+            while (q--) {
+                string s;
+                cin >> s;
+
+                if (s == "ADD") {
+                    int l, r, k;
+                    cin >> l >> r >> k;
+                    ds.add(l, r, k);
+                } else if (s == "REVERSE") {
+                    int l, r;
+                    cin >> l >> r;
+                    ds.reverse(l, r);
+                } else if (s == "REVOLVE") {
+                    int l, r, k;
+                    cin >> l >> r >> k;
+                    ds.revolve(l, r, k);
+                } else if (s == "INSERT") {
+                    int i, x;
+                    cin >> i >> x;
+                    ds.insert(i, x);
+                } else if (s == "ERASE") {
+                    int i;
+                    cin >> i;
+                    ds.erase(i);
+                }
+            }
+        } 
+        ```
 
 ???+note "[洛谷 P3834 - 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)"
 	給長度為 $n$ 的序列，$q$ 筆詢問

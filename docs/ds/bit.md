@@ -1,3 +1,38 @@
+## 模板
+
+一定要是 1-base
+
+???+note "code"
+	```cpp linenums="1"
+    struct BIT {
+    	#define lowbit(x) (x & (-x))
+        int n;
+        vector<int> bit;
+
+        void build (int _n) {
+            n = _n;
+            bit.resize (n + 1);
+        }
+
+        int query (int x) {
+            int ret = 0;
+            while (x > 0) {
+                ret += bit[x];
+                x -= lowbit (x);
+            }
+
+            return ret;
+        }
+
+        void modify (int x, int d) {
+            while (x <= n) {
+                bit[x] += d;
+                x += lowbit (x);
+            }
+        }
+    }; 
+    ```
+
 ## BIT 支援操作
 
 query 的區間只能是前綴, 僅能回答可由前綴組合出來的問題
@@ -18,11 +53,5 @@ query 的區間只能是前綴, 僅能回答可由前綴組合出來的問題
 
 把 bit 的看成是前綴和陣列，區間加值就用差分改兩個點，單點求和時就求 bit[1] + ... + bit[i]
 
-### 區間求和, 區間加值
 
-維護 bit[i] = 4 * a[1] +  3 * a[2] + 2 * a[3] + 1 * a[4]
-
-a[i] + ... + a[j]
-
-= (pre[1] + ... + pre[i]) + ... + (pre[1] + ... + pre[j])
 

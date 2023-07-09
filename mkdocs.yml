@@ -175,6 +175,7 @@ nav:
     - 資料結構:
       - 線段樹: 'ds/segment_tree.md'
       - 前綴和技巧: 'ds/prefix.md'
+      - 單調隊列: 'ds/monotonous-stack.md'
       - BIT: 'ds/bit.md'
       - Treap: 'ds/treap.md'
       - pb_ds: 'ds/pb_ds.md'
