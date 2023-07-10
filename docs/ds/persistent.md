@@ -6,7 +6,7 @@
 
 - [持久化 DSU](/wiki/graph/DSU/#_11)
 
-???+note "[CSES Range Queries and Copies](https://cses.fi/problemset/task/1737)"
+???+note "[CSES - Range Queries and Copies](https://cses.fi/problemset/task/1737)"
 	有一個長度 $n$ 陣列，$q$ 筆以下操作：
     
     - 對於第 $k$ 個陣列單點改值
