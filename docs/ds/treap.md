@@ -1382,9 +1382,13 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 
 ## 持久化 Treap
 
-## 基本操作
+### 基本操作
 
-### struct
+!!! info "通則 : 在 push 之前 copy 一份"
+
+#### struct
+
+注意看 push() 函式裡面怎麼寫，尤其是更新順序
 
 ??? note "code"
 	```cpp linenums="1"
@@ -1424,7 +1428,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     };
     ```
 
-### Merge
+#### Merge
 
 ??? note "code"
 	```cpp linenums="1"
@@ -1448,7 +1452,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     }
     ```
 
-### Split
+#### Split
 
 ??? note "code"
     ```cpp linenums="1"
@@ -1472,7 +1476,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     }
     ```
 
-### Split by size
+#### Split by size
 
 ??? note "code"
 	```cpp linenums="1"
@@ -1735,3 +1739,209 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     每一次操作都是基於某一個歷史版本，同時生成一個新的版本
     
     $1 \le n \le 2 \times {10}^5$，$|x_i| < {10}^6$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Node {
+            int pri;
+            Node *lc = nullptr;
+            Node *rc = nullptr;
+            int sz = 1;
+            int sum;
+            int val;
+            int rev = 0;
+
+            Node (int val) : val(val), sum(val), pri(rand()) {}
+
+            void push() {
+                if (rev) {
+                    swap(lc, rc);
+
+                    if (lc) lc = new Node(*lc);
+                    if (rc) rc = new Node(*rc);
+
+                    if (lc) lc->rev ^= 1;
+                    if (rc) rc->rev ^= 1;
+                    rev = 0;
+                }
+            }
+
+            void pull() {
+                sz = 1;
+                sum = val;
+                if (lc) {
+                    sz += lc->sz;
+                    sum += lc->sum;
+                }
+                if (rc) {
+                    sz += rc->sz;
+                    sum += rc->sum;
+                }
+            }
+        };
+
+        Node* Merge(Node* a, Node *b) {
+            if (!a) return b;
+            if (!b) return a;
+
+            if (a->pri > b->pri) {
+                a = new Node(*a);
+                a->push();
+                a->rc = Merge(a->rc, b);
+                a->pull();
+                return a;
+            } else {
+                b = new Node(*b);
+                b->push();
+                b->lc = Merge(a, b->lc);
+                b->pull();
+                return b;
+            }
+        }
+
+        pair<Node*, Node*> SplitBySize(Node* root, int k) {
+            if (!root) return {nullptr, nullptr};
+
+            root = new Node(*root);
+
+            root->push();
+            int cntL = 0;
+            if (root->lc) cntL = root->lc->sz + 1;
+            else cntL = 1;
+
+
+            if (cntL <= k) {
+                auto [A, B] = SplitBySize(root->rc, k - cntL);
+                root->rc = A;
+                root->pull();
+                return {root, B};
+            } else {
+                auto [A, B] = SplitBySize(root->lc, k);
+                root->lc = B;
+                root->pull();
+                return {A, root};
+            }
+        }
+
+        struct DS {
+            vector<Node*> roots = {nullptr};
+
+            void insert(int pre, int k, int x) {
+                //cout << "insert" << ",pre:" << pre << ",k:" << k << ",x:" << x << '\n';
+                auto [A, B] = SplitBySize(roots[pre], k);
+                Node* tmp = new Node(x);
+                roots.pb(Merge(A, Merge(tmp, B)));
+            }
+
+            void erase(int pre, int k) {
+                //cout << "erase" << ",pre:" << pre << ",k:" << k << '\n';
+                auto [A, B] = SplitBySize(roots[pre], k - 1);
+                auto [C, D] = SplitBySize(B, 1);
+                roots.pb(Merge(A, D));
+            }
+
+            void reverse(int pre, int l, int r) {
+                //cout << "reverse" << ",pre:" << pre << ",l:" << l << ",r:" << r << '\n';
+                auto [A, B] = SplitBySize(roots[pre], r);
+                auto [C, D] = SplitBySize(A, l - 1);
+                if (D == nullptr) {
+                    roots.pb(Merge(C, B));
+                    return;
+                }
+                D->rev ^= 1;
+                roots.pb(Merge(Merge(C, D), B));
+            }
+
+            int sum(int pre, int l, int r) {
+                //cout << "sum" << ",pre:" << pre << ",l:" << l << ",r:" << r << '\n';
+                auto [A, B] = SplitBySize(roots[pre], r);
+                auto [C, D] = SplitBySize(A, l - 1);
+                if (D == nullptr) {
+                    roots.pb(Merge(C, B));
+                    return -1;
+                }
+                int ans = D->sum;
+                roots.pb(Merge(Merge(C, D), B));
+                return ans;
+            }
+
+            int show(int pre, int k) { // debug
+                auto [A, B] = SplitBySize(roots[pre], k - 1);
+                auto [C, D] = SplitBySize(B, 1);
+                if (C == nullptr) {
+                    roots[pre] = Merge(A, D);
+                    return -1;
+                }
+                int ans = C->val;
+                roots[pre] = Merge(A, Merge(C, D));
+                return ans;
+            }
+
+            void print(int pre) { // debug
+                cout << "print:\n---------\n"; 
+                if (roots.size() <= pre || roots[pre] == nullptr) {
+                    cout << "failed print\n";
+                    return;
+                }
+                int n = roots[pre]->sz;
+                for (int i = 1; i <= n; i++) {
+                    cout << show(pre, i) << '\n';
+                }
+                cout << "-------\n";
+            }
+        };
+
+        signed main() {
+            int q;
+            cin >> q;
+
+            DS ds;
+
+            int last = 0;
+            while (q--) {
+                int v, op;
+                cin >> v >> op;
+
+                if (op == 1) {
+                    int k, x;
+                    cin >> k >> x;
+                    k ^= last;
+                    x ^= last;
+                    ds.insert(v, k, x);
+                } else if (op == 2) {
+                    int k;
+                    cin >> k;
+                    k ^= last;
+                    ds.erase(v, k);
+                } else if (op == 3) {
+                    int l, r;
+                    cin >> l >> r;
+                    l ^= last;
+                    r ^= last;
+                    ds.reverse(v, l, r);
+                } else if (op == 4) {
+                    int l, r;
+                    cin >> l >> r;
+                    l ^= last;
+                    r ^= last;
+                    last = ds.sum(v, l, r);
+                    cout << last << '\n';
+                }
+            }
+        } 
+		```

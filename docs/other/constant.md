@@ -10,3 +10,5 @@
 ## 卡常
 
 - mod 
+
+- 把 `#define int long long` 去掉
