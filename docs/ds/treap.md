@@ -1,5 +1,3 @@
-!!! info "題單 : <https://vjudge.net/contest/345697>"
-
 ## 性質
 
 -  Key 具有樹性質
@@ -82,7 +80,7 @@
         }
     };
     ```
-    
+
 ### Merge
 
 merge(a, b)：把兩個 treap a, b 合併成一個 treap，用中序看 a 在左邊，b 在右邊
@@ -580,9 +578,8 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 	      <figcaption>lc, rc 的 pre, suf 要 swap，而 ans, sum 不用變</figcaption>
 	    </figure>
 
-
 ???+note "Treap - rank tree [LOJ #104. 普通平衡树](https://loj.ac/p/104)"
-	實作 Treap，支援以下功能：
+	實作 Treap，維護支援以下功能：
 
     1. 插入 $x$
     2. 刪除 $x$
@@ -813,6 +810,267 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
         }
         ```
 
+???+note "Treap - rank tree 數據加強版 [LOJ #107. 维护全序集](https://loj.ac/p/107)"
+	維護一個 multiset，支援以下功能：
+
+    1. 插入 $x$
+    2. 刪除 $x$
+    3. 查詢第 $k$ 小的數
+    4. 查詢有幾個數字小於 $x$ 
+    5. 求小於 $x$，最大的數
+    6. 求大於 $x$，最小的數
+
+	$1\le n\le 3\times 10^5,0\le x\le 10^9$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <cstdlib>
+        #include <iostream>
+        #include <utility>
+
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Node {
+            int key, pri;
+            Node *lc = nullptr;
+            Node *rc = nullptr;
+            int sz = 1;
+            int cnt = 1;
+
+            Node(int key) : key(key), pri(rand()) {
+            }
+
+            void pull() {
+                sz = cnt;
+
+                if (lc)
+                    sz += lc->sz;
+
+                if (rc)
+                    sz += rc->sz;
+            }
+        };
+
+        Node *Merge(Node *a, Node *b) {
+            if (!a)
+                return b;
+
+            if (!b)
+                return a;
+
+            if (a->pri > b->pri) {
+                a->rc = Merge(a->rc, b);
+                a->pull();
+                return a;
+            } else {
+                b->lc = Merge(a, b->lc);
+                b->pull();
+                return b;
+            }
+        }
+
+        // [A, B] : A <= val, B > val
+        pair<Node *, Node *> Split(Node *root, int val) {
+            if (!root)
+                return {nullptr, nullptr};
+
+            if (root->key <= val) {
+                auto [A, B] = Split(root->rc, val);
+                root->rc = A;
+                root->pull();
+                return {root, B};
+            } else {
+                auto [A, B] = Split(root->lc, val);
+                root->lc = B;
+                root->pull();
+                return {A, root};
+            }
+        }
+
+        Node *find_kth(Node *root, int k) {
+            if (!root)
+                return nullptr;
+
+            int cntL;
+
+            if (root->lc) {
+                cntL = root->lc->sz;
+            } else {
+                cntL = 0;
+            }
+
+            if (cntL >= k) {  // in left
+                return find_kth(root->lc, k);
+            } else if (cntL + root->cnt >= k) {
+                return root;
+            } else {
+                return find_kth(root->rc, k - cntL - root->cnt);
+            }
+        }
+
+        void DFS(Node *root) { // debug
+            if (root == nullptr)
+                return;
+
+            if (root->lc)
+                DFS(root->lc);
+
+            cerr << root->key << " ";
+
+            if (root->rc)
+                DFS(root->rc);
+        }
+        void print(Node *root) { // debug
+            cerr << "DFS: ";
+            DFS(root);
+            cerr << '\n';
+        }
+
+        struct DS {
+            Node *root = nullptr;
+
+            void insert(int x) {
+                auto [A, B] = Split(root, x - 1);
+                auto [C, D] = Split(B, x);
+
+                if (C == nullptr) {
+                    Node *tmp = new Node(x);
+                    root = Merge(A, Merge(tmp, D));
+                    return;
+                }
+
+                C->cnt++;
+                C->sz++;
+                root = Merge(A, Merge(C, D));
+            }
+
+            int erase(int x) {
+                auto [A, B] = Split(root, x - 1);
+                auto [C, D] = Split(B, x);
+
+                if (C == nullptr) {
+                    root = Merge(A, D);
+                    return -1;
+                }
+
+                C->cnt--;
+                C->sz--;
+
+                if (C->cnt == 0) {
+                    delete C;
+                    C = nullptr;
+                }
+
+                root = Merge(A, Merge(C, D));
+                return 1;
+            }
+
+            int find_rank(int x) {
+                auto [A, B] = Split(root, x - 1);
+
+                if (A == nullptr) {
+                    root = Merge(A, B);
+                    return 0;
+                }
+
+                int ans = A->sz;
+                root = Merge(A, B);
+                return ans;
+            }
+
+            int find_by_order(int k) {
+                Node *x = find_kth(root, k);
+
+                if (x == nullptr)
+                    return -1;
+
+                return x->key;
+            }
+
+            int find_largest_less(int x) {
+                auto [A, B] = Split(root, x - 1);
+
+                if (A == nullptr) {
+                    root = Merge(A, B);
+                    return -1;
+                }
+
+                Node *tmp = find_kth(A, A->sz);
+                root = Merge(A, B);
+
+                if (tmp == nullptr)
+                    return -1;
+
+                return tmp->key;
+            }
+
+            int find_smallest_greater(int x) {
+                auto [A, B] = Split(root, x);
+
+                if (B == nullptr) {
+                    root = Merge(A, B);
+                    return -1;
+                }
+
+                Node *tmp = find_kth(B, 1);
+                root = Merge(A, B);
+
+                if (tmp == nullptr)
+                    return -1;
+
+                return tmp->key;
+            }
+
+            void print() { // debug
+                cerr << "DFS: ";
+                DFS(root);
+                cerr << '\n';
+            }
+        };
+
+        signed main() {
+            cin.tie(0);
+            cin.sync_with_stdio(0);
+
+            int q;
+            cin >> q;
+
+            DS rank_tree;
+
+            int op, x;
+
+            while (q--) {
+                cin >> op >> x;
+
+                if (op == 0) {
+                    rank_tree.insert(x);
+                } else if (op == 1) {
+                    rank_tree.erase(x);
+                } else if (op == 2) {
+                    cout << rank_tree.find_by_order(x) << '\n';
+                } else if (op == 3) {
+                    cout << rank_tree.find_rank(x) << '\n';
+                } else if (op == 4) {
+                    cout << rank_tree.find_largest_less(x) << '\n';
+                } else if (op == 5) {
+                    cout << rank_tree.find_smallest_greater(x) << '\n';
+                }
+            }
+        }
+        ```
+
 ???+note "[POJ-3580 SuperMemo](https://vjudge.net/problem/POJ-3580)"
 	給定一個長度為 $n$ 的序列 `A[]`，$m$ 個以下操作:
 
@@ -859,9 +1117,9 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
         #define S second
         #define ALL(x) x.begin(), x.end()
         #define nullptr NULL
-
+    
         using namespace std;
-
+    
         struct Node {
             int pri;
             Node* lc;
@@ -874,10 +1132,10 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             // extra data
             int val;
             int mn;
-
+    
             Node (int val) : val(val), mn(val) , pri(rand()), 
                              lc(nullptr), rc(nullptr), sz(1), rev(0), add(0) {}
-
+    
             void push() {
                 if (rev) {
                     swap(lc, rc);
@@ -899,7 +1157,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                     add = 0;
                 }
             }
-
+    
             void pull() {
                 mn = val;
                 sz = 1;
@@ -913,7 +1171,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 }
             }
         };
-
+    
         struct DS {
             void init(const vector<int> &a) {
                 root = nullptr;
@@ -922,13 +1180,13 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                     root = Merge(root, tmp);
                 }
             }
-
+    
             void insert(int k, int x) {
                 pair<Node*, Node*> p1 = SplitBySize(root, k);
                 Node* tmp = new Node(x);
                 root = Merge(p1.F, Merge(tmp, p1.S));
             }
-
+    
             void erase(int k) {
                 pair<Node*, Node*> p1 = SplitBySize(root, k - 1);
                 pair<Node*, Node*> p2 = SplitBySize(p1.S, 1);
@@ -938,7 +1196,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 }
                 root = Merge(p1.F, p2.S);
             }
-
+    
             void add(int l, int r, int k) {
                 pair<Node*, Node*> p1 = SplitBySize(root, r);
                 pair<Node*, Node*> p2 = SplitBySize(p1.F, l - 1);
@@ -951,7 +1209,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 p2.S->val += k;
                 root = Merge(Merge(p2.F, p2.S), p1.S);
             }
-
+    
             void reverse(int l, int r) {
                 pair<Node*, Node*> p1 = SplitBySize(root, r);
                 pair<Node*, Node*> p2 = SplitBySize(p1.F, l - 1);
@@ -962,7 +1220,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 p2.S->rev ^= 1;
                 root = Merge(Merge(p2.F, p2.S), p1.S);
             }
-
+    
             int min(int l, int r) {
                 pair<Node*, Node*> p1 = SplitBySize(root, r);
                 pair<Node*, Node*> p2 = SplitBySize(p1.F, l - 1);
@@ -974,7 +1232,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 root = Merge(Merge(p2.F, p2.S), p1.S);
                 return ans;
             }
-
+    
             void revolve(int l, int r, int k) {
                 k %= (r - l + 1);
                 pair<Node*, Node*> p1 = SplitBySize(root, r);
@@ -986,7 +1244,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 pair<Node*, Node*> p3 = SplitBySize(p2.S, (r - l + 1) - k);
                 root = Merge(Merge(p2.F, Merge(p3.S, p3.F)), p1.S);
             }
-
+    
             int get_val(int k) { // debug
                 pair<Node*, Node*> p1 = SplitBySize(root, k - 1);
                 pair<Node*, Node*> p2 = SplitBySize(p1.S, 1);
@@ -998,7 +1256,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 root = Merge(p1.F, Merge(p2.F, p2.S));
                 return ans;
             }
-
+    
             void print() { // debug
                 if (root == nullptr) {
                     cout << "print failed\n";
@@ -1009,15 +1267,15 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                     cout << "i:" << i << ",val:" << get_val(i) << "\n";
                 }
             }
-
+    
             private:
-
+    
             Node* root;
-
+    
             Node* Merge(Node* a, Node* b) {
                 if (!a) return b;
                 if (!b) return a;
-
+    
                 if (a->pri > b->pri) {
                     a->push();
                     a->rc = Merge(a->rc, b);
@@ -1030,10 +1288,10 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                     return b;
                 }
             }
-
+    
             pair<Node*, Node*> SplitBySize(Node* root, int k) {
                 if (!root) return {nullptr, nullptr};
-
+    
                 root->push();
                 int cntL;
                 if (root->lc) {
@@ -1041,7 +1299,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 } else {
                     cntL = 1;
                 }
-
+    
                 if (cntL <= k) {
                     pair<Node*, Node*> p = SplitBySize(root->rc, k - cntL);
                     root->rc = p.F;
@@ -1054,7 +1312,7 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                     return make_pair(p.F, root);
                 }
             }
-
+    
             void DFS(Node* root) { // debug
                 if (!root) return;
                 DFS(root->lc);
@@ -1062,25 +1320,25 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
                 DFS(root->rc);
             }
         };
-
+    
         int n, q;
-
+    
         signed main() {
             cin.tie(0);
             cin.sync_with_stdio(0);
-
+    
             cin >> n;
             vector<int> a(n);
             for (int i = 0; i < n; i++) cin >> a[i];
-
+    
             DS ds;
             ds.init(a);
-
+    
             cin >> q;
             while (q--) {
                 string s;
                 cin >> s;
-
+    
                 if (s == "ADD") {
                     int l, r, k;
                     cin >> l >> r >> k;
@@ -1124,17 +1382,13 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 
 ## 持久化 Treap
 
-??? note "模板"
-	```cpp linenums="1"
-	#include <algorithm>
-    #include <cstdlib>
-    #include <iostream>
-    #include <string>
-    #include <utility>
+## 基本操作
 
-    using namespace std;
-    
-    struct Node {
+### struct
+
+??? note "code"
+	```cpp linenums="1"
+	struct Node {
         // int key;
         char val;
         int pri;
@@ -1168,13 +1422,17 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             }
         }
     };
-    
-    // 假設 a 的 key 都小於 b 的 key
+    ```
+
+### Merge
+
+??? note "code"
+	```cpp linenums="1"
     Node* Merge(Node* a, Node* b) {
         if (!a) return b;
         if (!b) return a;
     
-        if (rand() % (a->sz + b->sz) < a->sz) { // a 當 root 的機率是 sz(a) / ( sz(a) + sz(b) )
+        if (a->pri > b->pri) { 
             a = new Node(*a);
             a->push();
             a->rc = Merge(a->rc, b);
@@ -1188,12 +1446,37 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             return b;
         }
     }
-    
-    // 把一個 treap split 成兩個 treap，滿足左邊的 treap 剛好有 k 個節點，
-    // 這 k 個節點是本來 treap 中序輸出的前 k 個節點
-    //
-    // 左邊 treap 的 key < 右邊 treap 的key
-    pair<Node*, Node*> SplitBySize(Node* root, int k) {
+    ```
+
+### Split
+
+??? note "code"
+    ```cpp linenums="1"
+	pair<Node*, Node*> Split(Node* root, int val) {
+        if (!root) return {nullptr, nullptr};
+		
+		root = new Node(*root);
+		root->push();
+		
+        if (root->key <= val) {
+            auto [A, B] = Split(root->rc, val);
+            root->rc = A;
+            root->pull();
+            return {root, B};
+        } else {
+            auto [A, B] = Split(root->lc, val);
+            root->lc = B;
+            root->pull();
+            return {A, root};
+        }
+    }
+    ```
+
+### Split by size
+
+??? note "code"
+	```cpp linenums="1"
+	pair<Node*, Node*> SplitBySize(Node* root, int k) {
         if (!root) return {nullptr, nullptr};
     
         root = new Node(*root);
@@ -1218,55 +1501,6 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
             return {A, root};
         }
     }
-    
-    /*
-    pair<Node*, Node*> Split(Node* root, int val) {
-        if (!root) return {nullptr, nullptr};
-    
-        if (root->key <= val) {
-            auto [A, B] = Split(root->rc, val);
-            root->rc = A;
-            root->pull();
-            return {root, B};
-        } else {
-            auto [A, B] = Split(root->lc, val);
-            root->lc = B;
-            root->pull();
-            return {A, root};
-        }
-    }
-    */
-    
-    int main() {
-        int n, q;
-        string str;
-    
-        cin >> n >> q;
-        cin >> str;
-    
-        Node* root = nullptr;
-        for (int i = 0; i < n; i++) {
-            Node* x = new Node(str[i]);
-            root = Merge(root, x);
-        }
-    
-        while (q--) {
-            int l, r;
-            cin >> l >> r;
-            auto [tmp, C] = SplitBySize(root, r);
-            auto [A, B] = SplitBySize(tmp, l - 1);
-            B->rev ^= 1;
-            root = Merge(A, Merge(B, C));
-        }
-    
-        for (int i = 0; i < n; i++) {
-            auto [x, tmp] = SplitBySize(root, 1);
-            cout << x->val;
-            root = tmp;
-        }
-    
-        return 0;
-    }
     ```
 
 ???+note "持久化 Treap [NPSC 2014 pD](/wiki/ds/images/NPSC2014.pdf#page=11)"
@@ -1290,9 +1524,205 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     5. 求小於 $x$，最大的數
     6. 求大於 $x$，最小的數
     
-    每一次操作都是基於某一個歷史版本，同時生成一個新的版本
+    **每一次操作**都是基於某一個歷史版本，同時生成一個新的版本
     
     $1 \leq n \leq 5 \times  10^5,|x_i| \leq {10}^9$
+    
+    ??? note "思路"
+    	在 Merge 和 Split 的時候，都一定要用 COW，不能跟一般沒 COW 的 Merge 跟 Split 混的用，不然會直接改動到好幾個版本的資料。COW 可以讓你先把以前的資料 copy 一份再使用
+    	
+    ??? note "實作細節"
+    	我的話需要壓常才可以過
+    	
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include<bits/stdc++.h>
+
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = (1 << 31) - 1;
+
+        struct Node {
+            int key, pri;
+            Node* lc = nullptr;
+            Node* rc = nullptr;
+            int sz = 1;
+            int cnt = 1;
+
+            Node(int key) : key(key), pri(rand()) {
+            }
+
+            void pull() {
+                sz = cnt;
+                if (lc) sz += lc->sz;
+                if (rc) sz += rc->sz;
+            }
+        };
+
+        Node* Merge(Node* a, Node* b) {
+            if (!a) return b;
+            if (!b) return a;
+
+            if (a->pri > b->pri) {
+                a = new Node(*a);
+                a->rc = Merge(a->rc, b);
+                a->pull();
+                return a;
+            } else {
+                b = new Node(*b);
+                b->lc = Merge(a, b->lc);
+                b->pull();
+                return b;
+            }
+        }
+
+        // [A, B] : A <= val, B > val
+        pair<Node*, Node*> Split(Node* root, int val) {
+            if (!root) return {nullptr, nullptr};
+
+            root = new Node(*root);
+
+            if (root->key <= val) {
+                auto [A, B] = Split(root->rc, val);
+                root->rc = A;
+                root->pull();
+                return {root, B};
+            } else {
+                auto [A, B] = Split(root->lc, val);
+                root->lc = B;
+                root->pull();
+                return {A, root};
+            }
+        }
+
+        int find_kth(Node* root, int k) {
+            if (!root) return INF;
+
+            int cntL;
+            if (root->lc) {
+                cntL = root->lc->sz;
+            } else {
+                cntL = 0;
+            }
+
+            if (cntL >= k) {  // in left
+                return find_kth(root->lc, k);
+            } else if (cntL + root->cnt >= k) {
+                return root->key;
+            } else {
+                return find_kth(root->rc, k - cntL - root->cnt);
+            }
+        }
+
+        struct DS {
+            vector<Node*> roots = {nullptr};
+
+            void insert(int pre, int x) {
+                auto [A, B] = Split(roots[pre], x - 1);
+                auto [C, D] = Split(B, x);
+                if (C == nullptr) {
+                    Node* tmp = new Node(x);
+                    roots.pb(Merge(A, Merge(tmp, D)));
+                    return;
+                }
+                C->cnt++;
+                C->sz++;
+                roots.pb(Merge(A, Merge(C, D)));
+            }
+
+            void erase(int pre, int x) {
+                auto [A, B] = Split(roots[pre], x - 1);
+                auto [C, D] = Split(B, x);
+                if (C == nullptr) {
+                    roots.pb(Merge(A, D));
+                    return;
+                }
+                C->cnt--;
+                C->sz--;
+                if (C->cnt == 0) {
+                    delete C;
+                    C = nullptr;
+                }
+                roots.pb(Merge(A, Merge(C, D)));
+            }
+
+            int find_rank(int pre, int x) {
+                auto [A, B] = Split(roots[pre], x - 1);
+                if (A == nullptr) {
+                    roots.pb(Merge(A, B));
+                    return 1;
+                }
+                int ans = A->sz + 1;
+                roots.pb(Merge(A, B));
+                return ans;
+            }
+
+            int find_by_order(int pre, int k) {
+                int x = find_kth(roots[pre], k);
+                roots.pb(new Node(*roots[pre]));
+                return x;
+            }
+
+            int find_largest_less(int pre, int x) {
+                auto [A, B] = Split(roots[pre], x - 1);
+                if (A == nullptr) {
+                    roots.pb(Merge(A, B));
+                    return -1;
+                }
+                int tmp = find_kth(A, A->sz);
+                roots.pb(Merge(A, B));
+                if (tmp == INF) tmp = -tmp;
+                return tmp;
+            }
+
+            int find_smallest_greater(int pre, int x) {
+                auto [A, B] = Split(roots[pre], x);
+                if (B == nullptr) {
+                    roots.pb(Merge(A, B));
+                    return -1;
+                }
+                int tmp = find_kth(B, 1);
+                roots.pb(Merge(A, B));
+                return tmp;
+            }
+        };
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            cout.tie(0);
+
+            int q;
+            cin >> q;
+
+            DS rank_tree;
+
+            int v, op, x;
+            while (q--) {
+                cin >> v >> op >> x;
+                if (op == 1) {
+                    rank_tree.insert(v, x);
+                } else if (op == 2) {
+                    rank_tree.erase(v, x);
+                } else if (op == 3) {
+                    cout << rank_tree.find_rank(v, x) << '\n';
+                } else if (op == 4) {
+                    cout << rank_tree.find_by_order(v, x) << '\n';
+                } else if (op == 5) {
+                    cout << rank_tree.find_largest_less(v, x) << '\n';
+                } else if (op == 6) {
+                    cout << rank_tree.find_smallest_greater(v, x) << '\n';
+                }
+            }
+        }
+        ```
 
 ???+note "持久化 Treap [洛谷 P5055 【模板】可持久化文艺平衡树](https://www.luogu.com.cn/problem/P5055)"
 	來維護一個序列，其中需要提供以下操作 :
@@ -1304,4 +1734,4 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
     
     每一次操作都是基於某一個歷史版本，同時生成一個新的版本
     
-    $1 \le n \le 2 \times {10}^5$，$|x_i| < {10}^6$。
+    $1 \le n \le 2 \times {10}^5$，$|x_i| < {10}^6$
