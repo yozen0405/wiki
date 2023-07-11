@@ -16,18 +16,43 @@
 
 ## 一般的並查集
 
-???+note "模板 [LOJ #109. 并查集](https://loj.ac/p/109)"
-	維護一個 $n$ 點的無向圖，支持： 
+???+note "模板 [CF EDU A. Disjoint Sets Union](https://codeforces.com/edu/course/2/lesson/7/1/practice/contest/289390/problem/A)"
+	維護一個 DSU，支持： 
 	
-	- 加入一條連接 $u$ 和 $v$ 的無向邊
+	- $\text{union}(u,v):$ 合併 $u$ 和 $v$ 所在的集合
 	
-	- 查詢 $u$ 和 $v$ 的連通性
+	- $\text{get}(u,v):$ 查詢 $u$ 和 $v$ 是否在同一個集合
 	
-	$n\le 4\times 10^6,m\le 8\times 10^6$
+	$n,m\le 10^5$
 
 ### 模板
 
-??? note "code"
+??? note "只做啟發式合併"
+	```cpp linenums="1"
+	struct DSU {
+        vector<int> par, sz;
+
+        DSU (int n = 0) : par(n), sz(n, 1) {
+            for (int i = 0; i < n; i++) {
+                par[i] = i;
+            }
+        }
+        int find (int x) {
+            if (par[x] == x) return x;
+            return find(par[x]);
+        }
+        bool merge (int u, int v) {
+            u = find(u), v = find(v);
+            if (u == v) return false;
+            if (sz[u] < sz[v]) swap(u, v);
+            par[v] = u;
+            sz[u] += sz[v];
+            return true;
+        }
+    };
+    ```
+
+??? note "路徑壓縮 + 啟發式合併"
 	```cpp linenums="1"
 	struct DSU {
         vector<int> par, sz;
@@ -112,7 +137,7 @@
 	
 	$n,m\le 2\times 10^5$
 
-??? note "code"
+??? note "模板"
 	```cpp linenums="1"
 	struct Graph {
         Graph (int n) : n(n) {
@@ -365,16 +390,340 @@
 
 ## 持久化並查集
 
+先備知識 : <a href="/wiki/ds/persistent/" target="_blank">持久化資料結構</a>
+
 ???+note "[洛谷 P3402 可持久化并查集](https://www.luogu.com.cn/problem/P3402)"
 	給定 $n$ 個集合，第 $i$ 個集合內初始狀態下只有一個數，為 $i$。
 
     有 $m$ 次操作。操作分為 $3$ 種：
     
-     - $1\space a\space b:$ 合併 $a,b$ 所在集合
+    - $1\space a\space b:$ 合併 $a,b$ 所在集合
     
-     - $2\space k:$ 回到第 $k$ 次操作之後的狀態
+    - $2\space k:$ 回到第 $k$ 次操作之後的狀態
     
-     - $3 \space a\space b$ 詢問 $a,b$ 是否屬於同一集合
+    - $3 \space a\space b:$ 詢問 $a,b$ 是否屬於同一集合
+    
+    註 : 執行三種操作中的任意一種都記為一次操作
+    
+    $n\le 10^5,m\le 2\times 10^5$
+    
+    ??? note "實作細節"
+    	size 要維護好，不然可能會吃 TLE（啟發式合併壞掉）
+    	
+    	記得每次操作後要記得 clone，不然會吃 RE（戳到 roots[] 陣列外面）
+    
+    	不能在 Node 裡面存 l, r，避免 MLE :thinking:
+    	
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+    
+        using namespace std;
+    
+        struct Node {
+            Node* lc = nullptr;
+            Node* rc = nullptr;
+            int val, sz;
+    
+            Node() {}
+        };
+    
+        struct DSU {
+            int n;
+    
+            DSU (int n) : n(n) {
+                roots[0] = build(0, n - 1);
+            }
+    
+            int check(int x, int y) {
+                int ver = roots.size() - 1;
+                int Fx = find(ver, x);
+                int Fy = find(ver, y);
+                roots.pb(new Node(*roots[ver]));
+                if (Fx == Fy) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+    
+            void merge(int x, int y) {
+                int ver = roots.size() - 1;
+                int Fx = find(ver, x);
+                int Fy = find(ver, y);
+                int Sx = query_sz(roots[ver], 0, n - 1, Fx), Sy = query_sz(roots[ver], 0, n - 1, Fy);
+                if (Fx == Fy) {
+                    roots.pb(new Node(*roots[ver]));
+                    return;
+                }
+                if (Sx < Sy) swap(x, y), swap(Sx, Sy), swap(Fx, Fy);
+                // fx->sz > fy->sz
+    
+                // sz[Fx] += sz[Fy]
+                Node* tmp = update_sz(roots[ver], 0, n - 1, Fx, Sy);
+                // par[Fy] = Fx
+                roots.pb(update_val(tmp, 0, n - 1, Fy, Fx));
+            }
+    
+            void rollback(int ver) {
+                //assert(ver < roots.size());
+                roots.pb(new Node(*roots[ver]));
+            }
+    
+            private:
+            // 單點改值, 單點加值, 單點查詢
+            vector<Node*> roots = {nullptr};
+    
+            int find(int ver, int x) {
+                int Fx = query_val(roots[ver], 0, n - 1, x);
+                if (Fx == x) return Fx;
+                else return find(ver, Fx);
+            }
+    
+            Node* build(int l, int r) {
+                Node* root = new Node();
+                if (l == r) {
+                    root->val = l;
+                    root->sz = 1;
+                    return root;
+                }
+    
+                int mid = (l + r) / 2;
+                root->lc = build(l, mid);
+                root->rc = build(mid + 1, r);
+                return root;
+            }
+    
+            Node* update_val(const Node* root, int l, int r, int pos, int val) {
+                Node* now = new Node(*root);
+                if (l == r) {
+                    now->val = val;
+                    return now;
+                }
+    
+                int mid = (l + r) / 2;
+                if (pos <= mid) {
+                    now->lc = update_val(now->lc, l, mid, pos, val);
+                } else {
+                    now->rc = update_val(now->rc, mid + 1, r, pos, val);
+                }
+    
+                return now;
+            }
+    
+            Node* update_sz(const Node* root, int l, int r, int pos, int val) {
+                Node* now = new Node(*root);
+                if (l == r) {
+                    now->sz += val;
+                    return now;
+                }
+    
+                int mid = (l + r) / 2;
+                if (pos <= mid) {
+                    now->lc = update_sz(now->lc, l, mid, pos, val);
+                } else {
+                    now->rc = update_sz(now->rc, mid + 1, r, pos, val);
+                }
+    
+                return now;
+            }
+    
+            int query_val(Node* root, int l, int r, int pos) {
+                if (l == r) {
+                    return root->val;
+                } 
+                int mid = (l + r) / 2;
+                if (pos <= mid) {
+                    return query_val(root->lc, l, mid, pos);
+                } else {
+                    return query_val(root->rc, mid + 1, r, pos);
+                }
+            }
+    
+            int query_sz(Node* root, int l, int r, int pos) {
+                if (l == r) {
+                    return root->sz;
+                } 
+                int mid = (l + r) / 2;
+                if (pos <= mid) {
+                    return query_sz(root->lc, l, mid, pos);
+                } else {
+                    return query_sz(root->rc, mid + 1, r, pos);
+                }
+            }
+        };
+    
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            int n, q;
+            cin >> n >> q;
+    
+            DSU dsu(n);
+    
+            int op, a, b, k;
+            while(q--) {
+                cin >> op;
+    
+                if (op == 1) {
+                    cin >> a >> b;
+                    a--, b--;
+                    dsu.merge(a, b);
+                } else if (op == 2) {
+                    cin >> k;
+                    dsu.rollback(k);
+                } else if (op == 3) {
+                    cin >> a >> b;
+                    a--, b--;
+                    cout << dsu.check(a, b) << '\n';
+                }
+            }
+        } 
+        ```
+
+想法上是利用 DSU 的 par, size 其實是陣列，將這兩個陣列都套上持久化線段樹的模板後，即可使用，功能是單點查詢（par, size），單點加值（size），單點改值（par）
+
+??? note "模板"
+	```cpp linenums="1"
+	struct Node {
+        Node* lc = nullptr;
+        Node* rc = nullptr;
+        int val, sz;
+
+        Node() {}
+    };
+    
+    struct DSU {
+        int n;
+    
+        DSU (int n) : n(n) {
+            roots[0] = build(0, n - 1);
+        }
+    
+        int check(int x, int y) {
+            int ver = roots.size() - 1;
+            int Fx = find(ver, x);
+            int Fy = find(ver, y);
+            roots.pb(new Node(*roots[ver]));
+            if (Fx == Fy) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    
+        void merge(int x, int y) {
+            int ver = roots.size() - 1;
+            int Fx = find(ver, x);
+            int Fy = find(ver, y);
+            int Sx = query_sz(roots[ver], 0, n - 1, Fx), Sy = query_sz(roots[ver], 0, n - 1, Fy);
+            if (Fx == Fy) {
+                roots.pb(new Node(*roots[ver]));
+                return;
+            }
+            if (Sx < Sy) swap(x, y), swap(Sx, Sy), swap(Fx, Fy);
+            // fx->sz > fy->sz
+    
+            // sz[Fx] += sz[Fy]
+            Node* tmp = update_sz(roots[ver], 0, n - 1, Fx, Sy);
+            // par[Fy] = Fx
+            roots.pb(update_val(tmp, 0, n - 1, Fy, Fx));
+        }
+    
+        void rollback(int ver) {
+            //assert(ver < roots.size());
+            roots.pb(new Node(*roots[ver]));
+        }
+    
+        private:
+        // 單點改值, 單點加值, 單點查詢
+        vector<Node*> roots = {nullptr};
+    
+        int find(int ver, int x) {
+            int Fx = query_val(roots[ver], 0, n - 1, x);
+            if (Fx == x) return Fx;
+            else return find(ver, Fx);
+        }
+    
+        Node* build(int l, int r) {
+            Node* root = new Node();
+            if (l == r) {
+                root->val = l;
+                root->sz = 1;
+                return root;
+            }
+    
+            int mid = (l + r) / 2;
+            root->lc = build(l, mid);
+            root->rc = build(mid + 1, r);
+            return root;
+        }
+    
+        Node* update_val(const Node* root, int l, int r, int pos, int val) {
+            Node* now = new Node(*root);
+            if (l == r) {
+                now->val = val;
+                return now;
+            }
+    
+            int mid = (l + r) / 2;
+            if (pos <= mid) {
+                now->lc = update_val(now->lc, l, mid, pos, val);
+            } else {
+                now->rc = update_val(now->rc, mid + 1, r, pos, val);
+            }
+    
+            return now;
+        }
+    
+        Node* update_sz(const Node* root, int l, int r, int pos, int val) {
+            Node* now = new Node(*root);
+            if (l == r) {
+                now->sz += val;
+                return now;
+            }
+    
+            int mid = (l + r) / 2;
+            if (pos <= mid) {
+                now->lc = update_sz(now->lc, l, mid, pos, val);
+            } else {
+                now->rc = update_sz(now->rc, mid + 1, r, pos, val);
+            }
+    
+            return now;
+        }
+    
+        int query_val(Node* root, int l, int r, int pos) {
+            if (l == r) {
+                return root->val;
+            } 
+            int mid = (l + r) / 2;
+            if (pos <= mid) {
+                return query_val(root->lc, l, mid, pos);
+            } else {
+                return query_val(root->rc, mid + 1, r, pos);
+            }
+        }
+    
+        int query_sz(Node* root, int l, int r, int pos) {
+            if (l == r) {
+                return root->sz;
+            } 
+            int mid = (l + r) / 2;
+            if (pos <= mid) {
+                return query_sz(root->lc, l, mid, pos);
+            } else {
+                return query_sz(root->rc, mid + 1, r, pos);
+            }
+        }
+    };
+    ```
 
 ### 複雜度
 
@@ -444,6 +793,12 @@
 	    }
 	    ```
 
+???+note "並查集判環"
+	給一張圖，問是否存在環
+	
+	??? note "思路"
+		若出現一條邊的鄰接點在同一個集合裡，則可證明有環存在
+	
 ???+note "[洛谷 P2024 [NOI2001] 食物链](https://www.luogu.com.cn/problem/P2024)"
 	有三類動物 $A,B,C$，這三類動物的⾷物鏈構成如下：$A$ 吃 $B$，
 	$B$ 吃 $C$，$C$ 吃 $A$。
@@ -629,7 +984,6 @@
 
 
 - DSU 判環
-- https://blog.csdn.net/boliu147258/article/details/92778897
 - <https://www.luogu.com.cn/problem/P3430>
 - [TIOJ 只走一次](https://tioj.ck.tp.edu.tw/problems/2161)
 	- [submission](https://tioj.ck.tp.edu.tw/submissions/311160)
@@ -640,5 +994,6 @@
 
 - <https://zhuanlan.zhihu.com/p/553192435>
 - [Codeforces Edu DSU (需加入 group)](https://codeforces.com/edu/course/2/lesson/7)
+- https://blog.csdn.net/boliu147258/article/details/92778897
 
 [^1]: 詳見 [oiwiki](https://oi-wiki.org/ds/dsu-complexity/)
