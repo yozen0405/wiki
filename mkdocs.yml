@@ -194,6 +194,7 @@ nav:
         - 歐拉迴路: 'graph/euler_path.md'
         - 漢米頓迴路: 'graph/hamiltonian.md'
       - 並查集 DSU: 'graph/DSU.md'
+      - BFS: 'graph/BFS.md'
       - Cycle: 'graph/cycle.md'
       - topo sort: 'graph/topo_sort.md'
       - MST: 'graph/MST.md'
