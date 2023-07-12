@@ -209,6 +209,7 @@ nav:
           - mex: 'math/special/mex.md'
           - 中位數: 'math/special/median.md'
           - 平均數: 'math/special/average.md'
+          - 絕對眾數: 'math/special/mode.md'
     - 分治與離線:
         - 分治:
             - 基礎技巧:  'offline/DC.md'
