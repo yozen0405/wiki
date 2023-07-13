@@ -173,13 +173,16 @@ nav:
       - 隨機演算法:
         - 隨機: 'search/randomize_algo.md'
     - 資料結構:
-      - 線段樹: 'ds/segment_tree.md'
-      - 前綴和技巧: 'ds/prefix.md'
-      - 單調隊列: 'ds/monotonous-stack.md'
-      - BIT: 'ds/bit.md'
-      - Treap: 'ds/treap.md'
-      - pb_ds: 'ds/pb_ds.md'
-      - 持久化: 'ds/persistent.md'
+      - 基礎資料結構:
+        - 線段樹: 'ds/segment_tree.md'
+        - 前綴和技巧: 'ds/prefix.md'
+        - 單調隊列: 'ds/monotonous-stack.md'
+        - BIT: 'ds/bit.md'
+        - pb_ds: 'ds/pb_ds.md'
+      - 進階資料結構:
+        - Treap: 'ds/treap.md'
+        - 持久化: 'ds/persistent.md'
+        - Memory pool: 'ds/memory_pool.md'
     - 圖論:
       - 樹論: 
         - 樹論: 'graph/Tree.md'

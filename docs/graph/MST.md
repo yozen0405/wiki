@@ -893,20 +893,6 @@
 		
 		複雜度為 $O(m\times n \log^* n)$，差不多 $10^5\times 500\times 4\times 2=4\times 10^8$
 
-???+danger "[洛谷 P5540 [BalkanOI2011] timeismoney | 最小乘积生成树](https://www.luogu.com.cn/problem/P5540)"
-	給出一個 $n$ 個點 $m$ 條邊的無向圖，第 $i$ 條邊有兩個權值 $a_i$ 和 $b_i$ 。
-
-    求該圖的一棵生成樹 $T$ ，使得以下的 $\text{cost}$ 最小
-    
-    $$\text{cost}=\left(\sum_{e\in T}a_e\right)\times\left(\sum_{e\in T}b_e\right)$$
-    
-    $n\le 200$
-    
-    ??? note "思路"
-    	<https://www.luogu.com.cn/blog/user42506/solution-p5540>
-    	
-    	<https://blog.csdn.net/hongkongreporter/article/details/108566637>
-
 ???+note "最優比率樹 [POJ 2728](https://vjudge.net/problem/POJ-2728)"
 	給出一個 $n$ 個點 $m$ 條邊的無向圖，第 $i$ 條邊有兩個權值 $a_i$ 和 $b_i$ 。
 
@@ -1890,10 +1876,98 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
 
 ## 因數
 
-???+danger "[LOJ #6807. 「THUPC 2022 初赛」最小公倍树](https://loj.ac/p/6807)"
-	給一張點從 $L\sim R$ 編號的無向完全圖，$(u,v)$ 之間的邊權為 $\text{lcm}(u,v)$，求最小生成樹權值
+???+note "[LOJ #6807. 「THUPC 2022 初赛」最小公倍树](https://loj.ac/p/6807)"
+	給一張點從 $L,\ldots ,R$ 編號的無向完全圖，$(u,v)$ 之間的邊權為 $\text{lcm}(u,v)$，求最小生成樹權值
 	
 	$1\le L \le R \le 10^6,R-L\le 10^5$
+	
+	??? note "思路"
+		用 Borovka 的角度下去思考，每個點先找最近的點連邊。可以觀察到對於一個點 $b$，除非有一個點 $a$ 跟 $b$ 存在公因數，否則 $b$ 直接去連 $L$ 是最好的。我們可以將 $\text{lcm}$ 寫成 :
+		
+		$$\text{lcm}(a,b)=\frac{a\times b}{\gcd (a,b)}=\frac{a}{\gcd(a,b)}\times b$$
+		
+		對於點 $b$，因為 $\gcd(a,b)$ 一定是 $b$ 的因數，所以我們可以枚舉 $b$ 的因數，對於每個因數選擇最小的 $a$ 建邊。由於 $b$ 的因數平均是 $\log b$ 個，所以我們可以得到新圖 $\text{edges}$ 數量為 $(R-L)\log R$ [^1]，以這張跑 Kruskal 即可求得答案
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        struct DSU {
+            vector<int> par, sz;
+
+            DSU (int n = 0) : par(n), sz(n, 1) {
+                for (int i = 0; i < n; i++) {
+                    par[i] = i;
+                }
+            }
+            int find (int x) {
+                if (par[x] == x) return x;
+                return par[x] = find(par[x]);
+            }
+            bool merge (int u, int v) {
+                u = find(u), v = find(v);
+                if (u == v) return false;
+                if (sz[u] < sz[v]) swap(u, v);
+                par[v] = u;
+                sz[u] += sz[v];
+                return true;
+            }
+        };
+
+        struct Edge {
+            int u, v, w;
+
+            bool operator<(const Edge &rhs) const {
+                return w < rhs.w;
+            }
+        };
+
+        int L, R;
+        vector<Edge> edges;
+
+        int Kruskal() {
+            DSU dsu(R + 1);
+            sort(ALL(edges));
+
+            int ans = 0;
+            for (auto [u, v, w] : edges) {
+                if (dsu.find(u) != dsu.find(v)) {
+                    dsu.merge(u, v);
+                    ans += w;
+                }
+            }
+            return ans;
+        }
+
+        void seive() {
+            vector<int> mn(R + 1);
+            for(int i = 1; i <= R; i++) {
+                for (int j = i; j <= R; j += i) {
+                    if (j >= L) {
+                        mn[i] = j;
+                        break;
+                    }
+                }
+            }
+
+            for(int i = 1; i <= R; i++) {
+                for (int j = mn[i] + i; j <= R; j += i) {
+                    edges.pb({mn[i], j, mn[i] * j / i});
+                }
+            }
+        }
+
+        signed main() {
+            cin >> L >> R;
+            seive();
+            cout << Kruskal() << '\n';
+        } 
+        ```
 
 ???+note "<a href="/wiki/graph/images/207 . NewWorld Online.html" target="_blank">2023 IOIC 207. NewWorld Online</a>"
 	給一張 $n$ 個點的圖，點有權重 $a_i$，兩點連邊的權重為 $\gcd(a_i, a_j)$，問最大 MST 
@@ -2011,3 +2085,4 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
         }
         ```
 
+[^1]: $1\sim n$ 每個因數的因數數量總和是 $n\log n$（篩法），所以平均一個數的因數數量是 $\displaystyle \frac{n\log n}{n}=\log n$
