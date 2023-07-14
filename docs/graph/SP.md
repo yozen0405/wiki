@@ -1906,118 +1906,118 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<long long, long long>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        struct data {
-            int a, b, d;
-        } a[maxn];
-
-        struct Graph {
-            vector<vector<pii>> G;
-            int n = 0;
-
-            int add_node () {
-                n++;
-                G.pb ({});
-                return n - 1;
-            }
-
-            void add_edge (int u, int v, int w) {
-                G[u].pb ({v, w});
-            }
-
-            int dijkstra (int s, int t) {
-                vector<int> dis (n, INF);
-                priority_queue<pii, vector<pii>, greater<pii>> pq;
-                pq.push ({0, s});
-                dis[s] = 0;
-
-                while (pq.size ()) {
-                    auto [dis_u, u] = pq.top(); pq.pop();
-                    if (dis[u] < dis_u) continue;
-                    dis[u] = dis_u;
-
-                    for (auto [v, w] : G[u]) {
-                        if (dis[v] > dis[u] + w) {
-                            dis[v] = dis[u] + w;
-                            pq.push ({dis[v], v});
-                        }
-                    } 
-                }
-                if (dis[t] == INF) return -1;
-                return dis[t];
-            }
-            void clear() {
-                for (int i = 0; i < n; i++) {
-                    G[i].clear();
-                }
-            }
-        } g;
-
-        int n, m;
-        int now;
-        int id[(1 << 20)];
-
-        void init() {
-            cin >> n >> m;
-            string s;
-            cin >> s;
-            now = 0;
-            for (int i = n - 1; i >= 0; i--) {
-                now += (s[i] - '0') * (1 << i);
-            }
-            for (int t = 0; t < m; t++) {
-                cin >> a[t].d;
-                string s1, s2;
-                cin >> s1 >> s2;
-                a[t].a = 0, a[t].b = 0;
-                for (int i = n - 1; i >= 0; i--) {
-                    a[t].a += (s1[i] - '0') * (1 << i);
-                }
-                for (int i = n - 1; i >= 0; i--) {
-                    a[t].b += (s2[i] - '0') * (1 << i);
-                }
-            }
-        }
-
-        void solve() {
-            for (int mask = 0; mask < (1 << n); mask++) {
-                for (int i = 0; i < m; i++) {
-                    int S = mask & (((1 << 20) - 1) ^ a[i].a);
-                    S |= a[i].b;
-                    g.add_edge(id[mask], id[S], a[i].d);
-                }
-            } 
-            int ans = g.dijkstra(id[now], id[0]);
-            cout << ans << '\n';
-        }
-
-        signed main() {
-            for (int mask = 0; mask < (1 << 20); mask++) {
-                id[mask] = g.add_node();
-            } 
-            int t = 1;
-            cin >> t;
-            while (t--) {
-                g.clear();
-                init();
-                solve();
-            }
-        } 
-        ```
+	    #define int long long
+	    #define pii pair<long long, long long>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
 	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct data {
+	        int a, b, d;
+	    } a[maxn];
+	
+	    struct Graph {
+	        vector<vector<pii>> G;
+	        int n = 0;
+	
+	        int add_node () {
+	            n++;
+	            G.pb ({});
+	            return n - 1;
+	        }
+	
+	        void add_edge (int u, int v, int w) {
+	            G[u].pb ({v, w});
+	        }
+	
+	        int dijkstra (int s, int t) {
+	            vector<int> dis (n, INF);
+	            priority_queue<pii, vector<pii>, greater<pii>> pq;
+	            pq.push ({0, s});
+	            dis[s] = 0;
+	
+	            while (pq.size ()) {
+	                auto [dis_u, u] = pq.top(); pq.pop();
+	                if (dis[u] < dis_u) continue;
+	                dis[u] = dis_u;
+	
+	                for (auto [v, w] : G[u]) {
+	                    if (dis[v] > dis[u] + w) {
+	                        dis[v] = dis[u] + w;
+	                        pq.push ({dis[v], v});
+	                    }
+	                } 
+	            }
+	            if (dis[t] == INF) return -1;
+	            return dis[t];
+	        }
+	        void clear() {
+	            for (int i = 0; i < n; i++) {
+	                G[i].clear();
+	            }
+	        }
+	    } g;
+	
+	    int n, m;
+	    int now;
+	    int id[(1 << 20)];
+	
+	    void init() {
+	        cin >> n >> m;
+	        string s;
+	        cin >> s;
+	        now = 0;
+	        for (int i = n - 1; i >= 0; i--) {
+	            now += (s[i] - '0') * (1 << i);
+	        }
+	        for (int t = 0; t < m; t++) {
+	            cin >> a[t].d;
+	            string s1, s2;
+	            cin >> s1 >> s2;
+	            a[t].a = 0, a[t].b = 0;
+	            for (int i = n - 1; i >= 0; i--) {
+	                a[t].a += (s1[i] - '0') * (1 << i);
+	            }
+	            for (int i = n - 1; i >= 0; i--) {
+	                a[t].b += (s2[i] - '0') * (1 << i);
+	            }
+	        }
+	    }
+	
+	    void solve() {
+	        for (int mask = 0; mask < (1 << n); mask++) {
+	            for (int i = 0; i < m; i++) {
+	                int S = mask & (((1 << 20) - 1) ^ a[i].a);
+	                S |= a[i].b;
+	                g.add_edge(id[mask], id[S], a[i].d);
+	            }
+	        } 
+	        int ans = g.dijkstra(id[now], id[0]);
+	        cout << ans << '\n';
+	    }
+	
+	    signed main() {
+	        for (int mask = 0; mask < (1 << 20); mask++) {
+	            id[mask] = g.add_node();
+	        } 
+	        int t = 1;
+	        cin >> t;
+	        while (t--) {
+	            g.clear();
+	            init();
+	            solve();
+	        }
+	    } 
+	    ```
+
 ### 建立虛點
 
 ???+note "[LOJ #3471. [JOI 2021 Final] Robot](https://loj.ac/p/3471)"
@@ -2927,12 +2927,22 @@
 	    } 
 	    ```
 
-???+note "[TIOJ 2049.龜兔賽跑](https://tioj.ck.tp.edu.tw/problems/2049)"
+???+note "[CF 1307 D. Cow and Fields](https://codeforces.com/problemset/problem/1307/D)"
+	給定一個 $n$ 個點 $m$ 邊無向圖，$n$ 個點中有 $k$ 個是特殊點，可以在這 $k$ 個點中找兩個點連一條無向邊。每條邊的距離都是 $1$。問從 $1$ 到 $n$ 的最短路最大是多少。
+	
+	$n,m,k\le 2\times 10^5$
+	
+	??? note "思路"
+		現在有兩個點 $i$ 和 $j$ ，如果其建邊的話，最短路可能是 $1 \to i \to j \to n$ 或者 $1 \to j \to i \to n$。這樣代表的距離也就是 $dis(1\to i)+dis(j\to n)+1$ 和 $dis(1\to j)+dis(i\to n)+1$ 了。我們要取最小的，因此 $dis(1\to i)+dis(j\to n)+1<dis(1\to j)+dis(i\to n)+1$  時，才符合最短路的條件。移項後變為 $dis(1\to i) - dis(i\to n) < dis(1\to j)-dis(j\to n)$。依據 exchange argument，按照這個條件由小到大排序後，枚舉位於後面的點 $j$，然後找到點 $j$ 前面的 $dis(1\to i)$ 的最大值，這樣可以保證相加之和是最大的。最大就是之前的最短路了。最後與原圖最短路比較一下就可以了。
+
+### 難題
+
+???+danger "[TIOJ 2049.龜兔賽跑](https://tioj.ck.tp.edu.tw/problems/2049)"
 	給 $n$ 點 $m$ 邊無向圖，求若拔掉一個點後，$s\to t$ 的最短路徑最大會是多少
 	
 	$n,m\le 3\times 10^5$
 
-???+note "[JOI #3490. 「JOISC 2021 Day2」逃跑路线](https://loj.ac/p/3490)"
+???+danger "[JOI #3490. 「JOISC 2021 Day2」逃跑路线](https://loj.ac/p/3490)"
 	有一張 $N$ 點 $M$ 邊無向圖，每天的長度是 $S$，第 $i$ 條邊連接 $A_i,B_i$，在那一天的時間小於等於 $L_i$ 的時候可以行走，費時 $C_i$（也就是要在 $L_i-C_i$ 當下或之前出發），有 $Q$ 筆詢問，第 $j$ 筆問從第一天的時間點 $T_j$ 開始，從 $U_i$ 走到 $V_i$ 要多久
 	
 	- $2 \leq N \leq 90,\,M \leq \frac{N(N-1)}{2}$
@@ -2943,7 +2953,7 @@
 	
 	- 圖是連通、沒有自環也沒有重邊的
 	
-	??? note "思路"
+	??? danger "思路"
 		<https://littlecube8152.github.io/posts/joisc-2021-escape-route/>
 
 ## Bellman Ford/SPFA

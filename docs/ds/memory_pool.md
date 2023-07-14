@@ -6,8 +6,6 @@
 
 以 CSES - Distinct Values Queries 使用持久化線段樹為例 :
 
-### CSES Distinct Values Queries
-
 ???+note "[CSES - Distinct Values Queries](https://cses.fi/problemset/task/1734)"
     給你長度為 $n$ 的陣列 $a_1,...,a_n$，有 $q$ 個查詢
     

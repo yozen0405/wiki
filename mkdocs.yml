@@ -106,10 +106,7 @@ markdown_extensions:
   - footnotes
   - toc:
       permalink: ¶
-      
-
-
-
+  
 # 自定义css
 extra_css: 
   - _static/css/extra.css
@@ -186,6 +183,7 @@ nav:
     - 圖論:
       - 樹論: 
         - 樹論: 'graph/Tree.md'
+        - 樹壓平: 'graph/euler_tour.md'
         - 倍增法與 LCA: 'graph/LCA.md'
         - 重心分治: 'graph/DC_on_trees.md'
       - 特殊圖:

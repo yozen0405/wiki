@@ -18,9 +18,12 @@
 ## 例題
 
 ???+note "[Atcoder abc256 E. Takahashi's Anguish](https://atcoder.jp/contests/abc256/tasks/abc256_e)"
-	你要給 $n$ 個人分糖果，第 $i$ 個人都有一個嫉妒的人 $X_i$，若 $X_i$ 比 $i$ 先拿到糖果那會產生嫉妒值 $C_i$。輸出一個給糖果的順序保證所產生的嫉妒值之和最小
+	你要給 $n$ 個人分糖果，第 $i$ 個人都有一個嫉妒的人 $X_i$，若 $X_i$ 比 $i$ 先拿到糖果那會產生嫉妒值 $C_i$。在所有可能的順序裡面，輸出嫉妒值之和最小可以是多少
 	
 	$n\le 2\times 10^5$
+	
+	??? note "思路"
+		類似 [CSES - Course Schedule](https://cses.fi/problemset/task/1679)，我們建邊 $i\to X_i$，可以發現每個點的 out degree 都是 1，會形成內向基環樹。用 CSES 那題的想法一樣，用 topo sort 拔點，最後會剩環，代表我們需要捨棄掉環上的一條邊，讓 topo sort 得以進行，那我們當然是拔邊權最小的邊即可。所以答案就是每個內向基環樹上的環上的最小值總和
 
 ???+note "[洛谷 P4381 [IOI2008] Island](https://www.luogu.com.cn/problem/P4381)"
 	一共有 $n$ 個島，每個島都有一條出邊，且該圖是無向圖，因為橋是可以雙向行走的。給定橋的長度，即兩點之間的邊權。同時每對島嶼間存在一艘專用渡船，即每兩點間可以相互到達。現你需選擇一起始點，每個點最多經過 $1$ 次，問所能獲得的邊權和最大為多少。
@@ -202,7 +205,7 @@
 	    $$\begin{align}& i_1 - a_1=i_2 \\ & i_2 - a_2=i_3 \\ & i_3 - a_3 = i_4 \\ &\cdots \\ & i_n - a_n = i_1\end{align}$$
 	    
 	    求和得到 $a_1+a_2+\ldots +a_n=0$，因此環上所有點即是解，在這個限制條件下必定有解
-
+	
 	??? note "code (by rahlin)"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>

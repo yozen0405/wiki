@@ -1,5 +1,3 @@
-<https://drive.google.com/file/d/1wFrDpXJt_OEo3H5Cvwl6W29ZPMPqcy95/view>
-
 相關知識 : 
 
 - [持久化 Treap](/wiki/ds/treap/#treap)
@@ -132,112 +130,112 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        struct Node {
-            Node* lc = nullptr;
-            Node* rc = nullptr;
-            int l, r, sum = 0;
-
-            Node(int l, int r) : l(l), r(r) {}
-
-            void pull() {
-                sum = lc->sum + rc->sum;
-            }
-        };
-
-        struct DS {
-            DS(const vector<int> &v) { 
-                // 0-base v
-                // 1-base roots
-                n = v.size();
-                roots = vector<Node*>(n + 1, nullptr);
-                int minv = *min_element(ALL(v));
-                int maxv = *max_element(ALL(v));
-                roots[0] = build(minv, maxv);
-                for (int i = 0; i < n; i++) {
-                    roots[i + 1] = update(roots[i], v[i], 1);
-                }
-            }
-
-            int query(int l, int r, int k) { // 1-base l, r
-                Node* p = roots[l - 1];
-                Node* q = roots[r];
-                while(q->l != q->r) {
-                    int cntL = q->lc->sum - p->lc->sum;
-
-                    if (cntL < k) {
-                        p = p->rc;
-                        q = q->rc;
-                        k -= cntL;
-                    } else {
-                        p = p->lc;
-                        q = q->lc;
-                    }
-                }
-                return q->l;
-            }
-            private:
-            int n;
-            vector<Node*> roots;
-
-            Node* build(int l, int r) {
-                Node* root = new Node(l, r);
-                if (l == r) {
-                    return root;
-                }
-                int mid = (l + r) / 2;
-                root->lc = build(l, mid);
-                root->rc = build(mid + 1, r);
-                return root;
-            }
-
-            Node* update(const Node* root, int pos, int val) {
-                Node* now = new Node(*root);
-                if (now->l == now->r) {
-                    now->sum += val;
-                    return now;
-                }
-
-                if (pos <= now->lc->r) {
-                    now->lc = update(now->lc, pos, val);
-                } else {
-                    now->rc = update(now->rc, pos, val);
-                }
-                now->pull();
-                return now;
-            }
-        };
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-
-            int n, q;
-            cin >> n >> q;
-
-            vector<int> a(n);
-            for (int i = 0; i < n; i++) {
-                cin >> a[i];
-            }
-
-            vector<int> b = a;
-            sort(ALL(b));
-            for (int i = 0; i < n; i++) {
-                a[i] = lower_bound(ALL(b), a[i]) - b.begin();
-            }
-
-            DS ds(a);
-            while(q--) {
-                int l, r, k;
-                cin >> l >> r >> k;
-                int rk = ds.query(l, r, k);
-                cout << b[rk] << '\n';
-            }
-        } 
+	    #define int long long
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    struct Node {
+	        Node* lc = nullptr;
+	        Node* rc = nullptr;
+	        int l, r, sum = 0;
+	
+	        Node(int l, int r) : l(l), r(r) {}
+	
+	        void pull() {
+	            sum = lc->sum + rc->sum;
+	        }
+	    };
+	
+	    struct DS {
+	        DS(const vector<int> &v) { 
+	            // 0-base v
+	            // 1-base roots
+	            n = v.size();
+	            roots = vector<Node*>(n + 1, nullptr);
+	            int minv = *min_element(ALL(v));
+	            int maxv = *max_element(ALL(v));
+	            roots[0] = build(minv, maxv);
+	            for (int i = 0; i < n; i++) {
+	                roots[i + 1] = update(roots[i], v[i], 1);
+	            }
+	        }
+	
+	        int query(int l, int r, int k) { // 1-base l, r
+	            Node* p = roots[l - 1];
+	            Node* q = roots[r];
+	            while(q->l != q->r) {
+	                int cntL = q->lc->sum - p->lc->sum;
+	
+	                if (cntL < k) {
+	                    p = p->rc;
+	                    q = q->rc;
+	                    k -= cntL;
+	                } else {
+	                    p = p->lc;
+	                    q = q->lc;
+	                }
+	            }
+	            return q->l;
+	        }
+	        private:
+	        int n;
+	        vector<Node*> roots;
+	
+	        Node* build(int l, int r) {
+	            Node* root = new Node(l, r);
+	            if (l == r) {
+	                return root;
+	            }
+	            int mid = (l + r) / 2;
+	            root->lc = build(l, mid);
+	            root->rc = build(mid + 1, r);
+	            return root;
+	        }
+	
+	        Node* update(const Node* root, int pos, int val) {
+	            Node* now = new Node(*root);
+	            if (now->l == now->r) {
+	                now->sum += val;
+	                return now;
+	            }
+	
+	            if (pos <= now->lc->r) {
+	                now->lc = update(now->lc, pos, val);
+	            } else {
+	                now->rc = update(now->rc, pos, val);
+	            }
+	            now->pull();
+	            return now;
+	        }
+	    };
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	
+	        int n, q;
+	        cin >> n >> q;
+	
+	        vector<int> a(n);
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	        }
+	
+	        vector<int> b = a;
+	        sort(ALL(b));
+	        for (int i = 0; i < n; i++) {
+	            a[i] = lower_bound(ALL(b), a[i]) - b.begin();
+	        }
+	
+	        DS ds(a);
+	        while(q--) {
+	            int l, r, k;
+	            cin >> l >> r >> k;
+	            int rk = ds.query(l, r, k);
+	            cout << b[rk] << '\n';
+	        }
+	    } 
 	    ```
 
 ???+note "[CSES - Distinct Values Queries](https://cses.fi/problemset/task/1734)"
@@ -246,16 +244,16 @@
     - 輸出 $a_i,...,a_j$ 之間有幾種不同的數字
     
     $n,q\le 2\times 10^5$
-	
-	??? note "思路"
-		跟離線算法的套路差不多。按照 $r_i$ 小到大枚舉，維護每個數字最後出現的位置放 $1$，其他放 $0$。這個可以對每個 $r_i$ 使用持久化線段樹單點改值做到，詢問的時候只要去對應的 $\texttt{roots}[r_i]$ 詢問區間和即可
-		
-	??? note "實作細節"
-		壓常
-		
-	??? note "normal code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
+    
+    ??? note "思路"
+    	跟離線算法的套路差不多。按照 $r_i$ 小到大枚舉，維護每個數字最後出現的位置放 $1$，其他放 $0$。這個可以對每個 $r_i$ 使用持久化線段樹單點改值做到，詢問的時候只要去對應的 $\texttt{roots}[r_i]$ 詢問區間和即可
+    	
+    ??? note "實作細節"
+    	壓常
+    	
+    ??? note "normal code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
         #define int long long
         #define pii pair<int, int>
         #define pb push_back
@@ -263,21 +261,21 @@
         #define F first
         #define S second
         #define ALL(x) x.begin(), x.end()
-
+    
         using namespace std;
-
+    
         struct Node {
             Node* lc = nullptr;
             Node* rc = nullptr;
             int l, r, sum = 0;
-
+    
             Node(int l, int r) : l(l), r(r) {}
-
+    
             void pull() {
                 sum = lc->sum + rc->sum;
             }
         };
-
+    
         struct DS {
             DS(const vector<int> &v) {
                 n = v.size();
@@ -295,17 +293,17 @@
                     last[v[i]] = i;
                 }
             }
-
+    
             int query(int l, int r) {
                 return query_sum(roots[r], l - 1, r - 1);
             }
-
+    
             private:
             int n;
             vector<Node*> roots;
             vector<int> last;
             // 單點改值 區間查詢
-
+    
             Node* build(int l, int r) {
                 Node* root = new Node(l, r);
                 if (l == r) {
@@ -317,9 +315,137 @@
                 root->pull();
                 return root;
             }
-
+    
             Node* update(const Node* root, int pos, int val) {
                 Node* now = new Node(*root);
+                if (now->l == now->r) {
+                    now->sum = val;
+                    return now;
+                }
+    
+                if (pos <= now->lc->r) {
+                    now->lc = update(now->lc, pos, val);
+                } else {
+                    now->rc = update(now->rc, pos, val);
+                }
+                now->pull();
+                return now;
+            }
+    
+            int query_sum(const Node* root, int qL, int qR) {
+                if (root->r < qL || qR < root->l) return 0;
+                if (qL <= root->l && root->r <= qR) {
+                    return root->sum;
+                }
+                return query_sum(root->lc, qL, qR) + query_sum(root->rc, qL, qR);
+            }
+        };
+    
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+    
+            int n, q;
+            cin >> n >> q;
+    
+            vector<int> a(n);
+            for (int i = 0; i < n; i++) {
+                cin >> a[i];
+            }
+    
+            vector<int> b = a;
+            sort(ALL(b));
+            for (int i = 0; i < n; i++) {
+                a[i] = lower_bound(ALL(b), a[i]) - b.begin();
+            }
+    
+            DS ds(a);
+            while(q--) {
+                int l, r;
+                cin >> l >> r;
+                cout << ds.query(l, r) << '\n';
+            }
+        } 
+        ```
+    	
+    ??? note "AC code"
+    	```cpp linenums="1"
+    	#include <algorithm>
+        #include <iostream>
+        #include <utility>
+        #include <vector>
+
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        struct Node {
+            Node* lc = nullptr;
+            Node* rc = nullptr;
+            int l, r, sum = 0;
+
+            Node() {
+            }
+
+            Node(int l, int r) : l(l), r(r) {
+            }
+
+            void pull() {
+                sum = lc->sum + rc->sum;
+            }
+        };
+
+        Node pool[500000000 / sizeof(Node)];
+        int cnt = 0;
+
+        struct DS {
+            DS(const vector<int>& v) {
+                n = v.size();
+                roots = vector<Node*>(n + 1, nullptr);
+                int maxv = *max_element(ALL(v));
+                last = vector<int>(maxv + 1, -1);
+                roots[0] = build(0, n - 1);
+                for (int i = 0; i < n; i++) {
+                    if (last[v[i]] != -1) {
+                        roots[i + 1] = update(roots[i], last[v[i]], 0);
+                        roots[i + 1] = update(roots[i + 1], i, 1);
+                    } else {
+                        roots[i + 1] = update(roots[i], i, 1);
+                    }
+                    last[v[i]] = i;
+                }
+            }
+
+            int query(int l, int r) {
+                return query_sum(roots[r], l - 1, r - 1);
+            }
+
+           private:
+            int n;
+            vector<Node*> roots;
+            vector<int> last;
+            // 單點改值 區間查詢
+
+            Node* build(int l, int r) {
+                Node* root = new (&pool[cnt++]) Node(l, r);
+                if (l == r) {
+                    return root;
+                }
+                int mid = (l + r) / 2;
+                root->lc = build(l, mid);
+                root->rc = build(mid + 1, r);
+                root->pull();
+                return root;
+            }
+
+            Node* update(const Node* root, int pos, int val) {
+                Node* now = new (&pool[cnt++]) Node(*root);
                 if (now->l == now->r) {
                     now->sum = val;
                     return now;
@@ -362,132 +488,10 @@
             }
 
             DS ds(a);
-            while(q--) {
+            while (q--) {
                 int l, r;
                 cin >> l >> r;
                 cout << ds.query(l, r) << '\n';
             }
-        } 
-        ```
-		
-	??? note "AC code"
-		```cpp linenums="1"
-		#pragma GCC optimize("O3,unroll-loops")
-        #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
-        #include <bits/stdc++.h>
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e9;
-
-        struct Node {
-            Node* lc = nullptr;
-            Node* rc = nullptr;
-            int l, r, sum = 0;
-
-            void pull() {
-                sum = lc->sum + rc->sum;
-            }
-        };
-
-        struct DS {
-            DS(const vector<int> &v, int maxv) {
-                n = v.size();
-                roots = vector<Node*>(n + 1, nullptr);
-                last = vector<int>(maxv + 1, -1);
-                roots[0] = build(0, n - 1);
-                for (int i = 0; i < n; i++) {
-                    if (last[v[i]] != -1) {
-                        roots[i + 1] = update(roots[i], last[v[i]], 0);
-                        roots[i + 1] = update(roots[i + 1], i, 1);
-                    } else {
-                        roots[i + 1] = update(roots[i], i, 1);
-                    }
-                    last[v[i]] = i;
-                }
-            }
-
-            int query(int l, int r) {
-                return query_sum(roots[r], l - 1, r - 1);
-            }
-
-            private:
-            int n;
-            vector<Node*> roots;
-            vector<int> last;
-            // 單點改值 區間查詢
-
-            Node* build(int l, int r) {
-                Node* root = new Node;
-                root->l = l;
-                root->r = r;
-                if (l == r) {
-                    return root;
-                }
-                int mid = (l + r) / 2;
-                root->lc = build(l, mid);
-                root->rc = build(mid + 1, r);
-                return root;
-            }
-
-            Node* update(const Node* root, int pos, int val) {
-                Node* now = new Node(*root);
-                if (now->l == now->r) {
-                    now->sum = val;
-                    return now;
-                }
-
-                if (pos <= now->lc->r) {
-                    now->lc = update(now->lc, pos, val);
-                } else {
-                    now->rc = update(now->rc, pos, val);
-                }
-                now->pull();
-                return now;
-            }
-
-            int query_sum(const Node* root, int qL, int qR) {
-                if (qL <= root->l && root->r <= qR) {
-                    return root->sum;
-                }
-                if (root->r < qL || qR < root->l) return 0;
-
-                return query_sum(root->lc, qL, qR) + query_sum(root->rc, qL, qR);
-            }
-        };
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cout.tie(0);
-
-            int n, q;
-            cin >> n >> q;
-
-            vector<int> a(n);
-            for (int i = 0; i < n; i++) {
-                cin >> a[i];
-            }
-
-            vector<int> b = a;
-            sort(ALL(b));
-            int mx = -INF;
-            for (int i = 0; i < n; i++) {
-                a[i] = lower_bound(ALL(b), a[i]) - b.begin();
-                mx = max(a[i], mx);
-            }
-
-            DS ds(a, mx);
-            while(q--) {
-                int l, r;
-                cin >> l >> r;
-                cout << ds.query(l, r) << '\n';
-            }
-        } 
-		```
+        }
+    	```
