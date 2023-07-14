@@ -1965,39 +1965,35 @@
         int n;
         int node[100001];
         vector<int> G[100001];
-          int ans = 0;
-      
-        void dfs (int u, int par) {
+        int ans = 0;
+
+        void dfs(int u, int par) {
             for (auto v : G[u]) {
                 if (v != par) dfs(v, u);
-              }
-      
+            }
+
             if (node[u] == u) {
-                if (u == 1)
-                    swap(node[1], node[G[1][0]]);
-                else
-                    swap(node[u], node[par]);
+                if (u == 1) swap(node[1], node[G[1][0]]);
+                else swap(node[u], node[par]);
                 ans += 2;
             }
-          }
-      
-        int main () {
+        }
+
+        int main() {
             cin >> n;
             for (int i = 1; i < n; i++) {
                 int u, v;
                 cin >> u >> v;
                 G[u].pb(v);
                 G[v].pb(u);
-              }
-      
-            for (int i = 1; i <= n; i++)
-                  node[i] = i;
-      
-              dfs(1, 0);
-      
+            }
+            for (int i = 1; i <= n; i++) node[i] = i;
+
+            dfs(1, 0);
             cout << ans << endl;
-            for (int i = 1; i <= n; i++)
-                cout << node[i] << ' ';
+            for (int i = 1; i <= n; i++) {
+            	cout << node[i] << ' ';
+            }
         }
         ```
 
@@ -2217,92 +2213,155 @@
 		實作上也不用真的去找 spanning tree，因為 DFS 的過程其實就是一顆 tree（下圖黑色的邊）
 		
 		<figure markdown>
-          ![Image title](./images/42.png){ width="300" }
-        </figure>
-        
-        直接把圖當成 Tree 來做就可以了
-        
-        ```cpp linenums="1"
-        void dfs(int u) {
-            vis[u] = 1;
-            if (a[u] == 1) sum++;
-            for (auto [v, eid] : G[u]) {
-                if (vis[v] == 1) continue;
-                dfs(v);
-                if (!dp[v]) continue;
-                ans.pb(eid);
-                dp[u] ^= 1;
-            }
-        }
-        ```
-        
-        ---
-        
-        > 我複雜的想法 :
-        
-        將圖轉成 spanning tree，將 $c_i=1$ 的點兩兩配對，在覆蓋他們之間的 path，然後再用樹上前綴和計算每個邊被覆蓋奇數或偶數次即可 
-
+	      ![Image title](./images/42.png){ width="300" }
+	    </figure>
+	    
+	    直接把圖當成 Tree 來做就可以了
+	    
+	    ```cpp linenums="1"
+	    void dfs(int u) {
+	        vis[u] = 1;
+	        if (a[u] == 1) sum++;
+	        for (auto [v, eid] : G[u]) {
+	            if (vis[v] == 1) continue;
+	            dfs(v);
+	            if (!dp[v]) continue;
+	            ans.pb(eid);
+	            dp[u] ^= 1;
+	        }
+	    }
+	    ```
+	    
+	    ---
+	    
+	    > 我複雜的想法 :
+	    
+	    將圖轉成 spanning tree，將 $c_i=1$ 的點兩兩配對，在覆蓋他們之間的 path，然後再用樹上前綴和計算每個邊被覆蓋奇數或偶數次即可。只是這個實作至少兩百行起跳，在正式比賽不實用
+	
 	??? note "code(by rahlin1004)"
 		```cpp linenums="1"
 		#pragma GCC optimize("Ofast")
-        #pragma GCC optimize(2)
-        #include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define f first;
-        #define s second
-        #define pii pair<int,int>
-        #define pipi pair<int,pair<int,int>>
-        #define lowbit(x) x&(-x)
-
-        using namespace std;
-        const int INF=1e18,MAXN=2e5+10;
-        int n,m,a[MAXN],dp[MAXN],vis[MAXN],sum=0;
-        vector<vector<pii>> G(MAXN);
-        vector<int> ans;
-
-        void dfs(int u){
-            vis[u]=1;
-            if(a[u]==1) sum++;
-            for(auto [v,w]:G[u]){
-                if(vis[v]==1) continue;
-                dfs(v);
-                if(!dp[v]) continue;
-                ans.pb(w);
-                dp[u]^=1;
-            }
-        }
-
-        signed main(){
-            cin.tie(0);
-            cin.sync_with_stdio(0);
-
-            cin>>n>>m;
-            for(int i=1;i<=n;i++) {
-                cin>>a[i];
-                dp[i]=a[i];
-            }
-            for(int i=1;i<=m;i++){
-                int u,v;
-                cin>>u>>v;
-                G[u].pb({v,i});
-                G[v].pb({u,i});
-            }
-            for(int i=1;i<=n;i++){
-                if(vis[i]) continue;
-                sum=0;
-                dfs(i);
-                //cout<<"i "<<i<<" sum "<<sum<<"\n";
-                if(sum%2==1) {
-                    cout<<"No "<<"\n";
-                    exit(0);
-                }
-            }
-            cout<<"Yes\n";
-            cout<<ans.size()<<"\n";
-            for(auto ele:ans) cout<<ele<<" ";
-        }
+	    #pragma GCC optimize(2)
+	    #include <bits/stdc++.h>
+	    #define int long long
+	    #define pb push_back
+	    #define f first;
+	    #define s second
+	    #define pii pair<int,int>
+	    #define pipi pair<int,pair<int,int>>
+	    #define lowbit(x) x&(-x)
+	
+	    using namespace std;
+	    const int INF=1e18,MAXN=2e5+10;
+	    int n,m,a[MAXN],dp[MAXN],vis[MAXN],sum=0;
+	    vector<vector<pii>> G(MAXN);
+	    vector<int> ans;
+	
+	    void dfs(int u){
+	        vis[u]=1;
+	        if(a[u]==1) sum++;
+	        for(auto [v,w]:G[u]){
+	            if(vis[v]==1) continue;
+	            dfs(v);
+	            if(!dp[v]) continue;
+	            ans.pb(w);
+	            dp[u]^=1;
+	        }
+	    }
+	
+	    signed main(){
+	        cin.tie(0);
+	        cin.sync_with_stdio(0);
+	
+	        cin>>n>>m;
+	        for(int i=1;i<=n;i++) {
+	            cin>>a[i];
+	            dp[i]=a[i];
+	        }
+	        for(int i=1;i<=m;i++){
+	            int u,v;
+	            cin>>u>>v;
+	            G[u].pb({v,i});
+	            G[v].pb({u,i});
+	        }
+	        for(int i=1;i<=n;i++){
+	            if(vis[i]) continue;
+	            sum=0;
+	            dfs(i);
+	            //cout<<"i "<<i<<" sum "<<sum<<"\n";
+	            if(sum%2==1) {
+	                cout<<"No "<<"\n";
+	                exit(0);
+	            }
+	        }
+	        cout<<"Yes\n";
+	        cout<<ans.size()<<"\n";
+	        for(auto ele:ans) cout<<ele<<" ";
+	    }
 		```
+
+???+note "[CF 1436 D. Bandit in a City](https://codeforces.com/problemset/problem/1436/D)"
+	給定一棵 $n$ 個點的有根樹，強盜一開始在根節點，強盜每秒向下走一格。每個點都有一些村民，當強盜走到某個點時，點上的村民會各自向下走一個點，最終只能走到葉子。強盜想最大化抓到的村民，村民想最小化被抓到的人數，如果村民與強盜都 optimal，強盜能抓到多少村民
+	
+	$n \le 2\times 10^5$
+	
+	??? note "思路"
+		分配村民時存在兩種情況
+		
+		1. 如果存在一個兒子 $v$，使得就算不給 $v$ 分配一個居民，最後還是 $v$ 子樹內的葉子節點居民最大，那麼就把問題規模縮小成以 $v$ 為根的子樹了（其他兒子就沒用了） 
+		
+		2. 如果不存在這種兒子 $v$，就存在一種分配方式使得所有葉子節點盡量平均
+		
+		遞迴下去，最終所有的情況一最後都變成了情況二（worst case 到情況 1一直從根到 leaf，但 leaf 上的村民跑不走了）
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    using namespace std;
+	    #define int long long
+	    #define pb push_back
+	
+	    const int maxn = 2e5 + 10;
+	
+	    vector<int> G[maxn];
+	    int a[maxn], leaf_cnt[maxn], sum[maxn];
+	    int ans = 0;
+	
+	    void dfs(int u) {
+	        sum[u] = a[u];
+	
+	        for (auto &v : G[u]) {
+	            dfs(v);
+	            leaf_cnt[u] += leaf_cnt[v];
+	            sum[u] += sum[v];
+	        }
+	
+	        if (!G[u].size()) leaf_cnt[u] = 1;
+	
+	        int left = (sum[u] % leaf_cnt[u]) == 0 ? 0 : 1;
+	        ans = max(ans, sum[u] / leaf_cnt[u] + left);
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(false);
+	        cin.tie(0);
+	        int n;
+	        cin >> n;
+	
+	        for (int i = 2; i <= n; i++) {
+	            int x;
+	            cin >> x;
+	            G[x].pb(i);
+	        }
+	
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	        }
+	
+	        dfs(1);
+	        cout << ans << '\n';
+	    }
+	    ```
 
 ## Prufer code
 
