@@ -45,6 +45,7 @@
 | 郭勝威 | <li>[hackmd](https://hackmd.io/@william1070573)              | <li>2023 1!                                             |
 | 廖昀陽 | <li>[hackmd](https://hackmd.io/@Paul-Liao)                   | <li>2023 1!                                             |
 | 王政祺 | <li>[部落格](https://casperwang.pages.dev/archives/2021-05-01-cpsr/) | <li>2021 2!                                             |
+| 鄭詠堯 | <li>[部落格](https://yungyaoc.github.io/)                    | <li>2022 2!                                             |
 
 ## 其他網站
 
