@@ -26,15 +26,140 @@
 		類似 [CSES - Course Schedule](https://cses.fi/problemset/task/1679)，我們建邊 $i\to X_i$，可以發現每個點的 out degree 都是 1，會形成內向基環樹。用 CSES 那題的想法一樣，用 topo sort 拔點，最後會剩環，代表我們需要捨棄掉環上的一條邊，讓 topo sort 得以進行，那我們當然是拔邊權最小的邊即可。所以答案就是每個內向基環樹上的環上的最小值總和
 
 ???+note "[洛谷 P4381 [IOI2008] Island](https://www.luogu.com.cn/problem/P4381)"
-	一共有 $n$ 個島，每個島都有一條出邊，且該圖是無向圖，因為橋是可以雙向行走的。給定橋的長度，即兩點之間的邊權。同時每對島嶼間存在一艘專用渡船，即每兩點間可以相互到達。現你需選擇一起始點，每個點最多經過 $1$ 次，問所能獲得的邊權和最大為多少。
+	給 $n$ 個點，形成水母圖森林，邊有邊權。問每個水母圖最長路的總和（可以不選）
 	
-	$n\le 10^6$
+	$n\le 10^6,-10^9 \le w_i \le 10^9$
+	
+	??? note "思路"
+		因為有重邊，所以要改一下存 Graph 的方式，環上第 i, j 個點連接並連下去的最長路是 sum[i] - sum[j] + d[cycle[i]] + d[cycle[j]]，所以我們用單調隊列為戶 -sum[j] + d[cycle[j]] 越大越好的
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 2e6 + 10;
+        const int M = 1e9 + 7;
+
+        struct Edge {
+            int u, to, w;
+        };
+
+        int n, m, ans, sz;
+        int instk[maxn], dfn[maxn], vis[maxn], q[maxn], from[maxn], d[maxn];
+        Edge edges[maxn];
+        int cycle[maxn],sum[maxn];
+        vector<int> G[maxn];
+
+        void get_cycle(int x, int y, int weight) {
+            sum[1] = weight;
+            while (y != x) {
+                cycle[++sz] = y;
+                sum[sz + 1] = edges[from[y]].w;
+                y = edges[from[y] ^ 1].to;
+            }
+            cycle[++sz] = x;
+            for (int i = 1; i <= sz; i++) {
+                vis[cycle[i]] = true;
+                cycle[sz + i] = cycle[i];
+                sum[sz + i] = sum[i];
+            }
+            for (int i = 1; i <= 2 * sz; i++) sum[i] += sum[i - 1];
+        }
+
+        void find_cycle(int u, int pre_eid) {
+            dfn[u] = instk[u] = true;
+            for (auto eid : G[u]) {
+                if ((eid ^ 1) == pre_eid) continue;
+                auto [u, v, w] = edges[eid];
+                from[v] = eid;
+                if (!dfn[v]) {
+                    find_cycle(v, eid);
+                } else if (instk[v]) {
+                    get_cycle(v, u, w);
+                }
+            }
+            instk[u] = false;
+        }
+
+        void cal_tree(int u) {
+            vis[u] = true;
+            for (auto eid : G[u]) {
+                auto [u, v, w] = edges[eid];
+                if (vis[v]) continue;
+
+                cal_tree(v);
+                ans = max(ans, d[u] + d[v] + w);
+                d[u] = max(d[u], d[v] + w);
+            }
+        }
+
+        void init() {
+            cin >> n;
+            int u, v, w;
+            m = 1;
+            for(int i = 1; i <= n; i++) {
+                u = i;
+                cin >> v >> w;
+                edges[++m] = {u, v, w};
+                G[u].pb(m);
+                edges[++m] = {v, u, w};
+                G[v].pb(m);
+            }
+        }
+
+        void work() {
+            int res = 0;
+            for (int i = 1; i <= n; i++) {
+                if (dfn[i]) continue;
+                sz = ans = 0;
+
+                find_cycle(i, -1);
+                for (int i = 1; i <= sz; i++) cal_tree(cycle[i]);
+                int l = 1, r = 0;
+                for (int i = 1; i <= 2 * sz; i++) {
+                    while (l <= r && q[l] <= i - sz) l++;
+                    if (l <= r) ans = max(ans, d[cycle[i]] + d[cycle[q[l]]] + sum[i] - sum[q[l]]);
+                    while (l <= r && d[cycle[q[r]]] - d[cycle[i]] <= sum[q[r]] - sum[i]) r--;
+                    q[++r] = i;
+                }
+                res += ans;
+            }
+            cout << res << '\n';
+        }
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            init();
+            work();
+        } 
+        ```
 
 ???+note "[2022 TOI  模擬賽第一場 pA. Functional Graph](/wiki/cp/contest/images/TOI-2022-1.pdf#page=1)"
 	給一張 $n$ 點 $m$ 邊的基環樹，將邊定向，並輸出最小字典序的方向序列
 	
 	$n\le 10^5$
 
+???+note "[洛谷P2607 [ZJOI2008] 骑士](https://www.luogu.com.cn/problem/P2607)"
+	給 $n$ 個點，會構成基環樹森林，問最大獨立集權值總和
+	
+	$n\le 10^5$
+	
+	??? note "思路"
+		https://blog.csdn.net/t14zack/article/details/118655050
+		https://blog.csdn.net/qq_50332374/article/details/125331128
+		https://blog.csdn.net/weixin_43860866/article/details/110196041
+	
 ???+note "[CSES - Round Trip II](https://cses.fi/problemset/task/1678)"
 	給一張 $n$ 點 $m$ 邊無向圖，輸出環上的點
 	
@@ -183,6 +308,114 @@
 	給一張 $n$ 點 $m$ 邊無向圖，問最長權重和的 path 權重和是多少
 	
 	$n\le 10^5,m=n-1$ 或 $n$
+	
+	??? note "思路"
+		將環上的點編號，令 sum[i] 為環上前 i 個點的 a[i] 的總和，d[i] 為 i 往下 連最長的 path，若從第 i 和第 j 個點連下去，那答案就是 
+		
+		sum[i] - sum[j - 1] + d[cycle[i]] + d[cycle[j]] - a[cycle[i]] - a[cycle[j]]
+		
+		所以我們要用單調對列維護 - sum[j - 1] + d[cycle[j]] - a[cycle[j]] 越大越好的
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 2e6 + 10;
+        const int M = 1e9 + 7;
+
+        int n, m, ans, sz;
+        int instk[maxn], dfn[maxn], vis[maxn], q[maxn], from[maxn], d[maxn];
+        int cycle[maxn],sum[maxn], a[maxn];
+        vector<int> G[maxn];
+
+        void get_cycle(int x, int y) {
+            while (y != x) {
+                cycle[++sz] = y;
+                sum[sz] = a[y];
+                y = from[y];
+            }
+            cycle[++sz] = x;
+            sum[sz] = a[x];
+            for (int i = 1; i <= sz; i++) {
+                vis[cycle[i]] = true;
+                cycle[sz + i] = cycle[i];
+                sum[sz + i] = sum[i];
+            }
+            for (int i = 1; i <= 2 * sz; i++) sum[i] += sum[i - 1];
+        }
+
+        void find_cycle(int u, int par) {
+            dfn[u] = instk[u] = true;
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                if (!dfn[v]) {
+                    from[v] = u;
+                    find_cycle(v, u);
+                } else if (instk[v]) {
+                    get_cycle(v, u);
+                }
+            }
+            instk[u] = false;
+        }
+
+        void cal_tree(int u) {
+            vis[u] = true;
+            d[u] = a[u];
+            for (auto v : G[u]) {
+                if (vis[v]) continue;
+
+                cal_tree(v);
+                ans = max({ans, d[u] + d[v], d[v] + a[u], a[u]});
+                d[u] = max(d[u], d[v] + a[u]);
+            }
+        }
+
+        void init() {
+            cin >> n >> m;
+            int u, v;
+            for(int i = 1; i <= m; i++) {
+                cin >> u >> v;
+                G[u].pb(v);
+                G[v].pb(u);
+            }
+            for (int i = 1; i <= n; i++) cin >> a[i];
+        }
+
+        void work() {
+            ans = -INF;
+            if (m == n) {
+                find_cycle(1, -1);
+                for (int i = 1; i <= sz; i++) cal_tree(cycle[i]);
+                int l = 1, r = 0;
+                for (int i = 1; i <= 2 * sz; i++) {
+                    while (l <= r && q[l] <= i - sz) l++;
+                    if (l <= r) ans = max(ans, d[cycle[i]] + d[cycle[q[l]]] + sum[i] - sum[q[l] - 1] - a[cycle[i]] - a[cycle[q[l]]]);
+                    while (l <= r && d[cycle[q[r]]] - sum[q[r] - 1] - a[cycle[q[r]]] <= d[cycle[i]] - sum[i - 1] - a[cycle[i] - 1]) r--;
+                    q[++r] = i;
+                }
+            } else {
+                cal_tree(1);
+            }
+            cout << ans << '\n';
+        }
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            init();
+            work();
+        } 
+        ```
 
 ???+note "[洛谷 P1543 [POI2004] SZP](https://www.luogu.com.cn/problem/P1543)"
 	給一個 $n$ 點，問至多可以選幾個點，滿足每個被選的點至少是一個沒選的點的 out degree

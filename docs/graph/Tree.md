@@ -464,8 +464,11 @@
 	    }
 	    ```
 
-
-
+???+note "[CF 771 C. Bear and Tree Jumps](https://codeforces.com/contest/771/problem/C)"
+	有一顆 $n$ 個點的樹，樹的邊權皆為 $1$。每步可以順移到距離自己 $\le k$ 的點。令 $f(s,t)$ 為 $s\to t$ 的最小步數，問 $\sum \limits_{s<t} f(s,t)$
+	
+	$n\le 2\times 10^5$
+	
 ## 其他類型
 
 ???+note "[2021 附中模競 II 惡地之路](https://drive.google.com/file/d/1ISO-o4DrQmbuqVVAgxeVQEO3ifMvcy01/view)"
@@ -1966,19 +1969,19 @@
         int node[100001];
         vector<int> G[100001];
         int ans = 0;
-
+    
         void dfs(int u, int par) {
             for (auto v : G[u]) {
                 if (v != par) dfs(v, u);
             }
-
+    
             if (node[u] == u) {
                 if (u == 1) swap(node[1], node[G[1][0]]);
                 else swap(node[u], node[par]);
                 ans += 2;
             }
         }
-
+    
         int main() {
             cin >> n;
             for (int i = 1; i < n; i++) {
@@ -1988,7 +1991,7 @@
                 G[v].pb(u);
             }
             for (int i = 1; i <= n; i++) node[i] = i;
-
+    
             dfs(1, 0);
             cout << ans << endl;
             for (int i = 1; i <= n; i++) {
