@@ -12,32 +12,26 @@ theme:
     language: zh-TW
     search_index_only: true
     palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      toggle:
-        icon: material//weather-sunny
-        name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
-      primary: indigo
-      scheme: slate
-      toggle:
-        icon: material/weather-night
-        name: Switch to light mode
+      - media: "(prefers-color-scheme: light)"
+        scheme: default
+        toggle:
+          icon: material//weather-sunny
+          name: Switch to dark mode
+      - media: "(prefers-color-scheme: dark)"
+        primary: indigo
+        scheme: slate
+        toggle:
+          icon: material/weather-night
+          name: Switch to light mode
     features:
       - announce.dismiss
       - content.action.view
       - content.code.annotate
       - content.code.copy
-      # - content.tabs.link
       - content.tooltips
-      # - header.autohide
-      # - navigation.expand
       - navigation.footer
-      # - navigation.instant
-      # - navigation.prune
       - navigation.tabs
       - navigation.expand
-      # - navigation.tabs.sticky
       - search.highlight
       - search.share
       - search.suggest
@@ -50,7 +44,6 @@ plugins:
   - search:
       jieba_dict: user_dict.txt
 
-# 图标
 icon:
     admonition:
       note: octicons/tag-16
@@ -66,7 +59,6 @@ icon:
       example: octicons/beaker-16
       quote: octicons/quote-16
 
-# 扩展
 markdown_extensions:
   - pymdownx.critic
   - pymdownx.mark
@@ -83,9 +75,9 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
-  - pymdownx.caret #下划线
-  - pymdownx.mark #文本高亮
-  - pymdownx.tilde #删除线
+  - pymdownx.caret 
+  - pymdownx.mark 
+  - pymdownx.tilde 
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.highlight:
@@ -107,7 +99,6 @@ markdown_extensions:
   - toc:
       permalink: ¶
   
-# 自定义css
 extra_css: 
   - _static/css/extra.css
 
@@ -117,7 +108,6 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
   - _static/javascripts/open_new_tab.js
 
-# 文档区
 nav:
     - 首頁: 
         - 總攬: 'index.md'
@@ -176,21 +166,32 @@ nav:
         - 單調隊列: 'ds/monotonous-stack.md'
         - BIT: 'ds/bit.md'
         - pb_ds: 'ds/pb_ds.md'
+        - 題目: 'ds/problem.md'
       - 進階資料結構:
         - Treap: 'ds/treap.md'
         - 持久化: 'ds/persistent.md'
         - Memory pool: 'ds/memory_pool.md'
     - 圖論:
       - 樹論: 
-        - 樹論: 'graph/Tree.md'
+        - 樹直徑: 'graph/tree_diameter.md'
+        - 換根 dp: 'graph/solving_for_all_roots.md'
+        - 樹 dp: 'graph/tree_dp.md'
+        - 樹上啟發式合併: 'graph/dsu_on_tree.md'
         - 樹壓平: 'graph/euler_tour.md'
         - 倍增法與 LCA: 'graph/LCA.md'
         - 重心分治: 'graph/DC_on_trees.md'
+        - prufer 序列: 'graph/prufer.md'
+        - 樹同構: 'graph/tree_isomorphism.md'
+        - 樹上背包: 'graph/knapsack_on_tree.md'
+        - 題目:
+          - 類 topo sort: 'graph/tree_dp.md'
+          - greedy: 'graph/greedy.md'
+          - 利用 dfs 序: 'graph/dfs_time_stamp.md'
+          - 其他類型: 'graph/other_problem.md'
       - 特殊圖:
         - 二分圖: 'graph/bipartite.md'
         - 水母圖: 'graph/functional_graph.md'
         - 仙人掌圖: 'graph/cactus.md'
-        - 圓方樹: 'graph/block_forest.md'
       - 迴路:
         - 歐拉迴路: 'graph/euler_path.md'
         - 漢米頓迴路: 'graph/hamiltonian.md'

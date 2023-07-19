@@ -16,6 +16,12 @@
 - 以 $A$ 為根 
 - CF Lynyrd Skynyrd
 
+## 性質
+
+1. 兩點集 union 起來的 LCA 為兩點集分別的 LCA 的 LCA，舉例來說 $\text{LCA}(a, b, c)$ 等於 $\text{LCA}(\text{LCA}(a, b), c)$
+2. $dis(u,v)=h(u)+h(v)-2h(\text{LCA}(u,v))$
+
+
 ## 例題
 ### TIOJ 1687
 

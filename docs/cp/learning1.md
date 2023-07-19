@@ -68,6 +68,7 @@
 | 建中 2015 培訓      | <li>[網站](http://pisces.ck.tp.edu.tw/~peng/index.php?)      |
 | 最短路 blog         | <li>[網站](https://konaeakira.github.io/)                    |
 | 不錯的題單          | <li>[hackmd](https://hackmd.io/@alanlai/Byh58hzIY)           |
+| 資料結構題單        | <li>[網站](https://www.luogu.com.cn/blog/ix-35/ti-dan-shuo-ju-jie-gou-gao-ji-shuo-ju-jie-gou-1-miao-shu-yu-bu-cho) |
 | 宜蘭高中自學平台    | <li>論壇(不一定跟程式有關)<br><li>[網站](https://josh930908.github.io/web/#/) |
 
 CF
