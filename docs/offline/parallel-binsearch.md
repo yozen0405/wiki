@@ -23,8 +23,14 @@ $$
 3. 二分搜的範圍 (上界，下界)
 4. 如何分治
 
-### 範例
-#### 靜態區間 k 小
+### 複雜度分析
+
+若每次切中位數，遞迴深度為 $O(\log n)$，若切值域範圍的 mid，深度則為 $O(\log C)$（其中 $C$ 為值域範圍）
+
+## 範例
+
+### 靜態區間 k 小
+
 ???+note "[洛谷 P3834 - 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)"
 	給長度為 $n$ 的序列，$q$ 筆詢問
 	
@@ -32,6 +38,9 @@ $$
 	
 	$n,q\le 2\times 10^5,|a_i|\le 10^9$
 	
+	??? note "分析"
+		BIT 複雜度 $O(n\log n \log C)$，若用前綴和則為 $O(n\log C)$
+		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
@@ -166,7 +175,8 @@ $$
 	    ```
 
 
-#### 動態區間 k 小
+### 動態區間 k 小
+
 ???+note "[洛谷 P2617 - Dynamic Rankings](https://www.luogu.com.cn/problem/P2617)"
 	給長度為 $n$ 的序列，$q$ 筆詢問
 	
@@ -1687,14 +1697,18 @@ $$
     
     $N,M\le 2\times 10^5$
 
+### CSES New Roads Queries
+
 ???+note "[CSES - New Roads Queries](https://cses.fi/problemset/task/2101)"
 	給一張 $n$ 個點的圖，依序加入 $m$ 條邊，回答 $q$ 筆詢問 :
 	
     - $a,b$ 在加入第幾條邊時連通，或沒有連通
-	
-	$n,q\le 2\times 10^5$
-	
-	??? note "思路"
-		用 Atcoder 那題的「存 $\log m$ 個 $n\text{-vertex graph}$」技巧
-	
+    
+    $n,q\le 2\times 10^5$
+    
+    ??? note "思路"
+    	用 Atcoder 那題的「存 $\log m$ 個 $n\text{-vertex graph}$」技巧
+    	
+    	另解 : 也有<a href="/wiki/graph/MST/?h=new+roads+queries#_4" target="_blank">並查集生成樹的解法</a>
+
 [^1]: 每個邊只會往一邊走，上一層用完了就可以刪掉，所以同一時間只有 $m$ 條邊在跑，每個邊只出現在一個地方 
