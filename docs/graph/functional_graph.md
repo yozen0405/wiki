@@ -261,13 +261,116 @@
 		我們考慮環上的任意一條邊 $(s,t)$，這條邊上的兩點只會是
 		
 		- **不選**, 選
-
+	
 		- 選, **不選**
-
+	
 		- **不選**, **不選**
 		
 		我們可以將這條邊拔掉，分兩種成 $s$ 不選與 $t$ 不選的情況做樹上最大獨立集
 		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 1e6 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Edge {
+	        int u, to;
+	    };
+	
+	    int n, m, cycle_eid;
+	    int instk[maxn], dfn[maxn], a[maxn];
+	    long long dp[maxn][2];
+	    vector<int> G[maxn];
+	    Edge edges[2 * maxn];
+	
+	    void find_cycle(int u, int pre_eid) {
+	        dfn[u] = instk[u] = 1;
+	        for (auto eid : G[u]) {
+	            auto [u, v] = edges[eid];
+	            if ((eid ^ 1) == pre_eid) continue;
+	
+	            if (!dfn[v]) {
+	                find_cycle(v, eid);
+	            } else if (instk[v]) {
+	                cycle_eid = eid;
+	            }
+	        }
+	    } 
+	
+	    void tree_dp(int u, int pre_eid) {
+	        dp[u][1] = a[u], dp[u][0] = 0;
+	        for (auto eid : G[u]) {
+	            auto [u, v] = edges[eid];
+	            if ((eid ^ 1) == pre_eid) continue;
+	            if (eid == cycle_eid || (eid ^ 1) == cycle_eid) continue;
+	
+	            tree_dp(v, eid);
+	            dp[u][0] += (long long)max(dp[v][0], dp[v][1]);
+	            dp[u][1] += (long long)dp[v][0];
+	        }
+	    }
+	
+	    void init() {
+	        cin >> n;
+	        m = 1;
+	        int x;
+	        for(int i = 1; i <= n; i++) {
+	            cin >> a[i] >> x;
+	            edges[++m] = {i, x};
+	            G[i].pb(m);
+	            edges[++m] = {x, i};
+	            G[x].pb(m);
+	        }
+	    }
+	
+	    void solve() {
+	        long long res = 0;
+	        for (int i = 1; i <= n; i++) {
+	            if (dfn[i]) continue;
+	            long long ans = 0;
+	            find_cycle(i, 0);
+	
+	            int s = edges[cycle_eid].u, t = edges[cycle_eid].to;
+	            tree_dp(s, 0);
+	            ans = dp[s][0];
+	            tree_dp(t, 0); // 要再做一次不然 dp[t][0] 是以 s 為根 t 的 subtree 的答案
+	            ans = (long long)max(ans, dp[t][0]);
+	
+	            res += ans;
+	        }
+	
+	        cout << res << '\n';
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        init();
+	        solve();
+	    } 
+	    ```
+
+???+note "[AcWing 359. 创世纪](https://www.acwing.com/problem/content/361/)"
+	給 $n$ 點內向基環樹，選一些點使得每個有選的點至少有 $1$ 個 in degree 沒被選到，問最多可以選幾個點
+	
+	$n\le 10^6$
+	
+	??? note "思路"
+		一樣拔環上的邊進行處理，若環上的邊強制要限制，那 dp[t][1] 就可以直接是 dp[t][0] + 1，若強制不限制那就當成 Tree 來處理即可
+		
+		若全部都選 dp[v][1]，我們需要將一個 dp[v][1] 代替成 dp[v][0]，且 dp[v][1] - dp[v][0] 要最小，若最好的情況有選到 dp[v][0]，那就沒事，有一個巧妙的寫法是 `del = min(del, max(dp[v][0], dp[v][1]) - dp[v][0])` 
+	
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
@@ -279,74 +382,68 @@
         #define ALL(x) x.begin(), x.end()
 
         using namespace std;
+        using ll = long long;
 
-        const int INF = 2e18;
+        const ll INF = 2e18;
         const int maxn = 1e6 + 5;
-        const int M = 1e9 + 7;
 
-        struct Edge {
-            int u, to;
-        };
+        int n, m, s, t, fg;
+        int instk[maxn], dfn[maxn], G[maxn];
+        ll dp[maxn][2];
+        vector<int> R[maxn];
 
-        int n, m, cycle_eid;
-        int instk[maxn], dfn[maxn], a[maxn];
-        long long dp[maxn][2];
-        vector<int> G[maxn];
-        Edge edges[2 * maxn];
-
-        void find_cycle(int u, int pre_eid) {
+        void find_cycle(int u) {
             dfn[u] = instk[u] = 1;
-            for (auto eid : G[u]) {
-                auto [u, v] = edges[eid];
-                if ((eid ^ 1) == pre_eid) continue;
-
-                if (!dfn[v]) {
-                    find_cycle(v, eid);
-                } else if (instk[v]) {
-                    cycle_eid = eid;
-                }
+            int v = G[u];
+            if (!dfn[v]) {
+                find_cycle(v);
+            } else if (instk[v]) {
+                s = u, t = v;
             }
+            instk[u] = 0;
         } 
 
-        void tree_dp(int u, int pre_eid) {
-            dp[u][1] = a[u], dp[u][0] = 0;
-            for (auto eid : G[u]) {
-                auto [u, v] = edges[eid];
-                if ((eid ^ 1) == pre_eid) continue;
-                if (eid == cycle_eid || (eid ^ 1) == cycle_eid) continue;
+        void tree_dp(int u) {
+            dp[u][1] = 0, dp[u][0] = 0;
+            ll del = INF;
+            for (auto v : R[u]) {
+                if (t == u && s == v) continue;
 
-                tree_dp(v, eid);
-                dp[u][0] += (long long)max(dp[v][0], dp[v][1]);
-                dp[u][1] += (long long)dp[v][0];
+                tree_dp(v);
+                dp[u][0] += max(dp[v][0], dp[v][1]);
+                del = min(del, max(dp[v][0], dp[v][1]) - dp[v][0]);
+            }
+            dp[u][1] = dp[u][0] - del + 1;
+            if (fg && u == t) {
+                dp[u][1] = dp[u][0] + 1;
             }
         }
 
         void init() {
             cin >> n;
-            m = 1;
             int x;
             for(int i = 1; i <= n; i++) {
-                cin >> a[i] >> x;
-                edges[++m] = {i, x};
-                G[i].pb(m);
-                edges[++m] = {x, i};
-                G[x].pb(m);
+                cin >> x;
+                G[i] = x;
+                R[x].pb(i);
             }
         }
 
         void solve() {
-            long long res = 0;
+           ll res = 0;
             for (int i = 1; i <= n; i++) {
                 if (dfn[i]) continue;
-                long long ans = 0;
-                find_cycle(i, 0);
+                ll ans = 0;
+                s = 0, t = 0;
+                find_cycle(i);
+                if (s == 0) continue; 
 
-                int s = edges[cycle_eid].u, t = edges[cycle_eid].to;
-                tree_dp(s, 0);
-                ans = dp[s][0];
-                tree_dp(t, 0); // 要再做一次不然 dp[t][0] 是以 s 為根 t 的 subtree 的答案
-                ans = (long long)max(ans, dp[t][0]);
-
+                fg = 0;
+                tree_dp(s);
+                ans = max(dp[s][0], dp[s][1]);
+                fg = 1;
+                tree_dp(s);
+                ans = max(ans, dp[s][0]);
                 res += ans;
             }
 
@@ -360,19 +457,6 @@
             solve();
         } 
         ```
-
-???+note "[AcWing 359. 创世纪](https://www.acwing.com/problem/content/361/)"
-	給 $n$ 點內向基環樹，選一些點使得每個有選的點至少有 $1$ 個 in degree 沒被選到，問最多可以選幾個點
-	
-	$n\le 10^6$
-
-???+note "[洛谷 P1543 [POI2004] SZP](https://www.luogu.com.cn/problem/P1543)"
-	給 $n$ 點內向基環樹，問至多可以選幾個點，滿足每個被選的點至少是一個沒選的點的 out degree
-	
-	$n\le 10^6$
-	
-	??? note "思路"
-		[題解](https://blog.csdn.net/weixin_30689307/article/details/101170191?spm=1001.2101.3001.6650.5&utm_medium=distribute.wap_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-5-101170191-blog-93249322.wap_relevant_t0_download&depth_1-utm_source=distribute.wap_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-5-101170191-blog-93249322.wap_relevant_t0_download)
 
 ### 其他
 
@@ -464,89 +548,92 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include<iostream>
-        #include<algorithm>
-        #include<string>
-        #include<set>
-        #define SZ(X) ((int)(X).size())
-        using namespace std;
-        const int SIZE = 100'000;
-        multiset<pair<int, int>> e[SIZE + 1];
-        int x[SIZE], y[SIZE];
-        void del(int eid) {
-            int me = x[eid];
-            int you = y[eid];
-            e[me].erase(e[me].find({you, eid}));
-            e[you].erase(e[you].find({me, eid}));
-        }
-        string an;
-        bool go(int eid) {
-            an[eid] = '<';
-            int me = x[eid];
-            if(SZ(e[me]) != 2) return 0;
-            del(eid);
-            while(SZ(e[me])) {
-                if(SZ(e[me]) != 1) return 0;
-                int you = e[me].begin()->first;
-                int eid = e[me].begin()->second;
-                if(x[eid] == me) an[eid] = '>';
-                else an[eid] = '<';
-                del(eid);
-                me = you;
-            }
-            return 1;
-        }
-        void solve() {
-            int n;
-            cin >> n;
-            an.assign(n, 0);
-            for(int i = 1; i <= n; i++) {
-                e[i].clear();
-            }
-            for(int i = 0; i < n; i++) {
-                cin >> x[i] >> y[i];
-                e[x[i]].insert({y[i], i});
-                e[y[i]].insert({x[i], i});
-            }
-            set<int> qq;
-            for(int i = 1; i <= n; i++) {
-                if(SZ(e[i]) == 1) {
-                    qq.insert(i);
-                }
-            }
-            while(!qq.empty()) {
-                int me = *qq.begin();
-                if(SZ(e[me]) == 0) {
-                    cout << "Impossible\n";
-                    return;
-                }
-                qq.erase(qq.begin());
-                int you = e[me].begin()->first;
-                int eid = e[me].begin()->second;
-                if(x[eid] == me) an[eid] = '>';
-                else an[eid] = '<';
-                del(eid);
-                if(SZ(e[you]) == 1) qq.insert(you);
-            }
-            for(int i = 0; i < n; i++) {
-                if(!an[i]) {
-                    if(!go(i)) {
-                        cout << "Impossible\n";
-                        return;
-                    }
-                }
-            }
-            cout << an << '\n';
-        }
-        int main() {
-            cin.tie(0);
-            ios_base::sync_with_stdio(false);
-            int T;
-            cin >> T;
-            while(T--) solve();
-            return 0;
-        }
-        ```
+	    #include<algorithm>
+	    #include<string>
+	    #include<set>
+	    #define SZ(X) ((int)(X).size())
+	    using namespace std;
+	    const int SIZE = 100'000;
+	    multiset<pair<int, int>> e[SIZE + 1];
+	    int x[SIZE], y[SIZE];
+	    void del(int eid) {
+	        int me = x[eid];
+	        int you = y[eid];
+	        e[me].erase(e[me].find({you, eid}));
+	        e[you].erase(e[you].find({me, eid}));
+	    }
+	    string an;
+	    bool go(int eid) {
+	        an[eid] = '<';
+	        int me = x[eid];
+	        if(SZ(e[me]) != 2) return 0;
+	        del(eid);
+	        while(SZ(e[me])) {
+	            if(SZ(e[me]) != 1) return 0;
+	            int you = e[me].begin()->first;
+	            int eid = e[me].begin()->second;
+	            if(x[eid] == me) an[eid] = '>';
+	            else an[eid] = '<';
+	            del(eid);
+	            me = you;
+	        }
+	        return 1;
+	    }
+	    void solve() {
+	        int n;
+	        cin >> n;
+	        an.assign(n, 0);
+	        for(int i = 1; i <= n; i++) {
+	            e[i].clear();
+	        }
+	        for(int i = 0; i < n; i++) {
+	            cin >> x[i] >> y[i];
+	            e[x[i]].insert({y[i], i});
+	            e[y[i]].insert({x[i], i});
+	        }
+	        set<int> qq;
+	        for(int i = 1; i <= n; i++) {
+	            if(SZ(e[i]) == 1) {
+	                qq.insert(i);
+	            }
+	        }
+	        while(!qq.empty()) {
+	            int me = *qq.begin();
+	            if(SZ(e[me]) == 0) {
+	                cout << "Impossible\n";
+	                return;
+	            }
+	            qq.erase(qq.begin());
+	            int you = e[me].begin()->first;
+	            int eid = e[me].begin()->second;
+	            if(x[eid] == me) an[eid] = '>';
+	            else an[eid] = '<';
+	            del(eid);
+	            if(SZ(e[you]) == 1) qq.insert(you);
+	        }
+	        for(int i = 0; i < n; i++) {
+	            if(!an[i]) {
+	                if(!go(i)) {
+	                    cout << "Impossible\n";
+	                    return;
+	                }
+	            }
+	        }
+	        cout << an << '\n';
+	    }
+	    int main() {
+	        cin.tie(0);
+	        ios_base::sync_with_stdio(false);
+	        int T;
+	        cin >> T;
+	        while(T--) solve();
+	        return 0;
+	    }
+	    ```
 
+???+note "[BOI 2015 Tug of War](https://www.luogu.com.cn/problem/P4733)"
+	
+	
 ### CSES 
 
 ???+note "[CSES - Round Trip II](https://cses.fi/problemset/task/1678)"
