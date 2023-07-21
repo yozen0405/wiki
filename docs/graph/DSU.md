@@ -798,7 +798,7 @@
 	
 	??? note "思路"
 		若出現一條邊的鄰接點在同一個集合裡，則可證明有環存在
-	
+
 ???+note "[洛谷 P2024 [NOI2001] 食物链](https://www.luogu.com.cn/problem/P2024)"
 	有三類動物 $A,B,C$，這三類動物的⾷物鏈構成如下：$A$ 吃 $B$，
 	$B$ 吃 $C$，$C$ 吃 $A$。
@@ -980,11 +980,6 @@
 	    
 	    如果時間戳記已經過期了就丟掉元素，一直到找到一個不是過期的元素
 
-
-
-
-- DSU 判環
-- <https://www.luogu.com.cn/problem/P3430>
 - [TIOJ 只走一次](https://tioj.ck.tp.edu.tw/problems/2161)
 	- [submission](https://tioj.ck.tp.edu.tw/submissions/311160)
 

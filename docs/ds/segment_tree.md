@@ -6,9 +6,14 @@
 - [class 10](https://drive.google.com/file/d/1-KGWKW8z2foucvcgeMJ0j2MABreT3sVF/view)
 
 
-
 - 線段樹優化建圖
 - https://tioj.ck.tp.edu.tw/problems/1169
+
+## 線段樹分治
+
+- https://zhuanlan.zhihu.com/p/557382505?utm_id=0
+
+- https://www.luogu.com.cn/blog/AlexWei/solution-p8097
 
 ## 打架線段樹
 
@@ -239,7 +244,7 @@
                 root->mx = root->id;
                 return;
             }
-
+    
             if (mL <= root->lc->r && root->lc->mx) {
                 division(root->lc, mL, mR, val);
             }
@@ -266,25 +271,25 @@
         #define F first
         #define S second
         #define ALL(x) x.begin(), x.end()
-
+    
         using namespace std;
         using namespace __gnu_pbds;
-
+    
         tree<pii,null_type,less<pii>,rb_tree_tag,tree_order_statistics_node_update> T;
-
+    
         const int INF = 2e18;
         const int maxn = 3e5 + 5;
         const int M = 1e9 + 7;
-
+    
         struct Node{
             int l, r;
             Node *lc = nullptr;
             Node *rc = nullptr;
             int id = -1, cnt = 0;
             int mx;
-
+    
             Node (int l, int r) : l(l), r(r) {}
-
+    
             void pull () {
                 if (lc->cnt == 0) {
                     id = rc->id;
@@ -309,10 +314,10 @@
                 mx = max(lc->mx, rc->mx);
             }
         };
-
+    
         int n, q;
         int a[maxn];
-
+    
         Node* build (int l, int r) {
             Node* root = new Node(l, r);
             if (l == r) {
@@ -321,14 +326,14 @@
                 root->mx = a[l];
                 return root;
             }
-
+    
             int mid = (l + r) / 2;
             root->lc = build(l, mid);
             root->rc = build(mid + 1, r);
             root->pull();
             return root;
         }
-
+    
         void update(Node* root, int pos, int val) {
             if (root->l == root->r) {
                 T.erase({root->id, root->l});
@@ -338,7 +343,7 @@
                 T.insert({root->id, root->l});
                 return;
             }
-
+    
             if (pos <= root->lc->r) {
                 update(root->lc, pos, val);
             } else {
@@ -346,7 +351,7 @@
             }
             root->pull();
         }
-
+    
         void division(Node* root, int mL, int mR, int val) {
             if (root->r < mL || mR < root->l) return;
             if (root->l == root->r) {
@@ -356,7 +361,7 @@
                 T.insert({root->id, root->l});
                 return;
             }
-
+    
             if (mL <= root->lc->r && root->lc->mx) {
                 division(root->lc, mL, mR, val);
             }
@@ -365,13 +370,13 @@
             }
             root->pull();
         }
-
+    
         pii query(const Node* root, int ql, int qr) {
             if (qr < root->l || root->r < ql) return {-1, 0};
             if (ql <= root->l && root->r <= qr) {
                 return {root->id, root->cnt};
             } 
-
+    
             pii tmp = {-1, 0};
             if (ql <= root->lc->r) {
                 pii ret = query(root->lc, ql, qr);
@@ -409,7 +414,7 @@
             }
             return tmp;
         }
-
+    
         void init() {
             cin >> n >> q;
             for (int i = 0; i < n; i++) {
@@ -417,10 +422,10 @@
                 T.insert ({a[i], i});
             }
         }
-
+    
         void solve() {
             Node* root = build(0, n - 1);
-
+    
             int op;
             while(q--) {
                 cin >> op;
@@ -452,7 +457,7 @@
                 }
             }
         }
-
+    
         signed main() {
             ios::sync_with_stdio(0);
             cin.tie(0);
@@ -464,3 +469,19 @@
             }
         }
         ```
+
+## 區間除法
+
+???+note "[2023 YTP 國中組初賽 p6](/wiki/ds/images/YTP2023PreliminaryContest_J1.pdf)"
+	給一個長度為 $N$ 的序列 $a_1,a_2,\ldots, a_N$，$Q$ 筆以下操作 :
+	
+	- $\texttt{f}\space l\space r\space x:$ 對於 $l\le i\le r$，$a_i$ 變成 $\displaystyle  \lfloor \frac{a_i}{x} \rfloor$
+
+	- $\texttt{c}\space l\space r\space x:$ 對於 $l\le i\le r$，$a_i$ 變成 $\displaystyle \lceil \frac{a_i}{x} \rceil$
+
+	- $\texttt{?}\space k:$ 輸出 $a_k$
+
+	$N,Q\le 2\times 10^5,1\le a_i,x\le 10^9$
+	
+	???+note "思路"
+		ceil 除法的話是把 floor 的除法改一下變區間最大值是 1 的時候不遞迴做下去

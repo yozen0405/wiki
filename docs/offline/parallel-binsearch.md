@@ -1711,4 +1711,20 @@ $$
     	
     	另解 : 也有<a href="/wiki/graph/MST/?h=new+roads+queries#_4" target="_blank">並查集生成樹的解法</a>
 
+### YTP When2meet
+
+???+note "[2023 YTP 初賽 p5 When2meet](/wiki/offline/images/YTP2023PreliminaryContest_S1.pdf#page=21)"
+	給一張 $n$ 個點的圖，有 $q$ 筆操作 :
+	
+    - $\text{union}(i,a_i,b_i):$ 在時間 $i$ 在 $a_i,b_i$ 間建邊
+
+    - $\text{query}(k,\{x_1,x_2,\ldots, x_k \}):$ $x_1,x_2,\ldots, x_k$ 在何時連通，或沒有連通
+    
+    $n,q\le 2\times 10^5$
+    
+    ??? note "思路"
+    	上一題的變化版，還是「存 $\log m$ 個 $n\text{-vertex graph}$」技巧
+    	
+    	並查集生成樹的話 $\text{LCA(a,b,c)}=\text{LCA}(\text{LCA}(a,b),c)$，一樣找路徑上最大值
+	
 [^1]: 每個邊只會往一邊走，上一層用完了就可以刪掉，所以同一時間只有 $m$ 條邊在跑，每個邊只出現在一個地方 

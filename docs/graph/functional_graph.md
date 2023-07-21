@@ -12,7 +12,8 @@
 </figure>
 
 
-- 一張圖每個點的 out degree 都是 1，必為內向基環樹
+- 一張圖每個點的 out degree 都是 1，為內向基環樹森林
+
 - 一張圖恰有 $n$ 個點， $n$ 條邊，為基環樹森林
 
 ## 例題
@@ -374,89 +375,89 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-        using ll = long long;
-
-        const ll INF = 2e18;
-        const int maxn = 1e6 + 5;
-
-        int n, m, s, t, fg;
-        int instk[maxn], dfn[maxn], G[maxn];
-        ll dp[maxn][2];
-        vector<int> R[maxn];
-
-        void find_cycle(int u) {
-            dfn[u] = instk[u] = 1;
-            int v = G[u];
-            if (!dfn[v]) {
-                find_cycle(v);
-            } else if (instk[v]) {
-                s = u, t = v;
-            }
-            instk[u] = 0;
-        } 
-
-        void tree_dp(int u) {
-            dp[u][1] = 0, dp[u][0] = 0;
-            ll del = INF;
-            for (auto v : R[u]) {
-                if (t == u && s == v) continue;
-
-                tree_dp(v);
-                dp[u][0] += max(dp[v][0], dp[v][1]);
-                del = min(del, max(dp[v][0], dp[v][1]) - dp[v][0]);
-            }
-            dp[u][1] = dp[u][0] - del + 1;
-            if (fg && u == t) {
-                dp[u][1] = dp[u][0] + 1;
-            }
-        }
-
-        void init() {
-            cin >> n;
-            int x;
-            for(int i = 1; i <= n; i++) {
-                cin >> x;
-                G[i] = x;
-                R[x].pb(i);
-            }
-        }
-
-        void solve() {
-           ll res = 0;
-            for (int i = 1; i <= n; i++) {
-                if (dfn[i]) continue;
-                ll ans = 0;
-                s = 0, t = 0;
-                find_cycle(i);
-                if (s == 0) continue; 
-
-                fg = 0;
-                tree_dp(s);
-                ans = max(dp[s][0], dp[s][1]);
-                fg = 1;
-                tree_dp(s);
-                ans = max(ans, dp[s][0]);
-                res += ans;
-            }
-
-            cout << res << '\n';
-        }
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            init();
-            solve();
-        } 
-        ```
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using ll = long long;
+	
+	    const ll INF = 2e18;
+	    const int maxn = 1e6 + 5;
+	
+	    int n, m, s, t, fg;
+	    int instk[maxn], dfn[maxn], G[maxn];
+	    ll dp[maxn][2];
+	    vector<int> R[maxn];
+	
+	    void find_cycle(int u) {
+	        dfn[u] = instk[u] = 1;
+	        int v = G[u];
+	        if (!dfn[v]) {
+	            find_cycle(v);
+	        } else if (instk[v]) {
+	            s = u, t = v;
+	        }
+	        instk[u] = 0;
+	    } 
+	
+	    void tree_dp(int u) {
+	        dp[u][1] = 0, dp[u][0] = 0;
+	        ll del = INF;
+	        for (auto v : R[u]) {
+	            if (t == u && s == v) continue;
+	
+	            tree_dp(v);
+	            dp[u][0] += max(dp[v][0], dp[v][1]);
+	            del = min(del, max(dp[v][0], dp[v][1]) - dp[v][0]);
+	        }
+	        dp[u][1] = dp[u][0] - del + 1;
+	        if (fg && u == t) {
+	            dp[u][1] = dp[u][0] + 1;
+	        }
+	    }
+	
+	    void init() {
+	        cin >> n;
+	        int x;
+	        for(int i = 1; i <= n; i++) {
+	            cin >> x;
+	            G[i] = x;
+	            R[x].pb(i);
+	        }
+	    }
+	
+	    void solve() {
+	       ll res = 0;
+	        for (int i = 1; i <= n; i++) {
+	            if (dfn[i]) continue;
+	            ll ans = 0;
+	            s = 0, t = 0;
+	            find_cycle(i);
+	            if (s == 0) continue; 
+	
+	            fg = 0;
+	            tree_dp(s);
+	            ans = max(dp[s][0], dp[s][1]);
+	            fg = 1;
+	            tree_dp(s);
+	            ans = max(ans, dp[s][0]);
+	            res += ans;
+	        }
+	
+	        cout << res << '\n';
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        init();
+	        solve();
+	    } 
+	    ```
 
 ### 其他
 
@@ -631,9 +632,146 @@
 	    }
 	    ```
 
-???+note "[BOI 2015 Tug of War](https://www.luogu.com.cn/problem/P4733)"
+???+note "[BOI 2015 Tug of War](https://loj.ac/p/2707)"
+	有 $2n$ 個選手，要將他們分成左右兩組玩拔河，第 $i$ 個選手要站左邊的第 $l_i$ 個位置或右邊的第 $r_i$ 個位置，站的那一側的力量值將會 +$s_i$。問是否能分成兩組使左右力量值差 $\le k$
 	
+	$n\le 3\times 10^4,k\le 20n,s_i\le 20$
 	
+	??? note "思路"
+		這題的重點是，如何把它轉化成一個恰當的圖論模型。我們把選手轉化成邊，連通塊的邊數剛好等於點數，就是一個基環內向森林。我們此時要做的是「邊 $\rightarrow$ 點」匹配。如果出現有連通塊的點數不等於邊數時，要判不合法。對於樹的部分，直接讓每個點和連向父親的邊匹配，對於每個環，有兩種情況，先默認一個方向，預處理換方案的貢獻。這樣問題就變成 : 
+		
+		有 cnt 個物品，第 i 個物品的價值為 $-2a_i$，當前有的價值為 ans，你需要選擇一些物品，使得最後的總價值 $\le k$
+		
+		使用 0/1 背包，複雜度為 $O(n\times \sum s_i)$，使用 bitset 優化到 $O(\frac{n\times \sum s_i}{w})$，而 $\sum s_i$ 最大是 $40n$，所以這樣是 $\frac{3\times 10^4\times 40\times 3\times 10^4}{64}\approx 562500000$，可以通過
+	
+???+note "[USACO 2022 Silver JAN Cereal 2](https://www.luogu.com.cn/problem/P8095)"
+    有 $M$ 種不同種類的麥片，每種麥片只有一箱，$N$ 頭牛中的每頭都有她最愛的麥片 $f_i$ 和次愛的麥片 $s_i$。牛會執行如下的過程：
+
+    - 如果她最愛的麥片還在，取走並離開
+
+    - 否則，如果她第次愛的麥片還在，取走並離開
+
+    - 否則，她只能飢餓
+
+    求出一個 $N$ 頭牛的 permutation，使飢餓的牛的數量最小。輸出最小飢餓數量與 permutation
+    
+    $1\le N\le 10^5, 2\le M\le 10^5$
+    
+    ??? note "思路"
+    	建圖將邊當作牛，麥片當作點，建邊 $f_i\to s_i$。對於一個連通塊，我們分兩種情形討論
+    	
+    	當 $E=V - 1$ :
+    	
+    	必可隨便選一個點當 root，從 root 一層一層選下去，這樣對於一條邊至少下面那個點還可以選到
+    	
+    	當 $E\ge V$ :
+    	
+    	可在裡面找到一個基環樹的子圖。隨便選基環樹上一條邊，那條邊選 $f_i$，將這條邊拔掉後以 $f_i$ 當 root 變成 Tree 的 case。不管 $E$ 是多少，只能讓 $V$ 條邊 match 到 $V$ 個點
+    	
+    	> 詳細見 : <https://www.luogu.com.cn/blog/ShaoJia/solution-p8095>
+    
+    ??? note "code(by usaco)"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+ 
+        using namespace std;
+
+        struct edge {
+            int cow; // which cow's choice 
+            int to;
+            bool is_first;
+
+            edge() {};
+            edge(int cow, int to, bool is_first) : cow(cow), to(to), is_first(is_first) {};
+        };
+
+        int N, M;
+
+        vector<edge> adj[100001];
+        bool visited_cycle[100001]; // array for cycle finding
+        bool visited[100001]; // visited array for finding which order of cows we should use
+        bool gets_cereal[100001]; 
+
+        int hungry_cows = 0;
+        queue<int> order;
+        int ignore_edge = -1;
+        int first_cereal = -1; // the cereal we start the search from, if the CC is not a tree then this must be on a cycle
+
+        void find_cycle(int cur, int prev = -1) {
+            visited_cycle[cur] = true; 
+
+            for (edge next : adj[cur]) {
+                if (visited_cycle[next.to]) {
+                    if (first_cereal == -1 && next.to != prev) {
+                        if (next.is_first) {
+                            first_cereal = next.to; 
+                        } else {
+                            first_cereal = cur;
+                        }
+
+                        ignore_edge = next.cow; 
+                        order.push(next.cow);
+                        gets_cereal[next.cow] = true;
+                    }
+                } else {
+                    find_cycle(next.to, cur);
+                }
+            }
+        }
+
+
+        void dfs(int cur) {
+            visited[cur] = true;
+            for (edge next : adj[cur]) {
+                if (!visited[next.to] && next.cow != ignore_edge) { 
+                    gets_cereal[next.cow] = true;
+                    order.push(next.cow);
+                    dfs(next.to);
+                }
+            }
+        }
+
+
+        int main() {
+            cin >> N >> M;
+            for (int i = 0; i < N; ++i) {
+                int a, b;
+                cin >> a >> b;
+                adj[a].push_back(edge(i+1, b, false));
+                adj[b].push_back(edge(i+1, a, true));
+            }
+
+            for (int i = 1; i <= M; ++i) {
+                first_cereal = -1;
+                ignore_edge = -1;
+                if (!visited[i]) {
+                    find_cycle(i);
+
+                    if (first_cereal > 0) {
+                        dfs(first_cereal);
+                    } else {
+                        dfs(i);
+                    }
+                }
+            }
+
+            for (int i = 1; i <= N; ++i) {
+                if (!gets_cereal[i]) {
+                    ++hungry_cows;
+                    order.push(i);
+                } 
+            }
+
+            cout << hungry_cows << endl;
+            while (!order.empty()) {
+                cout << order.front() << endl; 
+                order.pop();
+            }
+
+            return 0;
+        }
+        ```
+	 
 ### CSES 
 
 ???+note "[CSES - Round Trip II](https://cses.fi/problemset/task/1678)"

@@ -63,6 +63,7 @@
   --md-code-summary-color: #191E25;
   --md-code-bkg-color: #FFF;
   --md-qs-border-width: 1px;
+  --md-selection-color: #0967D8;
 }
 
 :root, [data-md-color-scheme=default] {
@@ -79,6 +80,12 @@
   --md-code-summary-color: #e2e2e2;
   --md-code-bkg-color: #000000;
   --md-qs-border-width: 0;
+  --md-selection-color: #3390FF;
+}
+
+::selection {
+	background: var(--md-selection-color);
+  color: #FFF8FF;
 }
 
 .md-typeset .admonition.seacow,

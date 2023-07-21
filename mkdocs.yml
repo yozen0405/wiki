@@ -161,13 +161,15 @@ nav:
         - 隨機: 'search/randomize_algo.md'
     - 資料結構:
       - 基礎資料結構:
+        - bitset加速: 'ds/bitset.md'
+      - 進階資料結構 I:
         - 線段樹: 'ds/segment_tree.md'
         - 前綴和技巧: 'ds/prefix.md'
         - 單調隊列: 'ds/monotonous-stack.md'
         - BIT: 'ds/bit.md'
         - pb_ds: 'ds/pb_ds.md'
         - 題目: 'ds/problem.md'
-      - 進階資料結構:
+      - 進階資料結構 II:
         - Treap: 'ds/treap.md'
         - 持久化: 'ds/persistent.md'
         - Memory pool: 'ds/memory_pool.md'
@@ -240,7 +242,6 @@ nav:
         - terminal 的一些指令: 'other/cmd.md'
       - 序列交換問題: 'other/swap.md'
       - 字典序: 'other/Lexicographic.md'
-      - bitset加速: 'other/bitset.md'
       - 分數運算: 'other/fraction.md'
       - 平面距離: 'other/distance.md'
     

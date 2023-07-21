@@ -1,7 +1,9 @@
 ## job sheduling
+
 ### k job scheduling
-???+note "k job scheduling"
-	- 給你 $n$ 個工作 $l_i,r_i$ 每個工作的 $w_i$ 都是 $1$，一次可以作 $k$ 個工作, 求最多可以領多少錢
+
+???+note "[CSES - Movie Festival II](https://cses.fi/problemset/task/1632)"
+	給你 $n$ 個工作 $l_i,r_i$ 每個工作的 $w_i$ 都是 $1$，一次可以作 $k$ 個工作，求最多可以領多少錢
 	
     ??? note "思路"
         - 如果同時間有好幾個工作重疊並且 $>k$
@@ -48,14 +50,79 @@
             return W;
         }
         ```
-- 習題 [TIOJ 隕石](https://tioj.ck.tp.edu.tw/problems/1337)
+        
+???+note "[TIOJ 1337. 隕石]"
+	給 $n$ 個 interval $l_i,r_i$，問在可以移除 $k$ 個 interval 的情況最小化最大的 bandwidth
+	
+	$n\le 10^5,K$
+	
+	??? note "思路"
+		二分搜答案 t，也就是最大的 bandwidth，去 check(t) 說可不可以再刪掉 k 個 interval 的情況下使最大 bandwidth 不超過 t
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+
+        using namespace std;
+        using pii = pair<int, int>;
+
+        int n, m;
+        multiset<pii> ms;
+
+        void init () {
+            cin >> n >> m;
+            for (int i = 1, l, r; i <= n; i++) {
+                cin >> l >> r;
+                ms.insert({l, r});
+            }
+        }
+
+        int check (int k) {
+            // 一次做 k 個工作歐布歐虧
+            // 但刪掉的工作不能超過 m 個
+            // 東區那題要刪多少都ok
+            multiset<pii> rev;
+            int cnt = m;
+            for (auto pos = ms.begin(); pos != ms.end(); pos++) {
+                int l = pos->first, r = pos->second;
+                //以我的角度來看重疊在左屆
+                // 刪除過期的邊界
+                while (rev.size() && rev.begin()->first <= l) {
+                    rev.erase(rev.begin());
+                }
+                rev.insert({r, l});
+                if (rev.size() > k) {
+                    if (cnt == 0) return false;
+                    rev.erase(--rev.end());
+                    cnt--;
+                }
+            }
+            return true;
+        }
+
+        void solve () {
+            int l = 0, r = n - m;
+            while (l < r) {
+                int mid = l + r >> 1;
+                if (check(mid)) r = mid;
+                else l = mid + 1;
+            }
+            cout << r;
+        }
+
+        signed main () {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            init();
+            solve();
+        }
+        ```
 
 ### job scheduling problem
 ???+ note "延伸 job scheduling problem"
-	- n 個 intervals，有 weight
-	
-	- 找一些 intervals，兩兩不 overlap，最大化 weight 總和
-
+	給 n 個 intervals，有 weight，找一些 intervals，兩兩不 overlap，最大化 weight 總和
 
 	??? note "思路1"
 		- sort $r_i$ 小到大

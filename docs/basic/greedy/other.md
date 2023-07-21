@@ -43,8 +43,29 @@
 	        
 	        > ref : <https://www.csie.ntu.edu.tw/~sprout/algo2021/homework/hand05.pdf>
 
-
-
 ???+note "[TIOJ 1579.來自未來的新台幣](https://tioj.ck.tp.edu.tw/problems/1579)"
 	有⼀些⾯額為 1,5,10,50,100,500,1000 的錢幣，問你⽤這些硬幣最⼩湊不出來的錢是多少?
 
+## 交換法
+
+- sorting [APCS 物品堆疊](https://zerojudge.tw/ShowProblem?problemid=c471) 
+- merge sort [CF 559B](https://codeforces.com/problemset/problem/559/B)
+
+## 霍夫曼編碼
+
+???+note "例題"
+	- 給你一個陣列 $a$ , 合併 $a_x,a_y$ 要花 $a_x+a_y$ ( $x,y$ 不一定要相鄰)
+
+ 	- 求把陣列整個合併完得最小花費
+
+    ??? note "思路"
+        - 貪心的想法每次都合併最小的
+        - 塞進 $\texttt{pq}$ 每次去最小的 $\texttt{a,b, pop}$ 掉再 $\texttt{push(a + b)}$ 
+
+???+note "[CSES - Programmers and Artists](https://cses.fi/problemset/task/2426)"
+	給你 $n$ 個 pair$(x_i,y_i)$，要你選這些 pair 裡面的 $a$ 個 $x$ 跟 $b$ 個 $y$，且同一個 pair 中的 $x$ 和 $y$ 不能同時挑
+	
+	$n\le 2\times 10^5$
+	
+	??? note "思路"	
+		<https://github.com/yozen0405/c-projects/blob/main/markdown/2426.md>

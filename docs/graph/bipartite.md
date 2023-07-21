@@ -15,3 +15,5 @@
 <figure markdown>
   ![Image title](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Simple-bipartite-graph.svg/1200px-Simple-bipartite-graph.svg.png){ width="300" }
 </figure>
+
+- <https://www.luogu.com.cn/problem/P3430>
