@@ -535,29 +535,21 @@
 		
 		時間複雜度 : $O(n\log n)$
 		
-		> 法 3 : 線段樹維護 by twpca
-		
-		每張卡片的 W 值只有幾種可能而已，可以枚舉所有可能的 W<sub>x</sub> + W<sub>y</sub>， 把問題從最大化的問題變成判定性問題。
-	
-		給一個中獎金額 C，目前所有的彩券有沒有辦法湊到這個中獎金額？ 重新整理題目的條件變成：
-	
-	    - A<sub>x</sub> + A<sub>y</sub> ≥ C
-	
-	    - B<sub>x</sub> + B<sub>y</sub> ≥ C
-	
-	    - C<sub>x</sub> + C<sub>y</sub> ≥ C
-		
-		那就可以
-		
-		- A: 預先排序用雙指針維護
-		
-	    - B: 作為樹狀結構的 index 區間查詢
+	    > 法 3 : BIT
 	    
-	    - C: 作為樹狀結構的 value 查詢區間最大值
+	    將這些 tuple 以 $w_i$ 分成 $S_1,S_2,S_3$ 三組，並在每組裡面依照 $a_i$ 小到大 sort。
 	    
-	    因為每個 tuple 的 W<sub>i</sub> 可能不同，所以可能需要兩棵線段樹
-	
-	    時間複雜度 : $O(n\log n)$
+	    對於兩組 $S_p$ 與 $S_q$ 做以下的事情 :
+	    
+	    - 令 $T=w_p+w_q$
+		
+		- 開一個 data structure D
+		
+		- for each $(a,b,c)$ in $S_p$ :
+			- 將 $S_q$ 裡面符合 $x+a\ge T$ 的 tuple 的 $(y,z)$ insert 進去 D（具有單調性）
+			- 如果 D 裡面有 pair 符合 $(\ge T - b, \ge T - c)$ 那就 return true
+
+		- 其中 D 可以用值域 BIT 維護，index 維護 pair 的 $x$，value 維護 pair 的 $y$，每次要去 query 的時候只要查詢一個後綴的最大值即可!
 
 ### TIOJ 2030
 
@@ -638,7 +630,7 @@
 	接下來有 m 次操作:
 	
 	- 詢問 $1 \sim n$ 有多少種數字同時出現在 $a$ 陣列的區間 $[l_a, r_a]$ 和 $b$ 陣列的區間 $[l_b, r_b]$
-
+	
 	- 交換 $b_x$ 和 $b_y$
 	
 	$1 \le n, m \le 2 \times 10^5$
