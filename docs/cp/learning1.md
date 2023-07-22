@@ -84,6 +84,8 @@ CF
 
 - [演算法概念講解](https://www.youtube.com/@AlgorithmsLive)
 
+- [Errichto Algorithms](https://www.youtube.com/@Errichto)
+
 ## 寫程式用的軟體
 
 - codeblock (APCS)
