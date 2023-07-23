@@ -230,7 +230,7 @@ nav:
       - 優化:
         - 單調對列優化: 'dp/monotonous-queue.md'
         - 分治優化: 'dp/D&C.md'
-        - 斜率優化: 'dp/slope.md'
+        - 斜率優化: 'dp/convex_hull_trick.md'
         - 四邊形優化: 'dp/quadrangle.md'
         - SOS優化: 'dp/sos.md'
     - 各種題型:
