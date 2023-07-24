@@ -237,6 +237,7 @@ nav:
       - 構造題: 'problem/construct.md'
     - 其他:
       - 小技巧:
+        - 訓練: 'other/practice.md'
         - 壓常: 'other/constant.md'
         - Debug: 'other/debug.md'
         - terminal 的一些指令: 'other/cmd.md'

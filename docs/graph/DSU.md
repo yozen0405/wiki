@@ -980,9 +980,99 @@
 	    
 	    如果時間戳記已經過期了就丟掉元素，一直到找到一個不是過期的元素
 
-- [TIOJ 只走一次](https://tioj.ck.tp.edu.tw/problems/2161)
-	- [submission](https://tioj.ck.tp.edu.tw/submissions/311160)
+???+note "[TIOJ 只走一次](https://tioj.ck.tp.edu.tw/problems/2161)"
+	
+	??? note "思路"
+		[submission](https://tioj.ck.tp.edu.tw/submissions/311160)
 
+		![](https://cdn.discordapp.com/attachments/1019974733434982460/1054054354929324072/94373363-900B-4294-8ACD-0AB36BF9F20C.png)
+
+???+note "序列上的 DSU [CF 982 D. Shark](https://codeforces.com/contest/982/problem/D)"
+	給大小為 $n$ 的序列 $a_1,\ldots, a_n$。刪除大於等於 $k$ 的數字，使得其滿足以下條件： 
+	
+	1. 剩餘的連續的段，每一段的長度相等
+	
+	2. 在滿足第一個條件的情況下，段數盡可能多
+	
+	3. 在滿足前兩個條件的情況下，問 $k$ 最小能是多少
+	
+	??? note "思路"
+		枚舉 threshold，用 DSU 維護組別。
+	
+		將 $a_i$ 從小到大枚舉。如果在 $a_i$ 原本序列的左右（$a_{i-1}$ 與 $a_{i+1}$）有比它小的數，就可以各自將他們 merge 進去 $a_i$ 的連通塊。同時維護好並查集的大小。如果滿足當前每個連通塊的 size 都是一樣的，就代表是合法的，嘗試更新答案
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int maxn = 3e5 + 5;
+        int n;
+        set<pii> S;
+
+        int par[maxn], sz[maxn];
+
+        int find(int x){
+            if (par[x] == x) return x;
+            return par[x] = find(par[x]);
+        }
+
+        void merge(int u, int v){
+            u = find(u), v = find(v);
+            S.erase({sz[u], u});
+            S.erase({sz[v], v});
+            par[v] = u;
+            sz[u] += sz[v];
+            S.insert({sz[u], u});
+        }
+
+        bool check(){ // 檢查每一組的個數是否都是相同的
+            int l = S.begin()->first;
+            int r = S.rbegin()->first;
+            return l == r;
+        }
+
+        signed main(){
+            vector<pii> v;
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
+                int x;
+                cin >> x;
+                v.pb({x,i});
+            }
+            sort(ALL(v));
+
+            for (int i = 1; i <= n; i++) {
+                par[i] = -1;
+                sz[i] = 0;
+            }
+
+            // k = max(a[i]) + 1 時, 大家都被刪掉, 沒有任何組別
+            int mx = 0;
+            int ans = v.back().first + 1;
+
+            for (auto &p : v){
+                int x = p.second;
+                par[x] = x, sz[x] = 1;
+                S.insert({1, x}); // 維護當前每個存在的連通塊的 {大小, parent}
+                if (x > 1 && par[x - 1] != -1) merge(x - 1, x); // a[x - 1] < a[x]
+                if (x < n && par[x + 1] != -1) merge(x, x + 1); // a[x + 1] < a[x]
+                if (check() && S.size() > mx){ // 合法 & 擁有更多組別
+                    ans = p.first + 1;
+                    mx = S.size();
+                }
+            }
+            cout << ans << '\n';
+        }
+		```
 ---
 
 ## 參考資料

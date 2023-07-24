@@ -5,8 +5,30 @@
 - 曼哈頓轉雪茄夫距離
 - [class 10](https://drive.google.com/file/d/1-KGWKW8z2foucvcgeMJ0j2MABreT3sVF/view)
 
+### 矩形覆蓋相關問題
 
-- 線段樹優化建圖
+???+note "不用離散化版 [CSES - Area of Rectangles](https://cses.fi/problemset/task/1741)"
+	
+	
+???+note "離散化版 [TIOJ 1224](https://tioj.ck.tp.edu.tw/problems/1224)"
+	計算覆蓋的區域的聯集面積
+	
+???+note "[2021 全國賽 pF. 歡樂外送點)](https://tioj.ck.tp.edu.tw/problems/2228)" 
+	計算覆蓋最多次的地方
+
+???+note "變化問題 [2015 ITSA 桂冠賽挑戰組 A11. Smart Patrol](https://e-tutor.itsa.org.tw/e-Tutor/mod/programming/view.php?id=23668)"
+	矩形 XOR 之後，剩下的區域面積總合
+
+變化問題：至少被 2 個矩形覆蓋的區域面積總合
+- min,sec
+
+變化問題：至少被 K 個矩形覆蓋的區域面積總合
+
+變化問題：輸入的矩形的的長或寬至少有一個是 1，求聯集
+
+
+## 線段樹優化建圖
+
 - https://tioj.ck.tp.edu.tw/problems/1169
 
 ## 線段樹分治
@@ -476,11 +498,11 @@
 	給一個長度為 $N$ 的序列 $a_1,a_2,\ldots, a_N$，$Q$ 筆以下操作 :
 	
 	- $\texttt{f}\space l\space r\space x:$ 對於 $l\le i\le r$，$a_i$ 變成 $\displaystyle  \lfloor \frac{a_i}{x} \rfloor$
-
+	
 	- $\texttt{c}\space l\space r\space x:$ 對於 $l\le i\le r$，$a_i$ 變成 $\displaystyle \lceil \frac{a_i}{x} \rceil$
-
+	
 	- $\texttt{?}\space k:$ 輸出 $a_k$
-
+	
 	$N,Q\le 2\times 10^5,1\le a_i,x\le 10^9$
 	
 	???+note "思路"
