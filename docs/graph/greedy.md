@@ -504,3 +504,57 @@
 	        cout << ans << '\n';
 	    }
 	    ```
+	    
+???+note "[CF 982 C. Cut 'em all!](https://codeforces.com/contest/982/problem/C)"
+	給一棵 $n$ 個點的樹，問你最多能切掉幾條邊，使得每個連通塊的大小都是偶數
+	
+	$n\le 2\times 10^5$
+	
+	??? note "思路"
+		$n$ 為奇數時必定無解。所以當我們可以從 leaf 往 root 考慮，當遇到 sz[v] 為偶數則可以直接切，因為除了 u 的連通塊大小還是偶數之外，答案貢獻還 +1。
+		
+	??? note "code"	
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+        using namespace std;
+
+        const int maxn = 100005;
+        vector<int> G[maxn];
+        int sz[maxn];
+        int n, ans;
+
+        void dfs(int u, int par) {
+            sz[u] = 1;
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                dfs(v, u);
+                sz[u] += sz[v];
+                if (sz[v] % 2 == 0) ans++;
+            }
+        }
+
+        signed main() {
+            cin >> n;
+
+            if (n & 1) {
+                cout << "-1\n";
+                exit(0);
+            }
+
+            for (int i = 1; i < n; i++) {
+                int u, v;
+                cin >> u >> v;
+                G[u].push_back(v);
+                G[v].push_back(u);
+            }
+            dfs(1, -1);
+            cout << ans << '\n';
+        }
+		```

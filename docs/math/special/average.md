@@ -39,18 +39,76 @@
 
 
 
-### 區間平均
-???+note "[P1404 平均数](https://www.luogu.com.cn/problem/P1404)"
-    給定 $a_1,...,a_n$ 問可否選出 $a_l,..., a_r$ 使得平均最大，且長度要 $\ge m$
+### 最大平均區間
+???+note "[CF EDU A. Maximum Average Segment](https://codeforces.com/edu/course/2/lesson/6/4/practice/contest/285069/problem/A)"
+    給定 $a_1,...,a_n$ 問可否選出長度 $\ge k$ 的 subarray 使得平均最大，輸出這個 subarray 的左右界
     
-    - $1\le n,m \le 10^5$
+    - $k\le n \le 10^5,0\le a_i\le 100$
     
     ??? note "思路"
     	二分搜平均值 $x$
     	
     	$\texttt{check} (x)$ 是檢查有沒有平均大於等於 $x$ 的
     	
-		也就是看 $pre(i) - pre(j) \ge 0$
+    	也就是看 $pre(i) - pre(j) \ge 0$
+    	
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+    
+        using namespace std;
+    
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+    
+        int n, k;
+        int ansl, ansr;
+        int a[maxn];
+        double b[maxn];
+    
+        bool check(double x) {
+            for (int i = 1; i <= n; i++) {
+                b[i] = (double)b[i - 1] + a[i] - x;
+            }
+            double mn = 0;
+            int idx = 1;
+            for (int i = k; i <= n; i++) {
+                if (b[i - k] < mn) { // 技巧
+                    mn = b[i - k];
+                    idx = i - k + 1;
+                }
+                if (b[i] - mn >= 0) {
+                    ansl = idx, ansr = i;
+                    return true;
+                }
+            }
+            return false;
+        }
+    
+        signed main() {
+            cin >> n >> k;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+            }
+    
+            double l = 0, r = 105;
+            for (int i = 0; i < 100; i++) {
+                double mid = (double)(l + r) / 2;
+                if (check(mid)) l = mid;
+                else r = mid;
+            }
+            check(l);
+            cout << ansl << ' ' << ansr << '\n';
+        } 
+        ```
 
 ### 區間平均
 ???+note "區間平均"

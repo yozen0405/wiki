@@ -239,3 +239,13 @@
 	        }
 	    }
 	    ```
+	    
+???+note "[全國賽 2018 p7. 不回家的銷售員](https://zerojudge.tw/ShowProblem?problemid=e032)"
+	給一個 $n$ 個點的無根樹，邊帶權，有 $q$ 筆查詢 :
+	
+	- 給一些指定的點，輸出經過這些指定的點至少一次的最短路徑長度
+
+	$n\le 10^5$
+	
+	??? note "思路"
+		<https://sorahisa-rank.github.io/nhspc-fin/2018/editorial.pdf#page=23>

@@ -32,6 +32,12 @@
 
 !!! warning "check(x) 的 x 太大的時候，有些情況會造成 cnt overflow"
 
+!!! warning "記得需要開 double 的時候，l, r, mid, check(x) 都要用 double，不能有一些是 int 有一些又是 double"
+
+!!! warning "注意 l, r 一開始的有沒有還蓋答案的左界右界"
+
+!!! warning "while(l < r) while(r - l > 1)"
+
 ???+note "[CF 1853 C. Ntarsis' Set](https://codeforces.com/contest/1853/problem/C)"
 	給一個包含 $1,2,\ldots ,10^{1000}$ 所有數字的 Set $S$，每天從 $S$ **同時**移除第 $a_1,a_2,\ldots ,a_n$ 個數字，問 $k$ 天之後 $S$ 中最小的數字是多少
 	
@@ -114,5 +120,4 @@
 	        }
 	    }
 		```
-
 
