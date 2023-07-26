@@ -16,6 +16,54 @@
 - 以 $A$ 為根 
 - CF Lynyrd Skynyrd
 
+## 模板
+
+???+note "code"
+	```cpp linenums="1"
+	vector<pii> G[maxn];
+    int p[maxn][21], dp[maxn][21], dep[maxn];
+
+    void dfs (int u, int par) {
+        for (auto [v, w] : G[u]) {
+            if (v == par) continue;
+            p[v][0] = u;
+            dp[v][0] = w;
+            dep[v] = dep[u] + 1;
+            dfs (v, u);
+        }
+    }
+
+    void build () {
+        for (int i = 1; i < 21; i++) {
+            for (int j = 1; j <= n; j++) {
+                p[j][i] = p[p[j][i - 1]][i - 1];
+                dp[j][i] = max (dp[j][i - 1], dp[p[j][i - 1]][i - 1]);
+            }
+        }
+    }
+
+    int LCA (int a, int b) {
+        if (dep[a] < dep[b]) swap (a, b);
+        int dif = dep[a] - dep[b];
+        for (int i = 20; i >= 0; i--) {
+            if (dif & (1 << i)) {
+                a = p[a][i];
+            }
+        }
+
+        if (a == b) return a;
+
+        for (int i = 20; i >= 0; i--) {
+            if (p[a][i] != p[b][i]) {
+                a = p[a][i];
+                b = p[b][i];
+            }
+        }
+
+        return p[a][0];
+    }
+	```
+
 ## 性質
 
 1. 兩點集 union 起來的 LCA 為兩點集分別的 LCA 的 LCA，舉例來說 $\text{LCA}(a, b, c)$ 等於 $\text{LCA}(\text{LCA}(a, b), c)$
@@ -239,12 +287,12 @@
 	        }
 	    }
 	    ```
-	    
+
 ???+note "[全國賽 2018 p7. 不回家的銷售員](https://zerojudge.tw/ShowProblem?problemid=e032)"
 	給一個 $n$ 個點的無根樹，邊帶權，有 $q$ 筆查詢 :
 	
 	- 給一些指定的點，輸出經過這些指定的點至少一次的最短路徑長度
-
+	
 	$n\le 10^5$
 	
 	??? note "思路"

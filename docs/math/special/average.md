@@ -37,6 +37,14 @@
 	    }
 	    ```
 
+### 區間平均
+???+note "區間平均"
+	給定 $a_1,...,a_n$ 問可否選出 $a_l,..., a_r$ 使得平均為 $x$
+    
+    ??? note "思路"
+        將 $a_i$  的變成 $a_i - x$
+        
+        問題就變成取 $pre_i- pre_j = 0$
 
 
 ### 最大平均區間
@@ -110,11 +118,81 @@
         } 
         ```
 
-### 區間平均
-???+note "區間平均"
-	給定 $a_1,...,a_n$ 問可否選出 $a_l,..., a_r$ 使得平均為 $x$
-    
-    ??? note "思路"
-        將 $a_i$  的變成 $a_i - x$
-        
-        問題就變成取 $pre_i- pre_j = 0$
+### 最短平均路
+
+???+note "最短平均路 [CF EDU B. Minimum Average Path](https://codeforces.com/edu/course/2/lesson/6/4/practice/contest/285069/problem/B)"
+	給定一個 $n$ 點 $m$ 邊的 DAG，邊帶權，問從 $1\to n$ 的 path 上權重的平均最小可以是多少
+	
+	$n\le 10^5,m\le 10^5$
+	
+	??? note "思路"
+		跟上面最大平均區間一樣，我們去二分搜平均值 $x$，將邊權都 $-x$，看有沒有一條 path 的總和 $\le 0$。我們可以令 $dp[i]=$ 走到點 $i$ 的最小權值是多少，$dp[v]=\min \{dp[u]+w \}$ 
+		
+	??? note "code"
+		```cpp 
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const double INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        int n, m;
+        double dp[maxn];
+        int par[maxn];
+        vector<pii> G[maxn];
+
+        bool check(double x) {
+            fill(dp, dp + n + 1, INF);
+            fill(par, par + n + 1, -1);
+            dp[1] = 0;
+            for (int i = 1; i <= n; i++) {
+                for (auto [v, w] : G[i]) {
+                    double val = (double)dp[i] + w - x;
+                    if (dp[v] > val) {
+                        dp[v] = val;
+                        par[v] = i;
+                    }
+                }
+            }
+            return dp[n] <= 0;
+        }
+
+        signed main() {
+            cin >> n >> m;
+            for (int i = 1; i <= m; i++) {
+                int u, v, w;
+                cin >> u >> v >> w;
+                G[u].pb({v, w});
+            }
+
+            double l = 0, r = 105;
+            for (int i = 0; i < 100; i++) {
+                double mid = (l + r) / 2;
+                if (check(mid)) r = mid;
+                else l = mid;
+            }
+            check(l);
+
+            stack<int> stk;
+            int x = n;
+            stk.push(x);
+            while (par[x] != -1) {
+                x = par[x];
+                stk.push(x);
+            }
+            cout << stk.size() - 1 << '\n';
+            while (stk.size()) {
+                cout << stk.top() << ' ';
+                stk.pop();
+            }
+        } 
+        ```

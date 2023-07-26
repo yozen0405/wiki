@@ -30,6 +30,8 @@
 
 - whale Atcoder 
 
+- 全國賽 2021 pG subtask 1, 2
+
 !!! warning "check(x) 的 x 太大的時候，有些情況會造成 cnt overflow"
 
 !!! warning "記得需要開 double 的時候，l, r, mid, check(x) 都要用 double，不能有一些是 int 有一些又是 double"
@@ -37,6 +39,8 @@
 !!! warning "注意 l, r 一開始的有沒有還蓋答案的左界右界"
 
 !!! warning "while(l < r) while(r - l > 1)"
+
+!!! warning "TLE 有可能是二分搜壞掉導致, 可能一開始推導時有誤"
 
 ???+note "[CF 1853 C. Ntarsis' Set](https://codeforces.com/contest/1853/problem/C)"
 	給一個包含 $1,2,\ldots ,10^{1000}$ 所有數字的 Set $S$，每天從 $S$ **同時**移除第 $a_1,a_2,\ldots ,a_n$ 個數字，問 $k$ 天之後 $S$ 中最小的數字是多少
@@ -121,3 +125,59 @@
 	    }
 		```
 
+???+note "[CF EDU A. K-th Number in the Union of Segments](https://codeforces.com/edu/course/2/lesson/6/5/practice/contest/285084/problem/A)"
+	有一個 multiset，$n$ 次 insert $l_i,\ldots ,r_i$ 進去，問 multiset 第 $k$ 小的數字（$k$ 為 0-base）　
+	
+	$n\le 50,0\le k\le 2\times 10^9,-2\cdot 10^9 \le l_i \le r_i \le 2\cdot 10^9$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#pragma GCC optimize("O3,unroll-loops")
+        #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
+
+        #include <bits/stdc++.h>
+        #define pb push_back
+
+        using namespace std;
+        using ll = long long;
+
+        struct Interval {
+            int l, r;
+        };
+
+        int n, k;
+        vector<Interval> intervals;
+
+        bool check(ll t) {
+            ll cnt = 0;
+            for (auto &[l, r] : intervals) {
+                if (t > r) {
+                    cnt += r - l + 1;
+                } else if (t > l) {
+                    cnt += (ll)t - l;
+                }
+            }
+
+            return cnt <= k;
+        }
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            cin >> n >> k;
+            for (int i = 0; i < n; i++) {
+                int l, r;
+                cin >> l >> r;
+                intervals.pb({l, r});
+            }
+
+            ll l = -3e9, r = 3e9;
+            // 找到第一個 x 滿足小於 x 的個數 <= k
+            while (r - l > 1) {
+                ll mid = (l + r) / 2;
+                if (check(mid)) l = mid;
+                else r = mid;
+            }
+            cout << l << '\n';
+        } 
+        ```
