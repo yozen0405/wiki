@@ -126,6 +126,9 @@
 		
 		https://www.cnblogs.com/wyb-sen/p/15178332.html
 
+???+note "最短平均路"
+	
+
 ### 多源點 dijkstra
 
 ???+note "[zerojudge b904. 10. 學園生活](https://zerojudge.tw/ShowProblem?problemid=b904)"
@@ -2934,7 +2937,7 @@
 	
 	??? note "思路"
 		現在有兩個點 $i$ 和 $j$ ，如果其建邊的話，最短路可能是 $1 \to i \to j \to n$ 或者 $1 \to j \to i \to n$。這樣代表的距離也就是 $dis(1\to i)+dis(j\to n)+1$ 和 $dis(1\to j)+dis(i\to n)+1$ 了。我們要取最小的，因此 $dis(1\to i)+dis(j\to n)+1<dis(1\to j)+dis(i\to n)+1$  時，才符合最短路的條件。移項後變為 $dis(1\to i) - dis(i\to n) < dis(1\to j)-dis(j\to n)$。依據 exchange argument，按照這個條件由小到大排序後，枚舉位於後面的點 $j$，然後找到點 $j$ 前面的 $dis(1\to i)$ 的最大值，這樣可以保證相加之和是最大的。最大就是之前的最短路了。最後與原圖最短路比較一下就可以了。
-
+	
 ### 難題
 
 ???+danger "[TIOJ 2049.龜兔賽跑](https://tioj.ck.tp.edu.tw/problems/2049)"
