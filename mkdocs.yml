@@ -143,7 +143,9 @@ nav:
         - 各國 OI: 'cp/contest/OI.md'
         - 比賽晉級路線圖: 'cp/contest/path.md'
     - 基礎算法:
-      - 時間複雜度: 'basic/time_complexity.md'
+      - Brute Force: 
+        - 時間複雜度: 'basic/brute_force/time_complexity.md'
+        - 折半枚舉: 'basic/brute_force/meet_in_middle.md'
       - 貪心:
         - 經典問題: 'basic/greedy/classic.md'
         - 區段問題: 
