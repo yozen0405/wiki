@@ -43,55 +43,55 @@ __builtin_ctz(x)
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #pragma GCC target("popcnt")
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3005;
-        const int M = 1e9 + 7;
-        const int X = 131;
-
-        int n, m;
-        bitset<maxn> B[maxn];
-        int a[maxn][maxn];
-
-        void init () {
-            cin >> n;
-            for (int i = 1; i <= n; i++) {
-                cin >> B[i];
-            }
-        }
-
-        void solve() {
-            int ans = 0;
-            bitset<maxn> b;
-            for (int i = 1; i <= n; i++) {
-                for (int j = i + 1; j <= n; j++) {
-                    b = B[i] & B[j];
-                    int cnt = b.count();
-                    ans += cnt * (cnt - 1) / 2;
-                }
-            }
-
-            cout << ans << "\n";
-        } 
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            int t = 1;
-            //cin >> t;
-            while (t--) {
-                init();
-                solve();
-            }
-        } 
+	    #pragma GCC target("popcnt")
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3005;
+	    const int M = 1e9 + 7;
+	    const int X = 131;
+	
+	    int n, m;
+	    bitset<maxn> B[maxn];
+	    int a[maxn][maxn];
+	
+	    void init () {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> B[i];
+	        }
+	    }
+	
+	    void solve() {
+	        int ans = 0;
+	        bitset<maxn> b;
+	        for (int i = 1; i <= n; i++) {
+	            for (int j = i + 1; j <= n; j++) {
+	                b = B[i] & B[j];
+	                int cnt = b.count();
+	                ans += cnt * (cnt - 1) / 2;
+	            }
+	        }
+	
+	        cout << ans << "\n";
+	    } 
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    } 
 		```
 
 ### CSES Reachable Nodes
@@ -104,61 +104,61 @@ __builtin_ctz(x)
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 5e4 + 5;
-        const int M = 1e9 + 7;
-        const int X = 131;
-
-        int n, m;
-        vector<int> G[maxn];
-        bitset<maxn> B[maxn];
-        int vis[maxn];
-
-        void dfs (int u) {
-            if (vis[u]) return;
-            vis[u] = true;
-            for (auto v : G[u]) {
-                dfs (v);
-                B[u][v] = 1;
-                B[u] |= B[v];
-            }
-        }
-
-        void init () {
-            cin >> n >> m;
-            int u, v;
-            for (int i = 1; i <= m; i++) {
-                cin >> u >> v;
-                G[u].pb(v);
-            }
-        }
-
-        void solve() {
-            for (int i = 1; i <= n; i++)
-                if (!vis[i]) dfs (i);
-            for (int i = 1; i <= n; i++) cout << B[i].count() + 1 << " ";
-        } 
-
-        signed main() {
-            // ios::sync_with_stdio(0);
-            // cin.tie(0);
-            int t = 1;
-            //cin >> t;
-            while (t--) {
-                init();
-                solve();
-            }
-        } 
-		```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    using namespace std;
 	
+	    const int INF = 2e18;
+	    const int maxn = 5e4 + 5;
+	    const int M = 1e9 + 7;
+	    const int X = 131;
+	
+	    int n, m;
+	    vector<int> G[maxn];
+	    bitset<maxn> B[maxn];
+	    int vis[maxn];
+	
+	    void dfs (int u) {
+	        if (vis[u]) return;
+	        vis[u] = true;
+	        for (auto v : G[u]) {
+	            dfs (v);
+	            B[u][v] = 1;
+	            B[u] |= B[v];
+	        }
+	    }
+	
+	    void init () {
+	        cin >> n >> m;
+	        int u, v;
+	        for (int i = 1; i <= m; i++) {
+	            cin >> u >> v;
+	            G[u].pb(v);
+	        }
+	    }
+	
+	    void solve() {
+	        for (int i = 1; i <= n; i++)
+	            if (!vis[i]) dfs (i);
+	        for (int i = 1; i <= n; i++) cout << B[i].count() + 1 << " ";
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    } 
+		```
+
 ### USACO Lots of Triangles
 
 ???+note "[USACO 2016 Dec. Platinum P1. Lots of Triangles](https://www.usaco.org/index.php?page=viewproblem2&cpid=672)"
@@ -340,9 +340,14 @@ __builtin_ctz(x)
 		設 $c_i = W / w_i$，當有限背包解
 	
 		複雜度 $O(\frac{n\log W\times W}{64})$
-		
+
+### 習題
+
+???+note "[CF 1854 B. Earn or Unlock](https://codeforces.com/contest/1854/problem/B)"
+	
+	
 ---
-		
+
 ## 資料
 
 - <https://www.youtube.com/watch?v=jqJ5s077OKo>

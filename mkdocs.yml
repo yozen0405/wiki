@@ -180,7 +180,6 @@ nav:
         - 樹直徑: 'graph/tree_diameter.md'
         - 換根 dp: 'graph/solving_for_all_roots.md'
         - 樹 dp: 'graph/tree_dp.md'
-        - 樹上啟發式合併: 'graph/dsu_on_tree.md'
         - 樹壓平: 'graph/euler_tour.md'
         - 倍增法與 LCA: 'graph/LCA.md'
         - 重心分治: 'graph/DC_on_trees.md'
@@ -199,6 +198,7 @@ nav:
       - 迴路:
         - 歐拉迴路: 'graph/euler_path.md'
         - 漢米頓迴路: 'graph/hamiltonian.md'
+      - 啟發式合併: 'graph/union_by_rank.md'
       - 並查集 DSU: 'graph/DSU.md'
       - BFS: 'graph/BFS.md'
       - Cycle: 'graph/cycle.md'
@@ -211,6 +211,9 @@ nav:
         - 線性基: 'math/XOR.md'
         - 矩陣: 'math/matrix.md'
         - 組合: 'math/comb.md'
+        - 數論: 
+          - 因數: 'math/facts.md'
+          - 模運算: 'math/mod.md'
         - 特定數:
           - mex: 'math/special/mex.md'
           - 中位數: 'math/special/median.md'
@@ -247,6 +250,7 @@ nav:
       - 字典序: 'other/Lexicographic.md'
       - 分數運算: 'other/fraction.md'
       - 平面距離: 'other/distance.md'
+      - 鴿籠原理: 'other/pigeonhole_principle.md'
     
     
     

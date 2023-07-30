@@ -1,3 +1,5 @@
+## 樹上啟發式合併
+
 對於每個節點 $u$，找出最大 size 的 $v_\max$ 稱作重兒子， 剩下 $v$ 稱作輕兒子，將輕兒子維護的東西一個個併入 $v_\max$
 
 ??? info "證明 : 從 $\texttt{root}$ 到任意點的輕邊數量 $\le \log n$"
@@ -172,3 +174,19 @@
 	        }
 	    }
 	    ```
+
+## 啟發式合併
+
+???+note "[2023 YTP p10. BST (Building_Spanning_Tree)](https://yozen0405.github.io/wiki/basic/brute_force/images/YTP2023FinalContest_S2_TW.pdf#page=26)"
+	給你 $n$ 點的無向圖，一開始圖上沒有任何邊。給你 $n-1$ 條邊恰好會在圖上構成一個 spanning tree，再給你 $m$ 條邊輸出加邊的 order 使得圖恰好會構成這 $n-1$ 條邊的 spanning tree，且 order 字典序越小越好
+	
+	$n\le 10^5, m\le 2\times 10^5$
+	
+	??? note "思路"
+        先將 Tree edge 以都丟到一個以字典序小到到排序的 pq，每次看 pq.top()
+
+        - 若為 Tree edge，則看有哪些非 Tree edge 在這輪會可以會變合法，將他們也加入 pq，再將該 Tree edge push back 到答案
+        - 若非 Tree edge，則直接 push back 到答案
+
+		至於要怎麼看非 Tree edge 會不會變合法，可以用 Disjoint set 在維護有碰到該連通塊的非 Tree edge 的 set/vector，在 Disjoint set Merge 的時候使用啟發式合併即可，複雜度 $O((n + m) \log (n + m))$
+	
