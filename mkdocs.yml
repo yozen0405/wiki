@@ -214,6 +214,7 @@ nav:
         - 數論: 
           - 因數: 'math/facts.md'
           - 模運算: 'math/mod.md'
+          - 中國剩餘定理: 'math/crt.md'
         - 特定數:
           - mex: 'math/special/mex.md'
           - 中位數: 'math/special/median.md'

@@ -40,6 +40,10 @@
   margin: 1.25em 0
 }
 
+.md-typeset div.arithmatex {
+  overflow: hidden;
+}
+
 :root {
   --md-admonition-icon--seacow: url('https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/octicons/broadcast-16.svg')
 }
@@ -199,3 +203,5 @@
 /* note 代碼 in full size */
 details > summary + .highlight:last-child, details > summary + .tabbed-set:last-child { margin: 0 -0.6rem !important; }
 details > summary + .highlight:last-child > .highlighttable { margin: 0 !important; }
+
+

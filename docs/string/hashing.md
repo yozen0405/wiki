@@ -19,6 +19,8 @@ S.substr(l, r - l + 1)
 	      ![Image title](./images/1.png){ width="500" }
 	    </figure>
 	    
+	    例如要判斷 S(0, 2) == S(5, 7) 可以寫成 (h[0]+h[1]+h[2]) == (h[5]+h[6]+h[7]) / x<sup>5</sup>。也就是乘上 x<sup>5</sup> 的模逆元。
+	    
 	    x 隨意帶入一個比字母數量還大的數字（例如字母 = A...Z，那 x 至少需要 26）
 	
 	??? note "code"
