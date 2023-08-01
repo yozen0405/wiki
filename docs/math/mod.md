@@ -103,7 +103,7 @@ $$x=y_1,y=x_1 - \lfloor{\frac{a}{b}} \rfloor y_1$$
         	// a * x + 0 * y = gcd(a, 0) = a
             return {1, 0};
         }
-        pii p = ex_gcd(b, a % b);
+        pii p = extgcd(b, a % b);
         return {p.S, p.F - (a / b) * p.S};
     }
     ```
@@ -128,7 +128,7 @@ $x = a^{-1}$ 為 $a$ 在模 $m$ 下的模逆元
         	// a * x + 0 * y = gcd(a, 0) = a
             return {1, 0};
         }
-        pii p = ex_gcd(b, a % b);
+        pii p = extgcd(b, a % b);
         return {p.S, p.F - (a / b) * p.S};
     }
     
@@ -138,5 +138,5 @@ $x = a^{-1}$ 為 $a$ 在模 $m$ 下的模逆元
     	return (x % m + m) % m;
     }
     ```
-    
+
 [^1]: 見<a href="/wiki/math/images/7.png" target="_blank">此處</a>
