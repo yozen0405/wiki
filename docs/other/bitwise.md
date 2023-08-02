@@ -13,7 +13,7 @@
 
 ### Bit Problem
 
-???+note [CSES ](https://cses.fi/problemset/task/1654)
+???+note "[CSES ](https://cses.fi/problemset/task/1654)"
 
 	??? note "思路"
 		sos dp
