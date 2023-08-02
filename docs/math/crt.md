@@ -1,6 +1,6 @@
 ## 互質
 
-???+note "general 的問題"
+???+note "互質的版本"
 	給你一套方程組如下，其中模數 $k_i$ 兩兩互質，求出最小正整數解 $x$ ，如果沒有則輸出 $-1$
 
     $$
@@ -25,9 +25,9 @@ x &\equiv p_2 \pmod {k_2} \\
 \end{align}
 $$
 
-由於 $\gcd(k_1,k_2)=1$，所以 $x$ 的形式會是 $x=k_1\times k_2+P$。我們列出 
+由於 $\gcd(k_1,k_2)=1$，所以 $x$ 的形式會是 $x=t\times k_1\times k_2+P$。我們列出 
 
-$$x \pmod{k_1\times k_2}  = P$$
+$$x \pmod{k_1\times k_2}  \equiv P$$
 
 我們現在要來計算 $P$，使得 $\begin{cases} P \pmod{k_1} \equiv p_1 \\ P \pmod{k_2} \equiv p_2 \end{cases}$
 
@@ -39,12 +39,11 @@ $$\Rightarrow P=p_1\times k_2\times (k_2^{-1} \pmod{k_1}) + p_2 \times k_1 \time
 
 ### 實作
 
-???+note "code"
+???+note "pseudocode"
 	```cpp linenums="1"
     pair<int, int> CRT(int k1, int p1, int k2, int p2) {
         int K = k1 * k2;
-        __int128 P = ((__int128)((p1 * k2) % K) * get_inv(k2, k1)) % K 
-                    + ((__int128)((p2 * k1) % K) * get_inv(k1, k2)) % K;
+        int P = (p1 * k2 * get_inv(k2, k1) + p2 * k1 * get_inv(k1, k2));
         P = (P % K + K) % K;
         return {K, P};
     }
@@ -87,7 +86,7 @@ $$\Rightarrow P=p_1\times k_2\times (k_2^{-1} \pmod{k_1}) + p_2 \times k_1 \time
 	
 	    pair<int, int> CRT(int k1, int p1, int k2, int p2) {
 	        int K = k1 * k2;
-	        __int128 P = ((__int128)((p1 * k2) % K) * get_inv(k2, k1)) % K 
+	        int P = ((__int128)((p1 * k2) % K) * get_inv(k2, k1)) % K 
 	                    + ((__int128)((p2 * k1) % K) * get_inv(k1, k2)) % K;
 	        P = (P % K + K) % K;
 	        return {K, P};
@@ -150,7 +149,7 @@ $\Rightarrow \frac{k_1}{d} \times x_1 + \frac{k_2}{d} \times x_2 = \frac{c}{d} \
 
 其中 $\frac{k_1}{d}$ 與 $\frac{k_2}{d}$ 互質
 
-設 $x^\prime_1$ 為 $\frac{k_1}{d} \times x^\prime_1 + \frac{k_2}{d} \times x^\prime_2 = 1$ 的解，這個可以用 extgcd 算出來。故 $(2)$ 式中 $x_1$ 的解可為 $x_1 \equiv \frac{c}{d} \times x^\prime_1$ 代回 $(1)$，不過實作上這邊要 $x_1$ 可能會 overflow，所以我們可以使 $x_1$ 的一部分分到 $x_2$[^1]，畢竟我們不需維護 $x_2$，不會有 overflow 的問題。所以 $x_1 \equiv \frac{c}{d} \times x^\prime_1 \pmod{\frac{k_2}{d}}$。
+設 $x^\prime_1$ 為 $\frac{k_1}{d} \times x^\prime_1 + \frac{k_2}{d} \times x^\prime_2 = 1$ 的解，這個可以用 extgcd 算出來。故 $(2)$ 式中 $x_1$ 的解為 $x_1 = \frac{c}{d} \times x^\prime_1$。將 $x_1 = \frac{c}{d} \times x^\prime_1$ 代回 $(1)$，不過實作上這邊要 $x_1$ 可能會 overflow，所以我們可以使 $x_1$ 裡面 $\frac{k_2}{d}$ 的整數倍分到 $x_2$[^1]，畢竟我們不需維護 $x_2$，也就不會有 overflow 的問題。所以 $x_1 \equiv \frac{c}{d} \times x^\prime_1 \pmod{\frac{k_2}{d}}$。
 
 最後，我們得到新的限制式 :
 
@@ -169,7 +168,7 @@ $$x\equiv k_1 \times x_1 + p_1 \pmod{\text{lcm}(k_1,k_2)}$$
         
         int K = (k1 * k2) / d; // lcm = (a * b) / gcd(a, b)
         int P = (p1 + k1 * x) % K; 
-
+    
         return {K, ((P > 0) ? P : P + K)};
     }
     ```
@@ -179,58 +178,58 @@ $$x\equiv k_1 \times x_1 + p_1 \pmod{\text{lcm}(k_1,k_2)}$$
 	
 	$n\le 10, 1\le b_i\le a_i\le 1000$
 	
-    ??? note "code"
-        ```cpp linenums="1"
-        #include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-        using namespace std;
-
-        int p[100005], k[100005]; 
-        int n;
-
-        pair<int, int> extgcd(int a,int b) {
-            if (b == 0) {
-                // a * x + 0 * y = gcd(a, 0) = a
-                return {1, 0};
-            }
-            auto p = extgcd(b, a % b);
-            return {p.S, p.F - (a / b) * p.S};
-        }
-
-        pair<int, int> CRT(int k1, int p1, int k2, int p2) {
-            int c = p2 - p1; 
-            int d = __gcd(k2, k1);
-
-            int x = (__int128) ((__int128) c * extgcd(k1/d, k2/d).F) / d % (k2 / d);
-
-            int K = (__int128) ((__int128) k1 * k2) / d;
-            int P = (__int128) (p1 + k1*x) % K; 
-
-            return {K, ((P > 0) ? P : P + K)};
-        }
-
-        signed main() {
-            int n;
-            cin >> n;
-            pair<int, int> cur;
-            for (int i = 1; i <= n; i++) {
-                int k, p;
-                cin >> k >> p; // x % k = p
-                if (i == 1) {
-                    cur.F = k, cur.S = p;
-                } else {
-                    cur = CRT(cur.F, cur.S, k, p);
-                }   
-            }
-            cout << cur.S << '\n';
-        } 
-        ```
+	??? note "code"
+	    ```cpp linenums="1"
+	    #include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	    using namespace std;
+	
+	    int p[100005], k[100005]; 
+	    int n;
+	
+	    pair<int, int> extgcd(int a,int b) {
+	        if (b == 0) {
+	            // a * x + 0 * y = gcd(a, 0) = a
+	            return {1, 0};
+	        }
+	        auto p = extgcd(b, a % b);
+	        return {p.S, p.F - (a / b) * p.S};
+	    }
+	
+	    pair<int, int> CRT(int k1, int p1, int k2, int p2) {
+	        int c = p2 - p1; 
+	        int d = __gcd(k2, k1);
+	
+	        int x = (__int128) ((__int128) c * extgcd(k1/d, k2/d).F) / d % (k2 / d);
+	
+	        int K = (__int128) ((__int128) k1 * k2) / d;
+	        int P = (__int128) (p1 + k1*x) % K; 
+	
+	        return {K, ((P > 0) ? P : P + K)};
+	    }
+	
+	    signed main() {
+	        int n;
+	        cin >> n;
+	        pair<int, int> cur;
+	        for (int i = 1; i <= n; i++) {
+	            int k, p;
+	            cin >> k >> p; // x % k = p
+	            if (i == 1) {
+	                cur.F = k, cur.S = p;
+	            } else {
+	                cur = CRT(cur.F, cur.S, k, p);
+	            }   
+	        }
+	        cout << cur.S << '\n';
+	    } 
+	    ```
 
 ---
 

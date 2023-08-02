@@ -211,6 +211,7 @@ nav:
         - 線性基: 'math/XOR.md'
         - 矩陣: 'math/matrix.md'
         - 組合: 'math/comb.md'
+        - 賽局: 'math/game_theory.md'
         - 數論: 
           - 因數: 'math/facts.md'
           - 模運算: 'math/mod.md'
