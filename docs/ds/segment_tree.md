@@ -19,6 +19,14 @@
 ???+note "變化問題 [2015 ITSA 桂冠賽挑戰組 A11. Smart Patrol](https://e-tutor.itsa.org.tw/e-Tutor/mod/programming/view.php?id=23668)"
 	矩形 XOR 之後，剩下的區域面積總合
 
+???+note "[LOJ #6276.果树](https://loj.ac/p/6276)"
+	給出一棵 $n$ 個點的樹，每個點有一種顏色。問有多少條路徑滿足路徑上任意兩點的顏色都不同。 
+	
+	$n\le 10^5$，滿足每種顏色至多出現 $20$ 次。
+	
+	??? note "思路"
+		將 path $(u,v)$ 的 $\texttt{dfn}[u],\texttt{dfn}[v]$ 打在二維平面上，同樣顏色的點會形成一些矩形，那些矩形就不能選的地方，答案就是沒被任何矩形覆蓋到的二維座標點。由於需要 $O(20^2)$ 枚舉同樣顏色的點，每次會生成 $4$ 個矩形，所以 worst case $O((C^{20}_2 \times 4 \times \frac{n}{C^{20}_2})\times \log n)\approx 7.6\times 10^7$
+
 變化問題：至少被 2 個矩形覆蓋的區域面積總合
 - min,sec
 

@@ -504,7 +504,7 @@
 	        cout << ans << '\n';
 	    }
 	    ```
-	    
+
 ???+note "[CF 982 C. Cut 'em all!](https://codeforces.com/contest/982/problem/C)"
 	給一棵 $n$ 個點的樹，問你最多能切掉幾條邊，使得每個連通塊的大小都是偶數
 	
@@ -516,45 +516,198 @@
 	??? note "code"	
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-        using namespace std;
-
-        const int maxn = 100005;
-        vector<int> G[maxn];
-        int sz[maxn];
-        int n, ans;
-
-        void dfs(int u, int par) {
-            sz[u] = 1;
-            for (auto v : G[u]) {
-                if (v == par) continue;
-                dfs(v, u);
-                sz[u] += sz[v];
-                if (sz[v] % 2 == 0) ans++;
-            }
-        }
-
-        signed main() {
-            cin >> n;
-
-            if (n & 1) {
-                cout << "-1\n";
-                exit(0);
-            }
-
-            for (int i = 1; i < n; i++) {
-                int u, v;
-                cin >> u >> v;
-                G[u].push_back(v);
-                G[v].push_back(u);
-            }
-            dfs(1, -1);
-            cout << ans << '\n';
-        }
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	    using namespace std;
+	
+	    const int maxn = 100005;
+	    vector<int> G[maxn];
+	    int sz[maxn];
+	    int n, ans;
+	
+	    void dfs(int u, int par) {
+	        sz[u] = 1;
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            dfs(v, u);
+	            sz[u] += sz[v];
+	            if (sz[v] % 2 == 0) ans++;
+	        }
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	
+	        if (n & 1) {
+	            cout << "-1\n";
+	            exit(0);
+	        }
+	
+	        for (int i = 1; i < n; i++) {
+	            int u, v;
+	            cin >> u >> v;
+	            G[u].push_back(v);
+	            G[v].push_back(u);
+	        }
+	        dfs(1, -1);
+	        cout << ans << '\n';
+	    }
 		```
+
+???+note "樹上匹配問題 題目1"
+	給定 $n$ 個點的樹，其中 $n$ 為偶數，我們要將所有頂點兩兩配對，其中點 $u$ 和點 $v$ 配對的權值為 $dis(u,v)$。現在要求將所有點兩兩配對，且要求計算最大權重總和
+	
+	??? note "思路"
+		
+		$$
+		\begin{aligned}
+	    W&=\sum dis(u,v) \\
+		&=\sum \text{detph}(u)+\text{detph}(v)-2\times \text{detph}(\text{lca}(u,v)) \\
+	    &=\sum \text{depth}(v)- 2\times \sum \text{depth}(\text{lca}(u,v)) \\
+	    \end{aligned}
+		$$
+		
+		$\sum \text{depth}(v)$ 是可以直接算的，我們現在能做的就是將 $\sum \text{depth}(\text{lca}(u,v))$ 最小化，也就是在離 root 越近的點當 LCA 配對會越好
+		
+		我們可以對樹從 root 往下進行 DFS，並儘可能在當前的點 $u$ 將以 $v_1,v_2,\ldots, v_k$ 為 root 的子樹進行配對，也就是一直將兩個不同的子樹 $\texttt{tree}(v_i),\texttt{tree}(v_j)$ 裡面的點以 $\text{lca}=u$ 進行配對。
+		
+		所以這時以 $u$ 為 LCA 的答案貢獻就會是「配對數量 $\times \text{depth}(u)$」。
+		
+		> 另法 : 樹重心
+		
+		我們要盡量使點連到不同的子樹以內，考慮樹重心為根，我們可以將樹重心以下的子樹利用樹重心當作 LCA 做配對，因為點是偶數，所以一定可行。
+		
+		【證明】 : 為何以樹重心為根會是最佳解
+		
+		每條邊 $(u,v)$ 的貢獻上界是 $\min (sz_u, n - sz_u)$。注意到以樹重心為根的每條邊匹配的方向都是朝著樹重心，觀察會發現剛好每條邊都有用到這個上界。所以其實答案可以直接寫成 $ans=\sum \limits_{(u,v) \in \text{edge}} \min (sz_u, n - sz_u)$。
+		
+		如果題目是要構造一組解的話，將點利用 dfs 序 sort 好，第 i 項與第 i + n 項配對即可。
+
+???+note "<a href="/wiki/graph/images/ioic_308.html" target="_blank">2023 IOIC 308 . 數字遊戲</a>"
+	給定 $a_1, a_2, \ldots, a_{2N}$，Alice 可以將這個數列任意排列，之後 Bob 要做最少次操作使得 $a_{i} = a_{i+N}$ 對所有 $i$ 從 $1$ 到 $N$ 都成立，Bob 每次可以進行的操作為選擇一個足標 $i$，將 $a_i$ 改成 $\lfloor \frac{a_i}{2} \rfloor,2a_i$ 或 $2a_i+1$。Alice 想讓 Bob 需要的操作次數盡量多，那最多可以是多少？
+	
+	Alice 會進行 $Q$ 次操作，每一次操作都會選擇數列的某個數修改成新的數字，輸出修改後整個陣列的答案是多少。
+	
+	??? note "思路"
+		將問題轉換成 0-1 Trie，會發現 $\lfloor \frac{a_i}{2} \rfloor,2a_i, 2a_i+1$ 得操作分別對應到往 parent 走，往下面 0 的邊走，往下面 1 的邊走。
+		
+		<figure markdown>
+          ![Image title](./images/43.png){ width="300" }
+        </figure>
+        
+        這樣問題就變成 : 給一顆 BST，問兩兩匹配的最大權重總和
+        
+        跟上面那題一樣，我們用從 root 往下 DFS 的方式去計算答案，而且因為是 BST，所以我們計算完某個點 $u$ 時可以直接繼續 DFS 在裡面的數字比較少的 $v$（詳見代碼），所以過程會是一個從 root 往下的 path，Trie 的深度是 $O(\log n)$，所以時間複雜度是好的
+		
+	??? note "code"
+		```cpp linenums="1"
+		#pragma GCC optimize("O3,unroll-loops")
+	    #pragma GCC target("avx,popcnt,sse4,abm")
+	    #include <bits/stdc++.h>
+	    using namespace std;
+	
+	    #ifdef WAIMAI
+	    #define debug(HEHE...) cout << "[" << #HEHE << "] : ", dout(HEHE)
+	    void dout() {cout << '\n';}
+	    template<typename T, typename...U>
+	    void dout(T t, U...u) {cout << t << (sizeof...(u) ? ", " : ""), dout(u...);}
+	    #else
+	    #define debug(...) 7122
+	    #endif
+	
+	    //#define int long long
+	    #define ll long long
+	    #define Waimai ios::sync_with_stdio(false), cin.tie(0)
+	    #define FOR(x,a,b) for (int x = a, I = b; x <= I; x++)
+	    #define pb emplace_back
+	    #define F first
+	    #define S second
+	
+	    const int SIZE = 2e5 + 5;
+	    const int TSIZ = 20 * SIZE;
+	
+	    int n, q, sum;
+	    ll ans;
+	    int a[SIZE];
+	    int siz, cnt[TSIZ], to[TSIZ][2], e[TSIZ];
+	    // siz : stamp, cnt[] : 子樹大小總和
+	    // to[][0/1] : 紀錄 01Trie 每個點的編號
+	    // e[] : Trie 上的某個點上有幾個數字
+	
+	    void ins(string s, int add) {
+	        int pos = 0;
+	        cnt[0] += add;
+	        sum += add * ((int)s.size());
+	        for (char c : s) {
+	            int b = c - '0';
+	            if (!to[pos][b]) to[pos][b] = ++siz;
+	            pos = to[pos][b];
+	            cnt[pos] += add;
+	        }
+	        e[pos] += add;
+	    }
+	
+	    int que() {
+	        int re = sum;
+	        int pos = 0, dep = 0, all = 2 * n;
+	        for (int i = 20; i >= 0 && all; i--) {
+	            dep++;
+	            int c0 = to[pos][0] ? cnt[to[pos][0]] : 0;
+	            int c1 = to[pos][1] ? cnt[to[pos][1]] : 0;
+	            int ce = e[pos];
+	            int mn = min({c0 + ce, c1 + ce, all / 2});
+	            re -= 2 * (dep - 1) * mn;
+	            all -= 2 * mn; 
+	            if (c0 <= c1) pos = to[pos][1];
+	            else pos = to[pos][0];
+	            if (!pos) return re;
+	        }
+	        return re;
+	    }
+	
+	    string f(int x) {
+	        string t;
+	        while (x) {
+	            if (x & 1) t += "1";
+	            else t += "0";
+	            x >>= 1;
+	        }
+	        reverse(t.begin(), t.end());
+	        return t;
+	    }
+	
+	    void solve() {
+	        cin >> n;
+	        FOR (i, 1, 2 * n) {
+	            cin >> a[i];
+	            ins(f(a[i]), 1);
+	        }
+	        cin >> q;
+	        while (q--) {
+	            int p, x;
+	            cin >> p >> x;
+	            ins(f(a[p]), -1);
+	            a[p] = x;
+	            ins(f(a[p]), 1);
+	            cout << que() << '\n';
+	        }
+	    }
+	
+	    int32_t main() {
+	        //Waimai;
+	        int tt = 1;
+	        //cin >> tt;
+	        while (tt--) solve();
+	    }
+		```
+
+???+note "樹上匹配問題 題目2"
+	給定 $n$ 個點的樹，其中 $n$ 為偶數，我們要將所有頂點兩兩配對，其中點 $u$ 和點 $v 配對的權值為 $dis(u,v)$。現在要求將所有點兩兩配對，且要求計算最小的可能權重
+	
+	??? note "思路"
+		跟上一題差不多，只是變成從 leaf 往 root 的方向做上去，子樹內的優先配對

@@ -32,7 +32,69 @@
 	    每個 subtree 中的 leaf 的數量將會 <= $P_T /2$，所以我們可以 greedy 的每次配當前最大的兩個 subtree，用 prioiryt_queue 可以做到，這個是 $O(n\log P)$ 的解法。
 	    
 	    其實可以用 i 跟 i + $P_T/2$ 配就一定可以配到「同一個子樹之外」。那假如我們的 root 定在任意點，因為 euler 序列的順序不會因為 root 的改變而改變，所以依然可以照上面的方法將 i 跟 i + $P_T/2$ 配，這個解法是線性時間。
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
 
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        vector<int> G[maxn];
+        int n;
+        vector<int> leaf;
+
+        void dfs (int u, int par) {
+            if (G[u].size() == 1) leaf.pb(u);
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                dfs (v, u);
+            }
+        }
+
+        void init() {
+            cin >> n;
+            int u, v;
+            for (int i = 0; i < n - 1; i++) {
+                cin >> u >> v;
+                G[u].pb(v);
+                G[v].pb(u);
+            }
+        }
+
+        void solve() {
+            dfs (1, 0);
+            if (leaf.size() & 1) leaf.pb(leaf[0]); // 使最後一個連到第一個
+
+            cout << leaf.size()/2 << "\n";
+
+            for (int i = 0; i < leaf.size()/2; i++) {
+                cout << leaf[i] << " " << leaf[i + leaf.size()/2] << "\n";
+            }
+        } 
+
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            //cin >> t;
+            while (t--) {
+                init();
+                solve();
+            }
+        } 
+        ```
+	
 ???+note "[2021 全國賽模擬賽 pF. 地洞遊戲](https://tioj.ck.tp.edu.tw/pmisc/pre-nhspc-2021-statements/Cave.pdf)"
 	給定一棵 $N$ 點的有根樹，邊是由根往底下連的
 	

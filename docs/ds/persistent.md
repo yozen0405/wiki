@@ -374,7 +374,7 @@
         #include <iostream>
         #include <utility>
         #include <vector>
-
+    
         #define int long long
         #define pii pair<int, int>
         #define pb push_back
@@ -382,28 +382,28 @@
         #define F first
         #define S second
         #define ALL(x) x.begin(), x.end()
-
+    
         using namespace std;
-
+    
         struct Node {
             Node* lc = nullptr;
             Node* rc = nullptr;
             int l, r, sum = 0;
-
+    
             Node() {
             }
-
+    
             Node(int l, int r) : l(l), r(r) {
             }
-
+    
             void pull() {
                 sum = lc->sum + rc->sum;
             }
         };
-
+    
         Node pool[500000000 / sizeof(Node)];
         int cnt = 0;
-
+    
         struct DS {
             DS(const vector<int>& v) {
                 n = v.size();
@@ -421,17 +421,17 @@
                     last[v[i]] = i;
                 }
             }
-
+    
             int query(int l, int r) {
                 return query_sum(roots[r], l - 1, r - 1);
             }
-
+    
            private:
             int n;
             vector<Node*> roots;
             vector<int> last;
             // 單點改值 區間查詢
-
+    
             Node* build(int l, int r) {
                 Node* root = new (&pool[cnt++]) Node(l, r);
                 if (l == r) {
@@ -443,14 +443,14 @@
                 root->pull();
                 return root;
             }
-
+    
             Node* update(const Node* root, int pos, int val) {
                 Node* now = new (&pool[cnt++]) Node(*root);
                 if (now->l == now->r) {
                     now->sum = val;
                     return now;
                 }
-
+    
                 if (pos <= now->lc->r) {
                     now->lc = update(now->lc, pos, val);
                 } else {
@@ -459,7 +459,7 @@
                 now->pull();
                 return now;
             }
-
+    
             int query_sum(const Node* root, int qL, int qR) {
                 if (root->r < qL || qR < root->l) return 0;
                 if (qL <= root->l && root->r <= qR) {
@@ -468,25 +468,25 @@
                 return query_sum(root->lc, qL, qR) + query_sum(root->rc, qL, qR);
             }
         };
-
+    
         signed main() {
             ios::sync_with_stdio(0);
             cin.tie(0);
-
+    
             int n, q;
             cin >> n >> q;
-
+    
             vector<int> a(n);
             for (int i = 0; i < n; i++) {
                 cin >> a[i];
             }
-
+    
             vector<int> b = a;
             sort(ALL(b));
             for (int i = 0; i < n; i++) {
                 a[i] = lower_bound(ALL(b), a[i]) - b.begin();
             }
-
+    
             DS ds(a);
             while (q--) {
                 int l, r;
@@ -495,3 +495,19 @@
             }
         }
     	```
+    	
+???+note "[SPOJ COT](https://www.spoj.com/problems/COT/)"
+	給定一顆 $n$ 個點的樹，每個點都有一個編號。現在要求在線回答 $q$ 筆詢問 :
+	
+	- $\text{query}(u, v, k):$ 輸出 $u$ 到 $v$ 之間的路徑上第 $k$ 小的點編號。
+
+	$n,q\le 10^5$
+	
+	??? note "思路"
+		我們為每個頂點維護一個值域線段樹，記錄從根到這個頂點的路徑上每個編號的出現次數。可以發現如果我們這裡借助持久化技術，可以保證時空複雜度為 $O(n \log n)$。
+
+        之後對於每個請求，記 $rt=\text{lca}(u,v)$ ，$par_{rt}$ 為 $rt$ 在樹上的父親。那麼二者路徑上的統計關係可以通過 $u+v−rt−par_{rt}$（這裡表示的線段樹的加減法）來獲得。我們不需要再新蓋一顆線段樹，只需讓他們加減然後在上面二分即可，這樣是 $O(\log n)$
+
+		總的時間複雜度為 $O((n+q)\log n)$
+		
+		> 參考 : <https://taodaling.github.io/blog/2019/09/10/%E6%A0%91%E4%B8%8A%E7%AE%97%E6%B3%95/#heading-%E6%A0%91%E4%B8%8A%E8%B7%AF%E5%BE%84%E7%BB%9F%E8%AE%A1%E9%97%AE%E9%A2%98>

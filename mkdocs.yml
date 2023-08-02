@@ -188,8 +188,8 @@ nav:
         - 樹上背包: 'graph/knapsack_on_tree.md'
         - 題目:
           - 類 topo sort: 'graph/tree_dp.md'
-          - greedy: 'graph/greedy.md'
-          - 利用 dfs 序: 'graph/dfs_time_stamp.md'
+          - greedy: 'graph/tree_greedy.md'
+          - 利用 dfs 序: 'graph/dfs_order.md'
           - 其他類型: 'graph/other_problem.md'
       - 特殊圖:
         - 二分圖: 'graph/bipartite.md'

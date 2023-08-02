@@ -16,6 +16,10 @@ Alice 跟 Bob 在玩遊戲，給定 $a_1, a_2, \ldots, a_{2N}$，Alice 可以將
 
 接下來有 $Q$ 行，第 $i$ 行有兩個以空白分隔的整數 $x_i,y_i$，代表要將第 $x_i$ 個數字改成 $y_i$。
 
+- $1 \leq N, Q \leq 10^ 5$
+- $1 \leq a_i, y_i \leq 10^ 6$
+- $1 \leq x_i \leq 2N$
+
 ## Output Format
 
 請輸出 $Q$ 行數字，第 $i$ 行數字代表在第 $i$ 次修改之後的答案。
