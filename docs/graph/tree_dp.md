@@ -1,3 +1,5 @@
+<https://taodaling.github.io/blog/2019/09/10/%E6%A0%91%E4%B8%8A%E7%AE%97%E6%B3%95/#heading-%E6%A0%91%E4%B8%8A%E5%8C%B9%E9%85%8D%E9%97%AE%E9%A2%98>
+
 ???+note "[hackerrank kingdom division](https://www.hackerrank.com/challenges/kingdom-division/problem)"
 	給一個 $n$ 個點的樹，每個點可以圖黑色或白色
 	
@@ -94,3 +96,8 @@
 	        }
 	    }
 	    ```
+	    
+???+note "[vijos 1892 树上的最大匹配](https://vijos.org/p/1892)"
+	給 $n$ 個點的樹，問最多可以選幾條邊滿足都每個點只有最多一條與之相連的邊有選，輸出最多可以選幾條邊與方案數
+	
+	$n\le 1.5\times 10^6$

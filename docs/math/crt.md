@@ -141,7 +141,7 @@ $k_1x_1+k_2(-x_2)=p_2-p_1\space \space \space \space \text{(1)}$
 
 > 貝祖定理: 在 $ax+by=m$ 中， 若且唯若 $m$ 是 $a$ 及 $b$ 的最大公因數 $\gcd(a,b)$ 的倍數，有整數解
 
-若 $x_1,x_2$ 有解，則整除 $\gcd(k_1,k_2) \mid p_2-p_1$ ， 如果不是的話代表無解
+若 $x_1,x_2$ 有解，則 $\gcd(k_1,k_2) \mid p_2-p_1$ ， 如果不是的話代表無解
 
 令 $\gcd(k_1,k_2)=d$，與 $p_2 - p_1 = c$
 
@@ -157,7 +157,7 @@ $$x\equiv k_1 \times x_1 + p_1 \pmod{\text{lcm}(k_1,k_2)}$$
 
 ### 實作
 
-??? note "code"
+??? note "pseudocode"
 	```cpp linenums="1"
     pair<int, int> CRT(int k1, int p1, int k2, int p2) {
         int c = p2 - p1; 
