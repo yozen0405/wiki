@@ -32,7 +32,7 @@
 	
 ### IOIC 
 
-???+note "<a href="/wiki/main/cp/images/ioic_201.html" target="_blank">2023 IOIC 201 . 獨一無二的區間和(ㄏㄢˋ)</a>"
+???+note "<a href="/wiki/other/images/ioic_201.html" target="_blank">2023 IOIC 201 . 獨一無二的區間和(ㄏㄢˋ)</a>"
 	
 	??? note "思路"
 		估計：證明 $n > 30$ 時無解
@@ -58,7 +58,7 @@
 	    
 	    $a_i = 2^{30} - 1 - 2^{i}$ 是個合法構造。
 
-???+note "<a ref="/wiki/main/cp/images/ioic_301.html"target="_blank">2023 IOIC 301 . SOS</a>"
+???+note "<a ref="/wiki/other/images/ioic_301.html" target="_blank">2023 IOIC 301 . SOS</a>"
 
 	??? note "思路"
 		> SOS
@@ -156,7 +156,7 @@
         }
         ```
 
-???+note "<a ref="/wiki/main/cp/images/ioic_305.html"target="_blank">2023 IOIC 305 . 括號國</a>"
+???+note "<a ref="/wiki/other/images/ioic_305.html" target="_blank">2023 IOIC 305 . 括號國</a>"
 
 	??? note "code"
 		```cpp linenums="1"
