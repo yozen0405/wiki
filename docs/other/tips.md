@@ -1,4 +1,23 @@
-## void
+## 向上/下取整
+
+???+note "code"
+	```cpp linenums="1"
+	ll ifloor(ll a, ll b){
+        if(b < 0) a *= -1, b *= -1;
+        if(a < 0) return (a - b + 1) / b;
+        else return a / b;
+    }
+
+    ll iceil(ll a, ll b){
+        if(b < 0) a *= -1, b *= -1;
+        if(a > 0) return (a + b - 1) / b;
+        else return a / b;
+    }
+    ```
+
+## lambda function
+
+### void
 
 The return type of the lambda function is explicitly set to `void` using the `-> void` syntax, indicating that it doesn't return any value.
 
@@ -9,20 +28,20 @@ The return type of the lambda function is explicitly set to `void` using the `->
     int main() {
         int x = 10;
         int y = 20;
-
+    
         // Lambda function with auto return type explicitly set to void to print the sum of x and y.
         auto printSum = [&](int a, int b) -> void {
             int sum = a + b;
             std::cout << "Sum: " << sum << std::endl;
         };
-
+    
         printSum(x, y); // Output: Sum: 30
-
+    
         return 0;
     }
     ```
-    
-## function
+
+### function
 
 回傳 bool，input 一個
 

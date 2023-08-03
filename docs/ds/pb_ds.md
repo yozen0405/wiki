@@ -1,26 +1,45 @@
+## 宣告
 
-```cpp linenums="1"
-#include<bits/extc++.h>
-using namespace __gnu_pbds;
-```
+???+note "code"
+	```cpp linenums="1"
+    // include pbds 套件
+    #include <bits/extc++.h>
+    // 設定命名空間
+    using namespace __gnu_pbds;
+    // 簡稱 pb_ds::tree
 
-宣告
+    template <typename T>
+    using rank_set = tree<T, null_type, std::less<T>, rb_tree_tag,
+                                               tree_order_statistics_node_update>;
+    ```
 
-```cpp linenums="1"
-tree<long long,null_type,less<long long>,rb_tree_tag,tree_order_statistics_node_update> t;
-```
-	
-支援的功能
+## 功能
 
-```cpp linenums="1"
-t.insert(*);
-t.erase(*); 
-t.order_of_key(*); // 求 x 在樹中第幾大
-t.find_by_order(*); // 求樹中第 k 大
-t.lower_bound(*); 
-t.upper_bound(*);
-……
-```
+- `find_by_order(k)` :  回傳第 k（0-base） 小的元素 的地址
+
+- `order_of_key (x)` : 回傳比 x strictly smaller 的個數
+
+時間複雜度都是 $O(\log n)$
+
+## 範例
+
+???+note "code"
+	```cpp linenums="1"
+	int main() {
+        rank_set<int> s;
+        s.insert(4);  // {4}    
+        s.insert(1);   // {1, 4}    
+        s.insert(9);   // {1, 4, 9}    
+
+        cout << *s.find_by_order(0) << '\n';  // 1   
+        cout << s.order_of_key(4) << '\n';  // 1    
+
+        s.erase(1);  // {4, 9}    
+        cout << *s.find_by_order(0) << '\n';  // 4
+    }
+	```
+
+## 例題
 
 ???+note "pb_ds - rank tree [LOJ #104. 普通平衡树](https://loj.ac/p/104)"
 	實作 pb_ds::tree，支援以下功能：
@@ -59,7 +78,13 @@ t.upper_bound(*);
             return 0;
         }
         ```
-        
+
+- CSES - List Removals
+
+- CSES - Salary Queries
+
+- CSES - Josephus Problem II
+
 ---
 
 ## 參考資料

@@ -1,6 +1,7 @@
-## Greedy
 
 利用到一些 Tree 的性質，例如有些問題可以從 leaf 開始想之類的
+
+## TOI 2022 pC
 
 ???+note "[TOI 2022 pC](https://tioj.ck.tp.edu.tw/problems/2248)"
 	給定一顆 $n$ 個點邊有權重的樹，$w_{i}$ 代表第 $i$ 個點一開始有幾台車
@@ -38,6 +39,8 @@
 	        return need;
 	    }
 	    ```
+
+## BOI 2020 B1. Village (Minimum)
 
 ???+note "[BOI 2020 B1. Village (Minimum)](https://codeforces.com/contest/1387/problem/B1)"
 	給一顆 $N$ 個點的樹，請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$。構造 $v_1,v_2,\ldots,v_n$，使得花費**最少**
@@ -139,6 +142,7 @@
         }
         ```
 
+## BOI 2020 B2. Village (Maximum)
 
 ???+note "[BOI 2020 B2. Village (Maximum)](https://codeforces.com/contest/1387/problem/B2)"
 	給一顆 $N$ 個點的樹，請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$。構造 $v_1,v_2,\ldots,v_n$，使得花費**最多**
@@ -248,6 +252,8 @@
 	    }
 	    ```
 
+## CF 963 B
+
 ???+note "[CF 963 B. Destruction of a Tree](https://codeforces.com/contest/963/problem/B)"
 	給你一棵 $n$ 個點的樹，只能刪除度數為偶數的節點，節點刪除後，與它相連的邊也會刪除，問你能否把所有點刪除，可以的話構造任意一組解。
 	
@@ -343,6 +349,8 @@
 	        }
 	    }
 	    ```
+
+## 2022 YTP 初賽 p3
 
 ???+note "[2022 YTP 初賽 p3 ⿊⽩舞蹈機](https://www.tw-ytp.org/wp-content/uploads/2022/12/YTP2022PreliminaryContest_S1.pdf#page=10)"
 	給一個 $n$ 點 $m$ 邊無向圖，每個點有一個權值 $c_i\in \{0,1 \}$，當目前選擇一條邊 $(u,v)$ 時，這條邊兩端的 $c_u,c_v$ 都會被 xor $1$。問能不能選一些邊使所有點的 $c_i$ 都是 $0$
@@ -442,6 +450,8 @@
 	    }
 		```
 
+## CF 1436 D
+
 ???+note "[CF 1436 D. Bandit in a City](https://codeforces.com/problemset/problem/1436/D)"
 	給定一棵 $n$ 個點的有根樹，強盜一開始在根節點，強盜每秒向下走一格。每個點都有一些村民，當強盜走到某個點時，點上的村民會各自向下走一個點，最終只能走到葉子。強盜想最大化抓到的村民，村民想最小化被抓到的人數，如果村民與強盜都 optimal，強盜能抓到多少村民
 	
@@ -505,6 +515,8 @@
 	    }
 	    ```
 
+## CF 982 C
+
 ???+note "[CF 982 C. Cut 'em all!](https://codeforces.com/contest/982/problem/C)"
 	給一棵 $n$ 個點的樹，問你最多能切掉幾條邊，使得每個連通塊的大小都是偶數
 	
@@ -559,6 +571,10 @@
 	    }
 		```
 
+## 樹上匹配問題
+
+### 題目1
+
 ???+note "樹上匹配問題 題目1"
 	給定 $n$ 個點的樹，其中 $n$ 為偶數，我們要將所有頂點兩兩配對，其中點 $u$ 和點 $v$ 配對的權值為 $dis(u,v)$。現在要求將所有點兩兩配對，且要求計算最大權重總和
 	
@@ -567,7 +583,7 @@
 		$$
 		\begin{aligned}
 	    W&=\sum dis(u,v) \\
-		&=\sum \text{detph}(u)+\text{detph}(v)-2\times \text{detph}(\text{lca}(u,v)) \\
+		&=\sum \text{depth}(u)+\text{depth}(v)-2\times \text{depth}(\text{lca}(u,v)) \\
 	    &=\sum \text{depth}(v)- 2\times \sum \text{depth}(\text{lca}(u,v)) \\
 	    \end{aligned}
 		$$
@@ -588,21 +604,25 @@
 		
 		如果題目是要構造一組解的話，將點利用 dfs 序 sort 好，第 i 項與第 i + n 項配對即可。
 
+### 2023 IOIC 308
+
 ???+note "<a href="/wiki/graph/images/ioic_308.html" target="_blank">2023 IOIC 308 . 數字遊戲</a>"
 	給定 $a_1, a_2, \ldots, a_{2N}$，Alice 可以將這個數列任意排列，之後 Bob 要做最少次操作使得 $a_{i} = a_{i+N}$ 對所有 $i$ 從 $1$ 到 $N$ 都成立，Bob 每次可以進行的操作為選擇一個足標 $i$，將 $a_i$ 改成 $\lfloor \frac{a_i}{2} \rfloor,2a_i$ 或 $2a_i+1$。Alice 想讓 Bob 需要的操作次數盡量多，那最多可以是多少？
 	
 	Alice 會進行 $Q$ 次操作，每一次操作都會選擇數列的某個數修改成新的數字，輸出修改後整個陣列的答案是多少。
 	
+	$N,Q\le 10^5,1\le a_i\le 10^6$
+	
 	??? note "思路"
 		將問題轉換成 0-1 Trie，會發現 $\lfloor \frac{a_i}{2} \rfloor,2a_i, 2a_i+1$ 得操作分別對應到往 parent 走，往下面 0 的邊走，往下面 1 的邊走。
 		
 		<figure markdown>
-          ![Image title](./images/43.png){ width="300" }
-        </figure>
-        
-        這樣問題就變成 : 給一顆 BST，問兩兩匹配的最大權重總和
-        
-        跟上面那題一樣，我們用從 root 往下 DFS 的方式去計算答案，而且因為是 BST，所以我們計算完某個點 $u$ 時可以直接繼續 DFS 在裡面的數字比較少的 $v$（詳見代碼），所以過程會是一個從 root 往下的 path，Trie 的深度是 $O(\log n)$，所以時間複雜度是好的
+	      ![Image title](./images/43.png){ width="400" }
+	    </figure>
+	    
+	    這樣問題就變成 : 給一顆 BST，問兩兩匹配的最大權重總和
+	    
+	    跟上面那題一樣，我們用從 root 往下 DFS 的方式去計算答案，而且因為是 BST，所以我們計算完某個點 $u$ 時可以直接繼續 DFS 在裡面的數字比較少的 $v$（詳見代碼），所以過程會是一個從 root 往下的 path，Trie 的深度是 $O(\log n)$，所以時間複雜度是好的
 		
 	??? note "code"
 		```cpp linenums="1"
@@ -706,8 +726,10 @@
 	    }
 		```
 
+### 題目2
+
 ???+note "樹上匹配問題 題目2"
-	給定 $n$ 個點的樹，其中 $n$ 為偶數，我們要將所有頂點兩兩配對，其中點 $u$ 和點 $v 配對的權值為 $dis(u,v)$。現在要求將所有點兩兩配對，且要求計算最小的可能權重
+	給定 $n$ 個點的樹，其中 $n$ 為偶數，我們要將所有頂點兩兩配對，其中點 $u$ 和點 $v$ 配對的權值為 $dis(u,v)$。現在要求將所有點兩兩配對，且要求計算最小的可能權重
 	
 	??? note "思路"
 		跟上一題差不多，只是變成從 leaf 往 root 的方向做上去，子樹內的優先配對

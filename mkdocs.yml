@@ -212,6 +212,7 @@ nav:
         - 矩陣: 'math/matrix.md'
         - 組合: 'math/comb.md'
         - 賽局: 'math/game_theory.md'
+        - Josephus Problem: 'math/josephus_problem.md'
         - 數論: 
           - 因數: 'math/facts.md'
           - 模運算: 'math/mod.md'
@@ -252,7 +253,7 @@ nav:
         - 訓練: 'other/practice.md'
         - 壓常: 'other/constant.md'
         - Debug: 'other/debug.md'
-        - Lambda Function: 'other/lambda_function.md'
+        - c++語法技巧: 'other/tips.md'
         - terminal 的一些指令: 'other/cmd.md'
       - 序列交換問題: 'other/swap.md'
       - 字典序: 'other/Lexicographic.md'

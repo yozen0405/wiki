@@ -2,7 +2,7 @@
 
 S(l, r) : 表示字 S[l], S[l+1], ..., S[r] 這個連續區間形成的字串，在 C++ 中可以寫成 
 
-```
+```cpp
 S.substr(l, r - l + 1)
 ```
 
@@ -179,7 +179,13 @@ S.substr(l, r - l + 1)
 
 ### 失敗機率分析
 
-[class 20](https://drive.google.com/file/d/1c9A1MrB-9D3EVr3eZPNWgaO4Rti3CN4K/view)
+字串題目在分析的時候，一般來說會將失敗機率當成 1 / P。[^1]
+
+要改善失敗機率的話可以 :
+
+1. 加大 $P$
+
+2. 用兩個 $P_1,P_2$
 
 ### 例題
 
@@ -575,3 +581,8 @@ S.substr(l, r - l + 1)
 	        } 
 	    } 
 		```
+
+???+note "[2018 全國賽 p6]()"
+	
+
+[^1]: 詳見 <a href="/wiki/string/images/字串失敗機率分析.html" target="_blank">字串失敗機率分析</a>
