@@ -584,5 +584,15 @@ S.substr(l, r - l + 1)
 
 ???+note "[2018 全國賽 p6]()"
 	
+	??? note "思路"
+		<https://drive.google.com/file/d/1c9A1MrB-9D3EVr3eZPNWgaO4Rti3CN4K/view?usp=drive_open>
+		
+## 相關主題
+
+- 樹同構
+
+- 將狀態利用 hash 壓縮
+
+https://cses.fi/problemset/task/1670/
 
 [^1]: 詳見 <a href="/wiki/string/images/字串失敗機率分析.html" target="_blank">字串失敗機率分析</a>
