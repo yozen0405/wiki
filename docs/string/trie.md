@@ -154,7 +154,7 @@
 
 ### 習題
 
-???+ note "延[CSES - Maximum Xor Subarray](https://cses.fi/problemset/task/1655/)"
+???+ note "[CSES - Maximum Xor Subarray](https://cses.fi/problemset/task/1655/)"
 	給長度為 $n$ 的陣列 $a$，最大 xor 起來的 Subrray 是多少
 	
 	$n\le 2\times 10^5,0\le x_i\le 10^9$
@@ -250,12 +250,14 @@
 	    } 
 	    ```
 
-???+note "[USACO 2019 Dec. Gold p1](http://www.usaco.org/index.php?page=viewproblem2&cpid=921)"
-    給一顆樹，賦予每個 Node $a_i$，$q$ 筆詢問
+???+note "[USACO 2019 Dec. Gold p1. Cow Land](http://www.usaco.org/index.php?page=viewproblem2&cpid=921)"
+    給一顆 $n$ 個點的樹，賦予每個 Node $a_i$，$q$ 筆詢問
     
-    - $\text{modify}(u,val):$ 把 $a_u = val$
+    - $\text{modify}(i,x):$ 把 $a_i = x$
     
-    - $\text{query}(u,v):$ 問把 $u \rightarrow v$ 的 path 上的$a_i \texttt{ XOR}$ 起來是多少
+    - $\text{query}(u,v):$ 問把 $u \rightarrow v$ 的 path 上的 $a_i$ xor 起來是多少
+
+	$2\le n\le 10^5,1\le q\le 10^5,0\le a_i\le 10^9$
     
     ??? note "解析"
         - 相關的問題(不是 Trie)
