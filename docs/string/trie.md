@@ -116,12 +116,152 @@
 	??? note "思路"
 		將 $a$ 打到 01 Trie 上，對於每個數字從 root Greedy 的走下去
 
+???+ note "變化題 K-th Maximum XOR of Two Numbers in an Array"
+	給長度為 $n$ 的陣列 $a$，問兩個元素 xor 起來，第 $k$ 大是多少
+	
+	$n\le 10^5$
+	
+	??? note "想法"
+	    - 二分搜 $O(\log C)$
+	
+	    - 用 $\texttt{Trie}$ 檢查 $O(n\log C)$ 
+	        - 對於每個 $a_i$ 找 $a_i \oplus a_j \le x$ 的 $a_j$ 有幾個
+	        - 每次在 $\texttt{Trie}$ 上 $\texttt{find }O(\log C)$ (深度)
+	        - 有 $n$ 個 $a_i$ 所以才是 $O(n\log C)$
+	        - $\Rightarrow O(n\log^2 C)$
+
 ### 最大異或路徑		
 
 ???+note "[LOJ #10056. 「一本通 2.3 练习 5」The XOR-longest Path](https://loj.ac/p/10056)"
 	給定一棵 n 個點的帶權樹，求樹上最長的異或和路徑。
 	
-	$1\le n\le 10 10^5, 0\le w < 2^{31}$
+	$1\le n\le 10^5, 0\le w < 2^{31}$
 	
 	??? note "思路"
+		$f(u,v)=f(rt,u)\oplus f(rt,v)$
+		
+		問題就轉成挑兩個數起來最大的
+
+???+ note "變化題 [CF 1055 F. Tree and Xor](https://codeforces.com/contest/1055/problem/F)"
+    給一顆 $n$ 個點樹，設 $f(u,v)$ 為 $u$ 到 $v$ 的邊權異或和，問對於所有的 $f(u,v)$ 第 $k$ 大是多少
+    
+    $n\le 2\times 10^5$
+    
+    ??? note "想法"
+        - k-th Xor path problem
+        - $f(u,v)=f(rt,u)\oplus f(rt,v)$
+        - 問題就轉成挑兩個 XOR 起來第 $k$ 大
+
+### 習題
+
+???+ note "延[CSES - Maximum Xor Subarray](https://cses.fi/problemset/task/1655/)"
+	給長度為 $n$ 的陣列 $a$，最大 xor 起來的 Subrray 是多少
 	
+	$n\le 2\times 10^5,0\le x_i\le 10^9$
+	
+	??? note "想法"
+		S[i, j] = S[j] ^ S[i - 1]，就變成上面最大異或數對的問題了
+	 
+	??? note "code" 
+	    ```cpp linenums="1"
+	    #include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using PQ = priority_queue<int, vector<int>, greater<int>>;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct node {
+	        node *ch[2];
+	
+	        vector<int> con (int x) {
+	            vector<int> res;
+	            for (int i = 0; i <= 30; i++) {
+	                if (x & (1 << i)) res.pb (1);
+	                else res.pb (0);
+	            }
+	            return res;
+	        }
+	
+	        void add (int x, node *rt) {
+	            vector<int> res = con (x);
+	            int n = res.size ();
+	
+	            for (int i = n - 1; i >= 0; i--) {
+	                if (rt -> ch[res[i]] == nullptr) rt -> ch[res[i]] = new node ();
+	                rt = rt -> ch[res[i]];
+	            }
+	        }
+	
+	        int find (int x, node *rt) {
+	            vector<int> res = con (x);
+	            int n = res.size();
+	
+	            int ret = 0;
+	            for (int i = n - 1; i >= 0; i--) {
+	                if (rt -> ch[res[i] ^ 1] == nullptr) rt = rt -> ch[res[i]], ret += (res[i] << i);
+	                else rt = rt -> ch[res[i] ^ 1], ret += ((res[i] ^ 1) << i);
+	            }
+	            return ret;
+	        }
+	    };
+	
+	    int n;
+	    int a[maxn], pre[maxn];
+	
+	    void init () {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) cin >> a[i];
+	    }
+	
+	    void solve () {
+	        node *rt = new node ();
+	
+	        int res = 0;
+	        rt -> add (0, rt);
+	        for(int i = 1; i <= n; i++) {
+	            pre[i] = pre[i - 1] ^ a[i];
+	            int ret = rt -> find (pre[i], rt) ^ pre[i];
+	            res = max (res, ret);
+	            rt -> add (pre[i], rt);
+	        }
+	
+	        cout << res << "\n";
+	    } 
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    } 
+	    ```
+
+???+note "[USACO 2019 Dec. Gold p1](http://www.usaco.org/index.php?page=viewproblem2&cpid=921)"
+    給一顆樹，賦予每個 Node $a_i$，$q$ 筆詢問
+    
+    - $\text{modify}(u,val):$ 把 $a_u = val$
+    
+    - $\text{query}(u,v):$ 問把 $u \rightarrow v$ 的 path 上的$a_i \texttt{ XOR}$ 起來是多少
+    
+    ??? note "解析"
+        - 相關的問題(不是 Trie)
+        
+        - $f(u,v)=f(u,rt) \oplus f(v,rt)$
+    
+        - 問題就轉成了 CSES path queries I
+    
+        - 用 euler technique 解決
