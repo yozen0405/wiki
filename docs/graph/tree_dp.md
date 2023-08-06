@@ -96,8 +96,99 @@
 	        }
 	    }
 	    ```
-	    
+
 ???+note "[vijos 1892 树上的最大匹配](https://vijos.org/p/1892)"
 	給 $n$ 個點的樹，問最多可以選幾條邊滿足都每個點只有最多一條與之相連的邊有選，輸出最多可以選幾條邊與方案數
 	
 	$n\le 1.5\times 10^6$
+
+???+note "[CF 1856 E1. PermuTree (easy version)](https://codeforces.com/contest/1856/problem/E1)"
+	給一顆 $n$ 個點的 Tree，問對於所有從 $1\ldots n$ 的 permutation $a$，最大的 $f(a)$ 是多少
+	
+	$f(a)=$ 有幾個 pair $(u,v)$ 滿足 $a_u < a_{\text{lca}(u,v)}<a_v$
+	
+	$2\le n\le 5000$
+	
+	??? note "思路"
+		對於定根 $u$，我們會想讓下面每顆子樹的 $a_i$ 都恰好是連續的一段，因為這樣下面的點可以對 $u$ 造成貢獻，又可以對 $v$ 造成貢獻。然後因為是連續的一段，可以遞迴下去變子問題。
+		
+		接下來要考慮對於定根 $u$，有那些 $v$ 的 $a_i$ 會小於他，有那些 $v$ 的 $a_i$ 會大於他，然後就只要把小於他跟大於他的數量相乘即是對答案的貢獻。這邊就可以使用類似 01 背包的 dp，dp[w] 代表是否能取一些 v 使得 sum(dp[v]) = w，最後我們對每個有可能取到的 w 算 w * (sz[u] - w - 1) 的最大值，將 ans 加上他即可
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define F first
+        #define S second
+
+        using namespace std;
+
+        const int maxn = 5050;
+        vector<int> G[maxn];
+        int sz[maxn];
+        int ans = 0;
+
+        void dfs1(int u, int par) {
+            sz[u] = 1;
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                dfs1(v, u);
+                sz[u] += sz[v];
+            }
+        }
+
+        void dfs2(int u, int par) {
+            vector<pair<int, int>> sizes;
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                sizes.push_back({sz[v], v});
+            }
+
+            for (auto x : sizes) {
+                dfs2(x.S, u);
+            }   
+
+            vector<int> dp (sz[u] + 1, false);
+            dp[0] = true;
+
+            for (int i = 0; i < (int)sizes.size(); i++) {
+                vector<int> newDp (sz[u] + 1, false);
+                for (int j = 0; j <= sz[u]; j++) {
+                    // take
+                    if (j >= sizes[i].F)
+                        newDp[j] |= dp[j - sizes[i].F];
+                    // not take
+                    newDp[j] |= dp[j];
+                }
+                swap(dp, newDp);
+            }
+
+            int mxAdd = 0;
+            for (int j = 0; j <= sz[u]; j++) {
+                if (dp[j])
+                    mxAdd = max(mxAdd, j * (sz[u] - 1 - j));
+            }
+
+            ans += mxAdd;
+        }
+
+        void solve() {
+            int n;
+            cin >> n;
+            for (int i = 1; i < n; i++) {
+                int v;
+                cin >> v;
+                v--;
+                G[i].push_back(v);
+                G[v].push_back(i);
+            }
+
+            dfs1(0, -1);
+            dfs2(0, -1);
+            cout << ans << '\n';
+        }
+
+        signed main() {
+            solve();
+        }
+		```

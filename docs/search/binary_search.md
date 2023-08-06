@@ -133,51 +133,125 @@
 	??? note "code"
 		```cpp linenums="1"
 		#pragma GCC optimize("O3,unroll-loops")
-        #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
+	    #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
+	
+	    #include <bits/stdc++.h>
+	    #define pb push_back
+	
+	    using namespace std;
+	    using ll = long long;
+	
+	    struct Interval {
+	        int l, r;
+	    };
+	
+	    int n, k;
+	    vector<Interval> intervals;
+	
+	    bool check(ll t) {
+	        ll cnt = 0;
+	        for (auto &[l, r] : intervals) {
+	            if (t > r) {
+	                cnt += r - l + 1;
+	            } else if (t > l) {
+	                cnt += (ll)t - l;
+	            }
+	        }
+	
+	        return cnt <= k;
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> n >> k;
+	        for (int i = 0; i < n; i++) {
+	            int l, r;
+	            cin >> l >> r;
+	            intervals.pb({l, r});
+	        }
+	
+	        ll l = -3e9, r = 3e9;
+	        // 找到第一個 x 滿足小於 x 的個數 <= k
+	        while (r - l > 1) {
+	            ll mid = (l + r) / 2;
+	            if (check(mid)) l = mid;
+	            else r = mid;
+	        }
+	        cout << l << '\n';
+	    } 
+	    ```
+	    
+???+note "[CF 1856 C. To Become Max](https://codeforces.com/contest/1856/problem/C)"
+	給一個長度為 $n$ 的序列 $a$，你能做以下操作至多 $k$ 次，並輸出 $\max(a_1, a_2, \ldots a_n)$ 最大能到多少 :
+	
+	- 選一個 index $i$ 滿足 $1\le i \le n - 1$ 且 $a_{i}\le a_{i+1}$，將 $a_i$ 加 $1$
 
-        #include <bits/stdc++.h>
+	$2\le n\le 1000,1\le k\le 10^8,1\le a_i \le 10^8$
+	
+	??? note "思路"
+		考慮二分搜 $x$，檢查是否能使 $\max(a_1,\ldots, a_n) \ge x$。對於一個最大值 $x$，若此最大值是 $a_i=x$，可以觀察到後面會有一段連續遞減序列，且恰好是以 $1$ 最為差在遞減，因為 $a_i$ 要是 $x$，$a_{i+1}$ 就必須達到 $x-1$，$a_{i+2}$ 就必須達到 $x-2$，以此類推，也有可能到某個 $a_{i+}$ 他本身就已經大於等於要達到的 threshold，那項即為遞減序列的終止處。
+		
+		所以我們在檢查的時候只需枚舉每一項作為最大值，然後看 $k$ 是否能夠應付要將 $a_i=x$ 的成本即可（詳見代碼）　
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
         #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
 
         using namespace std;
-        using ll = long long;
 
-        struct Interval {
-            int l, r;
-        };
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
 
         int n, k;
-        vector<Interval> intervals;
+        int a[maxn];
 
-        bool check(ll t) {
-            ll cnt = 0;
-            for (auto &[l, r] : intervals) {
-                if (t > r) {
-                    cnt += r - l + 1;
-                } else if (t > l) {
-                    cnt += (ll)t - l;
+        bool check(int x) {
+            for (int i = 0; i < n; i++) {
+                int t = x, cnt = 0;
+                for (int j = i; j < n; j++) {
+                    if (a[j] >= t) {
+                        return true;
+                    }
+                    cnt += (t - a[j]);
+                    if (cnt > k) {
+                        break;
+                    }
+                    t--;
                 }
             }
-
-            return cnt <= k;
+            return false;
         }
 
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
+        void solve() {
             cin >> n >> k;
             for (int i = 0; i < n; i++) {
-                int l, r;
-                cin >> l >> r;
-                intervals.pb({l, r});
+                cin >> a[i];
             }
+            int mx = *max_element(a, a + n);
 
-            ll l = -3e9, r = 3e9;
-            // 找到第一個 x 滿足小於 x 的個數 <= k
+            int l = mx, r = mx + k + 1;
             while (r - l > 1) {
-                ll mid = (l + r) / 2;
+                int mid = (l + r) / 2;
                 if (check(mid)) l = mid;
                 else r = mid;
             }
             cout << l << '\n';
+        }
+
+        signed main() {
+            int t = 1;
+            cin >> t;
+            while (t--) {
+                solve();
+            }
         } 
-        ```
+		```
