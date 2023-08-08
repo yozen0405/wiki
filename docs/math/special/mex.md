@@ -10,6 +10,22 @@ $\text{mex}(S)$ : 回傳最小沒有出現在集合 $S$ 的非負整數
 
 - $\text{mex}( \{0, 1, 2, 3\} ) = 4$
 
+???+note "code"
+	```cpp linenums="1"
+	int mex(vector<int>& a) {
+        int n = a.size();
+
+        vector<bool> v(n + 1, false);
+        for (int x : a) {
+            if (x <= n) v[x] = true;
+        }
+
+        for (int i = 0; i <= n; i++) {
+            if (v[i] == false) return i;
+        }
+        return -1;
+    }
+    ```
 
 ## 例題
 
@@ -53,7 +69,7 @@ $\text{mex}(S)$ : 回傳最小沒有出現在集合 $S$ 的非負整數
 		發現前三種情況的 $\text{MEX}$ 已經固定，所以我們要想辦法使第四種的 $\text{MEX}$ 是質數的區間個數盡量多。有 $1$，有 $2$ 的區間一定是 $l=1,r\ge \text{mid}$，而 $3$ 是大於 $2$ 的第一個質數，也就是 $\text{MEX}$ 最好達到的質數，所以我們要使 $l=1,r\ge \text{mid}$ 的區間包含 $3$ 的個數要越少越好，那當然就是把 $3$ 放在陣列的尾端。
 	
 		實作上將 $2$ 放頭，$3$ 放尾，$1$ 置中，其他數字隨便放，就樣就完成此題了
-		
+
 ---
 
 ## 資料
