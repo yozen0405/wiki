@@ -49,7 +49,7 @@
 
 ### 1~n 因數 
 
-???+note "例題"
+???+note "[CSES - Sum of Divisors](https://cses.fi/problemset/task/1082)"
 	問你 1 ~ n 的每個因數的數量總和
 	
 	??? note "思路"
