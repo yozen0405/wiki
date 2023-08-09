@@ -7,3 +7,10 @@
 $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 
 LIS 的圖 : (將 $(i,a_i)$ 打在二維座標上看)
+
+
+
+<figure markdown>
+  ![Image title](./images/7.png){ width="600" }
+  <figcaption>Dilworth's theorom</figcaption>
+</figure>

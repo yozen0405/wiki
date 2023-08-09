@@ -8,21 +8,15 @@
 	$n\le 10^6,k\le 100,1\le p_i\le n$
 	
 	??? note "思路"
-		
+
 ???+note "[LeetCode 877. Stone Game](https://leetcode.com/problems/stone-game/description/)"
 
 ???+note "[Atcoder DP Contest L - Deque](https://atcoder.jp/contests/dp/tasks/dp_l)"
 	
 ???+note "[Atcoder DP Contest K - Stones](https://atcoder.jp/contests/dp/tasks/dp_k)"
 
-	
+
 ## Nim Game
-
-### 定理
-
-$G(i)=\text{mex} \{$ 可以轉移到的狀態 $\}$，定義是 $G(i)=j$，那麼代表狀態 $i$ 轉移到 $0\le j<G(i)$，也可以想成 $i$ 狀態的餘數是 $G(i)$。
-
-那會有一種問題:  如果能轉移到的是 $G(i)=\text{mex}\{0,1,5\}$ ，那為甚麼不要選 $G(i)=6$ 而是$G(i)=2$ ? 所以要理解一個事情: $\text{mex}\{\}$ 重要的只是是不是 $0$ 的問題。
 
 ### 證明
 
@@ -79,13 +73,30 @@ $G(i)=\text{mex} \{$ 可以轉移到的狀態 $\}$，定義是 $G(i)=j$，那麼
 
 ## Grundy number
 
-幫每個狀態定義一個 Grundy number $G(x)$，輸的狀態的 $G(x) = 0$
+幫每個狀態定義一個 Grundy number（又稱 SG 函數） $G(x)$，輸的狀態的 $G(x) = 0$
 
 其他的狀態 $G(x) = \text{mex} \{ G(y) \mid x \space 可以到 \space y\}$[^1]
 
+???+note "單堆 Nim Game - 套用 Grundy number"
+	有 $n$ 個石頭，每次要拿 $1\ldots 5$ 個，A, B 輪流拿，不能拿石頭的人就輸了。問誰贏
+	
+	??? note "思路"
+		
+		我們可以列出轉移式，$G(n)=\text{mex}\{G(n-1),\ldots ,G(n-5) \}$，我們將表格列出來
+		
+		$$
+        \begin{array}{c|ccccccccccccc}
+            n & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12\\
+            \hline
+            G(n) & 0 & 1 & 2 & 3 & 4 & 5 & 0 & 1 & 2 & 3 & 4 & 5 & 0\\
+        \end{array}
+        $$
+        
+        可以發現在這個題目 G(n) = n % 6
+
 ## Sprague–Grundy theorem
 
-有 k 盤 Game（不管完任何 Game 都可以），每次可以選擇一個盤面做操作，直到沒有任何盤面能做操作為止，會有 
+又稱 SG 定理，有 k 盤 Game（不管完任何 Game 都可以），每次可以選擇一個盤面做操作，直到沒有任何盤面能做操作為止，會有 
 
 $$
 G(\{x_1,x_2,\ldots, x_k\})=G(x_1)\oplus G(x_2)\oplus \ldots \oplus G(x_k)
@@ -120,7 +131,9 @@ $$
     有了這個證明後，k 盤 Game 就只是將 x[1], ..., x[k] 兩兩合併，也就是兩兩 xor 即可
 
 ???+note "[CSES - Nim Game II](https://cses.fi/problemset/task/1098)"
-    每次在某一堆拿 1~3 個石頭
+    有 $n$ 堆石頭，分別有 $a_1, \ldots , a_n$ 個，Alice, Bob 輪流玩一個 game，輪到自己時可以選其中一堆，拿 1...3 個石頭，不能拿就輸。問誰贏
+
+	$1\le n \le 2\times 10^5,1\le a_i \le 10^9$
     
     ??? note "思路"
     	先把每一堆想成一個單獨的 game, 計算 G(x) = x % 4，利用 SG 定理將他們 xor 起來
@@ -146,23 +159,30 @@ $$
         n = 10^9 幫 SG(i) 找規律
 
 ???+note "[YTP 2022 高中程式挑戰營 p11](https://www.tw-ytp.org/wp-content/uploads/2022/12/YTP2022FinalContest_S2_TW.pdf#page=32)" 
-    n 堆石頭，兩種操作，無法操作就輸
+    有 n 筆 query。每筆給出 x 堆石頭，兩種操作，無法操作就輸
     
     - 選一堆，移除 1 個
     - 選一堆，拆成 1, 2, 3, …, k 個，前提 n = 1+2+…+k
     
     [2, 5, 10] → [1, 5, 10] → [1, 5, 1, 2, 3, 4]
     
+    x <= C = 10^9, n <= 2 * 10^5
+    
     ??? note "思路"
-    	SG(x) = 
-        mex{ SG(x-1) } if x != k(k+1)/2
-        mex{ SG(x-1), SG(1)^SG(2)^…^SG(k) } if x = k(k+1)/2
-        x <= C = 10^9, n <=2 * 10^5
-        x = k(k+1)/2 的狀態不會太多，只有 O( sqrt(C) ) 個
-        SG(1)^SG(2)^…^SG(k) 可以用 prefix sum 技巧在 O(1) 計算
-        假設 SG( k*(k+1)/2 ) = 2, 如何計算 SG( (k+1)*(k+2)/2 )?
-        if x \in [ k*(k+1)/2 + 1, (k+1)*(k+2)/2 - 1], SG(x) = 0 → SG(x+1) = 1
-        把 x = k(k+1)/2 都建表算好，每個 a[i] binary search 找到小於 a[i] 的第一個重要值
+    	- SG(x) =
+    	
+            - mex{ SG(x-1) } if x != k(k+1)/2
+
+            - mex{ SG(x-1), SG(1) $\oplus$ SG(2)$\oplus$ ... $\oplus$ SG(k) } if x = k(k+1)/2
+
+        - x = k(k+1)/2 的狀態不會太多，只有 O( sqrt(C) ) 個
+
+        - 假設 SG( k * (k+1)/2 ) = 2, 如何計算 SG( (k+1) * (k+2)/2 )?
+            - if x $\in$ [ k * (k+1)/2 + 1, (k+1) * (k+2)/2 - 1], SG(x) = 0 → SG(x+1) = 1
+
+			- 0, 1 交替，可以從上一個 k * (k + 1) / 2 很快的推出來
+
+        - 實作上把 x = k(k+1)/2 都建表算好，過程中可以用一個只會單調遞增的 pointer 紀錄 k 算到哪裡，每個 a[i] binary search 找到小於 a[i] 的第一個 k * (k+1)/2 的地方，即可推出是 0 還是 1
 
 ## Tree
 
@@ -173,10 +193,10 @@ $$
 	
 	??? note "思路"
 		<figure markdown>
-          ![Image title](./images/1.jpg){ width="300" }
-        </figure>
-        
-        從 leaf 往上做上去
+	      ![Image title](./images/1.jpg){ width="300" }
+	    </figure>
+	    
+	    從 leaf 往上做上去
 
 ???+note "[TIOJ  1092 . A.跳格子遊戲](https://tioj.ck.tp.edu.tw/problems/1092)"
 	給一張 $n$ 點 $m$ 邊的 DAG。A, B 從起點往終點輪流跳，跳到終點的人獲勝，問誰獲勝
@@ -187,19 +207,19 @@ $$
 		我們先將 DAG 展開，變成 Tree 比較好套用 Min Max Tree 的概念。設先手是 $0$，後手是 $1$，那麼先手就要取 min，後手取 max。
 	
 		<figure markdown>
-          ![Image title](./images/11.jpg){ width="300" }
-        </figure>
+	      ![Image title](./images/11.png){ width="500" }
+	    </figure>
 		
 		我們重新回到 DAG 上考慮，DAG 上終點就是我們 Tree 上的 Leaf，所以我們可以從終點慢慢推回起點，每個點維護先手，與後手的值（這樣兩個點之間才能轉移，u 的先手從 v 的後手轉移，...），最後的答案就是起點的先手值
-        
-        <figure markdown>
-          ![Image title](./images/12.jpg){ width="300" }
-        </figure>
-        
-        ---
-        
-        這題也可以用下面的 Game Tree 做，一樣是將 Leaf（終點） 先定 Grundy Number = 0，然後慢慢做回起點去
-	
+	    
+	    <figure markdown>
+	      ![Image title](./images/12.png){ width="300" }
+	    </figure>
+	    
+	    ---
+	    
+	    這題也可以用下面的 Game Tree 做，一樣是將 Leaf（終點） 先定 Grundy Number = 0，然後慢慢做回起點去
+
 ### Game Tree
 
 ???+note "[LOJ #10243. 「一本通 6.7 例 3」移棋子游戏](https://loj.ac/p/10243)"
@@ -213,72 +233,72 @@ $$
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        int n, m, k;
-        vector<int> G[maxn];
-        int vis[maxn], sg[maxn];
-
-        int mex(vector<int>& a) {
-            int n = a.size();
-
-            vector<bool> v(n + 1, false);
-            for (int x : a) {
-                if (x <= n) v[x] = true;
-            }
-
-            for (int i = 0; i <= n; i++) {
-                if (v[i] == false) return i;
-            }
-            return -1;
-        }
-
-        int dfs(int u) {
-            if (vis[u]) return sg[u];
-            if (G[u].size() == 0) {
-                sg[u] = 0;
-                return sg[u];
-            }
-            vis[u] = true;
-
-            vector<int> used;
-            for (auto v : G[u]) {
-                used.pb(dfs(v));
-            }
-            sg[u] = mex(used);
-            return sg[u];
-        }
-
-        signed main() {
-            cin >> n >> m >> k;
-            for (int i = 0; i < m; i++) {
-                int u, v;
-                cin >> u >> v;
-                G[u].pb(v);
-            }
-
-            int res = 0;
-            while(k--) {
-                int x;
-                cin >> x;
-                res ^= dfs(x);
-            }
-            cout << (res == 0 ? "lose" : "win") << '\n';
-        } 
-		```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
 	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, m, k;
+	    vector<int> G[maxn];
+	    int vis[maxn], sg[maxn];
+	
+	    int mex(vector<int>& a) {
+	        int n = a.size();
+	
+	        vector<bool> v(n + 1, false);
+	        for (int x : a) {
+	            if (x <= n) v[x] = true;
+	        }
+	
+	        for (int i = 0; i <= n; i++) {
+	            if (v[i] == false) return i;
+	        }
+	        return -1;
+	    }
+	
+	    int dfs(int u) {
+	        if (vis[u]) return sg[u];
+	        if (G[u].size() == 0) {
+	            sg[u] = 0;
+	            return sg[u];
+	        }
+	        vis[u] = true;
+	
+	        vector<int> used;
+	        for (auto v : G[u]) {
+	            used.pb(dfs(v));
+	        }
+	        sg[u] = mex(used);
+	        return sg[u];
+	    }
+	
+	    signed main() {
+	        cin >> n >> m >> k;
+	        for (int i = 0; i < m; i++) {
+	            int u, v;
+	            cin >> u >> v;
+	            G[u].pb(v);
+	        }
+	
+	        int res = 0;
+	        while(k--) {
+	            int x;
+	            cin >> x;
+	            res ^= dfs(x);
+	        }
+	        cout << (res == 0 ? "lose" : "win") << '\n';
+	    } 
+		```
+
 ## 題目
 
 ???+note "[CSES - Stair Game](https://cses.fi/problemset/task/1099)"
@@ -306,29 +326,75 @@ $$
 			- 動 even 到 odd
 	
 				相當於玩 Nim Game，不管怎麼走都是走到 $a_2\oplus a_4\oplus a_6\oplus \ldots \neq 0$ 的狀態
-	
+
 ???+note "[CSES - Grundy's Game](https://cses.fi/problemset/task/2207)"
 	有一堆 $n$ 個石頭，A, B 輪流，每次可以將一堆 Split 成兩堆數量不同的，不能動就輸，問誰贏。共 $t$ 筆測資
 	
 	$t\le 10^5,n\le 10^6$
 	
 	??? note "思路"
-
+		觀察到若 $n > 2000$ 時先手必勝，$n\le 2000$ 暴力跑，$>2000$ 直接輸出 first
+		
 ???+note "[CSES - Another Game](https://cses.fi/problemset/task/2208)"
 	有 $n$ 堆石頭，分別有 $a_1, \ldots , a_n$ 個，Alice, Bob 輪流玩一個 game，輪到自己時可以選其中好幾堆，每堆拿至少一個石頭，不能拿就輸，問誰贏
 	
 	$1\le n\le 2\times 10^5,1\le a_i\le 10^9$
 	
-???+note "[2022 npsc 高中組初賽 pF.取蜜柑](https://tioj.ck.tp.edu.tw/problems/2303)"
-	
 	??? note "思路"
-		如果數字>1，那可以都視為2，因為(x>1) x就可以決定要一次拿全部或者拿到剩1個，除了1,1,...1,x 和 1,1,1,1,1 都是1/2 ，1,11..x如果位數是偶數那是1/2,奇數是 (x/2+1)/x
+		打表後可以觀察到，$a_i$ 都是偶數時，先手必輸
+		
+		【證明】:
+		
+		- 「$a_i$ 有一些奇數」的狀態，存在一個走法走到「$a_i$ 都是偶數」的狀態
+
+		- 「$a_i$ 都是偶數」的狀態，不管怎麼走都是走到「$a_i$ 有一些奇數」的狀態
 
 ???+note "[2016 全國賽 p3. 拈 (Nim)](https://tioj.ck.tp.edu.tw/problems/1940)"
 	有一堆 $n$ 個石頭，A, B 輪流，每次可從這堆石頭中取走 $1\ldots \lfloor n/k \rfloor$ 顆石頭，問 Grundy number $G(n)$
 	
 	$n\le 10^9,k=1$ or $2$
 	
+	??? note "思路"
+		$k=1$ 的 case 一定是 n % (n + 1) = n
+		
+		$k=2$ 的 case 去觀察會發現 even 項都是 n / 2，odd 項恰好是自己能覆蓋的區間的前一個數，可以去遞迴，複雜度 $O(\log n)$
+		
+		<figure markdown>
+	      ![Image title](./images/13.png){ width="500" }
+	    </figure>
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        int f(int n) {
+            if (n == 0) return 0;
+            if (n == 1) return 1;
+            if (n == 2) return 0;
+            if (n % 2 == 0) return n / 2;
+            else return f(n / 2);
+        }
+
+        signed main() {
+            int n, k;
+            cin >> k >> n;
+            if (k == 1) {
+                cout << n << '\n';
+            } else {
+                cout << f(n) << '\n';
+            }
+        } 
+		```
+
 ???+note "Wythoff's game [洛谷 P2252 [SHOI2002] 取石子游戏|【模板】威佐夫博弈](https://www.luogu.com.cn/problem/P2252)"
 	一開始有兩堆個石頭，每個回合可以選一堆，A, B 輪流，每輪可以做其中一個操作 
 
@@ -338,22 +404,18 @@ $$
     
     不能拿就輸。問誰贏
 
-???+note "[codeforces 603C. Lieges of Legendre](https://codeforces.com/problemset/problem/603/C)"
-
-???+note "[codeforces 305E. Playing with String](https://codeforces.com/problemset/problem/305/E)"
-
-???+note "[2022 IONC C. 取石子遊戲 (kgame)](https://codeforces.com/group/z3GP4YeQl0/contest/392280/problem/C)"
+???+note "<a href="/wiki/math/images/C. 取石子遊戲 (kgame).html" target="_blank">2022 IONC C. 取石子遊戲 (kgame)</a>"
 	一開始有 $n$ 顆石頭與一個正整數 $k$，有兩個人會輪流取出一些石頭。
 
     假設遊戲進行了 $m$ 輪，並且取出的石頭數量的序列為 $a_1, a_2, \ldots, a_m$，那麼必須要滿足以下兩個條件：
-
-    - 對於 $i = 1, 2, \ldots, m$$$，$1 \le a_i \le K-1$。
-
-    - 對於 $j = 1, 2, \ldots, m-1$，$a_j + a_{j+1} \le K$。
-
+    
+    - 對於 $i = 1, 2, \ldots, m$，$1 \le a_i \le k-1$。
+    
+    - 對於 $j = 1, 2, \ldots, m-1$，$a_j + a_{j+1} \le k$。
+    
     先將石頭取完的那個人獲勝，若是雙方都無法將石頭取完即視為平手。在已知 $n$、$k$ 的情況下，請問誰有必勝策略？在一筆測資中，你需要處理 $T$ 組輸入。
-
-    $1 \le T \le 10^5,1 \le k \le 10^{18},1 \le k \le N$
+    
+    $1 \le T \le 10^5,1 \le k \le 10^{18},1 \le k \le n$
     
     ??? note "思路"
     	例如說先手取了 $x$ 之後，後手一定可以取 $y$ 使 $x+y=K$，也就代表當 n % k = 0 時先手必輸。那麼無解的 case 呢 ? 當 k = 1 時。
@@ -363,7 +425,7 @@ $$
     	#include <bits/stdc++.h>
         #define int long long
         using namespace std;
-
+    
         signed main() {
             int q;
             cin >> q;
@@ -380,7 +442,24 @@ $$
             }
         } 
     	```
+
+???+note "[CF 1194 D. 1-2-K Game](https://codeforces.com/contest/1194/problem/D)"
+	有 $n$ 個石頭，每次拿 $1$ 個, $2$ 個, **或** $k$ 個，A, B 輪流拿，不能拿石頭的人就輸了。問誰贏
 	
+	$0\le n\le 10^9,3\le k\le 10^9$
+	
+	??? note "思路"
+		打表，觀察，詳細可見 [Yuihuang's 題解](https://yuihuang.com/cf-1194d/)
+
+???+note "[codeforces 603C. Lieges of Legendre](https://codeforces.com/problemset/problem/603/C)"
+
+???+note "[codeforces 305E. Playing with String](https://codeforces.com/problemset/problem/305/E)"
+
+???+note "[2022 npsc 高中組初賽 pF.取蜜柑](https://tioj.ck.tp.edu.tw/problems/2303)"
+	
+	??? note "思路"
+		如果數字>1，那可以都視為2，因為(x>1) x就可以決定要一次拿全部或者拿到剩1個，除了1,1,...1,x 和 1,1,1,1,1 都是1/2 ，1,11..x如果位數是偶數那是1/2,奇數是 (x/2+1)/x
+
 ---
 
 ## 參考資料

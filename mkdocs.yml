@@ -187,7 +187,7 @@ nav:
         - 樹同構: 'graph/tree_isomorphism.md'
         - 樹上背包: 'graph/knapsack_on_tree.md'
         - 題目:
-          - 類 topo sort: 'graph/tree_dp.md'
+          - 類 topo sort: 'graph/tree_topo_sort.md'
           - greedy: 'graph/tree_greedy.md'
           - 利用 dfs 序: 'graph/dfs_order.md'
           - 其他類型: 'graph/other_problem.md'

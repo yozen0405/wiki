@@ -117,78 +117,80 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define F first
-        #define S second
-
-        using namespace std;
-
-        const int maxn = 5050;
-        vector<int> G[maxn];
-        int sz[maxn];
-        int ans = 0;
-
-        void dfs1(int u, int par) {
-            sz[u] = 1;
-            for (auto v : G[u]) {
-                if (v == par) continue;
-                dfs1(v, u);
-                sz[u] += sz[v];
-            }
-        }
-
-        void dfs2(int u, int par) {
-            vector<pair<int, int>> sizes;
-            for (auto v : G[u]) {
-                if (v == par) continue;
-                sizes.push_back({sz[v], v});
-            }
-
-            for (auto x : sizes) {
-                dfs2(x.S, u);
-            }   
-
-            vector<int> dp (sz[u] + 1, false);
-            dp[0] = true;
-
-            for (int i = 0; i < (int)sizes.size(); i++) {
-                vector<int> newDp (sz[u] + 1, false);
-                for (int j = 0; j <= sz[u]; j++) {
-                    // take
-                    if (j >= sizes[i].F)
-                        newDp[j] |= dp[j - sizes[i].F];
-                    // not take
-                    newDp[j] |= dp[j];
-                }
-                swap(dp, newDp);
-            }
-
-            int mxAdd = 0;
-            for (int j = 0; j <= sz[u]; j++) {
-                if (dp[j])
-                    mxAdd = max(mxAdd, j * (sz[u] - 1 - j));
-            }
-
-            ans += mxAdd;
-        }
-
-        void solve() {
-            int n;
-            cin >> n;
-            for (int i = 1; i < n; i++) {
-                int v;
-                cin >> v;
-                v--;
-                G[i].push_back(v);
-                G[v].push_back(i);
-            }
-
-            dfs1(0, -1);
-            dfs2(0, -1);
-            cout << ans << '\n';
-        }
-
-        signed main() {
-            solve();
-        }
+	    #define int long long
+	    #define F first
+	    #define S second
+	
+	    using namespace std;
+	
+	    const int maxn = 5050;
+	    vector<int> G[maxn];
+	    int sz[maxn];
+	    int ans = 0;
+	
+	    void dfs1(int u, int par) {
+	        sz[u] = 1;
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            dfs1(v, u);
+	            sz[u] += sz[v];
+	        }
+	    }
+	
+	    void dfs2(int u, int par) {
+	        vector<pair<int, int>> sizes;
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            sizes.push_back({sz[v], v});
+	        }
+	
+	        for (auto x : sizes) {
+	            dfs2(x.S, u);
+	        }   
+	
+	        vector<int> dp (sz[u] + 1, false);
+	        dp[0] = true;
+	
+	        for (int i = 0; i < (int)sizes.size(); i++) {
+	            vector<int> newDp (sz[u] + 1, false);
+	            for (int j = 0; j <= sz[u]; j++) {
+	                // take
+	                if (j >= sizes[i].F)
+	                    newDp[j] |= dp[j - sizes[i].F];
+	                // not take
+	                newDp[j] |= dp[j];
+	            }
+	            swap(dp, newDp);
+	        }
+	
+	        int mxAdd = 0;
+	        for (int j = 0; j <= sz[u]; j++) {
+	            if (dp[j])
+	                mxAdd = max(mxAdd, j * (sz[u] - 1 - j));
+	        }
+	
+	        ans += mxAdd;
+	    }
+	
+	    void solve() {
+	        int n;
+	        cin >> n;
+	        for (int i = 1; i < n; i++) {
+	            int v;
+	            cin >> v;
+	            v--;
+	            G[i].push_back(v);
+	            G[v].push_back(i);
+	        }
+	
+	        dfs1(0, -1);
+	        dfs2(0, -1);
+	        cout << ans << '\n';
+	    }
+	
+	    signed main() {
+	        solve();
+	    }
 		```
+
+???+note "[2022 NPSC 決賽 pE.真島與莉可麗絲](https://tioj.ck.tp.edu.tw/problems/2309)"
