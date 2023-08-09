@@ -78,7 +78,7 @@
 	
 	??? note "思路"
 		對於每條邊，他的貢獻是 $sz_v\times (n-sz_v)$
-	
+
 ???+note "[CF 771 C. Bear and Tree Jumps](https://codeforces.com/contest/771/problem/C)"
 	有一顆 $n$ 個點的樹，樹的邊權皆為 $1$。每步可以順移到距離自己 $\le k$ 的點。令 $f(s,t)$ 為 $s\to t$ 的最小步數，問對於所有 $s=1\ldots n, t = 1\ldots n$， $\sum \limits_{s<t} f(s,t)$ 是多少
 	
@@ -90,56 +90,56 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int maxn = 2e5 + 5;
-
-        vector<int> G[maxn];
-        int dp[maxn][5]; // dp[u][r] 從 u 往下 L % k == r 的 path 個數
-        int sz[maxn];
-        int n, k, ans;
-
-        int subtract(int a, int b) {
-            return ((a - b) % k + k) % k;
-        }
-
-        void dfs(int u, int par) {
-            dp[u][0] = sz[u] = 1;
-            for (auto v : G[u]) {
-                if (v == par) continue;
-                dfs(v, u);
-
-                for(int i = 0; i < k; i++) {
-                    for(int j = 0; j < k; j++) {
-                        int remainder = (i + j + 1) % k;
-                        int needs = subtract(k, remainder);
-                        ans += needs * dp[u][i] * dp[v][j];
-                    }
-                }
-
-                for(int i = 0; i < k; ++i) {
-                    int ni = (i + 1) % k;
-                    dp[u][ni] += dp[v][i];
-                }
-                sz[u] += sz[v];
-            }
-            ans += sz[u] * (n - sz[u]);
-        }
-
-        signed main() {
-            cin >> n >> k;
-            for(int i = 0; i < n - 1; i++) {
-                int u, v;
-                cin >> u >> v;
-                G[u].push_back(v);
-                G[v].push_back(u);
-            }
-            dfs(1, -1);
-            assert(ans % k == 0);
-            cout << (ans / k) << '\n';
-        }
-        ```
+	    #define int long long
+	    using namespace std;
+	
+	    const int maxn = 2e5 + 5;
+	
+	    vector<int> G[maxn];
+	    int dp[maxn][5]; // dp[u][r] 從 u 往下 L % k == r 的 path 個數
+	    int sz[maxn];
+	    int n, k, ans;
+	
+	    int subtract(int a, int b) {
+	        return ((a - b) % k + k) % k;
+	    }
+	
+	    void dfs(int u, int par) {
+	        dp[u][0] = sz[u] = 1;
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            dfs(v, u);
+	
+	            for(int i = 0; i < k; i++) {
+	                for(int j = 0; j < k; j++) {
+	                    int remainder = (i + j + 1) % k;
+	                    int needs = subtract(k, remainder);
+	                    ans += needs * dp[u][i] * dp[v][j];
+	                }
+	            }
+	
+	            for(int i = 0; i < k; ++i) {
+	                int ni = (i + 1) % k;
+	                dp[u][ni] += dp[v][i];
+	            }
+	            sz[u] += sz[v];
+	        }
+	        ans += sz[u] * (n - sz[u]);
+	    }
+	
+	    signed main() {
+	        cin >> n >> k;
+	        for(int i = 0; i < n - 1; i++) {
+	            int u, v;
+	            cin >> u >> v;
+	            G[u].push_back(v);
+	            G[v].push_back(u);
+	        }
+	        dfs(1, -1);
+	        assert(ans % k == 0);
+	        cout << (ans / k) << '\n';
+	    }
+	    ```
 
 ???+note "[LOJ #2780. 「BalticOI 2016 Day1」上司们](https://loj.ac/p/2780)"
 	給一顆 $n$ 個點的樹
@@ -350,19 +350,23 @@
 		
 		---
 		
-		再來是第二個答案，因為能用的 path 的數量已經固定，所以我們就在 path 的數量固定下討論能連的可能性
+		再來是第二個答案，因為能用的 path 的數量已經固定，所以我們就在 path 的數量固定下討論能連的可能性，最小化最大值 ⇒ 二分搜
 		
 		我們先來討論非 root 的情況
 	
 	    若為偶數
 	    
 	    - 上傳 : 兩兩配對，剩下的兩個一個單獨成線 (max)，另一個上傳 (二分)
-	
+
+		<figure markdown>
+	      ![Image title](./images/44.png){ width="200" }
+	    </figure>
+			
 	    - 不上傳 : 兩兩配對
 	
 	    若為奇數
 	
-	    - 上傳 : 兩兩配對，剩下一個 (二分)
+	    - 上傳 : 兩兩配對，選一個傳上去，且傳上去的要越小越好，卻又不能使剩下的無法配對 ⇒ 二分搜。單調性的話例如移除長度為 10 的可以，那麼移除長度為 11 一定也可以。
 	
 	    - 不上傳 : 不可能
 	
@@ -371,31 +375,7 @@
 		若為偶數 : 兩兩配對
 	
 	    若為奇數 : 檢查最大的是否合法，剩下兩兩配對
-	
-		??? question "為什麼可以二分 ?"
-			no 1
-			
-	        $[2,9],[3,8],[4,7],[5,6]$
-	
-	        no 2
-	
-	        $[1,9],[3,8],[4,7],[5,6]$
-	
-	        no 3
-	
-	        $[1,9],[2,8],[4,7],[5,6]$
-	
-	        no 4
-	
-	        $[1,9],[2,8],[3,7],[5,6]$
-	
-	        no 5
-	
-	        $[1,9],[2,8],[3,7],[4,6]$
-	
-	        你可以發現到從 1~5 慢慢的從左到右每個 pair 的總和都少了 1
-
-
+	    
         > ref : <https://blog.csdn.net/C20181220_xiang_m_y/article/details/102564783>
         
     ??? note "code"
