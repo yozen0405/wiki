@@ -42,6 +42,129 @@
 
 !!! warning "TLE 有可能是二分搜壞掉導致, 可能一開始推導時有誤"
 
+## 第 k 小
+
+令 k 為 0-base，我們都是去找最大的 threshold t 滿足「小於」 t 的個數 <= k
+
+???+note "[CF EDU A. K-th Number in the Union of Segments](https://codeforces.com/edu/course/2/lesson/6/5/practice/contest/285084/problem/A)"
+	有一個 multiset，$n$ 次 insert $l_i,\ldots ,r_i$ 進去，問 multiset 第 $k$ 小的數字（$k$ 為 0-base）　
+	
+	$n\le 50,0\le k\le 2\times 10^9,-2\cdot 10^9 \le l_i \le r_i \le 2\cdot 10^9$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#pragma GCC optimize("O3,unroll-loops")
+	    #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
+	
+	    #include <bits/stdc++.h>
+	    #define pb push_back
+	
+	    using namespace std;
+	    using ll = long long;
+	
+	    struct Interval {
+	        int l, r;
+	    };
+	
+	    int n, k;
+	    vector<Interval> intervals;
+	
+	    bool check(ll t) {
+	        ll cnt = 0;
+	        for (auto &[l, r] : intervals) {
+	            if (t > r) {
+	                cnt += r - l + 1;
+	            } else if (t > l) {
+	                cnt += (ll)t - l;
+	            }
+	        }
+	
+	        return cnt <= k;
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> n >> k;
+	        for (int i = 0; i < n; i++) {
+	            int l, r;
+	            cin >> l >> r;
+	            intervals.pb({l, r});
+	        }
+	
+	        ll l = -3e9, r = 3e9;
+	        // 找到最大的 x 滿足小於 x 的個數 <= k
+	        while (r - l > 1) {
+	            ll mid = (l + r) / 2;
+	            if (check(mid)) l = mid;
+	            else r = mid;
+	        }
+	        cout << l << '\n';
+	    } 
+	    ```
+
+???+note "[CF EDU C. K-th Sum](https://codeforces.com/edu/course/2/lesson/6/5/practice/contest/285084/problem/C)"
+	給長度為 $n$ 的兩個陣列 $a,b$，問將所有 $(i,j)$ 的 $a_i+b_j$ 列出來後第 $k$ 小是多少
+	
+	$n\le 10^5,1\le k\le n^2$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        int n, k;
+        int a[maxn], b[maxn];
+
+        bool check(int x) {
+            // 求 < x 的數字有幾個
+            int cnt = 0;
+            int j = n;
+            for (int i = 1; i <= n; i++) {
+                while (1 <= j && a[i] + b[j] >= x) {
+                    j--;
+                }
+                cnt += j;
+            }
+
+            return cnt <= k;
+        }
+
+        signed main() {
+            cin >> n >> k;
+            k--;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+            }
+            for (int i = 1; i <= n; i++) {
+                cin >> b[i];
+            }
+            sort(a + 1, a + n + 1); sort(b + 1, b + n + 1);
+            // 找到最大的 x 滿足小於 x 的個數 <= k
+
+            int l = 1, r = 1e11;
+            while (r - l > 1) {
+                int mid = (l + r) / 2;
+                if (check(mid)) l = mid;
+                else r = mid;
+            }
+            cout << l << '\n';
+        } 
+        ```
+	
+
 ???+note "[CF 1853 C. Ntarsis' Set](https://codeforces.com/contest/1853/problem/C)"
 	給一個包含 $1,2,\ldots ,10^{1000}$ 所有數字的 Set $S$，每天從 $S$ **同時**移除第 $a_1,a_2,\ldots ,a_n$ 個數字，問 $k$ 天之後 $S$ 中最小的數字是多少
 	
@@ -125,68 +248,12 @@
 	    }
 		```
 
-???+note "[CF EDU A. K-th Number in the Union of Segments](https://codeforces.com/edu/course/2/lesson/6/5/practice/contest/285084/problem/A)"
-	有一個 multiset，$n$ 次 insert $l_i,\ldots ,r_i$ 進去，問 multiset 第 $k$ 小的數字（$k$ 為 0-base）　
-	
-	$n\le 50,0\le k\le 2\times 10^9,-2\cdot 10^9 \le l_i \le r_i \le 2\cdot 10^9$
-	
-	??? note "code"
-		```cpp linenums="1"
-		#pragma GCC optimize("O3,unroll-loops")
-	    #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
-	
-	    #include <bits/stdc++.h>
-	    #define pb push_back
-	
-	    using namespace std;
-	    using ll = long long;
-	
-	    struct Interval {
-	        int l, r;
-	    };
-	
-	    int n, k;
-	    vector<Interval> intervals;
-	
-	    bool check(ll t) {
-	        ll cnt = 0;
-	        for (auto &[l, r] : intervals) {
-	            if (t > r) {
-	                cnt += r - l + 1;
-	            } else if (t > l) {
-	                cnt += (ll)t - l;
-	            }
-	        }
-	
-	        return cnt <= k;
-	    }
-	
-	    signed main() {
-	        ios::sync_with_stdio(0);
-	        cin.tie(0);
-	        cin >> n >> k;
-	        for (int i = 0; i < n; i++) {
-	            int l, r;
-	            cin >> l >> r;
-	            intervals.pb({l, r});
-	        }
-	
-	        ll l = -3e9, r = 3e9;
-	        // 找到第一個 x 滿足小於 x 的個數 <= k
-	        while (r - l > 1) {
-	            ll mid = (l + r) / 2;
-	            if (check(mid)) l = mid;
-	            else r = mid;
-	        }
-	        cout << l << '\n';
-	    } 
-	    ```
-	    
+
 ???+note "[CF 1856 C. To Become Max](https://codeforces.com/contest/1856/problem/C)"
 	給一個長度為 $n$ 的序列 $a$，你能做以下操作至多 $k$ 次，並輸出 $\max(a_1, a_2, \ldots a_n)$ 最大能到多少 :
 	
 	- 選一個 index $i$ 滿足 $1\le i \le n - 1$ 且 $a_{i}\le a_{i+1}$，將 $a_i$ 加 $1$
-
+	
 	$2\le n\le 1000,1\le k\le 10^8,1\le a_i \le 10^8$
 	
 	??? note "思路"
@@ -197,61 +264,61 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        int n, k;
-        int a[maxn];
-
-        bool check(int x) {
-            for (int i = 0; i < n; i++) {
-                int t = x, cnt = 0;
-                for (int j = i; j < n; j++) {
-                    if (a[j] >= t) {
-                        return true;
-                    }
-                    cnt += (t - a[j]);
-                    if (cnt > k) {
-                        break;
-                    }
-                    t--;
-                }
-            }
-            return false;
-        }
-
-        void solve() {
-            cin >> n >> k;
-            for (int i = 0; i < n; i++) {
-                cin >> a[i];
-            }
-            int mx = *max_element(a, a + n);
-
-            int l = mx, r = mx + k + 1;
-            while (r - l > 1) {
-                int mid = (l + r) / 2;
-                if (check(mid)) l = mid;
-                else r = mid;
-            }
-            cout << l << '\n';
-        }
-
-        signed main() {
-            int t = 1;
-            cin >> t;
-            while (t--) {
-                solve();
-            }
-        } 
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, k;
+	    int a[maxn];
+	
+	    bool check(int x) {
+	        for (int i = 0; i < n; i++) {
+	            int t = x, cnt = 0;
+	            for (int j = i; j < n; j++) {
+	                if (a[j] >= t) {
+	                    return true;
+	                }
+	                cnt += (t - a[j]);
+	                if (cnt > k) {
+	                    break;
+	                }
+	                t--;
+	            }
+	        }
+	        return false;
+	    }
+	
+	    void solve() {
+	        cin >> n >> k;
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	        }
+	        int mx = *max_element(a, a + n);
+	
+	        int l = mx, r = mx + k + 1;
+	        while (r - l > 1) {
+	            int mid = (l + r) / 2;
+	            if (check(mid)) l = mid;
+	            else r = mid;
+	        }
+	        cout << l << '\n';
+	    }
+	
+	    signed main() {
+	        int t = 1;
+	        cin >> t;
+	        while (t--) {
+	            solve();
+	        }
+	    } 
 		```

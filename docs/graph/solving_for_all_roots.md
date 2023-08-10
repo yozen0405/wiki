@@ -364,3 +364,44 @@
 	        }
 	    } 
 	    ```
+
+???+note "[CF 708 C. Centroids](https://codeforces.com/problemset/problem/708/C)"
+	給你一棵 $n$ 個點的樹，對於每個點，在可以修改一條邊的前提下，能否讓這個點成為樹重心
+	
+	$n\le 4\times 10^5$
+	
+	??? note "思路"
+	
+        以 u 為根的話，最多只會有一個 subtree 的 size > n/2
+
+        所以我們進行換根 dp，分別考慮 subtree 在 v 下面(含 v)，與上面
+
+        在下面的 case 只要看有沒有 v(含 v) 下面的 subtree 的 size ≤ n / 2，我們取最大的，叫做 max_sz[u]
+
+        若有 sz[v] ≥ n / 2，看看有沒有符合 sz[v] - max_sz[v] ≤ n / 2
+
+        max_sz[u]: u 下面 size ≤ n / 2 且最大的
+
+        當 dfs(u → v) 的時候，上面的就有分兩種 case:
+
+        - case1: 把連著 u 的整塊都拔掉
+            - n - sz[v]
+
+        - case2: 將除了 u 以外，u 以下的拔掉
+            - n - sz[v] - max(pre[i - 1], suf[i + 1])
+
+        最後就檢查是否上，下都合法即可
+
+        > 參考 : [CSDN 題解](https://blog.csdn.net/Miracle_ma/article/details/52317440?spm=1001.2101.3001.6650.13&utm_medium=distribute.wap_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-13-52317440-blog-121302860.237%5Ev3%5Ewap_relevant_t0_download&depth_1-utm_source=distribute.wap_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-13-52317440-blog-121302860.237%5Ev3%5Ewap_relevant_t0_download)
+        
+## 其餘的題單
+
+- CF 1187 E. Tree Painting
+
+- CF 1092 F. Tree with Maximum Cost
+
+- CF 1324 F. Maximum White Subtree
+
+- CF 219 D. Choosing Capital for Treeland
+
+- CF 149 D. Coloring Brackets

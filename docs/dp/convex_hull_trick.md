@@ -316,93 +316,93 @@ $L_1$ 表示當前斜率次大的直線，$L_2$ 表示當前斜率次大的直�
 	給 $n$ 個怪獸，你必須打敗第 $n$ 隻怪獸才能贏。打敗第 $i$ 隻怪獸會花 $s_i\times f_j$ 的時間，其中 $j$ 為你上次打敗的怪獸的編號，如果沒有上一隻，則 $f_j=x$。最少花多少時間可以贏
 	
 	$n\le 2\times 10^5,1\le x\le 10^6,1\le s_i,f_i\le 10^6$
-
+	
 	??? note "code"
 		```cpp linenums="1"
 		#include <algorithm>
-        #include <iostream>
-        #include <vector>
-
-        using namespace std;
-
-        #define int long long
-
-        struct Line {
-            int a, b;
-            int operator()(int x) const {
-                return a * x + b;
-            }
-        };
-
-        struct LineContainer {
-            static constexpr int LIMIT = 1e6;
-            static constexpr int SIZE = LIMIT * 4;
-            static const int INF = 1e18;
-
-            vector<int> lo = vector<int>(SIZE);
-            vector<int> hi = vector<int>(SIZE);
-            vector<Line> seg = vector<Line>(SIZE, {0, INF});
-
-            void build(int i = 1, int l = 1, int r = LIMIT) {
-                lo[i] = l;
-                hi[i] = r;
-                if (l == r) return;
-                int mid = (l + r) / 2;
-                build(2 * i, l, mid);
-                build(2 * i + 1, mid + 1, r);
-            }
-            void insert(Line L, int i = 1) {
-                int l = lo[i], r = hi[i];
-                if (l == r) {
-                    if (L(l) < seg[i](l)) seg[i] = L;
-                    return;
-                }
-
-                int mid = (l + r) / 2;
-                if (seg[i].a < L.a) swap(seg[i], L);
-                if (seg[i](mid) > L(mid)) {
-                    swap(seg[i], L);
-                    insert(L, 2 * i);
-                } else {
-                    insert(L, 2 * i + 1);
-                }
-            }
-            int query(int x, int i = 1) {
-                int l = lo[i], r = hi[i];
-                if (l == r) return seg[i](x);
-
-                int mid = (l + r) / 2;
-                if (x <= mid) {
-                    return min(seg[i](x), query(x, 2 * i));
-                } else {
-                    return min(seg[i](x), query(x, 2 * i + 1));
-                }
-            }
-        };
-
-        int solve(int n, int x, const vector<int> &s, const vector<int> &f) {
-            LineContainer ds;
-            ds.build();
-            ds.insert({x, 0});
-            for (int i = 0; i < n - 1; i++) {
-                int v = ds.query(s[i]);
-                ds.insert({f[i], v});
-            }
-            return ds.query(s[n - 1]);
-        }
-
-        signed main() {
-            cin.tie(0);
-            cin.sync_with_stdio(0);
-
-            int n, X;
-            cin >> n >> X;
-
-            vector<int> s(n), f(n);
-            for (int i = 0; i < n; i++) cin >> s[i];
-            for (int i = 0; i < n; i++) cin >> f[i];
-
-            int ans = solve(n, X, s, f);
-            cout << ans << '\n';
-        }
-        ```
+	    #include <iostream>
+	    #include <vector>
+	
+	    using namespace std;
+	
+	    #define int long long
+	
+	    struct Line {
+	        int a, b;
+	        int operator()(int x) const {
+	            return a * x + b;
+	        }
+	    };
+	
+	    struct LineContainer {
+	        static constexpr int LIMIT = 1e6;
+	        static constexpr int SIZE = LIMIT * 4;
+	        static const int INF = 1e18;
+	
+	        vector<int> lo = vector<int>(SIZE);
+	        vector<int> hi = vector<int>(SIZE);
+	        vector<Line> seg = vector<Line>(SIZE, {0, INF});
+	
+	        void build(int i = 1, int l = 1, int r = LIMIT) {
+	            lo[i] = l;
+	            hi[i] = r;
+	            if (l == r) return;
+	            int mid = (l + r) / 2;
+	            build(2 * i, l, mid);
+	            build(2 * i + 1, mid + 1, r);
+	        }
+	        void insert(Line L, int i = 1) {
+	            int l = lo[i], r = hi[i];
+	            if (l == r) {
+	                if (L(l) < seg[i](l)) seg[i] = L;
+	                return;
+	            }
+	
+	            int mid = (l + r) / 2;
+	            if (seg[i].a < L.a) swap(seg[i], L);
+	            if (seg[i](mid) > L(mid)) {
+	                swap(seg[i], L);
+	                insert(L, 2 * i);
+	            } else {
+	                insert(L, 2 * i + 1);
+	            }
+	        }
+	        int query(int x, int i = 1) {
+	            int l = lo[i], r = hi[i];
+	            if (l == r) return seg[i](x);
+	
+	            int mid = (l + r) / 2;
+	            if (x <= mid) {
+	                return min(seg[i](x), query(x, 2 * i));
+	            } else {
+	                return min(seg[i](x), query(x, 2 * i + 1));
+	            }
+	        }
+	    };
+	
+	    int solve(int n, int x, const vector<int> &s, const vector<int> &f) {
+	        LineContainer ds;
+	        ds.build();
+	        ds.insert({x, 0});
+	        for (int i = 0; i < n - 1; i++) {
+	            int v = ds.query(s[i]);
+	            ds.insert({f[i], v});
+	        }
+	        return ds.query(s[n - 1]);
+	    }
+	
+	    signed main() {
+	        cin.tie(0);
+	        cin.sync_with_stdio(0);
+	
+	        int n, X;
+	        cin >> n >> X;
+	
+	        vector<int> s(n), f(n);
+	        for (int i = 0; i < n; i++) cin >> s[i];
+	        for (int i = 0; i < n; i++) cin >> f[i];
+	
+	        int ans = solve(n, X, s, f);
+	        cout << ans << '\n';
+	    }
+	    ```

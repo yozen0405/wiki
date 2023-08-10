@@ -19,7 +19,7 @@ $\text{mex}(S)$ : 回傳最小沒有出現在集合 $S$ 的非負整數
         for (int x : a) {
             if (x <= n) v[x] = true;
         }
-
+    
         for (int i = 0; i <= n; i++) {
             if (v[i] == false) return i;
         }
@@ -27,15 +27,190 @@ $\text{mex}(S)$ : 回傳最小沒有出現在集合 $S$ 的非負整數
     }
     ```
 
+???+note "模版測試 [YOJ 1376. Mex](http://infor.ylsh.ilc.edu.tw/problem/1376)"
+	給你一個長度為 $n$ 陣列 $a_1,a_2,\ldots ,a_n$，請你求出 $\text{mex}(\{a_1,a_2,\ldots ,a_n\})$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        int mex(vector<int>& a) {
+            int n = a.size();
+
+            vector<bool> v(n + 1, false);
+            for (int x : a) {
+                if (x <= n) {
+                    v[x] = true;
+                }
+            }
+
+            for (int i = 0; i <= n; i++) {
+                if (v[i] == false) return i;
+            }
+            return -1;
+        }
+
+        signed main() {
+            int n;
+            cin >> n;
+
+            vector<int> a(n);
+            for (int i = 0; i < n; i++) {
+                cin >> a[i];
+
+            }
+            cout << mex(a) << '\n';
+        } 
+        ```
+	
 ## 例題
 
-???+note "[CSES - Missing Number](https://cses.fi/problemset/task/1083)"
+???+note "區間 mex [洛谷 P4137](https://www.luogu.com.cn/problem/P4137)"
+	給一個長度為 n 的序列 $a_1,\ldots ,a_n$，有 $q$ 筆詢問 :
+	
+	- $\text{mex}(\{a_l,\ldots ,a_r\}):$ 回傳最小沒有出現在 $\{a_l,\ldots ,a_r\}$ 的非負整數
 
-???+note "[洛谷 P4137](https://www.luogu.com.cn/problem/P4137)"
+	$n,q\le 2\times 10^5$
+	
+	??? note "思路"
+		離線處理，將 query 按照 $l_i$ 小到大 sort
+		
+		我們開一顆值域線段樹第 i 項紀錄 i 在當前離線的左界後第一次出現的位置
+		
+		我們就只要在線段樹上二分到最小的 i 使 max(0, i) > r
+		
+		複雜度 O((n + q) log n)
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
 
-???+note "[IOIC p.52]()"
+        using namespace std;
 
-???+note "[ionc區間mex]()"
+        const int INF = 2e18;
+        const int maxn = 2e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Node {
+            Node *lc = nullptr;
+            Node *rc = nullptr;
+            int l, r;
+            int mx;
+            Node(int l, int r) : l(l), r(r) {}
+
+            void pull() {
+                mx = max(lc->mx, rc->mx);
+            }
+        };
+
+        Node* build(int l, int r) {
+            Node *root = new Node(l, r);
+            if (l == r) {
+                root->mx = INF;
+                return root;
+            }
+            int mid = (l + r) / 2;
+            root->lc = build(l, mid);
+            root->rc = build(mid + 1, r);
+            root->pull();
+            return root;
+        }
+
+        void update(Node* root, int pos, int val) {
+            if (root->l == root->r) {
+                root->mx = val;
+                return;
+            }
+            if (pos <= root->lc->r) {
+                update(root->lc, pos, val);
+            } else {
+                update(root->rc, pos, val);
+            }
+            root->pull();
+            return;
+        }
+
+        int walk(Node *root, int val) {
+            if (root->l == root->r) {
+                return root->l;
+            }
+            if (root->lc->mx > val) {
+                return walk(root->lc, val);
+            } else {
+                return walk(root->rc, val);
+            }
+        }
+
+        struct Queries {
+            int l, r, id;
+
+            bool operator<(const Queries &rhs) const {
+                return l < rhs.l;
+            }
+        };
+
+        int n, q;
+        int a[maxn], ans[maxn], ptr[maxn];
+        vector<int> pos[maxn];
+
+        signed main() {
+            cin >> n >> q;
+            Node *root = build(0, maxn);
+            for (int i = 0; i < n; i++) {
+                cin >> a[i];
+                if (pos[a[i]].empty()) {
+                    update(root, a[i], i);
+                }
+                pos[a[i]].pb(i);
+            }
+
+            vector<Queries> queries;
+            for (int i = 0; i < q; i++) {
+                int l, r;
+                cin >> l >> r;
+                l--, r--;
+                queries.pb({l, r, i});
+            }
+            sort(ALL(queries));
+
+            int prel = 0;
+            for (auto [l, r, id] : queries) {
+                while (prel < l) {
+                    if (ptr[a[prel]] + 1 <= pos[a[prel]].size() - 1) {
+                        ptr[a[prel]]++;
+                        update(root, a[prel], pos[a[prel]][ptr[a[prel]]]);
+                    } else {
+                        update(root, a[prel], INF);
+                    }
+                    prel++;
+                }
+                ans[id] = walk(root, r);
+            }
+            for (int i = 0; i < q; i++) {
+                cout << ans[i] << '\n';
+            }
+        } 
+        ```
 
 ???+note "[2022 花中一模 pE]()"
 	

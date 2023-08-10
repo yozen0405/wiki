@@ -90,14 +90,137 @@
 		
 		> 法 3 : 優化法 2
 		
-		此方法實測是不能通過的，只是一個想法
-		
 		開 $n$ 個 vector，`v[i]` 放所有 degree = i 的點
 		
-		每次更新 degree 就不管 `v[deg[i]]`，直接 push 一個到 `v[deg[i]--]`
-		
-		複雜度 : $O(n+m)$
+		??? code "Data structure"
+			```cpp linenums="1"
+			struct DS {
+                vector<vector<int>> nodes;
+                int n, threshold = 0;
 
+                DS(int n) : n(n) {
+                    nodes.resize(n + 1);
+                }
+
+                void push(int u) {
+                    nodes[max(threshold, deg[u])].pb(u);
+                }
+
+                int get_min(int u) {
+                    while (threshold <= n && nodes[threshold].empty()) {
+                        threshold++;
+                    }
+
+                    if (threshold <= n && nodes[threshold].size()) {
+                        int ret = nodes[threshold].back();
+                        nodes[threshold].pop_back();
+                        return ret;
+                    } 
+                    assert(0);
+                }
+            } pq;
+            ```
+        
+		複雜度 : $O(n+m)$
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 5e5 + 5;
+        const int M = 1e9 + 7;
+
+        int n, m;
+        vector<int> G[maxn];
+        int deg[maxn], vis[maxn], ans[maxn];
+
+        struct DS {
+            vector<vector<int>> nodes;
+            int n, threshold = 0;
+
+            DS(int n) : n(n) {
+                nodes.resize(n + 1);
+            }
+
+            void push(int u) {
+                nodes[max(threshold, deg[u])].pb(u);
+            }
+
+            int get_min() {
+                while (threshold <= n && nodes[threshold].empty()) {
+                    threshold++;
+                }
+
+                if (threshold <= n && nodes[threshold].size()) {
+                    int ret = nodes[threshold].back();
+                    nodes[threshold].pop_back();
+                    return ret;
+                } 
+                assert(0);
+            }
+        };
+
+        void solve() {
+            DS ds(n);
+            for (int i = 0; i < n; i++) {
+                ds.push(i);
+            }
+            for (int i = 0; i < n; i++) {
+                int u = ds.get_min();
+                while (vis[u]) {
+                    u = ds.get_min();
+                }
+                vis[u] = true;
+                for (auto v : G[u]) {
+                    deg[v]--;
+                    ds.push(v);
+                }
+            }
+            cout << ds.threshold << '\n';
+        }
+
+        void init() {
+            cin >> n >> m;
+            for (int i = 0; i < n; i++) {
+                G[i].clear();
+                deg[i] = 0;
+                vis[i] = 0;
+                ans[i] = 0;
+            }
+            for (int i = 0; i < m; i++) {
+                int u, v;
+                cin >> u >> v;
+                ans[min(u, v)]++;
+                G[u].pb(v);
+                G[v].pb(u);
+                deg[u]++;
+                deg[v]++;
+            }
+            cout << *max_element(ans, ans + n) << ' ';
+        }
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            int t = 1;
+            cin >> t;
+            while (t--) {
+                init();
+                solve();
+            }
+        } 
+        ```
+		
 ???+note "[2017 全國賽 p5](https://tioj.ck.tp.edu.tw/problems/2038)"
 	給你一張 $n$ 點 $m$ 邊無向圖，選一些點 ( 我們把這個點集合叫做 $S$ )，$S$ 內的點必須連通
 	
@@ -256,4 +379,4 @@
         ```
 
 
-	
+​	

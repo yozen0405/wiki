@@ -341,6 +341,89 @@ __builtin_ctz(x)
 	
 		複雜度 $O(\frac{n\log W\times W}{64})$
 
+???+note "Decide if a number equals the sum of some submultiset of positive integers"
+	給 $w_1,\ldots ,w_k$，$\sum \limits_{i=1}^k w_i=n$，問是否能選一些 $w_i$ 使 $\sum w_i = x$
+	
+	??? note "思路"
+		如果直接暴力用 01 背包做的話就是 $O(nk)$
+		
+		我們其實可以將問題整理成有限背包的模式 :
+		
+		給一些 $w_i,c_i$，其中 $\sum w_i\times c_i=n$，問是否能湊到 $x$
+				
+		我們將這些物品的 $c_i$ 用二進制拆解成 $\log(c_i)$ 個，所以我們這邊可以依照 $2$ 的冪次一樣的一起考慮複雜度
+		
+		當考慮 $c_i\ge 2^0$，也就是每種物品都只用一個 $w_i$，因為同一 $w_i$ 不會出現一次以上，所以最多只有 $\sqrt{n}$ 種 $w_i$（也就是 $w_i$ 的集合是 $1+2+\ldots + \sqrt{n}=n$），複雜度 O(轉移時間 * 轉移次數)$=O(n\times \sqrt{n})$
+		
+		當考慮 $c_i\ge 2^1$，也就是每種物品都用兩個 $w_i$，因為同一 $w_i$ 不會出現一次以上，所以最多只有 $\sqrt{\frac{n}{2}}$ 種 $w_i$（也就是 $w_i$ 的集合是 $2+4+\ldots + =n\Rightarrow 1+2+\ldots +\sqrt{\frac{n}{2}}=\frac{n}{2}$），複雜度 $O(n\times \sqrt{\frac{n}{2}})$
+		
+		以此類推，所以我們可以列出
+		
+		$$
+		\begin{align}
+		n \cdot \left( \sqrt{\frac{n}{1}} + \sqrt{\frac{n}{2}} + \sqrt{\frac{n}{4}} + \sqrt{\frac{n}{8}} + \ldots \right) = \\ n \sqrt n \cdot \left(1 + \frac{1}{\sqrt{2}} + \frac{1}{\sqrt{4}} + \frac{1}{\sqrt{8}} + \ldots \right)
+		\end{align}
+		$$
+		
+		後面括號裡面的總和可以用無窮等比級數公式套上 $=\frac{\sqrt{2}}{\sqrt{2} - 1} \le 4$，所以總複雜度為
+		
+		$$
+		\le n\sqrt{n}\times 4=O(n\sqrt{n})
+		$$
+		
+		可以在用 bitset 加速轉移，所以複雜度是 $O(\frac{n\sqrt{n}}{64})$
+	
+	??? note "紀錄"
+		[BOI 2015 Tug of War](https://www.luogu.com.cn/problem/P4733), [CF 1856 E2. PermuTree (hard version)](https://codeforces.com/contest/1856/problem/E2) 都有用到類似的技巧，思路有部分是參考 CF 那題的題解
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bitset>
+        #include <iostream>
+        #include <vector>
+
+        using namespace std;
+
+        bitset<10000> B;
+
+        void solve(vector<int> vec) {
+            B[0] = true;
+
+            for (int x : vec) {
+                B |= (B << x);
+            }
+        }
+
+        int main() {
+            vector<int> w = {2, 4, 9};
+            vector<int> cnt = {3, 5, 4};
+
+            vector<int> vec;
+            for (int i = 0; i < (int)w.size(); i++) {
+                int k = 1;
+                while (k < cnt[i]) {
+                    vec.push_back(w[i] * k);
+                    cnt[i] -= k;
+                    k *= 2;
+                }
+                if (k > 0) {
+                    vec.push_back(w[i] * k);
+                }
+                /*
+                slow version
+                for (int j = 0; j < cnt[i]; j++) {
+                    vec.push_back(w[i]);
+                }
+                */
+            }
+
+            solve(vec);  // 01 背包
+            cout << B << '\n';
+
+            return 0;
+        }
+        ```
+	
 ### 習題
 
 ???+note "[CF 1854 B. Earn or Unlock](https://codeforces.com/contest/1854/problem/B)"

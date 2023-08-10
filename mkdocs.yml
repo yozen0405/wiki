@@ -169,6 +169,7 @@ nav:
         - 前綴和技巧: 'ds/prefix.md'
         - 單調隊列: 'ds/monotonous-stack.md'
         - BIT: 'ds/bit.md'
+        - Sparse Table: 'ds/sparse_table.md'
         - pb_ds: 'ds/pb_ds.md'
         - 題目: 'ds/problem.md'
       - 進階資料結構 II:
@@ -216,6 +217,7 @@ nav:
         - Sirpinski Triangle: 'math/sirpinski_triangle.md'
         - 數論: 
           - 因數: 'math/facts.md'
+          - 歐拉函數: 'math/phi.md'
           - 模運算: 'math/mod.md'
           - 中國剩餘定理: 'math/crt.md'
         - 特定數:
