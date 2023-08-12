@@ -110,7 +110,7 @@ extra_javascript:
 
 nav:
     - 首頁: 
-        - 總攬: 'index.md'
+        - 總覽: 'index.md'
         - 網站架設 : 
           - 語法教學: 'main/syntax.md'
           - 架設教學: 'main/setup.md'
