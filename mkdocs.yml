@@ -162,6 +162,7 @@ nav:
       - 隨機演算法:
         - 隨機: 'search/randomize_algo.md'
     - 資料結構:
+      - 概述: 'ds/index.md'
       - 基礎資料結構:
         - bitset加速: 'ds/bitset.md'
       - 進階資料結構 I:
@@ -243,6 +244,7 @@ nav:
         - 分治優化: 'dp/D&C.md'
         - 斜率優化: 'dp/convex_hull_trick.md'
         - 四邊形優化: 'dp/quadrangle.md'
+        - Aliens 優化: 'dp/aliens.md'
         - SOS優化: 'dp/sos.md'
     - 字串:
       - Hash: 'string/hashing.md'

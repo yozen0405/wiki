@@ -695,108 +695,8 @@
 	$n,k\le 5000,m\le 10^5,w_i\le 10^5$
 	
 	??? note "思路"
-	    根據 Aliens 優化，我們將跟點 $1$ 連接的邊的邊權都加上一個權值 $t$，二分搜這個 $t$ 直到恰好選擇 $k$ 條度數，其中 $t$ 可以正或負且可為小數
-	    
-	??? note "code"
-		```cpp linenums="1"
-		#include <algorithm>
-	    #include <cstdlib>
-	    #include <iostream>
-	    #include <vector>
-	
-	    #define int long long
-	    #define double long double
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    using namespace std;
-	
-	    struct Edge {
-	        int u, v;
-	        double w;
-	        int id;
-	    };
-	
-	    const int INF = 2e18;
-	    const int maxn = 2e5 + 5;
-	    int n, m, k, par[maxn];
-	    double ans;
-	    vector<int> ret;
-	    vector<Edge> E;
-	
-	    int find(int x) {
-	        if (par[x] == x)
-	            return x;
-	        else
-	            return par[x] = find(par[x]);
-	    }
-	
-	    void merge(int a, int b) {
-	        int x = find(a), y = find(b);
-	        par[x] = y;
-	    }
-	
-	    void init() {
-	        cin >> n >> m >> k;
-	        int u, v, w;
-	        for (int i = 0; i < m; i++) {
-	            cin >> u >> v >> w;
-	            E.pb({u, v, 1.0 * w, i + 1});
-	        }
-	    }
-	
-	    int check(double w, int isAns) {
-	        for (int i = 1; i <= n; i++) par[i] = i;
-	        vector<Edge> Eg;
-	        for (int i = 0; i < m; i++) {
-	            if (E[i].u == 1 || E[i].v == 1)
-	                Eg.pb({E[i].u, E[i].v, E[i].w + w, E[i].id});
-	            else
-	                Eg.pb(E[i]);
-	        }
-	
-	        sort(Eg.begin(), Eg.end(), [](Edge a, Edge b) { return a.w < b.w; });
-	        double res = 0;
-	        int cnt = 0;
-	        for (int i = 0; i < m; i++) {
-	            if (find(Eg[i].u) != find(Eg[i].v)) {
-	                merge(Eg[i].u, Eg[i].v);
-	                if (isAns) ret.pb(Eg[i].id);
-	                if (Eg[i].u == 1 || Eg[i].v == 1) cnt++;
-	                res += Eg[i].w;
-	            }
-	        }
-	        ans = res - cnt * w;
-	        if (isAns) return cnt == k;
-	        return cnt >= k;
-	    }
-	
-	    void solve() {
-	        double l = -INF, r = INF;
-	        for (int i = 0; i < 200; i++) {
-	            double mid = (l + r) / 2;
-	            if (check(mid, 0)) {  // 選太多邊 -> w 上升
-	                l = mid;
-	            } else {  // cnt < k
-	                r = mid;
-	            }
-	        }
-	        int tmp = check(l, 1);
-	        if (!tmp) {
-	            cout << -1 << '\n';
-	            exit(0);
-	        }
-	        cout << ret.size() << "\n";
-	        sort(ret.begin(), ret.end());
-	        for (auto ele : ret) cout << ele << " ";
-	    }
-	
-	    signed main() {
-	        init();
-	        solve();
-	    }
-	    ```
+	    見 <a href="/wiki/dp/aliens" target="_blank">Aliens 優化</a>
+
 
 ???+note "[LeetCode 1579. Remove Max Number of Edges to Keep Graph Fully Traversable](https://leetcode.com/problems/remove-max-number-of-edges-to-keep-graph-fully-traversable/)"
     給一張 $n$ 個點 $m$ 邊無向圖，邊有三種 type ：
@@ -1783,7 +1683,7 @@ Kruskal 複雜度的瓶頸在於 sort，在某些題目我們可以使用 Radix 
 	    }
 	    ```
 
-### Prim 變化
+### Incremental
 
 ???+note "經典題"
 	給定一個 $n$ 點 $m$ 邊的帶權無向圖，從 $s\to t$ 最大邊權最小可以是多少
@@ -1891,17 +1791,108 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define ALL(x) x.begin(), x.end()
+	    #define int long long
+	    #define pb push_back
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    struct DSU {
+	        vector<int> par, sz;
+	
+	        DSU (int n = 0) : par(n), sz(n, 1) {
+	            for (int i = 0; i < n; i++) {
+	                par[i] = i;
+	            }
+	        }
+	        int find (int x) {
+	            if (par[x] == x) return x;
+	            return par[x] = find(par[x]);
+	        }
+	        bool merge (int u, int v) {
+	            u = find(u), v = find(v);
+	            if (u == v) return false;
+	            if (sz[u] < sz[v]) swap(u, v);
+	            par[v] = u;
+	            sz[u] += sz[v];
+	            return true;
+	        }
+	    };
+	
+	    struct Edge {
+	        int u, v, w;
+	
+	        bool operator<(const Edge &rhs) const {
+	            return w < rhs.w;
+	        }
+	    };
+	
+	    int L, R;
+	    vector<Edge> edges;
+	
+	    int Kruskal() {
+	        DSU dsu(R + 1);
+	        sort(ALL(edges));
+	
+	        int ans = 0;
+	        for (auto [u, v, w] : edges) {
+	            if (dsu.find(u) != dsu.find(v)) {
+	                dsu.merge(u, v);
+	                ans += w;
+	            }
+	        }
+	        return ans;
+	    }
+	
+	    void seive() {
+	        vector<int> mn(R + 1);
+	        for(int i = 1; i <= R; i++) {
+	            for (int j = i; j <= R; j += i) {
+	                if (j >= L) {
+	                    mn[i] = j;
+	                    break;
+	                }
+	            }
+	        }
+	
+	        for(int i = 1; i <= R; i++) {
+	            for (int j = mn[i] + i; j <= R; j += i) {
+	                edges.pb({mn[i], j, mn[i] * j / i});
+	            }
+	        }
+	    }
+	
+	    signed main() {
+	        cin >> L >> R;
+	        seive();
+	        cout << Kruskal() << '\n';
+	    } 
+	    ```
 
+???+note "<a href="/wiki/graph/images/207 . NewWorld Online.html" target="_blank">2023 IOIC 207. NewWorld Online</a>"
+	給一張 $n$ 個點的圖，點有權重 $a_i$，兩點連邊的權重為 $\gcd(a_i, a_j)$，問最大 MST 
+
+	$1 \le n \le 10^5, 1 \le a_i \le 10^6$
+	
+	??? note "思路"
+		使用數論篩法技巧，每次將同一個因數的點 merge
+		
+		> 關鍵字 : JZOJ5888 GCD生成树
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
         using namespace std;
+
+        const int N = 1e6 + 5;
+        int a[N], t[N], n;
 
         struct DSU {
             vector<int> par, sz;
 
-            DSU (int n = 0) : par(n), sz(n, 1) {
-                for (int i = 0; i < n; i++) {
+            DSU (int n) : par(n + 1), sz(n + 1, 1) {
+                for (int i = 1; i <= n; i++) {
                     par[i] = i;
                 }
             }
@@ -1919,63 +1910,37 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
             }
         };
 
-        struct Edge {
-            int u, v, w;
+        signed main() {
+            cin >> n;
+            int mx = 0, ans = 0;
+            for(int i = 1; i <= n; i++) {
+                cin >> a[i];
+                mx = max(mx, a[i]);
 
-            bool operator<(const Edge &rhs) const {
-                return w < rhs.w;
-            }
-        };
-
-        int L, R;
-        vector<Edge> edges;
-
-        int Kruskal() {
-            DSU dsu(R + 1);
-            sort(ALL(edges));
-
-            int ans = 0;
-            for (auto [u, v, w] : edges) {
-                if (dsu.find(u) != dsu.find(v)) {
-                    dsu.merge(u, v);
-                    ans += w;
+                if (t[a[i]] == 0) {
+                    t[a[i]] = i; 
+                } else {
+                    ans += a[i];
                 }
             }
-            return ans;
-        }
 
-        void seive() {
-            vector<int> mn(R + 1);
-            for(int i = 1; i <= R; i++) {
-                for (int j = i; j <= R; j += i) {
-                    if (j >= L) {
-                        mn[i] = j;
-                        break;
+            DSU dsu(mx);
+            for (int i = mx; i > 0; i--) {
+                int now = 0;
+                for (int j = i; j <= mx; j += i) {
+                    if (t[j] == 0) continue;
+                    if (now == 0) {
+                        now = j;
+                        continue;
+                    }
+                    if (dsu.merge(now, j)) {
+                        ans += i;
                     }
                 }
             }
-
-            for(int i = 1; i <= R; i++) {
-                for (int j = mn[i] + i; j <= R; j += i) {
-                    edges.pb({mn[i], j, mn[i] * j / i});
-                }
-            }
+            cout << ans << '\n';
         }
-
-        signed main() {
-            cin >> L >> R;
-            seive();
-            cout << Kruskal() << '\n';
-        } 
         ```
-
-???+note "<a href="/wiki/graph/images/207 . NewWorld Online.html" target="_blank">2023 IOIC 207. NewWorld Online</a>"
-	給一張 $n$ 個點的圖，點有權重 $a_i$，兩點連邊的權重為 $\gcd(a_i, a_j)$，問最大 MST 
-
-	$1 \le n \le 10^5, 1 \le a_i \le 10^6$
-	
-	??? note "思路"
-		使用數論篩法技巧，每次將同一個因數的點 merge
 
 ???+note "[CF 1513 D. GCD and MST](https://codeforces.com/contest/1513/problem/D)"
 	有 $n$ 個數，每個數代表一個點，點 $i$ 和點 $i+1$ 之間都有一條權值為 $p$ 的邊，若區間 $[i,j]$ 的最小值等於它們的 $\gcd$，$i$ 和 $j$ 之間連一條區間最小值的邊，求最小生成樹
