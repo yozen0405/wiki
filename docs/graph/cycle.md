@@ -30,3 +30,20 @@ O(1) 額外空間找環
 
 就是一個人每次走一步，一個人每次走兩步，停在同一個位置就表示找到環了
 
+???+note "DFS 找環"
+	```cpp linenums="1"
+	void find_cycle(int u, int par) {
+        dfn[u] = instk[u] = true;
+        for (auto v : G[u]) {
+            if (v == par) continue;
+            if (!dfn[v]) {
+                from[v] = u;
+                find_cycle(v, u);
+            } else if (instk[v]) {
+                get_cycle(v, u);
+            }
+        }
+        instk[u] = false;
+    }
+    ```
+

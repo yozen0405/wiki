@@ -2937,7 +2937,7 @@
 	
 	??? note "思路"
 		現在有兩個點 $i$ 和 $j$ ，如果其建邊的話，最短路可能是 $1 \to i \to j \to n$ 或者 $1 \to j \to i \to n$。這樣代表的距離也就是 $dis(1\to i)+dis(j\to n)+1$ 和 $dis(1\to j)+dis(i\to n)+1$ 了。我們要取最小的，因此 $dis(1\to i)+dis(j\to n)+1<dis(1\to j)+dis(i\to n)+1$  時，才符合最短路的條件。移項後變為 $dis(1\to i) - dis(i\to n) < dis(1\to j)-dis(j\to n)$。依據 exchange argument，按照這個條件由小到大排序後，枚舉位於後面的點 $j$，然後找到點 $j$ 前面的 $dis(1\to i)$ 的最大值，這樣可以保證相加之和是最大的。最大就是之前的最短路了。最後與原圖最短路比較一下就可以了。
-	
+
 ### 難題
 
 ???+danger "[TIOJ 2049.龜兔賽跑](https://tioj.ck.tp.edu.tw/problems/2049)"
@@ -2984,6 +2984,8 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 
 ### SPFA
 
+#### 介紹
+
 全名 Shortest Path Finding Algorithm
 
 單源最短路，為 Bellman Ford 的優化版本，每回合只更新「前一回合有被鬆弛」的點相鄰的邊，實作上類似 dijkstra
@@ -2992,38 +2994,98 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 
 平均 $O(n+m)$，worst case $O(nm)$，含運氣成分
 
-??? note "SPFA code"
+#### 概念(BFS)
+
+如果上一輪某一個點的距離沒有更新,那這一輪也沒必要 relax 他。把距離有更新的節點丟進 queue 裡,然後一直拿 queue 裡的節點出來 relax。
+
+由於 BFS 處理環能力較弱，若遇到負環可能 TLE
+
+??? note "SPFA BFS code"
 	```cpp linenums="1"
-	// 如果上一輪某一個點的距離沒有更新,那這一輪也沒必要 relax 他
-	// 把距離有更新的節點丟進 queue 裡,然後一直拿 queue 裡的節點出來 relax
-	void SPFA (int start, int G) {
-        vector<int> dis(n + 1, INF);
-        vector<int> inq(n + 1, INF);
-        vector<int> cnt(n + 1);
+	bool SPFA(int s) {
+        vector<int> dis(n, INF);
+        vector<bool> inq(n);
+        vector<int> cnt(n);
+
         queue<int> q;
+        q.push(s);
+        dis[s] = 0;
+        inq[s] = true;
+
         while (q.size()) {
             int u = q.front();
             q.pop();
             cnt[u]++;
+
             if (cnt[u] == n) {
                 // negative cycle
+                return true;
             }
+
             inq[u] = false;
+
             for (auto [v, w] : G[u]) {
-                dis[u] = dis[v] + w;
-                if (!inq[v]) {
-                    inq[v] = true;
-                    q.push(v);
+				if (dis[u] + w < dis[v]) {
+                    dis[v] = dis[u] + w;
+
+                    if (!inq[v]) {
+                        inq[v] = true;
+                        q.push(v);
+                    }
                 }
             }
         }
+
+        return false;
+    }
+    ```
+
+#### 概念(DFS)
+
+如果一個 relax 操作是在 back edge 上進行的，則有負環。DFS 處理最短路能力較若弱，一般針對負環的題目[^1]。
+
+若在判斷負環的題目時，會將 dis[ ] 初始值設為 0，使一開始正權的邊沒辦法走下去，減少額外的時間。
+ 
+??? note "SPFA DFS code"
+	```cpp linenums="1"
+	int n, m;
+    int dis[maxn];
+    bool inq[maxn];
+    vector<pii> G[maxn];
+
+    bool spfa(int u) {
+        inq[u] = true;
+        for (auto [v, w] : G[u]) {
+            if (dis[u] + w < dis[v]) {
+                dis[v] = dis[u] + w;
+                if (inq[v] || spfa(v)) {
+                    return true;
+                } 
+            }
+        }
+        inq[u] = false;
+        return false;
+    } 
+
+    bool check() {
+        for (int i = 0; i < n; i++) {
+            dis[i] = 0;
+            inq[i] = false;
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (!inq[i]) {
+                if (spfa(i)) return true;
+            }
+        }
+        return false;
     }
     ```
 
 ### 題目
 
 ???+note "最小平均環 [LOJ #10084. 「一本通 3.3 练习 1」最小圈](https://loj.ac/p/10084)"
-	給一張 $n$ 點 $m$ 邊無向圖，邊有權重，定義平均環為
+	給一張 $n$ 點 $m$ 邊有向圖，邊有權重，定義平均環為
 	
 	$$\mu(C)=\displaystyle \frac{\sum w_{u,v}}{|C|}$$
 	
@@ -3043,7 +3105,83 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 		即判斷：(A1-ans)+(A2-ans)+(A3-ans)+...+(Ak-ans)<=0
 	
 		最後問題就變成了二分一個最大的 ans 滿足邊權為 w - ans 的圖不存在負環
+		
+		實作上需要使用 DFS SPFA，不然會 TLE
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
 
+        using namespace std;
+
+        const double INF = 2e18;
+        const int maxn = 3000 + 5;
+        const int M = 1e9 + 7;
+        const double EPS = 1e-10;
+
+        int n, m;
+        double dis[maxn];
+        int vis[maxn];
+        vector<pair<int, double>> G[maxn];
+
+        bool spfa(int u, double t) {
+            vis[u] = true;
+            for (auto [v, w] : G[u]) {
+                w -= t;
+                if (dis[u] + w < dis[v]) {
+                    dis[v] = dis[u] + w;
+                    if (vis[v] || spfa(v, t)) {
+                        return true;
+                    } 
+                }
+            }
+            vis[u] = false;
+            return false;
+        } 
+
+        bool check(double t) {
+            for (int i = 0; i < n; i++) {
+                dis[i] = 0;
+                vis[i] = false;
+            }
+
+            for (int i = 0; i < n; i++) {
+                if (!vis[i]) {
+                    if (spfa(i, t)) return true;
+                }
+            }
+            return false;
+        }
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            cin >> n >> m;
+
+            for (int i = 0; i < m; i++) {
+                int u, v; double w;
+                cin >> u >> v >> w;
+                u--, v--;
+                G[u].pb({v, w});
+            }
+
+            double l = -1e7, r = 1e7;
+            while(r - l > EPS) {
+                double mid = (l + r) / 2;
+                if (check(mid)) r = mid;
+                else l = mid;
+            }
+            cout << fixed << setprecision(8) << l << '\n';
+        } 
+		```
+	
 在看下面全國賽的題目前，我們先來看一道題目（與 Bellman-Ford 無關）
 
 ???+note "[LeetCode 134. Gas Station](https://leetcode.com/problems/gas-station/)"
@@ -3116,28 +3254,7 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 	$k\le n\le 2000,m\le 8000$
 	
 	??? note "思路 (from twpca)"
-		依照上面提到的正環性質，任意一個非負環必定存在一個好起點
-		
-		所以我們只需要對 $G_0$ 的邊 `*=-1` 然後去找負環即可，複雜度 $O(nm)$
-		
-		**找到負環後再求好起點**
-		
-		定義 $s$ 的前綴最小值 $α_i$ 為 $u_1$ 沿著 $C$ 走到 $u_i$ 時的最小所持金：
-		
-		$\begin{align}\alpha_i = \min_{0 \le k \le i} s(i).\end{align}$
-	
-	    類似地，我們也可以定義 $s$ 的後綴最小值 $β$：
-	
-		$\begin{align}\beta_i = \min_{i \le k \le |V(C)|} s(i).\end{align}$
-	
-	    若改變起點從 $u_x$ 開始沿著 $C$ 走一圈，可以推出所持金最小的時刻如下:
-	
-	    $u_x$ 至 $u_{|V(C)|}$ 間：$β_x - s(x - 1)$
-	    
-	    $u_1$ 至 $u_x-1$ 間：$α_{x - 1} + s(|V(C)|) - s(x - 1)$
-	    
-	    上面兩者取最小值即可求得以 $u_x$ 為起點繞 $C$ 走一圈的最小所持金
-	    由於環展開頂多只有 $n + mk$ 個節點，故這邊複雜度為 $O(n + mk)$。
+		見 twpca
 
 ## Floyd warshall 
 
@@ -3148,10 +3265,20 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 
 ??? note "算法實作"
 	```cpp linenums="1"
-	for (int k = 1; k <= n; k++) {
+	// init
+	for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (i == j) dis[i][j] = 0;
+            else if (adj[i][j] != INF) dis[i][j] = adj[i][j];
+            else dis[i][j] = INF;
+        }
+    }
+	
+	// floyd warshall
+    for (int k = 1; k <= n; k++) {
         for (int i = 1; i <= n; i++) {
             for (int j = 1; j <= n; j++) {
-                dis[i][j] = min({dis[i][j], dis[i][k] + dis[k][j]});
+                dis[i][j] = min (dis[i][j], dis[i][k] + dis[k][j]);
             }
         }
     }
@@ -3160,35 +3287,82 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 ### 最小環
 
 ???+note "[TIOJ  1212.圖論之最小圈測試](https://tioj.ck.tp.edu.tw/problems/1212)"
-	給一張 $n$ 點 $m$ 邊無向圖，找一个最小權值和的環
+	給一張 $n$ 點 $m$ 邊有向圖，找一个最小權值和的環（Girth）
 	
 	$3\le n\le 500,m\le 10^5$
 
 第一個想法是 Dijkstra，我們可以枚舉每條邊，移除該邊然後跑一次 dijkstra，更新此環的總和 $dis (u,v) + w$ 到答案，複雜度 $O(n^2\log n)$
 
-第二個想法是 Floyd warshall，Floyd warshall 有個性質，在最外層迴圈 $k$ 開始時，$dis_{i,j}$ 僅考慮是 $[1,k)$ 的最短路，我們可以利用這性質讓環成為 $dis_{i,j}+w_{i,k}+w_{k,j}$，因為環上一定有一個節點編號最大的點，故正確性足夠。	
+第二個想法是 Floyd warshall，Floyd warshall 有個性質，在最外層迴圈 $k$ 開始時，$dis_{i,j}$ 僅考慮是 $[1,k)$ 的最短路，我們可以利用這性質讓環成為 $dis_{i,j}+w(i,k)+w(k,j)$，因為環上一定有一個節點編號最大的點，故正確性足夠。	
+
+網路上有一個作法是直接將初始狀態 dis[i][i] 設為 INF，也可以 AC，但若圖改成無向圖（[洛谷 P6175 无向图的最小环问题](https://www.luogu.com.cn/problem/P6175)）就不能用了。但上面兩種做法依然可實用
 
 ??? note "實作"
 	```cpp linenums="1"
-	int solve () {
-        init : dis[i][j] = INF, dis[u][v] = w, dis[i][i] = INF
-        
+	#include <bits/stdc++.h>
+    #define int long long
+    #define pii pair<int, int>
+    #define pb push_back
+    #define mk make_pair
+    #define F first
+    #define S second
+    #define ALL(x) x.begin(), x.end()
+
+    using namespace std;
+
+    const int INF = 2e18;
+    const int maxn = 500 + 5;
+    const int M = 1e9 + 7;
+
+    int n, m;
+    int adj[maxn][maxn];
+    int dis[maxn][maxn];
+
+    int solve () {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (i == j) dis[i][j] = 0;
+                else if (adj[i][j] != INF) dis[i][j] = adj[i][j];
+                else dis[i][j] = INF;
+            }
+        }
+
         int ans = INF;
         for (int k = 1; k <= n; k++) {
             for (int i = 1; i < k; i++) {
-                for (int j = 1; j < i; j++) {
-                    if (i != j) ans = min (ans, dis[i][j] + w[i][k] + w[k][j]);
+                for (int j = 1; j < k; j++) {
+                    if (i != j) {
+                        ans = min(ans, dis[i][j] + adj[j][k] + adj[k][i]);
+                    }
                 }
             }
-    
+
             for (int i = 1; i <= n; i++) {
                 for (int j = 1; j <= n; j++) {
                     dis[i][j] = min (dis[i][j], dis[i][k] + dis[k][j]);
                 }
             }
         }
+        if (ans == INF) return 0;
         return ans;
     }
+
+    signed main() {
+        while(cin >> n >> m) {
+            if (n == 0 && m == 0) break;
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    adj[i][j] = INF;
+                }
+            }
+            for (int i = 0; i < m; i++) {
+                int u, v, w;
+                cin >> u >> v;
+                adj[u][v] = 1;
+            }
+            cout << solve() << '\n';
+        }
+    } 
     ```
 
 ???+note "[zerojudge b686. 6. 航線規劃](https://zerojudge.tw/ShowProblem?problemid=b686)"
@@ -3257,3 +3431,4 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 
 - [sprout 2023](https://www.csie.ntu.edu.tw/~sprout/algo2023/ppt_pdf/week12/graph1_inclass_tp.pdf)
 
+[^1]: 這是筆者從[中國博客](https://blog.csdn.net/Hardict/article/details/82798409)抄來的，不知道實際上實不實用。
