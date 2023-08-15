@@ -515,3 +515,9 @@
 	
 	???+note "思路"
 		ceil 除法的話是把 floor 的除法改一下變區間最大值是 1 的時候不遞迴做下去
+
+
+
+## 參考
+
+- <https://drive.google.com/file/d/1-X36kSojmhmMofC6zMLmLAt88j87ZJsn/view>
