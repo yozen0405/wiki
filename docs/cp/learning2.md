@@ -52,7 +52,7 @@
 | 名稱              | 網址                                                         |
 | ----------------- | ------------------------------------------------------------ |
 | 附中校陪簡報      | <li>[附中資培 題單 2021](https://codeforces.com/group/3Xn3T5DO0a/contests) |
-| 板中              | <li>[板中校陪](https://sites.google.com/site/pcshic/zi-xun-pei-xun) |
+| 板中              | <li>[板中校陪](https://sites.google.com/view/pcshic/%E8%B3%87%E8%A8%8A%E5%9F%B9%E8%A8%93) |
 | 建中              | <li>[2022 校陪](https://tioj.ck.tp.edu.tw/articles/27)       |
 | 北一女黑魔法      | <li>[簡介](https://hackmd.io/@hhhhaura/r1KdR5avq)<br/><li>[dp & greedy](https://slides.com/fhvirus/bm-dp-greedy)<br/><li>[Geometry](https://drive.google.com/file/d/1ZIf1yeDzheYddv5SiRI6LzsD-5PxkDlJ/view)<br/><li>[基礎圖論](https://slides.com/justinlai2003/palette) |
 | 竹科實中          | <li>[C++程式語言教學講義](https://hackmd.io/@CLKO/B18yT_i5Z)<br><li>[實中資研7th](https://hackmd.io/@nehs-iced-7th) |

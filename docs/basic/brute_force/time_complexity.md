@@ -1,3 +1,17 @@
+## 符號定義
+
+- Big O Notation $O(n)$
+	- 上界
+
+- Big Omega Notation $\Omega (n)$
+
+	- 下界
+
+- Big Theta Notation $\Theta (n)$
+
+	- 精確
+
+
 ## Master theorem
 
 $$

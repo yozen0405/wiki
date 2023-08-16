@@ -987,7 +987,27 @@
 	
 		![](https://cdn.discordapp.com/attachments/1019974733434982460/1054054354929324072/94373363-900B-4294-8ACD-0AB36BF9F20C.png)
 
+???+note "並查集生成樹"
+
 ???+note "oi wiki DSU pD"
+	
+???+note "動態維護連通性"
+	給你一張有 $n$ 個點的圖，一開始沒任何邊，有 $q$ 筆以下查詢 :
+	
+	- $\text{add}(u,v):$ 在 $u$ 跟 $v$ 之間加一條邊
+	
+	- $\text{del}(u,v):$ 拔掉邊 $(u,v)$
+	
+	- $\text{query}:$ 問有幾個 CC
+	
+	$n\le 3\times 10^5,m\le 3\times 10^5$
+	
+	??? note "思路"
+		可以想成有一個時間軸，edge(u, v) 存在的時間就是 [add, del]。
+		
+		考慮 D&C，每塊我們會記錄當前未全部涵蓋 time [l, r] 的 queries，完整包含的 [l, r] 的將會直接加入 graph 上，類似整體二分將 queries 分到 qleft, qright，或兩個都要。
+		
+		> 參考 : <https://codeforces.com/edu/course/2/lesson/7/3>
 
 ???+note "序列上的 DSU [CF 982 D. Shark](https://codeforces.com/contest/982/problem/D)"
 	給大小為 $n$ 的序列 $a_1,\ldots, a_n$。刪除大於等於 $k$ 的數字，使得其滿足以下條件： 

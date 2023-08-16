@@ -764,7 +764,7 @@
 	$n,m,k\le 10^5$
 	
 	??? note "思路"
-		首先先利用多源點 dijkstra 跑出與每個點最近的特殊點 $p_i$，與跟這個特殊點的距離 $d_i$。再來枚舉重疊邊，代表特殊點兩兩之間的權重，最後跑 dijkstra，答案記得加起始點 $1$ 與最近的特殊點的距離	
+		首先先利用多源點 dijkstra 跑出與每個點最近的特殊點 $p_i$，與跟這個特殊點的距離 $d_i$。再來枚舉重疊邊，代表特殊點兩兩之間的權重，最後跑 Kruskal，答案記得加起始點 $1$ 與最近的特殊點的距離	
 
 ???+note "[LOJ #3696. 「JOISC 2022 Day4」复兴计划](https://loj.ac/p/3696)"
 	給一張 $n$ 點 $m$ 邊帶權無向圖，有 $q$ 個詢問 :
@@ -842,7 +842,7 @@
 	$n\le 10^5, x_i, y_i \le 10^9$
 	
 	??? note "思路"
-		每個點跟周圍（$x_i$ 排序後的左右兩個點，$_i$ 排序後的左右兩個點）連邊
+		每個點跟周圍（$x_i$ 排序後的左右兩個點，$y_i$ 排序後的左右兩個點）連邊
 		
 		跑個 Kruskal
 
@@ -1882,65 +1882,65 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int N = 1e6 + 5;
-        int a[N], t[N], n;
-
-        struct DSU {
-            vector<int> par, sz;
-
-            DSU (int n) : par(n + 1), sz(n + 1, 1) {
-                for (int i = 1; i <= n; i++) {
-                    par[i] = i;
-                }
-            }
-            int find (int x) {
-                if (par[x] == x) return x;
-                return par[x] = find(par[x]);
-            }
-            bool merge (int u, int v) {
-                u = find(u), v = find(v);
-                if (u == v) return false;
-                if (sz[u] < sz[v]) swap(u, v);
-                par[v] = u;
-                sz[u] += sz[v];
-                return true;
-            }
-        };
-
-        signed main() {
-            cin >> n;
-            int mx = 0, ans = 0;
-            for(int i = 1; i <= n; i++) {
-                cin >> a[i];
-                mx = max(mx, a[i]);
-
-                if (t[a[i]] == 0) {
-                    t[a[i]] = i; 
-                } else {
-                    ans += a[i];
-                }
-            }
-
-            DSU dsu(mx);
-            for (int i = mx; i > 0; i--) {
-                int now = 0;
-                for (int j = i; j <= mx; j += i) {
-                    if (t[j] == 0) continue;
-                    if (now == 0) {
-                        now = j;
-                        continue;
-                    }
-                    if (dsu.merge(now, j)) {
-                        ans += i;
-                    }
-                }
-            }
-            cout << ans << '\n';
-        }
-        ```
+	    #define int long long
+	    using namespace std;
+	
+	    const int N = 1e6 + 5;
+	    int a[N], t[N], n;
+	
+	    struct DSU {
+	        vector<int> par, sz;
+	
+	        DSU (int n) : par(n + 1), sz(n + 1, 1) {
+	            for (int i = 1; i <= n; i++) {
+	                par[i] = i;
+	            }
+	        }
+	        int find (int x) {
+	            if (par[x] == x) return x;
+	            return par[x] = find(par[x]);
+	        }
+	        bool merge (int u, int v) {
+	            u = find(u), v = find(v);
+	            if (u == v) return false;
+	            if (sz[u] < sz[v]) swap(u, v);
+	            par[v] = u;
+	            sz[u] += sz[v];
+	            return true;
+	        }
+	    };
+	
+	    signed main() {
+	        cin >> n;
+	        int mx = 0, ans = 0;
+	        for(int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	            mx = max(mx, a[i]);
+	
+	            if (t[a[i]] == 0) {
+	                t[a[i]] = i; 
+	            } else {
+	                ans += a[i];
+	            }
+	        }
+	
+	        DSU dsu(mx);
+	        for (int i = mx; i > 0; i--) {
+	            int now = 0;
+	            for (int j = i; j <= mx; j += i) {
+	                if (t[j] == 0) continue;
+	                if (now == 0) {
+	                    now = j;
+	                    continue;
+	                }
+	                if (dsu.merge(now, j)) {
+	                    ans += i;
+	                }
+	            }
+	        }
+	        cout << ans << '\n';
+	    }
+	    ```
 
 ???+note "[CF 1513 D. GCD and MST](https://codeforces.com/contest/1513/problem/D)"
 	有 $n$ 個數，每個數代表一個點，點 $i$ 和點 $i+1$ 之間都有一條權值為 $p$ 的邊，若區間 $[i,j]$ 的最小值等於它們的 $\gcd$，$i$ 和 $j$ 之間連一條區間最小值的邊，求最小生成樹
