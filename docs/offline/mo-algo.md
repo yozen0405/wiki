@@ -194,6 +194,8 @@ codeforces 86 D
 
 ## 帶修改莫隊
 
+
+
 ???+note "[CF 940 F. Machine Learning](https://codeforces.com/problemset/problem/940/F)"
 	給一個長度為 $n$ 個陣列 $a_1,\ldots ,a_n$，有以下 $q$ 個操作 :
 	
@@ -203,16 +205,357 @@ codeforces 86 D
 	
 	$n,q\le 10^5,1\le a_i \le 10^9$
 
+???+note "[洛谷 P1903 [国家集训队] 数颜色 / 维护队列](https://www.luogu.com.cn/problem/P1903)"
+	給一個長度為 $n$ 的陣列 $a_1,\ldots ,a_n$，q 筆以下操作： 
+	
+	- 單點改值 
 
+	- 問區間 $[l, r]$ 中 distinct number 數量
 
+	$n,q\le 1.4 \times 10^5$
+	
 ## 回滾莫隊
 
+可處理加值易，刪除難的問題。一個典型的例子就是區間最值。添加時，我仍然可以只看新加進來的數，將其與目前的最值比較，但由於 ans 是單個值，一旦刪除時把最值給刪了，那麼我們就又得重新枚舉區間。
+
+回滾莫隊的思想，就是把所有刪除操作給去掉（當然，如果是添加操作不好處理，回滾莫隊則是把所有添加操作去掉）
+
+### 算法
+
+初始化 : 
+
+- L 在 block 的右端點加 1
+- R 在 block 的右端點
+- 將同一個 block 內的按照 r 小到大排序（相反則為大到小）
+
+<figure markdown>
+  ![Image title](./images/11.png){ width="500" }
+</figure>
+
+如果詢問的 ql, qr 所屬的塊相同，那麼暴力掃描區間回答詢問
+
+如果詢問的左右端點所屬的塊不同：
+
+-   不斷將 R 擴展到 qr
+-   不斷將 L 擴展到 ql
+-   回答詢問
+-   將 L rollback 回 block 的右端點加 1
+
+最後要到下一個 block 的時候，再將 R 給 rollback 回來，然後一樣初始化 L, R，...
+
+### 複雜度
+
+假設回滾莫隊的分塊大小是 $k$： 
+
+- 對於左、右端點在同一個塊內的詢問，可以在 $O(k)$ 時間內計算
+
+- 對於其他詢問，考慮左端點在相同塊內的詢問，它們的右端點單調遞增，移動右端點的時間複雜度是 $O(n)$，而左端點單次詢問的移動不超過 $k$，因為有 $\displaystyle \frac{n}{k}$ 個塊，所以總複雜度是 $\displaystyle O(qk+\frac{n^2}{k})$，取 $\displaystyle k=\frac{n}{\sqrt {q}}$ 最優，時間複雜度為 $O(n\sqrt{q})$。
+
 ???+note "[JOISC 2014 Day1 历史研究](https://loj.ac/p/2874)"
+	給一個長度為 $n$ 的陣列 $a_1,\ldots ,a_n$ 和 $q$ 筆詢問，每次詢問一個區間 $[l, r]$ 內重要度最大的數字，要求輸出其重要度。一個數字 $x$ 重要度的定義為 $x$ 乘上 $x$ 在區間內出現的次數。
 	
+	$1\le n,m\le 10^5,1\le a_i\le 10^9$
+	
+	??? note "思路"
+		回滾莫隊，過程中在 add 維護答案並更新答案，del 只維護答案（見代碼）
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Query {
+            int l, r, l_block, r_block, qid;
+
+            bool operator<(const Query &rhs) const {
+                if (l_block == rhs.l_block) {
+                    return r < rhs.r;
+                }
+                return l_block < rhs.l_block;
+            }
+        };
+
+        int n, q, k;
+        vector<int> a, b;
+        vector<Query> query;
+        int cnt[maxn], L[maxn], R[maxn], ans[maxn];
+
+        void add(int x, int &ans) {
+            cnt[x]++;
+            ans = max(ans, cnt[x] * b[x]);
+        }
+
+        void del(int x) {
+            cnt[x]--;
+        }
+
+        void init() {
+            cin >> n >> q;
+
+            a = vector<int>(n);
+            b = vector<int>(n);
+            for (int i = 0; i < n; i++) {
+                cin >> a[i];
+                b[i] = a[i];
+            }
+            sort(ALL(b));
+            b.resize(unique(ALL(b)) - b.begin());
+
+            for (int i = 0; i < n; i++) {
+                a[i] = lower_bound(ALL(b), a[i]) - b.begin();
+            }
+            k = sqrt(n);
+            int l, r;
+            for (int i = 0; i < q; i++) {
+                cin >> l >> r;
+                l--, r--;
+                query.pb({l, r, l / k, r / k, i});
+            }
+            sort(ALL(query));
+
+            // 為了方便, 先預處理好每個 block 的左右界
+            int tot = n / k;
+            for (int i = 0; i < tot; i++) {
+                L[i] = i * k;
+                R[i] = (i + 1) * k - 1;
+            }
+            if (R[tot - 1] < n - 1) {
+                tot++;
+                L[tot - 1] = R[tot - 2] + 1;
+                R[tot - 1] = n - 1;
+            }
+        }
+
+        void solve() {
+            int l = 0, r = -1, last_block = -1, res = 0;
+            for (auto [ql, qr, l_block, r_block, qid] : query) {
+                if (last_block < l_block) {
+                    while (last_block != -1 && r > R[last_block]) del(a[r--]);
+                    l = R[l_block] + 1;
+                    r = R[l_block];
+                    last_block = l_block;
+                    res = 0;
+                }
+
+                if (l_block == r_block) {
+                    vector<int> cnt(b.size());
+                    for (int i = ql; i <= qr; i++) {
+                        cnt[a[i]]++;
+                        ans[qid] = max(ans[qid], cnt[a[i]] * b[a[i]]);
+                    }
+                } else {
+                    while (r < qr) add(a[++r], res);
+                    int tmp = res;
+                    while (l > ql) add(a[--l], tmp);
+                    ans[qid] = tmp;
+                    while (l < R[l_block] + 1) del(a[l++]);
+                }
+            }
+            for (int i = 0; i < q; i++) {
+                cout << ans[i] << '\n';
+            }
+        }
+
+        signed main() {
+            init();
+            solve();
+        } 
+        ```
 	
 ???+note "[CF edu dsu B. Number of Connected Components on Segments](https://codeforces.com/edu/course/2/lesson/7/3/practice/contest/289392/problem/B)"
+	給一張 n 個點，給 m 條邊，有 q 筆查詢 :
 	
+	- query(l, r): 只保留 edge[l ... r] 的邊，圖上共有幾個連通塊
+	
+	$1\le n,m,q \le 5\times 10^4$
+	
+	??? note "思路"
+		回滾莫隊思路，配合 rollback dsu，詳見代碼
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
 
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Edge {
+            int u, v;
+        };
+
+        struct DSU {
+            DSU (int n) : n(n) {
+                sz = vector<int>(n, 1);
+                par = vector<int>(n);
+                cnt = n;
+                for (int i = 0; i < n; i++) {
+                    par[i] = i;
+                }
+            }
+            void merge(Edge e) {
+                int x = find (e.u), y = find (e.v);
+                if (x == y) {
+                    stk.push ({x, x});
+                    return;
+                }
+
+                if (sz[x] < sz[y]) swap(x, y);
+                sz[x] += sz[y]; par[y] = x;
+                cnt--;
+                stk.push({x, y});
+            }
+            void undo() {
+                assert(stk.size());
+                auto [x, y] = stk.top ();
+                stk.pop ();
+                if (x == y) return;
+                sz[x] -= sz[y]; par[y] = y;
+                cnt++;
+            }
+            int cc() {
+                return cnt;
+            }
+
+        private :
+            int n, cnt;
+            vector<int> sz;
+            vector<int> par;
+            stack<pii> stk;
+
+            int find(int x) {
+                if (par[x] == x) return x;
+                else return find(par[x]);
+            }
+        };
+
+        struct Query {
+            int l, r, l_block, r_block, qid;
+
+            bool operator<(const Query &rhs) const {
+                if (l_block == rhs.l_block) {
+                    return r < rhs.r;
+                }
+                return l_block < rhs.l_block;
+            }
+        };
+
+        int n, m, q, k;
+        vector<Edge> edges;
+        vector<Query> query;
+        int L[maxn], R[maxn], ans[maxn];
+
+        void init() {
+            cin >> n >> m;
+
+            for (int i = 0; i < m; i++) {
+                int u, v;
+                cin >> u >> v;
+                u--, v--;
+                edges.pb({u, v});
+            }
+            k = sqrt(m);
+
+            cin >> q;
+            int l, r;
+            for (int i = 0; i < q; i++) {
+                cin >> l >> r;
+                l--, r--;
+                query.pb({l, r, l / k, r / k, i});
+            }
+            sort(ALL(query));
+
+            int tot = m / k;
+            for (int i = 0; i < tot; i++) {
+                L[i] = i * k;
+                R[i] = (i + 1) * k - 1;
+            }
+            if (R[tot - 1] < m - 1) {
+                tot++;
+                L[tot - 1] = R[tot - 2] + 1;
+                R[tot - 1] = m - 1;
+            }
+        }
+
+        void solve() {
+            DSU dsu(n);
+            int l = -1, r = m, last_block = -1, r_cnt = 0;
+            for (auto [ql, qr, l_block, r_block, qid] : query) {
+                if (last_block < l_block) {
+                    while (r_cnt > 0) {
+                        dsu.undo();
+                        r_cnt--;
+                    }        
+                    l = R[l_block] + 1;
+                    r = R[l_block];
+                    last_block = l_block;
+                }
+                if (l_block == r_block) {
+                    for (int i = ql; i <= qr; i++) {
+                        dsu.merge(edges[i]);
+                    }
+                    ans[qid] = dsu.cc();
+                    for (int i = ql; i <= qr; i++) {
+                        dsu.undo();
+                    }
+                } else {
+                    while (r < qr) {
+                        dsu.merge(edges[++r]);
+                        r_cnt++;
+                    }
+
+                    int l_cnt = 0;
+                    while (l > ql) {
+                        dsu.merge(edges[--l]);
+                        l_cnt++;
+                    }
+                    ans[qid] = dsu.cc();
+                    while (l_cnt > 0) {
+                        dsu.undo();
+                        l_cnt--;
+                    }
+                    l = R[l_block] + 1;
+                }
+            }
+            for (int i = 0; i < q; i++) {
+                cout << ans[i] << '\n';
+            }
+        }
+
+        signed main() {
+            init();
+            solve();
+        } 
+        ```
+
+???+note "[TIOJ 1902 . 「殿仁．王，不認識，誰啊？」，然後他就死了……](https://tioj.ck.tp.edu.tw/problems/1902)"
+	給一個長度為 $n$ 的序列 $a_1,\ldots ,a_n$，有 $q$ 筆詢問 : 
+	
+	- 給區間 [l, r]，問在這個區間內的 maximum xor sum
+	
+	$n,q\le 10^5,a_i\le 10^9$
+	
 ---
 
 ## 參考資料
@@ -228,5 +571,7 @@ codeforces 86 D
 - <https://hackmd.io/@iceylemon157/HkdBTBJEK>
 
 - <https://www.cnblogs.com/RioTian/p/15113195.html>
+
+- <https://zhuanlan.zhihu.com/p/369836899>
 
 [^1]: [2, 5] → [6, 7] 如果先移動左邊，可能會變成 [6, 5]，無法保證左界小於等於右界

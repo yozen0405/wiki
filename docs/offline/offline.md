@@ -31,9 +31,106 @@
           ![Image title](./images/6.png){ width="500" }
         </figure>
 
+???+note "[CF 1858 E2. Rollbacks (Hard Version)](https://codeforces.com/contest/1858/problem/E2)"
+	維護一個 DS，支援 :
+	
+	- push_back(x)
 
-#### 類似題
-???+note "[CF 1000F](https://codeforces.com/problemset/problem/1000/F)"
+	- pop_back(k) : pop back 最後 k 個
+
+	- rollback : 跳回上一次 push_back 或 pop_back 之前的狀態
+
+	- query : 問當前 DS 裡面有幾個 distinct number
+
+	$1\le q\le 10^6,1\le x\le 10^6$
+	
+	??? note "備註"
+		此題也有離線做法，只是下面分享的是跟離線無關的，但跟 distinct number 有關的
+		
+	??? note "思路"
+		我們只需要維護每個數字最一開始出現的位置，與當前陣列每一項是多少。
+		
+		- push_back(x)
+		
+			我們只要檢查當前的 x 是否為第一次出現，是的話 ans[n] = ans[n - 1] + 1
+		
+		- pop_back(k)
+
+			將當前 n -= k 即可
+			
+		- rollback
+
+			開一個 stack 將之前 push_back, pop_back 有改到的東西全部變成他們之前的值即可
+			
+		- query
+
+			直接輸出 ans[n]
+		
+		> 參考 : <a href="/wiki/offline/images/10.png" target="_blank">codeforces comment</a>
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <cstdio>
+        #include <vector>
+        #include <cstring>
+        using namespace std;
+        const int N = 1e6 + 1;
+
+        int q, a[N], n, occur[N], ans[N];
+        char c;
+
+
+        struct change {
+            int *pos, val;
+            change(int *pos, int val) : pos(pos), val(val) {}
+        };
+        vector<vector<change>> stk;
+
+        int main(){
+            memset(occur, 0x3f, sizeof(occur));
+            scanf("%d", &q);
+            for (int i = 1; i <= q; i++) {
+                scanf(" %c", &c);
+                if(c == '+') {
+                    vector<change> cng;
+                    int x;
+                    scanf("%d", &x);
+                    if(occur[x] > n || a[occur[x]] != x) {
+                        cng.push_back(change(&occur[x], occur[x]));
+                        occur[x] = n + 1;
+                        cng.push_back(change(&ans[n + 1], ans[n + 1]));
+                        ans[n + 1] = ans[n] + 1;
+                    } else {
+                        cng.push_back(change(&ans[n + 1], ans[n + 1]));
+                        ans[n + 1] = ans[n];
+                    }
+                    cng.push_back(change(&a[n + 1], a[n + 1]));
+                    a[n + 1] = x;
+                    cng.push_back(change(&n, n));
+                    n = n + 1;
+                    stk.push_back(cng);
+                } else if(c == '-') {
+                    vector<change> cng;
+                    int x;
+                    scanf("%d", &x);
+                    cng.push_back(change(&n, n));
+                    n = n - x;
+                    stk.push_back(cng);
+                } else if(c == '!') {
+                    vector<change> lst = stk.back();
+                    stk.pop_back();
+                    for(change elem : lst)
+                        *elem.pos = elem.val;
+                } else {
+                    printf("%d\n", ans[n]);
+                    fflush(stdout);
+                }
+            }
+            return 0;
+        }
+        ```
+		
+???+note "類似題 [CF 1000F](https://codeforces.com/problemset/problem/1000/F)"
     給你 $a_1,...,a_n$，有 $q$ 個查詢
     
     - 隨便輸出一個 $a_l,...,a_r$  之間只出現一次的數
@@ -47,7 +144,6 @@
     
         - 記得在 $\texttt{query_min(l,r)}$ 要存任意一個符合答案的數
 
-#### 自創題
 ???+note "自創題"
     給你 $a_1,...,a_n$，和一個數 $x$，有 $q$ 個查詢
     

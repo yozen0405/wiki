@@ -148,39 +148,39 @@
                 par[i] = i;
             }
         }
-        void add_edge (int u, int v) {
+        void add_edge(int u, int v) {
             int x = find (u), y = find (v);
             if (x == y) {
                 stk.push ({x, x});
                 return;
             }
 
-            if (sz[x] < sz[y]) swap (x, y);
+            if (sz[x] < sz[y]) swap(x, y);
             sz[x] += sz[y]; par[y] = x;
             cnt--;
-            stk.push ({x, y});
+            stk.push({x, y});
         }
-        void undo () {
+        void undo() {
             auto [x, y] = stk.top ();
             stk.pop ();
             if (x == y) return;
             sz[x] -= sz[y]; par[y] = y;
             cnt++;
         }
-        int size () {
+        int size() {
             return cnt;
         }
-    
-        private :
-            int n, cnt;
-            vector<int> sz;
-            vector<int> par;
-            stack<pii> stk;
-    
-            int find (int x) {
-                if (par[x] == x) return x;
-                else return find (par[x]);
-            }
+
+    private :
+        int n, cnt;
+        vector<int> sz;
+        vector<int> par;
+        stack<pii> stk;
+
+        int find(int x) {
+            if (par[x] == x) return x;
+            else return find (par[x]);
+        }
     };
     ```
 
