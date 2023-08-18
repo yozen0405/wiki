@@ -194,7 +194,48 @@ codeforces 86 D
 
 ## 帶修改莫隊
 
+把詢問的區間 [l, r] 擴充時間這個維度 ⇒ (l, r, t)。(l, r, t) 可以翻譯為「在詢問 [l, r] 之前要先處理 0~t 的修改」，排序就要改成當 r 一樣時，t 小到大
 
+???+note "code"
+	```cpp linenums="1"
+	struct Query {
+        int l, r, t, l_block, r_block;
+
+        bool operator<(const Query &rhs) const {
+            if (l_block == rhs.l_block) {
+                if (r_block == rhs.r_block) {
+                	return t < rhs.t;
+                } else {
+                	return r_block < rhs.r_block;
+                }
+            } else {
+                return r < rhs.r;
+            }
+        }
+    };
+    ```
+    
+???+info "時間複雜度為 $O(n^{\frac{5}{3}})$"
+	相當於 $n \times n\times n$ 的三維空間，放 $n$ 個點，找一個路徑經過所有點移動距離最小值最差是多少呢？
+	
+	一個維度放 $n^{1/3}$ 個，每個維度的長度是 $n$，所以間距取 $n / n^{1/3} = n^{2/3}$。共要走 $n - 1$ 邊，每邊長 $n^{2/3}$，所以是 $O(n \times n^{2/3}) = O(n^{5/3})$。
+	
+	Block 的大小可以取 $n^{2/3}$，讓每個維度的數量最平均
+	
+	> 此證明不嚴謹，若要嚴謹證明可見[莫队时间复杂度和块长分析](https://zhuanlan.zhihu.com/p/595026012)
+
+???+note "code"
+	```cpp linenums="1"
+	int l = -1, r = 0, t = -1;
+	for (auto &i : Query) {
+		while (l > i.l) add(--l);
+		while (r > i.r) add(++r);
+		while (l < i.l) del(l++);
+		while (r > i.r) del(r--);
+		while (t < i.t) modify(++t);
+		while (t > i.t) modify(t--);
+	}
+	```
 
 ???+note "[CF 940 F. Machine Learning](https://codeforces.com/problemset/problem/940/F)"
 	給一個長度為 $n$ 個陣列 $a_1,\ldots ,a_n$，有以下 $q$ 個操作 :
@@ -209,11 +250,11 @@ codeforces 86 D
 	給一個長度為 $n$ 的陣列 $a_1,\ldots ,a_n$，q 筆以下操作： 
 	
 	- 單點改值 
-
-	- 問區間 $[l, r]$ 中 distinct number 數量
-
-	$n,q\le 1.4 \times 10^5$
 	
+	- 問區間 $[l, r]$ 中 distinct number 數量
+	
+	$n,q\le 1.4 \times 10^5$
+
 ## 回滾莫隊
 
 可處理加值易，刪除難的問題。一個典型的例子就是區間最值。添加時，我仍然可以只看新加進來的數，將其與目前的最值比較，但由於 ans 是單個值，一旦刪除時把最值給刪了，那麼我們就又得重新枚舉區間。
@@ -262,118 +303,118 @@ codeforces 86 D
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        struct Query {
-            int l, r, l_block, r_block, qid;
-
-            bool operator<(const Query &rhs) const {
-                if (l_block == rhs.l_block) {
-                    return r < rhs.r;
-                }
-                return l_block < rhs.l_block;
-            }
-        };
-
-        int n, q, k;
-        vector<int> a, b;
-        vector<Query> query;
-        int cnt[maxn], L[maxn], R[maxn], ans[maxn];
-
-        void add(int x, int &ans) {
-            cnt[x]++;
-            ans = max(ans, cnt[x] * b[x]);
-        }
-
-        void del(int x) {
-            cnt[x]--;
-        }
-
-        void init() {
-            cin >> n >> q;
-
-            a = vector<int>(n);
-            b = vector<int>(n);
-            for (int i = 0; i < n; i++) {
-                cin >> a[i];
-                b[i] = a[i];
-            }
-            sort(ALL(b));
-            b.resize(unique(ALL(b)) - b.begin());
-
-            for (int i = 0; i < n; i++) {
-                a[i] = lower_bound(ALL(b), a[i]) - b.begin();
-            }
-            k = sqrt(n);
-            int l, r;
-            for (int i = 0; i < q; i++) {
-                cin >> l >> r;
-                l--, r--;
-                query.pb({l, r, l / k, r / k, i});
-            }
-            sort(ALL(query));
-
-            // 為了方便, 先預處理好每個 block 的左右界
-            int tot = n / k;
-            for (int i = 0; i < tot; i++) {
-                L[i] = i * k;
-                R[i] = (i + 1) * k - 1;
-            }
-            if (R[tot - 1] < n - 1) {
-                tot++;
-                L[tot - 1] = R[tot - 2] + 1;
-                R[tot - 1] = n - 1;
-            }
-        }
-
-        void solve() {
-            int l = 0, r = -1, last_block = -1, res = 0;
-            for (auto [ql, qr, l_block, r_block, qid] : query) {
-                if (last_block < l_block) {
-                    while (last_block != -1 && r > R[last_block]) del(a[r--]);
-                    l = R[l_block] + 1;
-                    r = R[l_block];
-                    last_block = l_block;
-                    res = 0;
-                }
-
-                if (l_block == r_block) {
-                    vector<int> cnt(b.size());
-                    for (int i = ql; i <= qr; i++) {
-                        cnt[a[i]]++;
-                        ans[qid] = max(ans[qid], cnt[a[i]] * b[a[i]]);
-                    }
-                } else {
-                    while (r < qr) add(a[++r], res);
-                    int tmp = res;
-                    while (l > ql) add(a[--l], tmp);
-                    ans[qid] = tmp;
-                    while (l < R[l_block] + 1) del(a[l++]);
-                }
-            }
-            for (int i = 0; i < q; i++) {
-                cout << ans[i] << '\n';
-            }
-        }
-
-        signed main() {
-            init();
-            solve();
-        } 
-        ```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
 	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Query {
+	        int l, r, l_block, r_block, qid;
+	
+	        bool operator<(const Query &rhs) const {
+	            if (l_block == rhs.l_block) {
+	                return r < rhs.r;
+	            }
+	            return l_block < rhs.l_block;
+	        }
+	    };
+	
+	    int n, q, k;
+	    vector<int> a, b;
+	    vector<Query> query;
+	    int cnt[maxn], L[maxn], R[maxn], ans[maxn];
+	
+	    void add(int x, int &ans) {
+	        cnt[x]++;
+	        ans = max(ans, cnt[x] * b[x]);
+	    }
+	
+	    void del(int x) {
+	        cnt[x]--;
+	    }
+	
+	    void init() {
+	        cin >> n >> q;
+	
+	        a = vector<int>(n);
+	        b = vector<int>(n);
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	            b[i] = a[i];
+	        }
+	        sort(ALL(b));
+	        b.resize(unique(ALL(b)) - b.begin());
+	
+	        for (int i = 0; i < n; i++) {
+	            a[i] = lower_bound(ALL(b), a[i]) - b.begin();
+	        }
+	        k = sqrt(n);
+	        int l, r;
+	        for (int i = 0; i < q; i++) {
+	            cin >> l >> r;
+	            l--, r--;
+	            query.pb({l, r, l / k, r / k, i});
+	        }
+	        sort(ALL(query));
+	
+	        // 為了方便, 先預處理好每個 block 的左右界
+	        int tot = n / k;
+	        for (int i = 0; i < tot; i++) {
+	            L[i] = i * k;
+	            R[i] = (i + 1) * k - 1;
+	        }
+	        if (R[tot - 1] < n - 1) {
+	            tot++;
+	            L[tot - 1] = R[tot - 2] + 1;
+	            R[tot - 1] = n - 1;
+	        }
+	    }
+	
+	    void solve() {
+	        int l = 0, r = -1, last_block = -1, res = 0;
+	        for (auto [ql, qr, l_block, r_block, qid] : query) {
+	            if (last_block < l_block) {
+	                while (last_block != -1 && r > R[last_block]) del(a[r--]);
+	                l = R[l_block] + 1;
+	                r = R[l_block];
+	                last_block = l_block;
+	                res = 0;
+	            }
+	
+	            if (l_block == r_block) {
+	                vector<int> cnt(b.size());
+	                for (int i = ql; i <= qr; i++) {
+	                    cnt[a[i]]++;
+	                    ans[qid] = max(ans[qid], cnt[a[i]] * b[a[i]]);
+	                }
+	            } else {
+	                while (r < qr) add(a[++r], res);
+	                int tmp = res;
+	                while (l > ql) add(a[--l], tmp);
+	                ans[qid] = tmp;
+	                while (l < R[l_block] + 1) del(a[l++]);
+	            }
+	        }
+	        for (int i = 0; i < q; i++) {
+	            cout << ans[i] << '\n';
+	        }
+	    }
+	
+	    signed main() {
+	        init();
+	        solve();
+	    } 
+	    ```
+
 ???+note "[CF edu dsu B. Number of Connected Components on Segments](https://codeforces.com/edu/course/2/lesson/7/3/practice/contest/289392/problem/B)"
 	給一張 n 個點，給 m 條邊，有 q 筆查詢 :
 	
@@ -387,167 +428,167 @@ codeforces 86 D
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        struct Edge {
-            int u, v;
-        };
-
-        struct DSU {
-            DSU (int n) : n(n) {
-                sz = vector<int>(n, 1);
-                par = vector<int>(n);
-                cnt = n;
-                for (int i = 0; i < n; i++) {
-                    par[i] = i;
-                }
-            }
-            void merge(Edge e) {
-                int x = find (e.u), y = find (e.v);
-                if (x == y) {
-                    stk.push ({x, x});
-                    return;
-                }
-
-                if (sz[x] < sz[y]) swap(x, y);
-                sz[x] += sz[y]; par[y] = x;
-                cnt--;
-                stk.push({x, y});
-            }
-            void undo() {
-                assert(stk.size());
-                auto [x, y] = stk.top ();
-                stk.pop ();
-                if (x == y) return;
-                sz[x] -= sz[y]; par[y] = y;
-                cnt++;
-            }
-            int cc() {
-                return cnt;
-            }
-
-        private :
-            int n, cnt;
-            vector<int> sz;
-            vector<int> par;
-            stack<pii> stk;
-
-            int find(int x) {
-                if (par[x] == x) return x;
-                else return find(par[x]);
-            }
-        };
-
-        struct Query {
-            int l, r, l_block, r_block, qid;
-
-            bool operator<(const Query &rhs) const {
-                if (l_block == rhs.l_block) {
-                    return r < rhs.r;
-                }
-                return l_block < rhs.l_block;
-            }
-        };
-
-        int n, m, q, k;
-        vector<Edge> edges;
-        vector<Query> query;
-        int L[maxn], R[maxn], ans[maxn];
-
-        void init() {
-            cin >> n >> m;
-
-            for (int i = 0; i < m; i++) {
-                int u, v;
-                cin >> u >> v;
-                u--, v--;
-                edges.pb({u, v});
-            }
-            k = sqrt(m);
-
-            cin >> q;
-            int l, r;
-            for (int i = 0; i < q; i++) {
-                cin >> l >> r;
-                l--, r--;
-                query.pb({l, r, l / k, r / k, i});
-            }
-            sort(ALL(query));
-
-            int tot = m / k;
-            for (int i = 0; i < tot; i++) {
-                L[i] = i * k;
-                R[i] = (i + 1) * k - 1;
-            }
-            if (R[tot - 1] < m - 1) {
-                tot++;
-                L[tot - 1] = R[tot - 2] + 1;
-                R[tot - 1] = m - 1;
-            }
-        }
-
-        void solve() {
-            DSU dsu(n);
-            int l = -1, r = m, last_block = -1, r_cnt = 0;
-            for (auto [ql, qr, l_block, r_block, qid] : query) {
-                if (last_block < l_block) {
-                    while (r_cnt > 0) {
-                        dsu.undo();
-                        r_cnt--;
-                    }        
-                    l = R[l_block] + 1;
-                    r = R[l_block];
-                    last_block = l_block;
-                }
-                if (l_block == r_block) {
-                    for (int i = ql; i <= qr; i++) {
-                        dsu.merge(edges[i]);
-                    }
-                    ans[qid] = dsu.cc();
-                    for (int i = ql; i <= qr; i++) {
-                        dsu.undo();
-                    }
-                } else {
-                    while (r < qr) {
-                        dsu.merge(edges[++r]);
-                        r_cnt++;
-                    }
-
-                    int l_cnt = 0;
-                    while (l > ql) {
-                        dsu.merge(edges[--l]);
-                        l_cnt++;
-                    }
-                    ans[qid] = dsu.cc();
-                    while (l_cnt > 0) {
-                        dsu.undo();
-                        l_cnt--;
-                    }
-                    l = R[l_block] + 1;
-                }
-            }
-            for (int i = 0; i < q; i++) {
-                cout << ans[i] << '\n';
-            }
-        }
-
-        signed main() {
-            init();
-            solve();
-        } 
-        ```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Edge {
+	        int u, v;
+	    };
+	
+	    struct DSU {
+	        DSU (int n) : n(n) {
+	            sz = vector<int>(n, 1);
+	            par = vector<int>(n);
+	            cnt = n;
+	            for (int i = 0; i < n; i++) {
+	                par[i] = i;
+	            }
+	        }
+	        void merge(Edge e) {
+	            int x = find (e.u), y = find (e.v);
+	            if (x == y) {
+	                stk.push ({x, x});
+	                return;
+	            }
+	
+	            if (sz[x] < sz[y]) swap(x, y);
+	            sz[x] += sz[y]; par[y] = x;
+	            cnt--;
+	            stk.push({x, y});
+	        }
+	        void undo() {
+	            assert(stk.size());
+	            auto [x, y] = stk.top ();
+	            stk.pop ();
+	            if (x == y) return;
+	            sz[x] -= sz[y]; par[y] = y;
+	            cnt++;
+	        }
+	        int cc() {
+	            return cnt;
+	        }
+	
+	    private :
+	        int n, cnt;
+	        vector<int> sz;
+	        vector<int> par;
+	        stack<pii> stk;
+	
+	        int find(int x) {
+	            if (par[x] == x) return x;
+	            else return find(par[x]);
+	        }
+	    };
+	
+	    struct Query {
+	        int l, r, l_block, r_block, qid;
+	
+	        bool operator<(const Query &rhs) const {
+	            if (l_block == rhs.l_block) {
+	                return r < rhs.r;
+	            }
+	            return l_block < rhs.l_block;
+	        }
+	    };
+	
+	    int n, m, q, k;
+	    vector<Edge> edges;
+	    vector<Query> query;
+	    int L[maxn], R[maxn], ans[maxn];
+	
+	    void init() {
+	        cin >> n >> m;
+	
+	        for (int i = 0; i < m; i++) {
+	            int u, v;
+	            cin >> u >> v;
+	            u--, v--;
+	            edges.pb({u, v});
+	        }
+	        k = sqrt(m);
+	
+	        cin >> q;
+	        int l, r;
+	        for (int i = 0; i < q; i++) {
+	            cin >> l >> r;
+	            l--, r--;
+	            query.pb({l, r, l / k, r / k, i});
+	        }
+	        sort(ALL(query));
+	
+	        int tot = m / k;
+	        for (int i = 0; i < tot; i++) {
+	            L[i] = i * k;
+	            R[i] = (i + 1) * k - 1;
+	        }
+	        if (R[tot - 1] < m - 1) {
+	            tot++;
+	            L[tot - 1] = R[tot - 2] + 1;
+	            R[tot - 1] = m - 1;
+	        }
+	    }
+	
+	    void solve() {
+	        DSU dsu(n);
+	        int l = -1, r = m, last_block = -1, r_cnt = 0;
+	        for (auto [ql, qr, l_block, r_block, qid] : query) {
+	            if (last_block < l_block) {
+	                while (r_cnt > 0) {
+	                    dsu.undo();
+	                    r_cnt--;
+	                }        
+	                l = R[l_block] + 1;
+	                r = R[l_block];
+	                last_block = l_block;
+	            }
+	            if (l_block == r_block) {
+	                for (int i = ql; i <= qr; i++) {
+	                    dsu.merge(edges[i]);
+	                }
+	                ans[qid] = dsu.cc();
+	                for (int i = ql; i <= qr; i++) {
+	                    dsu.undo();
+	                }
+	            } else {
+	                while (r < qr) {
+	                    dsu.merge(edges[++r]);
+	                    r_cnt++;
+	                }
+	
+	                int l_cnt = 0;
+	                while (l > ql) {
+	                    dsu.merge(edges[--l]);
+	                    l_cnt++;
+	                }
+	                ans[qid] = dsu.cc();
+	                while (l_cnt > 0) {
+	                    dsu.undo();
+	                    l_cnt--;
+	                }
+	                l = R[l_block] + 1;
+	            }
+	        }
+	        for (int i = 0; i < q; i++) {
+	            cout << ans[i] << '\n';
+	        }
+	    }
+	
+	    signed main() {
+	        init();
+	        solve();
+	    } 
+	    ```
 
 ???+note "[TIOJ 1902 . 「殿仁．王，不認識，誰啊？」，然後他就死了……](https://tioj.ck.tp.edu.tw/problems/1902)"
 	給一個長度為 $n$ 的序列 $a_1,\ldots ,a_n$，有 $q$ 筆詢問 : 
@@ -555,7 +596,7 @@ codeforces 86 D
 	- 給區間 [l, r]，問在這個區間內的 maximum xor sum
 	
 	$n,q\le 10^5,a_i\le 10^9$
-	
+
 ---
 
 ## 參考資料

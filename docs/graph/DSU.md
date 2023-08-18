@@ -170,20 +170,78 @@
         int size() {
             return cnt;
         }
-
+    
     private :
         int n, cnt;
         vector<int> sz;
         vector<int> par;
         stack<pii> stk;
-
+    
         int find(int x) {
             if (par[x] == x) return x;
             else return find (par[x]);
         }
     };
     ```
+    
+??? note "rollback dsu 支援判二分圖"
+	```cpp linenums="1"
+	struct Graph {
+        Graph (int n) : n(n) {
+            sz = vector<int>(n, 1);
+            par = vector<int>(n);
+            dis = vector<int>(n);
+            cnt = 0;
+            for (int i = 0; i < n; i++) {
+                par[i] = i;
+            }
+        }
+        void add_edge (const Edge &e) {
+            auto [x, disx] = find(e.u);
+            auto [y, disy] = find(e.v);
+            if (x == y) {
+                // if (disx == disy) => odd cycle
+                cnt += (disx == disy);
+                stk.push ({-1, (disx == disy)});
+                return;
+            }
 
+            if (sz[x] < sz[y]) swap(x, y);
+            sz[x] += sz[y]; par[y] = x; dis[y] = disx ^ disy ^ 1;
+            stk.push({x, y});
+        }
+        void undo() {
+            auto [x, y] = stk.top();
+            stk.pop();
+            if (x == -1) {
+                cnt -= y;
+                return;
+            }
+            sz[x] -= sz[y]; par[y] = y; dis[y] = 0;
+        }
+        bool check() {
+            // return : 有沒有 odd cycle
+            return (cnt > 0);
+        }
+
+    private :
+        int n, cnt;
+        vector<int> sz;
+        vector<int> par;
+        vector<int> dis;
+        stack<pii> stk;
+
+        pii find(int x) {
+            if (par[x] == x) return {x, 0};
+            else {
+                auto [fa, d] = find(par[x]);
+                return {fa, d ^ dis[x]};
+            } 
+        }
+    };
+    ```
+
+	
 ### 複雜度
 
 不能使用路徑壓縮（但還是可以啟發式合併），故複雜度 $O(\log n)$
@@ -1009,6 +1067,14 @@
 		
 		> 參考 : <https://codeforces.com/edu/course/2/lesson/7/3>
 
+???+note "BZOJ 4025 二分圖"
+	給一張 $n$ 個點的圖，有 $m$ 條邊與 $T$ 個時間點，每條邊只存在於 $(l_i, r_i]$ 這些時間點，求每個時間點時這張圖是否為二分圖。
+	
+	$1 \le n \le 10^5 ,1 \le m \le 2 \times 10^5 ,1 \le T \le 10^5$
+	
+	??? note "思路"
+		跟上一題的做法差不多只是 dsu 要可以判二分圖
+	
 ???+note "序列上的 DSU [CF 982 D. Shark](https://codeforces.com/contest/982/problem/D)"
 	給大小為 $n$ 的序列 $a_1,\ldots, a_n$。刪除大於等於 $k$ 的數字，使得其滿足以下條件： 
 	

@@ -2173,6 +2173,104 @@
         	- 被球員踢出去 $5 \rightarrow 0,1,2,3:B$ 
         	- ~~停下來~~ 停下來，撿起來，浪費時間
 
+???+note "[CF 1860 E. Fast Travel Text Editor](https://codeforces.com/contest/1860/problem/E)"
+	
+	給一個字串 S，每個相鄰兩個字母叫一個位置，有 q 筆詢問從位置 s → t 的最少操作次數是多少。一次操作可執行以下三個選項之一：
+	
+	- 往左移一格
+
+	- 往右移一格
+
+	- 傳送到同樣的相鄰兩個字母同樣的位置
+
+	$2\le |S|\le 5\times 10^4,1\le q\le 5\times 10^4$
+	
+	??? note "思路"
+		觀察 : 相鄰字串的組合只有 26 * 26 種，可以建圖做 dijkstra
+		
+		考慮建邊，對於一個位置，他可以 :
+		
+		- 傳送到相同的字串，cost = 1
+
+		- 往左走或往右走，cost = 1
+
+		因為在相同的字串之間建完全圖太費時了，我們考慮對於每種字串組合都建一個虛點，分別與同種字串組合的 node 連邊。考慮邊權，當從一個 index $i$ 走到虛點再走到 index $j$ 會花 cost = 1 很難實作，我們不如將與虛點連接的邊權都設為 1，最後答案再除以 2 就好了，這麼做的話往左走或往右走的邊權也要設為 2。
+		
+		<figure markdown>
+          ![Image title](./images/54.png){ width="400" }
+        </figure>
+        
+        考慮 query 的部分，每次重跑一次 dijkstra 會太久，我們可以分成兩種 case，有至少做一次傳送與完全沒做傳送。
+        
+        有做一次傳送我們就可以枚舉有做傳送的虛點，答案就是 dis(s → 虛點) + dis(虛點 → t) 再除以 2。（因為一定只能透過相同字串組合的點進去虛點，所以可以保整有經過兩次）。到虛點的部分可以預處理所有虛點當起點的 dijkstra。
+        
+        完全沒做的部分就直接算 index s 跟 index t 的距離就好了
+        
+        > 類似題 : <https://codeforces.com/contest/1301/problem/F>
+        
+    ??? note "code(from abc)"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        using namespace std;
+        #define ll long long
+        #define pb push_back
+        #define all(x) (x).begin(), (x).end()
+        #define pii pair<int, int>
+        const int mod = 998244353, N = 6e4, M = 26 * 26;
+
+        int dis[M][N];
+        vector <pii> adj[N];
+
+        void build(int s, int id) {
+            fill(dis[id], dis[id] + N, N);
+            queue <int> q;
+            dis[id][s] = 0;
+            q.push(s);
+            while (!q.empty()) {
+                int v = q.front(); q.pop();
+                for (auto [u, w] : adj[v]) if (dis[id][u] > dis[id][v] + w) {
+                    dis[id][u] = dis[id][v] + w;
+                    q.push(u);
+                }
+            }
+        }
+
+        void solve() {
+            string s;
+            cin >> s;
+            int n = s.length();
+            for (int i = 0; i < n - 1; ++i) {
+                int x = (s[i] - 'a') * 26 + (s[i + 1] - 'a') + n; // 虛點
+                adj[i].emplace_back(x, 1), adj[x].emplace_back(i, 1);
+            }
+            for (int i = 0; i + 2 < n; ++i) { // 相鄰的建邊
+                adj[i].emplace_back(i + 1, 2), adj[i + 1].emplace_back(i, 2);
+            }
+            for (int i = 0; i < M; ++i) { // 預處理
+                build(i + n, i);
+            }
+            int q; cin >> q;
+            while (q--) {
+                int s, t; cin >> s >> t, --s, --t;
+                int ans = abs(s - t);
+                for (int i = 0; i < M; ++i) {
+                    ans = min(ans, (dis[i][s] + dis[i][t]) / 2);
+                }
+                cout << ans << '\n';
+            }
+        }
+
+        int main() {
+            ios::sync_with_stdio(false), cin.tie(0);
+            int t = 1;
+            // cin >> t;
+            while (t--) {
+                solve();
+            }
+        }
+        ```
+
+
 ### 次短路
 
 第二次跑到某個點的時候就代表那個點的次短路
@@ -2184,18 +2282,21 @@
         pq.push({0, s});
 
         while (pq.size()) {
-            int sum = pq.top().f, u = pq.top().s;
+            auto [sum, u] = pq.top();
             pq.pop();
     
-            if (ans[u].f == -1) ans[u].f = sum;
-            else if (ans[u].s == -1) {
+            if (ans[u].f == -1) {
+            	ans[u].f = sum;
+            } else if (ans[u].s == -1) {
             	if (sum == ans[u].f) continue;// 嚴格要加這行
             	ans[u].s = sum;
+            } else {
+            	continue;
             }
-            else continue;
     
-            for (auto [v, w] : G[u])
-                pq.push({sum + w, v});
+            for (auto [v, w] : G[u]) {
+            	pq.push({sum + w, v});
+            }
         }
     }
     ```
@@ -3011,23 +3112,23 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
         q.push(s);
         dis[s] = 0;
         inq[s] = true;
-
+    
         while (q.size()) {
             int u = q.front();
             q.pop();
             cnt[u]++;
-
+    
             if (cnt[u] == n) {
                 // negative cycle
                 return true;
             }
-
+    
             inq[u] = false;
-
+    
             for (auto [v, w] : G[u]) {
-				if (dis[u] + w < dis[v]) {
+    			if (dis[u] + w < dis[v]) {
                     dis[v] = dis[u] + w;
-
+    
                     if (!inq[v]) {
                         inq[v] = true;
                         q.push(v);
@@ -3035,7 +3136,7 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
                 }
             }
         }
-
+    
         return false;
     }
     ```
@@ -3045,7 +3146,7 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 如果一個 relax 操作是在 back edge 上進行的，則有負環。DFS 處理最短路能力較若弱，一般針對負環的題目[^1]。
 
 若在判斷負環的題目時，會將 dis[ ] 初始值設為 0，使一開始正權的邊沒辦法走下去，減少額外的時間。
- 
+
 ??? note "SPFA DFS code"
 	```cpp linenums="1"
 	int n, m;
@@ -3066,13 +3167,13 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
         inq[u] = false;
         return false;
     } 
-
+    
     bool check() {
         for (int i = 0; i < n; i++) {
             dis[i] = 0;
             inq[i] = false;
         }
-
+    
         for (int i = 0; i < n; i++) {
             if (!inq[i]) {
                 if (spfa(i)) return true;
@@ -3111,77 +3212,77 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const double INF = 2e18;
-        const int maxn = 3000 + 5;
-        const int M = 1e9 + 7;
-        const double EPS = 1e-10;
-
-        int n, m;
-        double dis[maxn];
-        int vis[maxn];
-        vector<pair<int, double>> G[maxn];
-
-        bool spfa(int u, double t) {
-            vis[u] = true;
-            for (auto [v, w] : G[u]) {
-                w -= t;
-                if (dis[u] + w < dis[v]) {
-                    dis[v] = dis[u] + w;
-                    if (vis[v] || spfa(v, t)) {
-                        return true;
-                    } 
-                }
-            }
-            vis[u] = false;
-            return false;
-        } 
-
-        bool check(double t) {
-            for (int i = 0; i < n; i++) {
-                dis[i] = 0;
-                vis[i] = false;
-            }
-
-            for (int i = 0; i < n; i++) {
-                if (!vis[i]) {
-                    if (spfa(i, t)) return true;
-                }
-            }
-            return false;
-        }
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cin >> n >> m;
-
-            for (int i = 0; i < m; i++) {
-                int u, v; double w;
-                cin >> u >> v >> w;
-                u--, v--;
-                G[u].pb({v, w});
-            }
-
-            double l = -1e7, r = 1e7;
-            while(r - l > EPS) {
-                double mid = (l + r) / 2;
-                if (check(mid)) r = mid;
-                else l = mid;
-            }
-            cout << fixed << setprecision(8) << l << '\n';
-        } 
-		```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
 	
+	    using namespace std;
+	
+	    const double INF = 2e18;
+	    const int maxn = 3000 + 5;
+	    const int M = 1e9 + 7;
+	    const double EPS = 1e-10;
+	
+	    int n, m;
+	    double dis[maxn];
+	    int vis[maxn];
+	    vector<pair<int, double>> G[maxn];
+	
+	    bool spfa(int u, double t) {
+	        vis[u] = true;
+	        for (auto [v, w] : G[u]) {
+	            w -= t;
+	            if (dis[u] + w < dis[v]) {
+	                dis[v] = dis[u] + w;
+	                if (vis[v] || spfa(v, t)) {
+	                    return true;
+	                } 
+	            }
+	        }
+	        vis[u] = false;
+	        return false;
+	    } 
+	
+	    bool check(double t) {
+	        for (int i = 0; i < n; i++) {
+	            dis[i] = 0;
+	            vis[i] = false;
+	        }
+	
+	        for (int i = 0; i < n; i++) {
+	            if (!vis[i]) {
+	                if (spfa(i, t)) return true;
+	            }
+	        }
+	        return false;
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> n >> m;
+	
+	        for (int i = 0; i < m; i++) {
+	            int u, v; double w;
+	            cin >> u >> v >> w;
+	            u--, v--;
+	            G[u].pb({v, w});
+	        }
+	
+	        double l = -1e7, r = 1e7;
+	        while(r - l > EPS) {
+	            double mid = (l + r) / 2;
+	            if (check(mid)) r = mid;
+	            else l = mid;
+	        }
+	        cout << fixed << setprecision(8) << l << '\n';
+	    } 
+		```
+
 在看下面全國賽的題目前，我們先來看一道題目（與 Bellman-Ford 無關）
 
 ???+note "[LeetCode 134. Gas Station](https://leetcode.com/problems/gas-station/)"
@@ -3275,14 +3376,14 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
     }
 	
 	// floyd warshall
-    for (int k = 1; k <= n; k++) {
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <= n; j++) {
-                dis[i][j] = min (dis[i][j], dis[i][k] + dis[k][j]);
-            }
-        }
-    }
-    ```
+	for (int k = 1; k <= n; k++) {
+	    for (int i = 1; i <= n; i++) {
+	        for (int j = 1; j <= n; j++) {
+	            dis[i][j] = min (dis[i][j], dis[i][k] + dis[k][j]);
+	        }
+	    }
+	}
+	```
 
 ### 最小環
 
@@ -3309,15 +3410,15 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
     #define ALL(x) x.begin(), x.end()
 
     using namespace std;
-
+    
     const int INF = 2e18;
     const int maxn = 500 + 5;
     const int M = 1e9 + 7;
-
+    
     int n, m;
     int adj[maxn][maxn];
     int dis[maxn][maxn];
-
+    
     int solve () {
         for (int i = 1; i <= n; i++) {
             for (int j = 1; j <= n; j++) {
@@ -3326,7 +3427,7 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
                 else dis[i][j] = INF;
             }
         }
-
+    
         int ans = INF;
         for (int k = 1; k <= n; k++) {
             for (int i = 1; i < k; i++) {
@@ -3336,7 +3437,7 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
                     }
                 }
             }
-
+    
             for (int i = 1; i <= n; i++) {
                 for (int j = 1; j <= n; j++) {
                     dis[i][j] = min (dis[i][j], dis[i][k] + dis[k][j]);
@@ -3346,7 +3447,7 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
         if (ans == INF) return 0;
         return ans;
     }
-
+    
     signed main() {
         while(cin >> n >> m) {
             if (n == 0 && m == 0) break;

@@ -1,5 +1,18 @@
 - <https://blog.nowcoder.net/n/27772b54fd3c4968b905303d83138dea?from=nowcoder_improve>
 
+## 線段樹基本
+
+???+note "區間開根號 [LOJ #10128. 「一本通 4.3 练习 2」花神游历各国](https://loj.ac/p/10128)"
+    給一個長度為 n 的陣列 $a_1,\ldots ,a_n$，跟 $q$ 個操作，操作有兩種：
+
+    -  $\text{query}(l,r):$ 查詢序列 $a$ 在區間 $[l, r]$ 的和。
+    -  $\text{sqrt}(l,r):$ 把 $a_l,\ldots ,a_r$ 的值個別開根號後取下高斯。
+
+	$n\le 10^5,q\le 2\times 10^5,a_i\le 10^9$
+	
+	??? note "思路"
+		跟區間除法一樣 mx > 0 再跟新，區間和就用線段樹的 pull 維護就好了
+
 ## 掃描線
 
 - 曼哈頓轉雪茄夫距離
@@ -521,3 +534,5 @@
 ## 參考
 
 - <https://drive.google.com/file/d/1-X36kSojmhmMofC6zMLmLAt88j87ZJsn/view>
+
+- <https://hackmd.io/@ouE8-gp2T7WkFQPps-mglA/HJNs5ohmN?print-pdf>
