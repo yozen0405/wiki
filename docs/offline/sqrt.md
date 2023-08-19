@@ -6,7 +6,7 @@ LOJ 題單
 
 一塊的 O(k)，暴力修改
 
-	
+
 ## 值域分塊
 
 ???+note "靜態區間第 k 小"
@@ -42,3 +42,52 @@ LOJ 題單
 		將操作依照時間小到大分塊，每 k 個一組。每組將裡面的 query 從大到小處理，對於每一個 query，依序加入非修改的邊，有修改的邊就直接全部暴力掃過，掃完之後要到下一個 query 的時候需要 rollback。
 		
 		非修改邊在一個 block 中最多掃到 m 個，共 O(m * (q / k))，修改的邊 O(q * k)，還要乘上 rollback dsu 的 O(log n)，複雜度 O(m * (q / k) * logn + q * k * log n) 
+		
+## 數論分塊
+
+???+note "[Zerojudge d193. 11526 - H(n)](https://zerojudge.tw/ShowProblem?problemid=d193)"
+	給定 $1\le n,k\le 10^9$，求
+	
+	$$
+	\sum \limits_{x=1}^k \lfloor\frac{k}{x}\rfloor
+	$$
+	
+	??? note "思路"
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        void solve() {
+            int n;
+            cin >> n;
+
+            int total = 0, at = 1;
+            while (at <= n) {
+                int cur = n / at;  // n / i 到多少了
+                int last_same = n / cur; // 這個 n/i 的質最多可以延續到哪格
+
+                total += cur * (last_same - at + 1);
+                at = last_same + 1;
+            }
+
+            cout << total << endl;
+        }
+
+        signed main() {
+            int t;
+            cin >> t;
+            while (t--) {
+                solve();
+            }
+        }
+		```
+	
+---
+
+## 資料
+
+- <https://zhuanlan.zhihu.com/p/452977429>
