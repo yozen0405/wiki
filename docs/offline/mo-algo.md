@@ -215,7 +215,7 @@ codeforces 86 D
         }
     };
     ```
-    
+
 ??? info "時間複雜度為 $O(n^{\frac{5}{3}})$"
 	相當於 $n \times n\times n$ 的三維空間，放 $n$ 個點，找一個路徑經過所有點移動距離最小值最差是多少呢？
 	
@@ -226,6 +226,8 @@ codeforces 86 D
 	> 此證明不嚴謹，若要嚴謹證明可見[莫队时间复杂度和块长分析](https://zhuanlan.zhihu.com/p/595026012)
 
 ### 指針移動
+
+當 updates 有影響到當前 [ql, qr] 的話，才需要 add, del，不然就直接修改陣列上的元素即可
 
 ???+note "code"
 	```cpp linenums="1"
@@ -262,141 +264,141 @@ codeforces 86 D
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 1e6 + 5;
-        const int M = 1e9 + 7;
-
-        struct Query {
-            int l, r, t, l_block, r_block, qid;
-
-            bool operator<(const Query &rhs) const {
-                if (l_block == rhs.l_block) {
-                    if (r_block == rhs.r_block) {
-                        return t < rhs.t;
-                    } else {
-                        return r_block < rhs.r_block;
-                    }
-                } 
-                return l_block < rhs.l_block;
-            }
-        };
-
-        int n, q;
-        int ans[maxn];
-        vector<Query> query;
-
-        struct DS {
-            static const int N = 1e6 + 5;
-            int ans = 0;
-            vector<int> cnt;
-            vector<int> a;
-            vector<pii> updates;
-            stack<pii> stk;
-
-            DS(vector<int> b) {
-                cnt.resize(N);
-                a = b;
-            }
-
-            void add_event(int idx, int val) {
-                updates.pb({idx, val});
-            }
-            void add(int x) {
-                x = a[x];
-                if (cnt[x] == 0) {
-                    ans++;
-                }
-                cnt[x]++;
-            }
-            void del(int x) {
-                x = a[x];
-                cnt[x]--;
-                assert(cnt[x] >= 0);
-                if (cnt[x] == 0) {
-                    ans--;
-                }
-            }
-            void modify_add(int l, int r, int t) {
-                auto [idx, val] = updates[t];
-                if (l <= idx && idx <= r) {
-                    stk.push({idx, a[idx]});
-                    del(idx);
-                    a[idx] = val;
-                    add(idx);
-                } else {
-                    stk.push({idx, a[idx]});
-                    a[idx] = val;
-                }
-            }
-            void modify_del(int l, int r, int t) {
-                assert(stk.size());
-                auto [idx, val] = stk.top();
-                stk.pop();
-                if (l <= idx && idx <= r) {
-                    del(idx);
-                    a[idx] = val;
-                    add(idx);
-                } else {
-                    a[idx] = val;
-                }
-            } 
-        };
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cin >> n >> q;
-            int k = pow(n, (double)2/(double)3);
-            vector<int> a(n);
-            for (int i = 0; i < n; i++) {
-                cin >> a[i];
-            }
-
-            DS ds(a);
-            int uid = -1, qid = -1;
-            for (int i = 0; i < q; i++) {
-                char c;
-                cin >> c;
-                if (c == 'R') {
-                    int idx, val;
-                    cin >> idx >> val;
-                    idx--;
-                    uid++;
-                    ds.add_event(idx, val);
-                } else if (c == 'Q') {
-                    int l, r;
-                    cin >> l >> r;
-                    l--, r--;
-                    qid++;
-                    query.pb({l, r, uid, l / k, r / k, qid});
-                }
-            }
-            sort(ALL(query));
-            int l = 0, r = -1, t = -1;
-            for (auto [ql, qr, qt, l_block, r_block, qid] : query) {
-                while (ql < l) ds.add(--l);
-                while (r < qr) ds.add(++r);
-                while (l < ql) ds.del(l++);
-                while (qr < r) ds.del(r--);
-                while (t < qt) ds.modify_add(ql, qr, ++t);
-                while (t > qt) ds.modify_del(ql, qr, t--);
-                ans[qid] = ds.ans;
-            }
-            for (int i = 0; i <= qid; i++) {
-                cout << ans[i] << '\n';
-            }
-        } 
-        ```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 1e6 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Query {
+	        int l, r, t, l_block, r_block, qid;
+	
+	        bool operator<(const Query &rhs) const {
+	            if (l_block == rhs.l_block) {
+	                if (r_block == rhs.r_block) {
+	                    return t < rhs.t;
+	                } else {
+	                    return r_block < rhs.r_block;
+	                }
+	            } 
+	            return l_block < rhs.l_block;
+	        }
+	    };
+	
+	    int n, q;
+	    int ans[maxn];
+	    vector<Query> query;
+	
+	    struct DS {
+	        static const int N = 1e6 + 5;
+	        int ans = 0;
+	        vector<int> cnt;
+	        vector<int> a;
+	        vector<pii> updates;
+	        stack<pii> stk;
+	
+	        DS(vector<int> b) {
+	            cnt.resize(N);
+	            a = b;
+	        }
+	
+	        void add_event(int idx, int val) {
+	            updates.pb({idx, val});
+	        }
+	        void add(int x) {
+	            x = a[x];
+	            if (cnt[x] == 0) {
+	                ans++;
+	            }
+	            cnt[x]++;
+	        }
+	        void del(int x) {
+	            x = a[x];
+	            cnt[x]--;
+	            assert(cnt[x] >= 0);
+	            if (cnt[x] == 0) {
+	                ans--;
+	            }
+	        }
+	        void modify_add(int l, int r, int t) {
+	            auto [idx, val] = updates[t];
+	            if (l <= idx && idx <= r) {
+	                stk.push({idx, a[idx]});
+	                del(idx);
+	                a[idx] = val;
+	                add(idx);
+	            } else {
+	                stk.push({idx, a[idx]});
+	                a[idx] = val;
+	            }
+	        }
+	        void modify_del(int l, int r, int t) {
+	            assert(stk.size());
+	            auto [idx, val] = stk.top();
+	            stk.pop();
+	            if (l <= idx && idx <= r) {
+	                del(idx);
+	                a[idx] = val;
+	                add(idx);
+	            } else {
+	                a[idx] = val;
+	            }
+	        } 
+	    };
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> n >> q;
+	        int k = pow(n, (double)2/(double)3);
+	        vector<int> a(n);
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	        }
+	
+	        DS ds(a);
+	        int uid = -1, qid = -1;
+	        for (int i = 0; i < q; i++) {
+	            char c;
+	            cin >> c;
+	            if (c == 'R') {
+	                int idx, val;
+	                cin >> idx >> val;
+	                idx--;
+	                uid++;
+	                ds.add_event(idx, val);
+	            } else if (c == 'Q') {
+	                int l, r;
+	                cin >> l >> r;
+	                l--, r--;
+	                qid++;
+	                query.pb({l, r, uid, l / k, r / k, qid});
+	            }
+	        }
+	        sort(ALL(query));
+	        int l = 0, r = -1, t = -1;
+	        for (auto [ql, qr, qt, l_block, r_block, qid] : query) {
+	            while (ql < l) ds.add(--l);
+	            while (r < qr) ds.add(++r);
+	            while (l < ql) ds.del(l++);
+	            while (qr < r) ds.del(r--);
+	            while (t < qt) ds.modify_add(ql, qr, ++t);
+	            while (t > qt) ds.modify_del(ql, qr, t--);
+	            ans[qid] = ds.ans;
+	        }
+	        for (int i = 0; i <= qid; i++) {
+	            cout << ans[i] << '\n';
+	        }
+	    } 
+	    ```
 
 ## 回滾莫隊
 
@@ -740,6 +742,15 @@ codeforces 86 D
 	
 	$n,q\le 10^5,a_i\le 10^9$
 
+## 樹上莫隊
+
+???+note "[SPOJ COT2](https://www.spoj.com/problems/COT2/)"
+	給一個 n 個點的樹，每個點有一個權值 $w_i$，有 q 筆詢問如下 :
+	
+	- $\text{query}(u,v):$ 輸出 u 到 v 的路徑上 distinct number 數量
+	
+	$n\le 4\times 10^4,q\le 10^5$
+	
 ---
 
 ## 參考資料
