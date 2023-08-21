@@ -1,40 +1,72 @@
-## KMP
+## 引入
 
-!!! info "KMP 演算法陣列習慣使用 1-base"
+???+note "問題"
+	定義 input string s[1 ~ n] (1-base)
+	
+	令 f[i] : s[1~i] 的 「次長」共同前後綴長度
 
 ### 性質1
 
-- 共同前後綴的共同前後綴也會是自己的共同前後綴
-- i 是 T(1, i) 的第 1 長共同前後綴長度
-- F( i ) 是 T(1, i) 的第 2 長共同前後綴長度
-- F( F( i ) ) 是 T(1, i) 的第 3 長共同前後綴長度
-- F( F( F( i ) ) ) 是 T(1, i) 的第 4 長共同前後綴長度
+s[1~i] 的所有共同前後綴長度 :
+
+- 最長 i
+
+- 第 2 長 f[i]
+
+- 第 3 長 f[f[i]]
+
+- 第 4 長 f[f[f[i]]]
+
+- …
 
 ### 性質2
-- 已知 F(i) 是 T(1, i) 的次長共同前後綴長度
-- F(i) - 1 一定是 T(1, i-1) 的一個共同前後綴長度，但不一定是最長
-- 換句話說，T(1, i-1) 的某一個共同前後綴長度 + 1 就會是 F(i)
-```cpp linenums="1"
-vector<int> KMP (string s) { // 1-based string
-    int n = s.size () - 1;
-    vector<int> F (n + 1, -1);
 
-    for (int i = 1; i <= n; i++) {
-        int w = F[i - 1];
-        while (w >= 0 && s[w + 1] != s[i]) w = F[w];
+f[i] - 1 一定是 s[1 ~ (i-1)] 的一個共同前後綴長度，但不一定是最長
 
-        F[i] = w + 1;
+⇒ 想要找 f[i] : 從 s[1~(i-1)] 共同前後綴去找
+
+### 實作
+
+???+note "code"
+	```cpp linenums="1"
+    vector<int> KMP(string s) { // 1-based string
+        int n = s.size() - 1;
+        vector<int> F(n + 1, -1);
+
+        for (int i = 1; i <= n; i++) {
+            int w = F[i - 1];
+            while (w >= 0 && s[w + 1] != s[i]) w = F[w];
+
+            F[i] = w + 1;
+        }
+        return F;
     }
-    return F;
-}
+    ```
 
-signed main () {
-    string s;
-    cin >> s;
-    int n = s.size ();
-    s = "$" + s;
-    vector<int> F = KMP (s);
-} 
-```
+## 例題
 
+???+note "[CSES - String Matching](https://cses.fi/problemset/task/1753/)"
+	給一個長度 $n$ 的字串 $S$ 和一個長度 $m$ 的字串 $T$，問 $T$ 在 $S$ 內出現幾次
+	
+	$n,m\le 10^6$
+	
+	??? note "思路"
+		
+        - new_str = target + "$" + str
+        - f = build_f(new_str), 看幾個 f[i] = target.size()
+
+???+note "[CF 432 D. Prefixes and Suffixes](https://codeforces.com/problemset/problem/432/D)"
+	給一個字串 s，問對於每個 s 的共同前後綴，在 s 出現幾次
+	
+	$1\le |s| \le 10^5$
+	
+	??? note "思路"
+		根據性質 2，我們可以推得一個 dp 轉移 :
+		
+		```
+		for (int i = n ~ 1)
+            cnt[i]++;
+            cnt[f[i]] += cnt[i]
+		```
+    
 https://codeforces.com/contest/955/submission/170083972

@@ -47,56 +47,6 @@
 
 ## 因數
 
-### 1~n 因數 
-
-???+note "[CSES - Sum of Divisors](https://cses.fi/problemset/task/1082)"
-	問你 1 ~ n 的每個因數的數量總和
-	
-	??? note "思路"
-	    觀察 12
-	
-		<figure markdown>
-	      ![Image title](./images/4.png){ width="300" }
-	      <figcaption>Image caption</figcaption>
-	    </figure>
-	
-	    每個數字出現 $\frac{n}{i}$ 次，答案就是 $\sum\frac{n}{i}$ 其中 $i=1...n$
-	
-		<figure markdown>
-	      ![Image title](./images/5.png){ width="300" }
-	      <figcaption>Image caption</figcaption>
-	    </figure>
-		
-	    就變成zerojudge - H(n) 的題目了
-	
-	??? note "code"
-	    ```cpp linenums="1"
-	    #include <iostream>
-	
-	    using std::cout;
-	    using std::endl;
-	
-	    const int MOD = 1e9 + 7;
-	
-	    int main() {
-	        long long n;
-	        std::cin >> n;
-	
-	        long long total = 0;
-	        long long at = 1;
-	        while (at <= n) {
-	            long long add_amt = n / at;  // n / i 到多少了
-	            long long last_same = n / add_amt; // 這個 n/i 的質最多可以延續到哪格
-	
-	            total = (total + add_amt * (last_same - at + 1));
-	            at = last_same + 1;
-	        }
-	
-	        cout << total << endl;
-	    }
-	
-	    ```
-
 ### 因數個數,和,乘積
 
 ???+note "[CSES - Divisor Analysis](https://cses.fi/problemset/task/2182)"
