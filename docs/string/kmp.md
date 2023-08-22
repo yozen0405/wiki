@@ -36,7 +36,7 @@ f[i] - 1 一定是 s[1 ~ (i-1)] 的一個共同前後綴長度，但不一定是
         for (int i = 1; i <= n; i++) {
             int w = F[i - 1];
             while (w >= 0 && s[w + 1] != s[i]) w = F[w];
-
+    
             F[i] = w + 1;
         }
         return F;
@@ -52,8 +52,8 @@ f[i] - 1 一定是 s[1 ~ (i-1)] 的一個共同前後綴長度，但不一定是
 	
 	??? note "思路"
 		
-        - new_str = target + "$" + str
-        - f = build_f(new_str), 看幾個 f[i] = target.size()
+	    - new_str = target + "$" + str
+	    - f = build_f(new_str), 看幾個 f[i] = target.size()
 
 ???+note "[CF 432 D. Prefixes and Suffixes](https://codeforces.com/problemset/problem/432/D)"
 	給一個字串 s，問對於每個 s 的共同前後綴，在 s 出現幾次
@@ -65,8 +65,13 @@ f[i] - 1 一定是 s[1 ~ (i-1)] 的一個共同前後綴長度，但不一定是
 		
 		```
 		for (int i = n ~ 1)
-            cnt[i]++;
-            cnt[f[i]] += cnt[i]
+	        cnt[i]++;
+	        cnt[f[i]] += cnt[i]
 		```
-    
+
+???+note "[CF 955 D. Scissors](https://codeforces.com/contest/955/problem/D)"
+	給一個字串 s，你可以拿兩段 s 中長度為 k 的 substring，再將他們兩個拼起來。問有沒有可能使裡面包含 substring t，若有可能輸出兩段分別的開頭 index
+	
+	$2\le |t| \le 2\times k\le |s|\le 5\times 10^5$
+	
 https://codeforces.com/contest/955/submission/170083972
