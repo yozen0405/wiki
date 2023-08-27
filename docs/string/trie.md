@@ -250,14 +250,185 @@
 	    } 
 	    ```
 
+???+note "<a href="/wiki/graph/tree_greedy/?h=ioic#2023-ioic-308" target="_blank">2023 IOIC 308 . 數字遊戲</a>"
+	給定 $a_1, a_2, \ldots, a_{2N}$，Alice 可以將這個數列任意排列，之後 Bob 要做最少次操作使得 $a_{i} = a_{i+N}$ 對所有 $i$ 從 $1$ 到 $N$ 都成立，Bob 每次可以進行的操作為選擇一個足標 $i$，將 $a_i$ 改成 $\lfloor \frac{a_i}{2} \rfloor,2a_i$ 或 $2a_i+1$。Alice 想讓 Bob 需要的操作次數盡量多，那最多可以是多少？
+	
+	Alice 會進行 $Q$ 次操作，每一次操作都會選擇數列的某個數修改成新的數字，輸出修改後整個陣列的答案是多少。
+	
+	$N,Q\le 10^5,1\le a_i\le 10^6$
+	
+???+note "[CF 1864 E. Guess Game](https://codeforces.com/contest/1864/problem/E)"
+	給一個陣列 $a_1,\ldots ,a_n$，選隨意兩個數 i, j，令 a = a[i], b = a[j]
+    
+    a 和 b 會輪流說出一些以下訊息，他們是可以聽到對方訊息的，一開始他們只知道 a | b 是多少，他們的目標是確定 a, b 的關係是 $a < b, a > b, a=b$ 哪種
+    
+	- 說 : 「I don't know」
+
+	- 或說 : 「I know, 答案是 $a < b, a > b, a=b$」，說完後遊戲即結束
+
+	a 和 b 都 play optimally，問說話次數的期望值是多少
+	
+	$1\le n\le 2\times 10^5,0\le a_i\le 2^{30}$
+	
+	??? note "思路"
+		先觀察值域範圍只有 [0, 1] 的 case，a 為先手
+		
+		- 若當前 a = 0, b = 0，因為 a|b 的這位就是 0，他們會直接忽視
+
+			- 說話次數 += 0
+		
+		- 若當前 a = 0, b = 1，因為 a|b 的這位就是 1，a 可以直接輸出 $a<b$
+			
+			- 說話次數 += 1
+			
+		- 若當前 a = 1, b = 0，因為 a|b 的這位就是 1，不確定 b 是 0 或 1，a 會說 idk，輪到 b 時他就知道 $b>a$
+
+			- 說話次數 += 2
+		
+		- 若當前 a = 1, b = 1，因為 a|b 的這位就是 1，a 會說 idk，輪到 b 就知道 a 是 1（若後面還有位數則變子問題）
+
+			- 說話次數 += 1
+		
+		跟平常一樣，越高位越優先，我們考慮隨意兩個數 a, b，從 i = lgC … 0
+
+        - 若 a[i] = b[i] = 0 跳過
+
+        - 若 a[i] = b[i] = 1, cnt +=1, 交換先後手
+            - a: idk, b: 知道 a[i] = 1 了, 直接去比較 i + 1
+
+        - 若 a[i] = 0 ⇒ ans = cnt ; 若 b[i] = 0 ⇒ ans = cnt + 1，然後遊戲就停止了
+
+		記得判當 a = b 時，他們會說話的次數恰好是 1-bit 的數量 +1
+
+		使用 01 Trie 枚舉 a[i]，考慮跟除了 a[i] 以外的 a[j] 的貢獻
+
+		> 比較詳細可以參考 : <https://www.bilibili.com/video/BV1Bp4y1P7u6/?p=5>
+
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int M = 998244353;
+        int ans, cnt, now;
+
+        struct Node {
+            Node *lc = nullptr;
+            Node *rc = nullptr;
+            int sz = 0;
+
+            void pull() {
+                sz = 0;
+                if (lc) sz += lc->sz;
+                if (rc) sz += rc->sz;
+            }
+        };
+
+        void add(Node *root, int x, int i) {
+            if (i == -1) {
+                root->sz++;
+                return;
+            }
+            if (x & (1 << i)) {
+                if (root->rc == nullptr) {
+                    root->rc = new Node();
+                }
+                add(root->rc, x, i - 1);
+                root->pull();
+            } else {
+                if (root->lc == nullptr) {
+                    root->lc = new Node();
+                }
+                add(root->lc, x, i - 1);
+                root->pull();
+            }
+        }
+
+        void query(Node *root, int x, int i) {
+            if (i == -1) {
+                ans = (ans + root->sz * (cnt + 1)) % M;
+                return;
+            }
+            if (x & (1 << i)) { // me = 1, other = 0
+                if (root->lc) {
+                    if (now) {
+                        ans = (ans + (cnt + 2) * root->lc->sz % M) % M;
+                    } else {
+                        ans = (ans + (cnt + 1) * root->lc->sz % M) % M;
+                    }
+                } 
+                cnt++;
+                now ^= 1;
+                query(root->rc, x, i - 1);
+            } else { // me = 0, other = 1
+                if (root->rc) {
+                    if (now) {
+                        ans = (ans + (cnt + 1) * root->rc->sz % M) % M;
+                    } else {
+                        ans = (ans + (cnt + 2) * root->rc->sz % M) % M;
+                    }
+                }  
+                query(root->lc, x, i - 1);
+            }
+        }
+
+        int fpow(int a, int b) {
+            int ret = 1;
+            a %= M;
+            while (b != 0) {
+                if (b & 1) ret = (ret * a) % M;
+                a = (a * a) % M;
+                b >>= 1;
+            }
+            return ret;
+        }
+
+        void solve() {
+            ans = 0;
+            int n;
+            cin >> n;
+
+            vector<int> a(n);
+            for (int i = 0; i < n; i++) {
+                cin >> a[i];
+            }
+            Node *root = new Node();
+            for (int i = 0; i < n; i++) {
+                add(root, a[i], 29);
+            }
+            for (int i = 0; i < n; i++) {
+                cnt = 0;
+                now = 1;
+                query(root, a[i], 29);
+            }
+            cout << (ans * fpow(n * n, M - 2)) % M << '\n';
+        }
+
+        signed main() {
+            int t = 1;
+            cin >> t;
+            while (t--) {
+                solve();
+            }
+        } 
+		```
+	
 ???+note "[USACO 2019 Dec. Gold p1. Cow Land](http://www.usaco.org/index.php?page=viewproblem2&cpid=921)"
     給一顆 $n$ 個點的樹，賦予每個 Node $a_i$，$q$ 筆詢問
     
     - $\text{modify}(i,x):$ 把 $a_i = x$
     
     - $\text{query}(u,v):$ 問把 $u \rightarrow v$ 的 path 上的 $a_i$ xor 起來是多少
-
-	$2\le n\le 10^5,1\le q\le 10^5,0\le a_i\le 10^9$
+    
+    $2\le n\le 10^5,1\le q\le 10^5,0\le a_i\le 10^9$
     
     ??? note "解析"
         - 相關的問題(不是 Trie)

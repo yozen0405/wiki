@@ -256,6 +256,22 @@ Debug
 
 <font style='font-size:12px'>:octicons-dash-16: <font style='font-size:11px'>:fontawesome-solid-user:</font> Paul-Liao</font>
 
+---
+
+- stuff you should look for
+
+- int overflow, array bounds
+
+- special cases (n=1?)
+
+- do smth instead of nothing and stay organized
+
+- WRITE STUFF DOWN
+
+- DON'T GET STUCK ON ONE APPROACH
+
+<font style='font-size:12px'>:octicons-dash-16: <font style='font-size:11px'>:fontawesome-solid-user:</font> Benq</font>
+
 ## 經驗分享
 
 - [IOIC 2023 經驗分享](https://hackmd.io/@baluteshih/ioicamp-day1#/)
