@@ -55,6 +55,8 @@ void dfs(int u) {
 
 ### 例題
 
+#### 模板題
+
 ???+note "模板 [LOJ #10105. 「一本通 3.7 例 1」欧拉回路](https://loj.ac/p/10105)"
 	給一張圖，找出歐拉迴路，即在圖中找一個環使得每條邊都在環上出現恰好一次，有兩個子任務
 	
@@ -154,6 +156,8 @@ void dfs(int u) {
 	??? note "思路"
 		一樣用 circuit 的 code 下去做即可，只是用 set 去維護 adjacency list
 
+#### 有解條件分析
+
 ???+note "<a href="/wiki/graph/images/ioic_501.html" target="_blank">2023 IOIC  511 . 找錢包</a>"
 	給 n 點 m 邊的圖，有 k 條特殊邊，問是否能在每條邊走不超過一次下，走過所有特殊邊，且要從 1 走到 n
 	
@@ -225,20 +229,6 @@ void dfs(int u) {
 	    }
 	    ```
 
-???+note "[CF 1634 E. Fair Share](https://codeforces.com/problemset/problem/1634/E)"
-	給 m 個長度為偶數的陣列，將每個陣列中一半的元素丟到 multiset L 裡面，另一半丟到 multiset R 裡面，最後 L 和 R 裡面每一種數值出現的次數要一樣。輸出每個元素是屬於 L 或 R
-	
-	總元素個數 $\le 2\times 10^5$
-	
-	??? note "思路"
-		如果有一種數字出現奇數次，那就無解。否則，我們試著把元素放到圖上面，每個元素都有兩個屬性 : 數值和所在的陣列，所以就幫每個陣列和每種數值各開一個節點，對於每個元素，在它的數值和陣列對應的節點間加一條邊。
-
-		可以發現到所有節點的度數都是偶數，符合有歐拉迴路的條件。找出歐拉迴路，然後讓第奇數條邊在 L、第偶數條在 R，因為相鄰兩條邊是共點的，因此每個點相鄰的邊中，在 L 的數量和在 R 的數量是一樣的，符合題目要的條件。
-        
-        實作上先判有沒有數字出現奇數次。對於每個連通塊去找歐拉迴路，讓第奇數條邊在 L、第偶數條在 R 即可。
-        
-		> 參考自 : [師大附中延平中學競技程式讀書會證明與綜合練習](https://drive.google.com/file/d/1q2mP9uHYAauroE2mjtYKti9khs0H9qaJ/view)
-
 ???+note "[CF 788 B. Weird journey](https://codeforces.com/problemset/problem/788/B)"
 	給一張 n 點 m 邊的無向圖，問有多少對邊的 pair$(e_i, e_j)$ 滿足存在一條路徑經過這兩條邊恰好一次且經過剩餘的每條邊恰兩次
 	
@@ -246,113 +236,115 @@ void dfs(int u) {
 	
 	??? note "思路"
 		可以想成將每條邊都複製一條，由於複製後每個點的 degree 均為偶數，只要**所有的邊**都連通，歐拉路徑就一定存在。我們只需考慮刪去兩條邊後歐拉路徑是否還存在
-
-        1. 如果刪的是兩條不相交的非自環邊，那麼會產生四個度為奇數的點 ⇒ 不存在歐拉路徑
-        2. 如果刪的是兩條相交的非自環邊，那麼會產生兩個度為奇數的點 ⇒ 存在歐拉路徑
-        3. 如果刪的是兩個自環邊，那麼所有點度依舊為偶數 ⇒ 存在歐拉路徑
-        4. 如果刪的是一條非自環邊和一個自環邊，那麼會產生兩個度為奇數的點 ⇒ 存在歐拉路徑
-
-        綜上，對於一條邊 (u, v) ，如果是自環，那麼該自環配上任意一條其他邊均可，方案數 m - 1。如果是非自環，那麼該非自環邊配上任意一個自環或者配上一條與自己相交的邊均可，方案數 (deg[u] - 1) + (deg[v] - 1) + (自環數量) ，注意這樣以來每個方案會被算兩次，故求出答案後除 2
-        
-        > 參考自 : <https://blog.csdn.net/V5ZSQ/article/details/79055623>
+	
+	    1. 如果刪的是兩條不相交的非自環邊，那麼會產生四個度為奇數的點 ⇒ 不存在歐拉路徑
+	    2. 如果刪的是兩條相交的非自環邊，那麼會產生兩個度為奇數的點 ⇒ 存在歐拉路徑
+	    3. 如果刪的是兩個自環邊，那麼所有點度依舊為偶數 ⇒ 存在歐拉路徑
+	    4. 如果刪的是一條非自環邊和一個自環邊，那麼會產生兩個度為奇數的點 ⇒ 存在歐拉路徑
+	
+	    綜上，對於一條邊 (u, v) ，如果是自環，那麼該自環配上任意一條其他邊均可，方案數 m - 1。如果是非自環，那麼該非自環邊配上任意一個自環或者配上一條與自己相交的邊均可，方案數 (deg[u] - 1) + (deg[v] - 1) + (自環數量) ，注意這樣以來每個方案會被算兩次，故求出答案後除 2
+	    
+	    > 參考自 : <https://blog.csdn.net/V5ZSQ/article/details/79055623>
 		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-        using pii = pair<int, int>;
-
-        const int INF = 2e18;
-        const int maxn = 1e6 + 5;
-        const int M = 1e9 + 7;
-
-        struct DSU {
-            vector<int> par, sz;
-
-            DSU (int n = 0) : par(n), sz(n, 1) {
-                for (int i = 0; i < n; i++) {
-                    par[i] = i;
-                }
-            }
-            int find(int x) {
-                if (par[x] == x) return x;
-                return par[x] = find(par[x]);
-            }
-            bool merge(int u, int v) {
-                u = find(u), v = find(v);
-                if (u == v) return false;
-                if (sz[u] < sz[v]) swap(u, v);
-                par[v] = u;
-                sz[u] += sz[v];
-                return true;
-            }
-        };
-
-        int n, m;
-        vector<pii> edges;
-        int deg[maxn];
-        bool vis[maxn];
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cin >> n >> m;
-            DSU dsu(n);
-            int cnt = 0;
-            for (int i = 0; i < m; i++) {
-                int u, v;
-                cin >> u >> v;
-                u--, v--;
-                edges.pb({u, v});
-                vis[u] = vis[v] = true;
-                if (u != v) {
-                    deg[u]++;
-                    deg[v]++;
-                    dsu.merge(u, v);
-                } else {
-                    cnt++;
-                }
-            }
-            int num = 0;
-            for (int i = 0; i < n; i++) {
-                if (vis[i] && dsu.find(i) == i) {
-                    num++;
-                }
-            }
-            if (num != 1) {
-                cout << '0' << '\n';
-                exit(0);
-            }
-            int ans = 0;
-            for (auto [u, v] : edges) {
-                if (u == v) ans += m - 1;
-                else ans += (deg[u] - 1) + (deg[v] - 1) + cnt;
-            }
-            cout << ans / 2 << '\n';
-        } 
-        ```
-
-???+note "[CF 21 D. Traveling Graph](https://codeforces.com/problemset/problem/21/D)"
-	給一張 n 點 m 邊的帶權無向圖，，找一個包含 node 1 的最短迴路，使每條邊都被用至少一次
+	    #define int long long
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
 	
-	$n\le 15,m\le 2000,1\le w_i\le 10^4$
+	    using namespace std;
+	    using pii = pair<int, int>;
+	
+	    const int INF = 2e18;
+	    const int maxn = 1e6 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct DSU {
+	        vector<int> par, sz;
+	
+	        DSU (int n = 0) : par(n), sz(n, 1) {
+	            for (int i = 0; i < n; i++) {
+	                par[i] = i;
+	            }
+	        }
+	        int find(int x) {
+	            if (par[x] == x) return x;
+	            return par[x] = find(par[x]);
+	        }
+	        bool merge(int u, int v) {
+	            u = find(u), v = find(v);
+	            if (u == v) return false;
+	            if (sz[u] < sz[v]) swap(u, v);
+	            par[v] = u;
+	            sz[u] += sz[v];
+	            return true;
+	        }
+	    };
+	
+	    int n, m;
+	    vector<pii> edges;
+	    int deg[maxn];
+	    bool vis[maxn];
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> n >> m;
+	        DSU dsu(n);
+	        int cnt = 0;
+	        for (int i = 0; i < m; i++) {
+	            int u, v;
+	            cin >> u >> v;
+	            u--, v--;
+	            edges.pb({u, v});
+	            vis[u] = vis[v] = true;
+	            if (u != v) {
+	                deg[u]++;
+	                deg[v]++;
+	                dsu.merge(u, v);
+	            } else {
+	                cnt++;
+	            }
+	        }
+	        int num = 0;
+	        for (int i = 0; i < n; i++) {
+	            if (vis[i] && dsu.find(i) == i) {
+	                num++;
+	            }
+	        }
+	        if (num != 1) {
+	            cout << '0' << '\n';
+	            exit(0);
+	        }
+	        int ans = 0;
+	        for (auto [u, v] : edges) {
+	            if (u == v) ans += m - 1;
+	            else ans += (deg[u] - 1) + (deg[v] - 1) + cnt;
+	        }
+	        cout << ans / 2 << '\n';
+	    } 
+	    ```
 
-???+note "[CF 1610 F. Mashtali: a Space Oddysey](https://codeforces.com/problemset/problem/1610/F)"
-	給一張 n 點 m 邊無向圖，每條邊的邊權是 1 或 2，請幫每條邊訂好方向，讓滿足下面條件的點盡量多 :
-	
-	- 「入邊邊權和」及「出邊邊權和」恰好相差 1
+#### 建圖
 
-	輸出每條邊的方向以及有幾個點滿足
+???+note "[CF 1634 E. Fair Share](https://codeforces.com/problemset/problem/1634/E)"
+	給 m 個長度為偶數的陣列，將每個陣列中一半的元素丟到 multiset L 裡面，另一半丟到 multiset R 裡面，最後 L 和 R 裡面每一種數值出現的次數要一樣。輸出每個元素是屬於 L 或 R
 	
-	$n,m\le 10^5$
+	總元素個數 $\le 2\times 10^5$
 	
+	??? note "思路"
+		如果有一種數字出現奇數次，那就無解。否則，我們試著把元素放到圖上面，每個元素都有兩個屬性 : 數值和所在的陣列，所以就幫每個陣列和每種數值各開一個節點，對於每個元素，在它的數值和陣列對應的節點間加一條邊。
+	
+		可以發現到所有節點的度數都是偶數，符合有歐拉迴路的條件。找出歐拉迴路，然後讓第奇數條邊在 L、第偶數條在 R，因為相鄰兩條邊是共點的，因此每個點相鄰的邊中，在 L 的數量和在 R 的數量是一樣的，符合題目要的條件。
+	    
+	    實作上先判有沒有數字出現奇數次。對於每個連通塊去找歐拉迴路，讓第奇數條邊在 L、第偶數條在 R 即可。
+	    
+		> 參考自 : [師大附中延平中學競技程式讀書會證明與綜合練習](https://drive.google.com/file/d/1q2mP9uHYAauroE2mjtYKti9khs0H9qaJ/view)
+
 ???+note "[TOI 2022 二模 pC. 燈光設計（Lantern）](https://drive.google.com/file/d/12lrTQkrL1-W0Ce_f7OBPfR5AoL8pfhw-/view)"
 	給你 $4n$ 個數字，編號 $1, 2,..., 4n$。第 $i$ 個燈的顏色是 $c_i$，顏色在 $0, 1, ..., n-1$ 之間，每種顏色恰出現 $4$ 次。選 $2n$ 個數字，使每個顏色恰出現兩次，且總和與沒選的數字總和一樣。接著把這些數字兩兩配對並加總，目標是讓總和最大的一對和總和最小的一對相差盡量小。無解輸出 -1，或輸出配對的結果
 	
@@ -363,7 +355,6 @@ void dfs(int u) {
 		
 		> 參考自 : [師大附中延平中學競技程式讀書會證明與綜合練習](https://drive.google.com/file/d/1q2mP9uHYAauroE2mjtYKti9khs0H9qaJ/view)
 	
-	
 ## K-筆畫問題
 
 【定理】 : 如果連通無向圖 G 有 2k 個奇頂點，至少要用 k 筆畫成
@@ -372,9 +363,9 @@ void dfs(int u) {
 	total degree = sum(even degree) + sum(odd degree)
 
     ⇒ total degree - sum(even degree) = sum(odd degree)
-	
-	因為 total degree 和 sum(even degree) 一定都是 even
-	
+    
+    因為 total degree 和 sum(even degree) 一定都是 even
+    
     ⇒ even = sum(odd degree)
 
 ## 中國郵差問題
@@ -389,6 +380,16 @@ void dfs(int u) {
 考慮只有兩個奇點的 case，需要多走一趟把頭尾的 degree 變成偶數，所以答案會是 sum(w) + dis(u → v) 
 
 若有 2k 個奇點，那就是找二分圖最小權重完美匹配
+
+### 習題
+
+???+note "[CF 21 D. Traveling Graph](https://codeforces.com/problemset/problem/21/D)"
+	給一張 n 點 m 邊的帶權無向圖，找一個包含 node 1 的最短迴路，使每條邊都被用至少一次
+	
+	$n\le 15,m\le 2000,1\le w_i\le 10^4$
+
+	??? note "思路"
+		因為點只有 15 個，我們可以使用 bitmask dp
 
 ## De Bruijn sequences
 
@@ -412,62 +413,76 @@ De Bruijn sequence 是由 k 種不同符號組成，且其所有長度為 n 之�
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-        using pii = pair<int, int>;
-
-        const int maxn = 3e5 + 5;
-
-        struct Edge {
-            int v, w, eid;
-        };
-
-        int m;
-        vector<Edge> G[maxn];
-        vector<int> ans;
-
-        void dfs(int u) {
-            while (G[u].size()) {
-                auto [v, w, eid] = G[u].back();
-                G[u].pop_back();
-                dfs(v);
-                ans.pb(w);
-            }
-        }
-
-        void add_edge(int u, int v, int w) {
-            G[u].pb({v, w, m++});
-        }
-
-        signed main() {
-            int n;
-            cin >> n;
-            if (n == 1) {
-                cout << "01\n";
-                exit(0);
-            }
-
-            for (int i = 0; i < (1 << n); i++) {
-                int tmp = i - (i & (1 << (n - 2)));
-                tmp <<= 1;
-                add_edge(i, tmp + 1, 1);
-                add_edge(i, tmp, 0);
-            }
-            dfs(0);
-            for (int i = 0; i < n - 1; i++) {
-                cout << "0";
-            }
-            reverse(ALL(ans));
-            for (int it : ans) cout << it;
-        } 
-        ```
+	    #define int long long
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
 	
+	    using namespace std;
+	    using pii = pair<int, int>;
+	
+	    const int maxn = 3e5 + 5;
+	
+	    struct Edge {
+	        int v, w, eid;
+	    };
+	
+	    int m;
+	    vector<Edge> G[maxn];
+	    vector<int> ans;
+	
+	    void dfs(int u) {
+	        while (G[u].size()) {
+	            auto [v, w, eid] = G[u].back();
+	            G[u].pop_back();
+	            dfs(v);
+	            ans.pb(w);
+	        }
+	    }
+	
+	    void add_edge(int u, int v, int w) {
+	        G[u].pb({v, w, m++});
+	    }
+	
+	    signed main() {
+	        int n;
+	        cin >> n;
+	        if (n == 1) {
+	            cout << "01\n";
+	            exit(0);
+	        }
+	
+	        for (int i = 0; i < (1 << n); i++) {
+	            int tmp = i - (i & (1 << (n - 2)));
+	            tmp <<= 1;
+	            add_edge(i, tmp + 1, 1);
+	            add_edge(i, tmp, 0);
+	        }
+	        dfs(0);
+	        for (int i = 0; i < n - 1; i++) {
+	            cout << "0";
+	        }
+	        reverse(ALL(ans));
+	        for (int it : ans) cout << it;
+	    } 
+	    ```
+
+### 習題
+
+???+note "[CF 508 D. Tanya and Password](https://codeforces.com/problemset/problem/508/D)"
+	有一個長度 n + 2 的字串 s，給你它每個長度為 3 的子字串，請輸出任意一種 s。
+	
+	$1\le n\le 2\times 10^5,s\in \{\texttt{a}\ldots \texttt{z}, \texttt{A}\ldots \texttt{Z}, \texttt{1}\ldots \texttt{9}\}$
+	
+	??? note "思路"
+		跟上面的一樣，例如有兩個 substring aba, bac，那就建立 ba → ac，邊上的數字為 c
+		
+		最後的答案就是 (開頭的 substring) + (歐拉迴路邊上字元所組成的序列)
+		
+		令 a…z, A…z, 1…9 共是 m 種數字。每個點的 degree 最多是 m，所以 edge 最多 n * m 條。點是由兩個數字接起來，所以最多 m * m 個。總複雜度 O(n * m) = O(61 * n)
+		
 ---
 
 ## 參考資料
