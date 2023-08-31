@@ -1,9 +1,10 @@
-# 序列交換問題
+???+note "問題常態"
 
-> 給定 $a_1,...,a_n$，每次可做以下操作，題目會給定操作限制
-> - $\texttt{swap(a[i],a[j])}$
->
-> 問做少操作次數使得陣列符合某個條件
+    給定 $a_1,...,a_n$，每次可做以下操作，題目會給定操作限制
+
+	- $\texttt{swap(a[i],a[j])}$
+
+	問做少操作次數使得陣列符合某個條件
 
 ## TOI 2019 p4
 
@@ -18,20 +19,54 @@
 		實作上我們需要一個 data structure 可以算:
 		
 		- 左邊有幾個 > i
-
+	
 		- 右邊有幾個 > i
-
+	
 		可以使用 BIT，複雜度 O(n log n)
 
+## CF Split Sort
+
+???+note "[CF 1863 B. Split Sort](https://codeforces.com/contest/1863/problem/B)"
+	給一個 $1\sim n$ 的 permutation，輸出最少操作使 permutation 變 $(1,2,\ldots ,n)$
+	
+	- 選一個 $x$，把 $\le x$ 的在順序不變下拉到前面，再把 $>x$ 的在順序不變下拉到後面
+	
+	$n\le 10^5$
+	
+	??? note "思路"
+		一個直覺的想法就是從 1 -> n 看上來，若出現逆序的話答案就要 +1。例如 1, 2, 3 都 ok，到 4 的時候發現往左走了，那我們勢必要花一次操作將 4 弄到 3 的右邊去。
+		
+		---
+		
+		> 之前想的思路 :
+	
+		考慮哪個時候要切 x。在 sorted 的 permutation 中，
+	
+		先考慮 1，若 1 不是在最前面，那我們有兩種選擇 :
+
+        - 花一次操作使 1 移動到第一格
+        - 讓以後的數字帶我到第一格
+            - 考慮從 x 切，那勢必 pos[1] 要小於 pos[2], ..., pos[x] 才能被帶飛
+            - 顯然當 x 越大的時候越難符合，所以我們其實只要考慮 x 最小，也就是 x = 2 的時候
+            - iff pos[1] < pos[2]
+
+        當我們選擇完後，即可將 1 移除，變成子問題
+        
+        總結下來，我們其實只要看 pos[i]>pos[i+1] 的數量即可
+        
+        > 詳細可參考 : <https://www.youtube.com/watch?v=IhMnux8RfQw>
+	
 ## 附中模競III pG
+
 - https://codeforces.com/gym/375522
 
-## CSES 
-- https://cses.fi/problemset/task/1162
-## CSES inversion probability
+## CSES Sorting Methods
 
-## CSES 
-- https://cses.fi/problemset/task/2229/
+???+note "[CSES - Sorting Methods](https://cses.fi/problemset/task/1162)"
+
+## CSES Permutation Inversions
+
+???+note "[CSES - Permutation Inversions](https://cses.fi/problemset/task/2229/)"
 
 ## JOI 2019
 ???+note "[JOI 2019 p3](https://loj.ac/p/3012)"

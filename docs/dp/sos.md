@@ -8,10 +8,13 @@ T 是 S 的子集（subset），反過來，集合 S 就是 T 的一個超集（
 
 ## 引入
 
-??? note "問題"
-	input: 每個 $[0, 2^n-1]$ 的 subset T 都有一個 weight w(T)
+???+note "Subset of Subset"
+	對於每個 mask $S$ 求 
 	
-	output: $f(S) = \sum \limits_{T 是 S 的 subset} w(T)$
+
+	$$
+	f[S]=\sum \limits_{S\space \subseteq \space T} w[T]
+	$$
 
 ### 法 1: 枚舉子集的子集
 
@@ -23,13 +26,16 @@ T 是 S 的子集（subset），反過來，集合 S 就是 T 的一個超集（
 	```cpp linenums="1"
 	for (int mask = 0; mask < (1 << n); mask++) {
 		// 給一個 mask，枚舉他的所有子集合
-		for (int S = mask; S >= 0; S = (S - 1) & mask) {
+		for (int S = mask; ; S = (S - 1) & mask) {
 			// TODO
+			if (S == 0) break;
         }
     }
     ```
 
 ### 法 2 : sos dp
+
+又稱高維前綴和。
 
 dp(mask, i) : 只枚舉 mask 的 [0, i] 而其餘不動的總和
 
@@ -79,26 +85,26 @@ y 只能在藍色的部分從 0 變 1，代表若 0, 1 顛倒後 y 就要是 x �
 	
 	vector<int> build(vector<int> a) {
 		int n = a.size();
-        vector<int> f(C + 1);
-        vector<int> d(C + 1);
-        for (int i = 0; i < n; i++) {
-            f[C ^ a[i]]++;
-        }
-        for (int i = 0; i < 21; i++) {
-            for (int mask = 0; mask < (1 << 21); mask++) {
-                if (mask & (1 << i)) {
-                    f[mask] += f[mask ^ (1 << i)];
-                }
-            }
-        }
-        for (int mask = 0; mask < (1 << 21); mask++) { 
-            d[mask] = f[C ^ mask];
-            // d[i] => x & i = i 的 x 數量
-        }
-        return d;
-    }
-    ```
-	
+	    vector<int> f(C + 1);
+	    vector<int> d(C + 1);
+	    for (int i = 0; i < n; i++) {
+	        f[C ^ a[i]]++;
+	    }
+	    for (int i = 0; i < 21; i++) {
+	        for (int mask = 0; mask < (1 << 21); mask++) {
+	            if (mask & (1 << i)) {
+	                f[mask] += f[mask ^ (1 << i)];
+	            }
+	        }
+	    }
+	    for (int mask = 0; mask < (1 << 21); mask++) { 
+	        d[mask] = f[C ^ mask];
+	        // d[i] => x & i = i 的 x 數量
+	    }
+	    return d;
+	}
+	```
+
 ## 例題
 
 ### CSES Bit Problem
@@ -126,8 +132,8 @@ y 只能在藍色的部分從 0 變 1，代表若 0, 1 顛倒後 y 就要是 x �
         ans = n - subset of (~x) in set(~a[i])
         
     ??? note "code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
         #define int long long
         #define pii pair<int, int>
         #define pb push_back
@@ -135,31 +141,31 @@ y 只能在藍色的部分從 0 變 1，代表若 0, 1 顛倒後 y 就要是 x �
         #define F first
         #define S second
         #define ALL(x) x.begin(), x.end()
-
+    
         using namespace std;
         using PQ = priority_queue<int, vector<int>, greater<int>>;
-
+    
         const int INF = 2e18;
         const int maxn = 3e5 + 5;
         const int M = 1e9 + 7;
         const int C = (1LL << 21) - 1;
-
+    
         int n;
         int F[(1LL << 21) + 2], R[(1LL << 21) + 2];
         int a[maxn];
-
+    
         void build () {
             for (int i = 0; i < n; i++) F[a[i]]++;
-
+    
             for (int i = 0; i < 21; i++) {
                 for (int mask = 0; mask < (1 << 21); mask++) {
                     if (mask & (1 << i))
                         F[mask] += F[mask ^ (1 << i)];
                 }
             }
-
+    
             for (int i = 0; i < n; i++) R[C ^ a[i]]++;
-
+    
             for (int i = 0; i < 21; i++) {
                 for (int mask = 0; mask < (1 << 21); mask++) {
                     if (mask & (1 << i))
@@ -167,12 +173,12 @@ y 只能在藍色的部分從 0 變 1，代表若 0, 1 顛倒後 y 就要是 x �
                 }
             }
         }
-
+    
         void init () {
             cin >> n;
             for (int i = 0; i < n; i++) cin >> a[i];
         }
-
+    
         void solve () {
             build ();
             for (int i = 0; i < n; i++) {
@@ -182,7 +188,7 @@ y 只能在藍色的部分從 0 變 1，代表若 0, 1 顛倒後 y 就要是 x �
                 cout << Q1 << " " << Q2 << " " << Q3 << "\n";
             }
         } 
-
+    
         signed main() {
             // ios::sync_with_stdio(0);
             // cin.tie(0);
@@ -193,8 +199,8 @@ y 只能在藍色的部分從 0 變 1，代表若 0, 1 顛倒後 y 就要是 x �
                 solve();
             }
         } 
-		```
-		
+    	```
+
 ### CF Compatible Numbers
 
 ???+note "[CF 449 D. Jzzhu and Numbers](https://codeforces.com/contest/449/problem/D)"
@@ -212,81 +218,81 @@ y 只能在藍色的部分從 0 變 1，代表若 0, 1 顛倒後 y 就要是 x �
 		考慮排容 : ans = 全部 - 至少 1 個 bit 是 1 + 至少 2 個 bit 是 1 - 至少 3 個 bit 是 1
 		
 		<figure markdown>
-          ![Image title](./images/12.png){ width="300" }
-        </figure>
-        
-        所以我們只要枚舉 i = [1, C]，看 popcount(i) 是奇數還偶數，將貢獻加或減 2^d[i]-1 即可
-        
+	      ![Image title](./images/12.png){ width="300" }
+	    </figure>
+	    
+	    所以我們只要枚舉 i = [1, C]，看 popcount(i) 是奇數還偶數，將貢獻加或減 2^d[i]-1 即可
+	    
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-        using PQ = priority_queue<int, vector<int>, greater<int>>;
-
-        const int INF = 2e18;
-        const int maxn = 1e6 + 5;
-        const int M = 1e9 + 7;
-        const int C = (1LL << 21) - 1;
-
-        int n;
-        int a[maxn];
-
-        vector<int> build() {
-            vector<int> f(C + 1);
-            vector<int> d(C + 1);
-            for (int i = 0; i < n; i++) {
-                f[C ^ a[i]] = (f[C ^ a[i]] + 1) % M;
-            }
-            for (int i = 0; i < 21; i++) {
-                for (int mask = 0; mask < (1 << 21); mask++) {
-                    if (mask & (1 << i)) {
-                        f[mask] = (f[mask] + f[mask ^ (1 << i)]) % M;
-                    }
-                }
-            }
-            for (int mask = 0; mask < (1 << 21); mask++) { 
-                d[mask] = f[C ^ mask];
-            }
-            return d;
-        }
-
-        int fpow(int a, int b) {
-            int ret = 1;
-            while (b != 0) {
-                if (b & 1) ret = (ret * a) % M;
-                a = (a * a) % M;
-                b >>= 1;
-            }
-            return ret;
-        }
-
-        signed main() {
-            cin >> n;
-            for (int i = 0; i < n; i++) {
-                cin >> a[i];
-            }
-            vector<int> d = build();
-
-            int ans = 0;
-            for (int i = 0; i < (1 << 21); i++) {
-                if (__builtin_popcount(i) & 1) {
-                    ans = ((ans - (fpow(2, d[i]) - 1)) % M + M) % M;
-                } else {
-                    ans = ((ans + (fpow(2, d[i]) - 1)) % M + M) % M;
-                }
-            }
-            cout << ans << '\n';
-        } 
-        ```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
 	
+	    using namespace std;
+	    using PQ = priority_queue<int, vector<int>, greater<int>>;
+	
+	    const int INF = 2e18;
+	    const int maxn = 1e6 + 5;
+	    const int M = 1e9 + 7;
+	    const int C = (1LL << 21) - 1;
+	
+	    int n;
+	    int a[maxn];
+	
+	    vector<int> build() {
+	        vector<int> f(C + 1);
+	        vector<int> d(C + 1);
+	        for (int i = 0; i < n; i++) {
+	            f[C ^ a[i]] = (f[C ^ a[i]] + 1) % M;
+	        }
+	        for (int i = 0; i < 21; i++) {
+	            for (int mask = 0; mask < (1 << 21); mask++) {
+	                if (mask & (1 << i)) {
+	                    f[mask] = (f[mask] + f[mask ^ (1 << i)]) % M;
+	                }
+	            }
+	        }
+	        for (int mask = 0; mask < (1 << 21); mask++) { 
+	            d[mask] = f[C ^ mask];
+	        }
+	        return d;
+	    }
+	
+	    int fpow(int a, int b) {
+	        int ret = 1;
+	        while (b != 0) {
+	            if (b & 1) ret = (ret * a) % M;
+	            a = (a * a) % M;
+	            b >>= 1;
+	        }
+	        return ret;
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	        }
+	        vector<int> d = build();
+	
+	        int ans = 0;
+	        for (int i = 0; i < (1 << 21); i++) {
+	            if (__builtin_popcount(i) & 1) {
+	                ans = ((ans - (fpow(2, d[i]) - 1)) % M + M) % M;
+	            } else {
+	                ans = ((ans + (fpow(2, d[i]) - 1)) % M + M) % M;
+	            }
+	        }
+	        cout << ans << '\n';
+	    } 
+	    ```
+
 ### CF Bits And Pieces
 
 ???+note "[CF 1208F Bits And Pieces](https://codeforces.com/problemset/problem/1208/F)"
@@ -302,138 +308,209 @@ y 只能在藍色的部分從 0 變 1，代表若 0, 1 顛倒後 y 就要是 x �
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 1e6 + 5;
-        const int M = 1e9 + 7;
-        const int C = (1LL << 21) - 1;
-
-        int n;
-        int a[maxn];
-
-        pii sec(pii p, int x) {
-            if (x > p.F) {
-                p.S = p.F;
-                p.F = x;
-            } else if (x > p.S) {
-                p.S = x;
-            }
-            return p;
-        }
-
-        vector<pii> build() {
-            vector<pii> f(C + 1, {-1, -1});
-            for (int i = 0; i < n; i++) {
-                f[C ^ a[i]] = sec(f[C ^ a[i]], i);
-            }
-            for (int i = 0; i < 21; i++) {
-                for (int mask = 0; mask < (1 << 21); mask++) {
-                    if (mask & (1 << i)) {
-                        f[mask] = sec(f[mask], f[mask ^ (1 << i)].F);
-                        f[mask] = sec(f[mask], f[mask ^ (1 << i)].S);
-                    }
-                }
-            }
-            vector<pii> d(C + 1);
-            for (int mask = 0; mask < (1 << 21); mask++) { 
-                d[mask] = f[C ^ mask];
-            }
-            return d;
-        }
-
-        signed main() {
-            cin >> n;
-            for (int i = 0; i < n; i++) {
-                cin >> a[i];
-            }
-            vector<pii> dp = build();
-
-            int ans = 0;
-            for (int i = 0; i < n - 2; i++) {
-                int res = 0, ret = 0;
-                for (int j = 20; j >= 0; j--) {
-                    if (a[i] & (1 << j)) {
-                        res |= (1 << j);
-                        continue;
-                    } else {
-                        if (dp[ret | (1 << j)].S > i) {
-                            ret |= (1 << j);
-                            res |= (1 << j);
-                        }
-                    }
-                }
-                ans = max(ans, res);
-            }
-            cout << ans << '\n';
-        } 
-        ```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 1e6 + 5;
+	    const int M = 1e9 + 7;
+	    const int C = (1LL << 21) - 1;
+	
+	    int n;
+	    int a[maxn];
+	
+	    pii sec(pii p, int x) {
+	        if (x > p.F) {
+	            p.S = p.F;
+	            p.F = x;
+	        } else if (x > p.S) {
+	            p.S = x;
+	        }
+	        return p;
+	    }
+	
+	    vector<pii> build() {
+	        vector<pii> f(C + 1, {-1, -1});
+	        for (int i = 0; i < n; i++) {
+	            f[C ^ a[i]] = sec(f[C ^ a[i]], i);
+	        }
+	        for (int i = 0; i < 21; i++) {
+	            for (int mask = 0; mask < (1 << 21); mask++) {
+	                if (mask & (1 << i)) {
+	                    f[mask] = sec(f[mask], f[mask ^ (1 << i)].F);
+	                    f[mask] = sec(f[mask], f[mask ^ (1 << i)].S);
+	                }
+	            }
+	        }
+	        vector<pii> d(C + 1);
+	        for (int mask = 0; mask < (1 << 21); mask++) { 
+	            d[mask] = f[C ^ mask];
+	        }
+	        return d;
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	        }
+	        vector<pii> dp = build();
+	
+	        int ans = 0;
+	        for (int i = 0; i < n - 2; i++) {
+	            int res = 0, ret = 0;
+	            for (int j = 20; j >= 0; j--) {
+	                if (a[i] & (1 << j)) {
+	                    res |= (1 << j);
+	                    continue;
+	                } else {
+	                    if (dp[ret | (1 << j)].S > i) {
+	                        ret |= (1 << j);
+	                        res |= (1 << j);
+	                    }
+	                }
+	            }
+	            ans = max(ans, res);
+	        }
+	        cout << ans << '\n';
+	    } 
+	    ```
 
 ### JOI 2018 p5
 
-???+note "[JOI 2018 p5](https://oj.uz/problem/view/JOI18_snake_escaping)"
-	每個數自 $i$ 都有對應的 $w[i]$，給你 $Q$ 筆 $\text{query}$ 每筆會是一個 `0`, `1`, `?` 組成的二進制，`?` 可以是 `0` or `1`。問可以組出的 subset $s$ 的 $\sum w[s]$
+???+note "[JOI 2018 Final p5. 毒蛇越狱](https://loj.ac/p/2351)"
+	給你 $n$ 與陣列 $w$，從 $[0,2^n-1]$ 的每個數字 $i$ 都有對應的 $w[i]$。有 $q$ 筆查詢 : 
+	
+	
+
+	- 給一個長度為 $n$，由 `0`, `1`, `?` 組成的二進制，`?` 可以是 `0` or `1`。問可以組出的數字的 $w$ 加總起來是多少
+	
+	$1\le n\le 20,1\le q\le 10^6$
 	
 	??? note "思路"
-	    - 最主要的觀察是鴿籠原理，$L\le 20$ 代表 `0` `1` `?` 最少的最大出現次數是 $6$
-	    - 所以看 `0` `1` `?` 哪個比較少就用哪個下手
+	    最主要的觀察是鴿籠原理，$n\le 20$ 代表 `0` `1` `?` 最少的最大出現次數是 6。所以看 `0` `1` `?` 哪個比較少就用哪個下手
 	    
-	    > calculate ?
+		calculate ?：枚舉 ? 選什麼，然後算答案。這樣子是 $O(2^{\text{cnt[?]}})$ 的。		
+		calculate 1：考慮沒有 1 的話，我們只需要算 ? 的子集和。現在有了 1，我們只需要將其容斥掉即可。這樣子是 $O(2^{\text{cnt[1]}})$ 的。
+		
+		calculate 0：考慮沒有 0 的話，我們只需要算 ? 的超集和。現在有了 0，我們同樣只需要將其容斥掉即可。這樣子是 $O(2^{\text{cnt[0]}})$ 的。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
 	
-	    - 暴力枚舉 $\texttt{?}$ 要是什麼
-	    - $\begin{align}O(2^{\text{cnt[?]}})\end{align}$
+	    using namespace std;
 	
-	    > calculate 0
-	    
-	    - 容斥原理的 superset
-	    - $\text{g}[10110]$ 包括 $\text{g}[11110],\text{g}[10111],\text{g}[11111]$
-	    - $1001?011$
-	    - 我要看的是那些 $0$，固定的要是那些 $0$
-	      - 所以問號會被我設為 $0$ 因為在這個情況 $0=$ **有**
-	    - 所以我需要減掉那些位置應該要是 $0$ 只是在做 subset 的時候有機會變 $1$ 的 $\texttt{bit}$
-	    - 做完容斥原理後我們應該會剩下 
-	      - $1001\color{red}0\color{white}11$
-	      - $1001\color{red}1\color{white}11$
-	    - 這代表什麼 $\texttt{?}$
-	      - 我們 $\text{g[]}$ 的 $\texttt{init}$ 也就是 $\text{g[0], g[1], g[2], g[3],}\ldots$ 等於 $\text{a[0], a[1], a[2], a[3],}\ldots$
-	    - 我們只是用 $0$ 來代表我們有計算到的 $\texttt{bit}$，本質是沒變的
-	    - 只是針對 $0$ 來代表 **有** 的概念
-	    - $O(2^\text{cnt[0]})$
+	    const int INF = 2e18;
+	    const int maxn = (1 << 20) + 1;
+	    const int M = 1e9 + 7;
 	
-	    ```cpp linenums="1"
-	    for(int i = 0; i < L; ++i)
-	        for(int j = (1 << L) - 1;j >= 0; j--)  
-	            // 注意 j 從大到小 (對於 0 來說是從 null to all)
-	            if(((1<<i)&j)==0) g[j] += g[j^(1<<i)];
-	    ```
+	    string s;
+	    int n, q;
+	    int f[maxn], g[maxn];
 	
-	    > calculate 1
+	    void build() {
+	        for (int i = 0; i < (1 << n); i++) {
+	            f[i] += s[i] - '0';
+	            g[i] += s[i] - '0';
+	        }
 	
-	    -  容斥原理的 subset
-	    - $1001?011$
-	    - 我要看的是那些 $1$，固定的要是那些 $1$
-	      - 所以問號會被我設為 $1$ 因為在這個情況 $1=$ **有**
-	    - 所以我需要減掉那些位置應該要是 $1$ 只是在做 subset 的時候有機會變 $0$ 的 $\texttt{bit}$
-	    - 做完容斥原理後我們應該會剩下 
-	      - $1001\color{red}0\color{white}11$
-	      - $1001\color{red}1\color{white}11$
-	    - $O(2^\text{cnt[1]})$
+	        for (int i = 0; i < n; i++) {
+	            for (int mask = 0; mask < (1 << n); mask++) {
+	                if (mask & (1 << i)) {
+	                    f[mask] += f[mask ^ (1 << i)];
+	                }
+	            }
+	        }
+	        for (int i = 0; i < n; i++) {
+	            for (int mask = (1 << n) - 1; mask >= 0; mask--) {
+	                if (!(mask & (1 << i))) {
+	                    g[mask] += g[mask ^ (1 << i)];
+	                }
+	            }
+	        }
+	    }
 	
-	    ```cpp linenums="1"
-	    for(int i = 0; i < L; ++i)
-	        for(int j = 0;j < (1 << L); ++j)
-	            if(((1 << i) & j) == 0) f[j] += f[j^(1<<i)];
-	    ```
-	    
-	    參考自 $\texttt{:}$ https://www.cnblogs.com/nightsky05/p/15563014.html
+	    int solver(string t) {
+	        int cntq = 0, maskq = 0, cnt0 = 0, mask0 = 0, cnt1 = 0, mask1 = 0;
+	        for (int i = 0; i < n; i++) {
+	            if (t[i] == '?') {
+	                maskq |= (1 << (n - i - 1));
+	                cntq++;
+	            } else if (t[i] == '0') {
+	                mask0 |= (1 << (n - i - 1));
+	                cnt0++;
+	            } else if (t[i] == '1') {
+	                mask1 |= (1 << (n - i - 1));
+	                cnt1++;
+	            }
+	        }
+	        int ans = 0;
+	        if (cntq <= 6) {
+	            int mask = 0;
+	            for (int i = 0; i < n; i++) {
+	                if (t[i] == '1') mask |= (1 << (n - i - 1));
+	            }
+	            ans = s[mask] - '0';
+	            for (int S = maskq; S; S = (S - 1) & maskq) {
+	                ans += s[S | mask] - '0';
+	            }
+	        } else if (cnt0 <= 6) {
+	            int mask = 0;
+	            for (int i = 0; i < n; i++) {
+	                if (t[i] == '1') mask |= (1 << (n - i - 1));
+	            }
+	            ans = g[mask];
+	            for (int S = mask0; S; S = (S - 1) & mask0) {
+	                if (__builtin_popcountll(S) & 1) {
+	                    ans -= g[S | mask];
+	                } else {
+	                    ans += g[S | mask];
+	                }
+	            }
+	        } else if (cnt1 <= 6) {
+	            int mask = 0;
+	            for (int i = 0; i < n; i++) {
+	                if (t[i] == '1' || t[i] == '?') mask |= (1 << (n - i - 1));
+	            }
+	            ans = f[mask];
+	            for (int S = mask1; S; S = (S - 1) & mask1) {
+	                if (__builtin_popcountll(S) & 1) {
+	                    ans -= f[mask ^ S];
+	                } else {
+	                    ans += f[mask ^ S];
+	                }
+	            }
+	        }
+	        return ans;
+	    }
+	
+	    signed main() {
+	        cin >> n >> q;
+	        cin >> s;
+	
+	        build();
+	        while (q--) {
+	            string t;
+	            cin >> t;
+	            cout << solver(t) << '\n';
+	        }
+	    } 
+		```
 
 
 ---

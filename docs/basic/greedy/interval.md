@@ -12,10 +12,9 @@
 		<figure markdown>
 	        ![Image title](./images/6.png){ width="300" }
 	    </figure>
-		
-		
 
 ### 刪除 overlap
+
 ???+note "刪除 overlap"
 	- Q1: 給 n 個 interval，若 A ⊆ B[^2] 則刪掉 B
 
@@ -203,10 +202,9 @@
 
 ### 區間最大獨立集
 
-???+ note "APCSC 胖達在做foodpanda"
-	- $n$ 個 intervals
-	
-	- 選一些 intervals，兩兩不 overlap，求最大化選的數量
+???+ note "最大不相交区间数量"
+	給 $n$ 個 intervals，選一些 intervals，兩兩不 overlap，求最大化選的數量
+
 	??? note "思路"
 		- 刪除不重要的
 	
@@ -215,6 +213,21 @@
 		- 刪除跟第一個 overlap 的
 	
 		- 再挑刪完後的第一個 (子問題)
+
+		---
+		
+		可證明按照 $r_i$ 小到大排序，greedy 的取是好的。因為對於後面來說要盡量挑最不會 overlap 的，也就是右界最小的，所以我們將 $r_i$ 最小的取掉之後，刪除與他 overlap 的 intervals，也就跟我們 greedy 在做的事情一樣了
+		
+		```cpp linenums="1"
+		sort (ALL(a), [](node x, node y) { return x.r < y.r;  });
+        int last = 0, ans = 0;
+        for (int i = 0; i < n; i++) {
+            if (a[i].l > last) {
+                ans++;
+                last = a[i].r;
+            }
+        }
+        ```
 	
 	??? note "code"
 		```cpp linenums="1"
@@ -240,33 +253,51 @@
 	    ```
 		> full code : <http://codepad.org/Gcm2Azt6>
 
-- 延伸 (加上權重) : [job scheduling problem](/wiki/greedy/interval_scheduling/#job-scheduling-problem)
+	??? note "延伸 (加上權重) : [job scheduling problem](/wiki/greedy/interval_scheduling/#job-scheduling-problem)"
 
+???+note "[CF 1841 D. Pairs of Segments](https://codeforces.com/problemset/problem/1841/D)"
+	給 n 個 interval，問最少刪掉幾個 interval 可以滿足
+	
+	- 有辦法兩兩 pair
+	
+	- 一個 pair 中的兩個 interval 必須 overlap
+	
+	- 任意不同 pair 中的 interval 不能 overlap
+
+	$n\le 2000$
+	
+	??? note "思路"
+		直接將 interval 用 n^2 兩兩 union，就變成「最大不相交区间数量」的題目了 
+		
+		---
+		
+		> 另解 : dp（見 [CF comment](https://codeforces.com/blog/entry/117262?#comment-1037114)）
+	
 ### 最小刪除
 ???+ note "例題"
 	刪除最少個 interval，使得 max band width 變小
 	
 	??? note "思路"
 		- 我們把存在 max band width 的區段給找出來，我叫他 target
-
+	
 		- 將跟這些 target 沒 overlap 的 interval 給刪掉
-
+	
 		- 剩下 sort $l_i$
 		
 		- target 會有一個指針 j 代表目前在 target[j]
-
+	
 		- interval 會有一個指針 i 代表目前在 interval[i]
 		
 		- 第一段要選的 interval 須滿足
 			- 有包含 target[1] 
 			- 右界越大越好
-
+	
 		- 我們找到這個 interval 後，看他的 $r_i$ 可以延伸到第幾個 target
-
+	
 		- 在這幾個 target 中，我們都可以去找有跟這些 target overlap 的 interval，存他們之中的最大右界
-
+	
 		- 等到 target[j] 已經無法跟第一個選的 interval overlap 後，我們就把當前找到的最大右界當成第一個選的，變成子問題 (有點類似[保母問題](/wiki/greedy/interval/#_5)的維護方式)
-
+	
 		<figure markdown>
 	        ![Image title](./images/7.png){ width="600" }
 	    </figure>
