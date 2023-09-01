@@ -235,15 +235,17 @@ nav:
         - 莫隊算法: 'offline/mo-algo.md'
         - 根號分塊: 'offline/sqrt.md'
     - 動態規劃:
-      - LIS: 'dp/LIS.md'
-      - 背包問題: 'dp/knapsack.md'
-      - 雜題整理: 'dp/problem.md'
-      - 狀態DP: 'dp/state.md'
+      - 經典主題:
+        - LIS: 'dp/LIS.md'
+        - 背包問題: 'dp/knapsack.md'
+      - 一般 dp 類型:
+        - 區間dp: 'dp/state.md'
+        - 雜題整理: 'dp/problem.md'
+        - 狀態DP: 'dp/state.md'
       - 優化:
         - 單調對列優化: 'dp/monotonous-queue.md'
         - 分治優化: 'dp/D&C.md'
         - 斜率優化: 'dp/convex_hull_trick.md'
-        - 四邊形優化: 'dp/quadrangle.md'
         - Aliens 優化: 'dp/aliens.md'
         - SOS優化: 'dp/sos.md'
     - 字串:
