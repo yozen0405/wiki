@@ -180,11 +180,11 @@ nav:
     - 圖論:
       - 樹論: 
         - 樹直徑: 'graph/tree_diameter.md'
+        - 樹重心: 'graph/tree_centriod.md'
         - 換根 dp: 'graph/solving_for_all_roots.md'
         - 樹 dp: 'graph/tree_dp.md'
         - 樹壓平: 'graph/euler_tour.md'
         - 倍增法與 LCA: 'graph/LCA.md'
-        - 重心分治: 'graph/DC_on_trees.md'
         - prufer 序列: 'graph/prufer.md'
         - 樹同構: 'graph/tree_isomorphism.md'
         - 樹上背包: 'graph/knapsack_on_tree.md'

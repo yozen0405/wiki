@@ -1,3 +1,7 @@
+## 引入
+
+啟發式合併的英文叫 small to large method，樹上啟發式合併的話是 dsu on tree
+
 ## 樹上啟發式合併
 
 對於每個節點 $u$，找出最大 size 的 $v_\max$ 稱作重兒子， 剩下 $v$ 稱作輕兒子，將輕兒子維護的東西一個個併入 $v_\max$
@@ -55,15 +59,15 @@
 	        set<int> &t = S[mx];
 	        for (auto v : G[u]) {
 	            if (v == par || v == mx) continue;
-	            for (auto ele : S[v]) t.insert (ele);
+	            for (auto ele : S[v]) t.insert(ele);
 	            S[v].clear();
 	        }
-	        t.insert (a[u]);
+	        t.insert(a[u]);
 	        ans[u] = t.size();
-	        swap (t, S[u]);
+	        swap(t, S[u]);
 	    }
 	
-	    void init () {
+	    void init() {
 	        cin >> n;
 	        for (int i = 1; i <= n; i++) cin >> a[i];
 	        int u, v;
@@ -74,7 +78,7 @@
 	        }
 	    }
 	
-	    void solve () {
+	    void solve() {
 	        dfs (1, 0);
 	        for (int i = 1; i <= n; i++) cout << ans[i] << " ";
 	    }
@@ -98,6 +102,101 @@
 	
 	$c_i\le n \le 10^5$
 
+???+note "[CF 1709 E. XOR Tree](https://codeforces.com/problemset/problem/1709/E)"
+	給一棵 $n$ 個點的樹，每個點有權值 $a_i$，一棵樹是「好的」若且唯若所有 path 滿足將 path 上的 $a_i$ xor 起來都不是 0。一次操作中可將某個點上的權值修改成任意數，問最小需要幾次操作才能使樹是「好的」
+	
+	$1\le n\le 2\times 10^5,1\le a_i < 2^{30}$
+	
+	??? note "思路"
+		令 f(u, v) 是 u 到 v path 上的 $a_i$ xor 起來的值。f(u, v) = f(root, u) ⨁ f(root, v) ⨁ a[ lca(u, v) ]
+
+        對於一個 x 為根的子樹，我們只要去子樹內看有沒有存在兩個點 (u, v) 滿足 f(root, u) ⨁ f(root, v) ⨁ a[x] 是不是 0，如果是 0 的話我們可將 x 改變成 $2^{30+t}$，這樣兩個點都在 x 子樹內的點就不可能與任何點 xor 是 0 了。
+
+        實作上從 leaf 往 root dfs，採用 set + 啟發式合併維護子樹內所有點的 f(root, u)，去看當前 set 內是否有 f(root, u) ⨁ a[x] 這個值即可，若有那我們將 ans++，且不用將任何 f(root, u) 上傳到上面的 parent，因為在 x 改過後不會與其他權值重複，也就代表不可能與任何點 xor 是 0
+        
+        > 更詳細可參考 : <https://zhuanlan.zhihu.com/p/645890524>
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        const int N = 2e5 + 5;
+        int n, ans;
+        int f[N], a[N];
+        vector<int> G[N];
+        set<int> st[N];
+
+        void dfs(int u, int par) {
+            st[u].insert(f[u]);
+
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                f[v] ^= f[u];
+                dfs(v, u);
+
+                if (st[v].size() > st[u].size()) {
+                    swap(st[u], st[v]);
+                }
+            }
+
+            bool ok = true;
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                if (ok == false) continue;
+
+                for (auto val : st[v]) {
+                    if (st[u].count(val ^ a[u])) {
+                        ok = false;
+                        st[u].clear();
+                        ans++;
+                        break;
+                    }
+                }
+                if (ok) {
+                    for (auto val : st[v]) {
+                        st[u].insert(val);
+                    }
+                }
+            }
+        }
+
+        signed main() {
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+                f[i] = a[i];
+            }
+            for (int i = 1; i < n; i++) {
+                int u, v;
+                cin >> u >> v;
+                G[u].push_back(v);
+                G[v].push_back(u);
+            }
+
+            dfs(1, 0);
+
+            cout << ans << "\n";
+        }
+        ```
+
+## 啟發式合併
+
+???+note "[2023 YTP p10. BST (Building_Spanning_Tree)](https://yozen0405.github.io/wiki/basic/brute_force/images/YTP2023FinalContest_S2_TW.pdf#page=26)"
+	給你 $n$ 點的無向圖，一開始圖上沒有任何邊。給你 $n-1$ 條邊恰好會在圖上構成一個 spanning tree，再給你 $m$ 條邊輸出加邊的 order 使得圖恰好會構成這 $n-1$ 條邊的 spanning tree，且 order 字典序越小越好
+	
+	$n\le 10^5, m\le 2\times 10^5$
+	
+	??? note "思路"
+	    先將 Tree edge 以都丟到一個以字典序小到到排序的 pq，每次看 pq.top()
+	
+	    - 若為 Tree edge，則看有哪些非 Tree edge 在這輪會可以會變合法，將他們也加入 pq，再將該 Tree edge push back 到答案
+	    - 若非 Tree edge，則直接 push back 到答案
+	
+		至於要怎麼看非 Tree edge 會不會變合法，可以用 Disjoint set 在維護有碰到該連通塊的非 Tree edge 的 set/vector，在 Disjoint set Merge 的時候使用啟發式合併即可，複雜度 $O((n + m) \log (n + m))$
+		
 ???+note "[USACO 2020 Open Gold p2. Favorite Colors](http://www.usaco.org/index.php?page=viewproblem2&cpid=1042)"
 	給一張 $N$ 點 $M$ 邊有向圖，點編號為 $1\ldots N$，每種顏色也可以用 $1\ldots N$ 中的一個整數表示
 	
@@ -174,19 +273,11 @@
 	        }
 	    }
 	    ```
-
-## 啟發式合併
-
-???+note "[2023 YTP p10. BST (Building_Spanning_Tree)](https://yozen0405.github.io/wiki/basic/brute_force/images/YTP2023FinalContest_S2_TW.pdf#page=26)"
-	給你 $n$ 點的無向圖，一開始圖上沒有任何邊。給你 $n-1$ 條邊恰好會在圖上構成一個 spanning tree，再給你 $m$ 條邊輸出加邊的 order 使得圖恰好會構成這 $n-1$ 條邊的 spanning tree，且 order 字典序越小越好
+        
+???+note "[APIO 2012 Dispatching](https://tioj.ck.tp.edu.tw/problems/1429)"
+	給定一個 $n$ 個點，以 $1$ 為根的樹，每個點有 $c_i, w_i$ 兩個屬性，你需要從某個點 $u$ 子樹內選一些點，滿足選出來的點 $\sum w_i \le W$，最大化「選的數量 $\times c_u$」
 	
-	$n\le 10^5, m\le 2\times 10^5$
+	$1\le n\le 10^5,1\le c_i,w_i,W\le 10^9$
 	
 	??? note "思路"
-        先將 Tree edge 以都丟到一個以字典序小到到排序的 pq，每次看 pq.top()
-
-        - 若為 Tree edge，則看有哪些非 Tree edge 在這輪會可以會變合法，將他們也加入 pq，再將該 Tree edge push back 到答案
-        - 若非 Tree edge，則直接 push back 到答案
-
-		至於要怎麼看非 Tree edge 會不會變合法，可以用 Disjoint set 在維護有碰到該連通塊的非 Tree edge 的 set/vector，在 Disjoint set Merge 的時候使用啟發式合併即可，複雜度 $O((n + m) \log (n + m))$
-	
+		選 $w_i$ 越小的點越好。每個點維護一個 Min Heap，當 Min Heap 裡面的 $\sum w_i$ 超過 $W$，就 pop 直到 $\le W$，Min Heap 合併時採用啟發式合併。

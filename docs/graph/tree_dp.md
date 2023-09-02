@@ -193,4 +193,3 @@
 	    }
 		```
 
-???+note "[2022 NPSC 決賽 pE.真島與莉可麗絲](https://tioj.ck.tp.edu.tw/problems/2309)"

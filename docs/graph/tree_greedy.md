@@ -40,7 +40,9 @@
 	    }
 	    ```
 
-## BOI 2020 B1. Village (Minimum)
+## 拔邊
+
+### BOI 2020 B1. Village (Minimum)
 
 ???+note "[BOI 2020 B1. Village (Minimum)](https://codeforces.com/contest/1387/problem/B1)"
 	給一顆 $N$ 個點的樹，請將每個點 $i$ 移動到 $v_i$ $(i\neq v_i)$，花費為 $\text{dis}(i,v_i)$。構造 $v_1,v_2,\ldots,v_n$，使得花費**最少**
@@ -70,7 +72,7 @@
 		  
 		  ---
 		  
-		  上面的方法實作比較複雜，其實有一個另解
+		  > 另解 :
 		  
 		  把題目的移動看成是兩點在做多個「交換」
 		
@@ -141,6 +143,18 @@
             }
         }
         ```
+
+### NPSC 真島與莉可麗絲
+
+???+note "[2022 NPSC 高中組決賽 pE. 真島與莉可麗絲](https://tioj.ck.tp.edu.tw/problems/2309)"
+	給一棵 $n$ 個點的樹，每次可以移除一條長度為質數的 path，構造一組解使整棵樹被移除，或輸出無解
+	
+	$n\le 2\times 10^5$
+	
+	??? note "思路"
+		n 為偶數一定可以拆成很多個 2，奇數會拆出一個 3。從 leaf greedy，能兩兩配對就兩兩配對，最多只會有一條邊上傳，最後到 root 的時候（我們要保證一定可以配的完，所以要事先讓 degree 為偶數的點當 root），若剩下 2 的有奇數條，就讓其中一條 2 跟 1 配，其他 1 跟 1 配，2 獨自成為一組即可。
+		
+		實作上，先判沒有 degree 為偶數的點的 tree 無解，將 degree 為偶數的點當根，去 dfs（用 set 去維護 adjacency list），從 leaf 讓 1 跟 1 配，2 自己一組，到 root 的時候再做上面提到的即可
 
 ## BOI 2020 B2. Village (Maximum)
 
@@ -733,3 +747,4 @@
 	
 	??? note "思路"
 		跟上一題差不多，只是變成從 leaf 往 root 的方向做上去，子樹內的優先配對
+		
