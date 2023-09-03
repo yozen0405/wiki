@@ -1,3 +1,13 @@
+## 解法
+
+- 分治
+
+- trie
+
+- sos dp
+
+- greedy（high bit → low bit）
+
 ## 例題
 
 ### Maximum AND
@@ -7,27 +17,168 @@
 	??? note "思路"
 		D&C
 
-### Maximum Xor
-
-???+note "[CSES - ](https://cses.fi/problemset/task/1655)"
-
-### Bit Problem
-
-???+note "[CSES ](https://cses.fi/problemset/task/1654)"
-
-	??? note "思路"
-		sos dp
-
 ???+note "[2019-pre-pC](https://drive.google.com/file/d/1ECLkM85zf-TS8wMCWiqQP89PNK_b6JZQ/view)"
+	給 $n,q$，有筆條件，每筆條件 $(l,r,c)$ 代表 $a_l \oplus \ldots \oplus a_r$ 要是 $c$，構造總和最小的 $a_1, \ldots ,a_n$
+    
+    $n,q\le 5\times 10^5,0\le c < 2^{30}$
+    
+	??? note "思路"
+		> Subtask 3
+
+        對於一個 interval(l, r)，若存在一個 x 滿足 [x, r] 都要是 0，那我們就將 r 設為 x - 1。處理過後，將每個 interval 以 pair(l, r) 的形式存到到 vector v[r] 裡面，我們從 1 遍歷到 n，假如我們現在到了 i，若 i 一定要填 0，那就跳過，otherwise 若 v[i] 有 pair，我們就檢查從 [l, i) 有沒有已經被選的，如果沒有就選上 i
+
+		> Subtask 4 & 5
+
+        對於每個 bit，都獨立做 Subtask 3，若在處理的過程中多帶一個 log n ，則只會拿到 Subtask 4 的分數，總複雜度 O( (n + q) log C ) 。
 	
-???+note "[Xor tree](https://codeforces.com/problemset/problem/1709/E)"
-
-???+note "[Bits And Pieces](https://codeforces.com/problemset/problem/1208/F)"
-
 ???+note "[Xor Minimization](https://atcoder.jp/contests/abc281/tasks/abc281_f)"
-
+	給一個長度為 $n$ 的陣列 $a_1,a_2,\ldots ,a_n$，選一個非負整數 $x$，使 $a_i$ 變成 $a_i \oplus x$。輸出陣列的最大值最小可以是多少
+	
+	$1\le n\le 1.5\times 10^5,0\le a_i < 2^{30}$
+	
+	??? note "思路"
+		從 high bit 到 low bit 考慮，可以觀察到若大家都是 0 或 1 可以直接 greedy 的選，否則我們就要分成兩種情況遞迴下去，然後將比較小的情況多增加 (1 << i)，再將兩種情況取 max
+		
+		實作上可將全部的點打在 Trie 上面，
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <cstdio>
+        #include <iostream>
+        #include <algorithm>
+        using namespace std;
+        int n;
+        int son[4500005][2],cnt = 1;
+        void insert(int x) {
+            int u = 1;
+            for (int i = 29; i >= 0; i--) {
+                int v = x >> i & 1;
+                if (!son[u][v]) son[u][v] = ++cnt;
+                u = son[u][v];
+            }
+        }
+        int query(int x, int dep) {
+            if (!son[x][0] && !son[x][1]) return 0;
+            if (!son[x][0]) return query(son[x][1], dep - 1);
+            if (!son[x][1]) return query(son[x][0], dep - 1);
+            return min(query(son[x][0], dep - 1),query(son[x][1], dep - 1)) | 1 << dep;
+        }
+        int main() {
+            scanf("%d", &n);
+            for (int _ = 1; _ <= n; _++) {
+                int a;
+                scanf("%d", &a);
+                insert(a);
+            }
+            printf("%d\n",query(1, 29));
+            return 0;
+        }
+        ```
+	
 ???+note "[CF 1847 F. The Boss's Identity](https://codeforces.com/contest/1847/problem/F)"
+	給一個長度為 $n$ 的陣列 $a_1,\ldots ,a_n$，對於 $i>n$，$(a_{i-n}\mid a_{i-n+1})$。給你 $q$ 筆 query :
+	
+	- $\text{query}(v):$ 輸出最小的 index $i$ 滿足 $a_i > v$
 
+	$n, q\le 2\times 10^5, 0\le a_i\le 10^9$
+	
+	??? note "思路"
+		性質 : 任意一個 $a_i$ 其實就是原陣列的某一段區間的「或」。可以用打表找出來。
+
+        說明 : 
+
+        令 $a=[1, 2, 3, 4, 5]$，打表 $[1,2,3,4,5,12,23,34,45,512,123,234,345]$
+
+        | 2    | 3    | 4    | 5    |
+        | ---- | ---- | ---- | ---- |
+        | 12   | 23   | 34   | 45   |
+        | 512  | 123  | 234  | 345  |
+
+        可以發現規律恰好是 (n - 1) 一組
+
+        對於一個「環狀」 subarray [l, r]，real_index = (n - 1) * (r - l) + 1 + (r - n)
+
+        贏過的數量 = 一個循環的數量 * 贏過幾組 + 1 + 贏過自己這組的幾個人
+
+        所以問題就變成 : 給定 $v$，在原陣列中找出一段區間，使得區間「或」$>v$。
+
+        考慮從 $i$ 往前的一段子區間，最多只有 $30$ 個不同的結果。這樣就有 $30\times n$ 個子區間了，記錄他們在序列中第一次出現的位置，以及區間或起來的值，對於 query 二分查找即可
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 9e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        void solve() {
+            int n, q;
+            cin >> n >> q;
+            vector<int> a(n);
+            for (int i = 0; i < n; i++) {
+                cin >> a[i];
+            }
+
+            vector<pair<int, int>> f;
+            vector<pair<int, int>> info;
+            info.pb({1, a[0]});
+            for (int i = 0; i < 2 * n; i++) {
+                vector<pair<int, int>> g;
+                f.pb({0, i});
+                for (auto [value, pos] : f) {
+                    value |= a[i % n];
+                    if (!g.empty() && g.back().F == value) {
+                        g.pop_back();
+                    }
+                    g.pb({value, pos});
+                }
+                f.swap(g);
+                if (i > n) {
+                    for (auto [value, pos] : f) {
+                        info.pb({(n - 1) * (i - pos) + 1 + i - n, value});
+                    }
+                }
+            }
+
+            sort(info.begin(), info.end());
+            vector<pair<int, int>> res;
+            for (auto [pos, value] : info) {
+                if (res.empty() || value > res.back().F) {
+                    res.pb({value, pos});
+                }
+            }
+
+            while (q--) {
+                int v;
+                cin >> v;
+                auto it = upper_bound(res.begin(), res.end(), make_pair(v, INF));
+                if (it == res.end()) {
+                    cout << "-1\n";
+                } else {
+                    cout << it->S << '\n';
+                }
+            }
+        }
+
+        signed main() {
+            int t = 1;
+            cin >> t;
+            while (t--) {
+                solve();
+            }
+        } 
+        ```
+	
 ???+note "[CF 1851 F. Lisa and the Martians](https://codeforces.com/contest/1851/problem/F)"
 	
 ### IOIC 
@@ -83,6 +234,7 @@
 	    那麼可以枚舉 $i$ 由小到大，先計算所有 $F[i][*]$之後得到 $f(i) = F[i][N] + a_i$，再計算所有 $G[i][*]$。
 	
 	    轉移是：
+	    
 	    $$
 	    F[i][j] = \begin{cases}
 	        F[i][j-1] &,i \& 2^j = 0\\

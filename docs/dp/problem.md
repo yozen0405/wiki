@@ -309,6 +309,10 @@
 	??? note "思路"
 		先利用 Floyd Warshall 建好 dis(A-Z, A-Z)
 		
+		dp(i, j) = 每次只動一隻手的條件下，打完第 i 個鍵，另隻手在 j 的最小 cost
+
+        $dp(i,j) \to \begin{cases}dp(i+1, j) ,\space \text{cost}(a_{i}, a_{i+1}) \\ dp(i + 1, a_{i}) ,\space \text{cost}(j, a_{i+1}) \end{cases}$
+		
 		轉移從 dp(i, * ) 推到 dp(i + 1, * )，時間複雜度 O(26n)
 
 
