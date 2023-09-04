@@ -2,9 +2,7 @@
 
 Aliens 優化，利用手續費 w 來限制選的次數，慢慢去逼近選 k 次的 w（可能不存在，但就是去嘗試逼近，因為選的次數還是具有單調性）
 
-##  AI-666 賺多少
-
-### Best Time to Buy and Sell Stock
+## Best Time to Buy and Sell Stock
 
 ???+note "[LeetCode 122. Best Time to Buy and Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/)"
 	給你 $n$ 個股價 $a_1,\ldots ,a_n$，你可以做最多一次買跟賣，且買跟賣可以在同一天，獲利最大是多少
@@ -45,7 +43,7 @@ Aliens 優化，利用手續費 w 來限制選的次數，慢慢去逼近選 k �
 		
 		dp[i][1] = max(dp[i - 1][0] - a[i] - w, dp[i - 1][1])
 
-### AI-666 賺多少
+## AI-666 賺多少
 
 ???+note "[2017 全國賽 AI-666 賺多少](https://tioj.ck.tp.edu.tw/problems/2039)"
 	給你 $n$ 個股價 $a_1,\ldots ,a_n$，你可以做最多 k 買跟賣，且買跟賣不能在同一天，獲利最大是多少
@@ -71,16 +69,18 @@ Aliens 優化，利用手續費 w 來限制選的次數，慢慢去逼近選 k �
 		
 		$$
 		\begin{array}{c|cccccc}
-        w&0&1&2&3&4&5\\
-        \hline
-        最佳買賣次數 & 5 & 5 & 3 & 3 & 3 & 1\\
-        \end{array}
-        $$
+	    w&0&1&2&3&4&5\\
+	    \hline
+	    最佳買賣次數 & 5 & 5 & 3 & 3 & 3 & 1\\
+	    \end{array}
+	    $$
 	    
 	    我們令「在手續費為 w 的最小買賣次數」為 x。實作上最後要加回去的手續費會是 k * w，不能寫成 x * w，因為你同時可以選擇買賣 k 次或 x 次，那若 x < k（如上圖的 k = 4, x = 3），ans + k*w 顯然是比較大的。
 	    
 	    下面的寫法有點不太正統(並未使用小數點二分搜去逼近)
-
+	    
+	    Greedy 作法:（P.60） <https://drive.google.com/file/d/1w4Lnxy5OuNN1rJ8nz9nBqakPGhS40g6B/view>
+	
 	??? note "code"
 		```cpp linenums="1"
 		#pragma GCC optimize("O3,unroll-loops")
@@ -174,81 +174,81 @@ Aliens 優化，利用手續費 w 來限制選的次數，慢慢去逼近選 k �
 	??? note "code"
 		```cpp linenums="1"
 		#include<bits/stdc++.h>
-        #define maxn 5500
-        #define maxm 100100
-        #define INF (1<<30)
-        #define PI acos(-1.0)
-        #define mem(a, b) memset(a, b, sizeof(a))
-        #define For(i, n) for (int i = 0; i < n; i++)
-        typedef long long ll;
-        using namespace std;
-        int n, m, k, x[maxm], y[maxm], w[maxm], p[maxm], f[maxn];
-        int cnt, ans[maxn], inx;
-        double l, r, mid;
-        bool inline cmp(int i, int j) {
-            return (x[i] == 1) * mid + w[i] < (x[j] == 1) * mid + w[j];
-        }
-        int findroot(int x) {
-            return f[x] = (f[x] == x ? f[x] : findroot(f[x]));
-        }
-        void work(bool flag) {
-            cnt = inx = 0;
-            for (int i = 1; i <= n; i++) f[i] = i;
-            sort(p + 1, p + m + 1, cmp);
-            for (int i = 1; i <= m; i++) {
-                int j = p[i];
-                int u = findroot(x[j]), v = findroot(y[j]);
-                if (u != v && (cnt + (x[j] == 1) <= k || flag)) {
-                    f[u] = v;
-                    ans[inx++] = j;
-                    if (x[j] == 1) cnt++;
-                }
-            }
-        }
-        int main () {
-            scanf("%d%d%d", &n, &m, &k);
-            int tot = 0;
-            for (int i = 1; i <= m; i++) {
-                scanf("%d%d%d", x + i, y + i, w + i);
-                p[i] = i;
-                if (x[i] > y[i]) swap(x[i], y[i]);
-                if (x[i] == 1) tot++;
-            }
-            //如果根节点的度数小于k，或者结点数大于1，而k == 0 一定不行
-            if (tot < k || (n > 1 && k == 0)) {
-                puts("-1");
-                return 0;
-            }
-            //看能否生成一棵树
-            mid = 0;
-            work(1);
-            if (inx + 1 < n) {
-                puts("-1");
-                return 0;
-            }
-            l = -1e5, r = 1e5;
-            while(l + 1e-5 < r && cnt != k) {
-                mid = (l + r) / 2;
-                work(1);
-                if (cnt < k) r = mid;
-                else l = mid;
-            }
-            work(0);
-            printf("%d\n", inx);
-            for (int i = 0; i < inx - 1; i++) printf("%d ", ans[i]);
-            if (inx) printf("%d\n", ans[inx - 1]);
-        }
-
-        /*
-        5 6 3
-        3 2 5
-        4 5 5
-        1 3 5
-        1 2 5
-        1 4 5
-        1 5 5
-
-        */
+	    #define maxn 5500
+	    #define maxm 100100
+	    #define INF (1<<30)
+	    #define PI acos(-1.0)
+	    #define mem(a, b) memset(a, b, sizeof(a))
+	    #define For(i, n) for (int i = 0; i < n; i++)
+	    typedef long long ll;
+	    using namespace std;
+	    int n, m, k, x[maxm], y[maxm], w[maxm], p[maxm], f[maxn];
+	    int cnt, ans[maxn], inx;
+	    double l, r, mid;
+	    bool inline cmp(int i, int j) {
+	        return (x[i] == 1) * mid + w[i] < (x[j] == 1) * mid + w[j];
+	    }
+	    int findroot(int x) {
+	        return f[x] = (f[x] == x ? f[x] : findroot(f[x]));
+	    }
+	    void work(bool flag) {
+	        cnt = inx = 0;
+	        for (int i = 1; i <= n; i++) f[i] = i;
+	        sort(p + 1, p + m + 1, cmp);
+	        for (int i = 1; i <= m; i++) {
+	            int j = p[i];
+	            int u = findroot(x[j]), v = findroot(y[j]);
+	            if (u != v && (cnt + (x[j] == 1) <= k || flag)) {
+	                f[u] = v;
+	                ans[inx++] = j;
+	                if (x[j] == 1) cnt++;
+	            }
+	        }
+	    }
+	    int main () {
+	        scanf("%d%d%d", &n, &m, &k);
+	        int tot = 0;
+	        for (int i = 1; i <= m; i++) {
+	            scanf("%d%d%d", x + i, y + i, w + i);
+	            p[i] = i;
+	            if (x[i] > y[i]) swap(x[i], y[i]);
+	            if (x[i] == 1) tot++;
+	        }
+	        //如果根节点的度数小于k，或者结点数大于1，而k == 0 一定不行
+	        if (tot < k || (n > 1 && k == 0)) {
+	            puts("-1");
+	            return 0;
+	        }
+	        //看能否生成一棵树
+	        mid = 0;
+	        work(1);
+	        if (inx + 1 < n) {
+	            puts("-1");
+	            return 0;
+	        }
+	        l = -1e5, r = 1e5;
+	        while(l + 1e-5 < r && cnt != k) {
+	            mid = (l + r) / 2;
+	            work(1);
+	            if (cnt < k) r = mid;
+	            else l = mid;
+	        }
+	        work(0);
+	        printf("%d\n", inx);
+	        for (int i = 0; i < inx - 1; i++) printf("%d ", ans[i]);
+	        if (inx) printf("%d\n", ans[inx - 1]);
+	    }
+	
+	    /*
+	    5 6 3
+	    3 2 5
+	    4 5 5
+	    1 3 5
+	    1 2 5
+	    1 4 5
+	    1 5 5
+	
+	    */
 		```
 
 ## 相關

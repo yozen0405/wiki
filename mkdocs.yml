@@ -155,6 +155,7 @@ nav:
         - 資結貪心: 'basic/greedy/ds.md'
         - maximum subarray: 'basic/greedy/max_subarray.md'
         - 其他: 'basic/greedy/other.md'
+      - Sorting: 'basic/sorting_algorithms.md'
     - 搜索算法:
       - 二分搜: 'search/binary_search.md'
       - 三分搜: 'search/tenary_search.md'
@@ -176,6 +177,7 @@ nav:
       - 進階資料結構 II:
         - Treap: 'ds/treap.md'
         - 持久化: 'ds/persistent.md'
+        - 李超線段樹: 'ds/li_chao_segment_tree.md'
         - Memory pool: 'ds/memory_pool.md'
     - 圖論:
       - 樹論: 

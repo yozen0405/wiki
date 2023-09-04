@@ -1,3 +1,5 @@
+見 <https://drive.google.com/file/d/1w4Lnxy5OuNN1rJ8nz9nBqakPGhS40g6B/view>
+
 ## 介紹
 
 $$\large dp(i)=\max\limits_{0\le j < i} \{ a(j) \times f(i) + b(j) \}$$

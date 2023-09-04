@@ -1602,7 +1602,7 @@ Kruskal 複雜度的瓶頸在於 sort，在某些題目我們可以使用 Radix 
 	                bucket[w & 1023].push_back(e);
 	            }
 	            // 讓 edges 裡面的 edge 以 1024 以下的位元排序
-	            int pos = 0;
+	            int pos = 0; // 直接覆蓋原本的 edges
 	            for (int i = 0; i < M; i++) {
 	                for (auto e : bucket[i]) {
 	                    edges[pos++] = e;
