@@ -155,10 +155,16 @@ void dfs(int u) {
 	
 	??? note "思路"
 		一樣用 circuit 的 code 下去做即可，只是用 set 去維護 adjacency list
+		
+		按照「先往編號小的節點走」的策略 DFS
+		
+		<figure markdown>
+          ![Image title](./images/61.png){ width="400" }
+        </figure>
 
 #### 有解條件分析
 
-???+note "<a href="/wiki/graph/images/ioic_501.html" target="_blank">2023 IOIC  511 . 找錢包</a>"
+???+note "<a href="/wiki/graph/images/ioic_511.html" target="_blank">2023 IOIC  511 . 找錢包</a>"
 	給 n 點 m 邊的圖，有 k 條特殊邊，問是否能在每條邊走不超過一次下，走過所有特殊邊，且要從 1 走到 n
 	
 	$2\le n\le 2\times 10^5,1\le m\le 4\times 10^4$
@@ -354,7 +360,7 @@ void dfs(int u) {
 		令 $N = 4n + 1$，觀察範例可以發現每個有選的 pair$(i, j)$ 都是 $i + j = N$，可以寫成 pair$(i, N - i)$，所以我們的目標是要選一些 pair$(i, N - i)$ 使每種顏色恰出現兩次。我們可以以顏色為點，將 $c_i$ 與 $c_{N - i}$ 連邊，跑歐拉迴路，奇數邊選，偶數邊不選。可以發現，每個點的 degree 都是偶數，所以是不會有無解的 case 的。
 		
 		> 參考自 : [師大附中延平中學競技程式讀書會證明與綜合練習](https://drive.google.com/file/d/1q2mP9uHYAauroE2mjtYKti9khs0H9qaJ/view)
-	
+
 ## K-筆畫問題
 
 【定理】 : 如果連通無向圖 G 有 2k 個奇頂點，至少要用 k 筆畫成
@@ -387,7 +393,7 @@ void dfs(int u) {
 	給一張 n 點 m 邊的帶權無向圖，找一個包含 node 1 的最短迴路，使每條邊都被用至少一次
 	
 	$n\le 15,m\le 2000,1\le w_i\le 10^4$
-
+	
 	??? note "思路"
 		因為點只有 15 個，我們可以使用 bitmask dp
 
@@ -482,7 +488,7 @@ De Bruijn sequence 是由 k 種不同符號組成，且其所有長度為 n 之�
 		最後的答案就是 (開頭的 substring) + (歐拉迴路邊上字元所組成的序列)
 		
 		令 a…z, A…z, 1…9 共是 m 種數字。每個點的 degree 最多是 m，所以 edge 最多 n * m 條。點是由兩個數字接起來，所以最多 m * m 個。總複雜度 O(n * m) = O(61 * n)
-		
+
 ---
 
 ## 參考資料

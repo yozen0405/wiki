@@ -193,3 +193,72 @@
 	    }
 		```
 
+???+note "[CS Academy Experience](https://csacademy.com/contest/archive/task/experience/)"
+	給一棵 $n$ 個點的樹，點有權重，你要把它切成一些 chain，使得每個 chain 的最大權重減最小權重的總和盡量大。
+	
+	$n \le 10^5$
+	
+	??? note "思路"
+		對於 max - min 我們可以想成好幾個差值組合起來的，例如 2 → 5 → 7 → 8 可以寫成 8 - 2 = 8 - 7 - 5 - 2。
+		
+		所以對於最後的答案每個 chain 的兩端一定是 max 跟 min，而且變化會是持續遞減或持續遞增，如果不是，例如 6 → 5 → 4 → 5 → 2，那我們可以將 {6, 5, 4} 跟 {5, 2}，還能讓答案變更大。
+	
+		所以我們定義 dp[u][0/1]: u 這個點是 min/max 端，u 這顆子樹的答案
+        
+        轉移的話一種情況是 u 自己一組，= sum(max(dp[u][0], dp[u][1]))
+        
+        令一種情況是 u 有被接到 v 往下的 chain
+        
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        using namespace std;
+        #define int long long
+
+        const int maxn = 1e5 + 5;
+        int n;
+        int w[maxn], dp[maxn][2];;
+        vector<int> G[maxn];
+
+        void update(int &x, int y) {
+            if (x < y) x = y;
+        }
+
+        void dfs(int u, int pa) {
+            int sum = 0;
+            for (auto v : G[u]) {
+                if (v == pa) continue;
+                dfs(v, u);
+                sum += max(dp[v][0], dp[v][1]);
+            }
+            dp[u][0] = dp[u][1] = sum;
+            for (auto v : G[u]) {
+                if (v == pa) continue;
+                update(dp[u][0], sum + dp[v][0] + w[v] - w[u] - max(dp[v][0], dp[v][1]));
+                update(dp[u][1], sum + dp[v][1] + w[u] - w[v] - max(dp[v][0], dp[v][1]));
+            }
+        }
+
+        signed main() {
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
+                cin >> w[i];
+            }
+            for (int i = 1; i < n; i++) {
+                int u, v;
+                cin >> u >> v;
+                G[u].push_back(v);
+                G[v].push_back(u);
+            }
+            dfs(1, 1);
+            cout << max(dp[1][0], dp[1][1]) << '\n';
+        }
+        ```
+        
+??? note "[CS Academy Growing Trees](https://csacademy.com/contest/archive/task/growing-trees)"
+	給一棵 $n$ 個點的樹，在第 $k$ 天的時候第 $i$ 條邊的權重是 $C_i + k \times A_i$，求在第 $[0, D]$ 天內，什麼時候會有最短的樹直徑
+	
+	$n\le 2.5 \times 10^5,0\le D\le 10^6$
+	
+	??? note "思路"
+		觀察到 $C_i + k \times A_i$ 會是一個峰函數，可以三分搜極值
