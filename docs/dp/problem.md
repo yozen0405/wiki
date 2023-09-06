@@ -162,7 +162,7 @@
 	        cout << ans << '\n';
 	    }
 	    ```
-	    
+
 ???+note "<a href="/wiki/dp/images/ionc_307.html" target="_blank">2022 IONC Day3 G. TypeRacer 2 (typeracer2)</a>"
 	給一個長度為 $n$ 的陣列 $a_1,\ldots ,a_n$，鍵盤左到右是 $1, 2, \ldots, k$，兩隻手指頭一開始可放任意位置。手指從 $i$ 到 $j$ 會花 $|i-j|$，輸出將陣列 $a$ 打完的最少時間
 	
@@ -170,137 +170,137 @@
 	
 	??? note "思路"
 		dp(i, j) = 每次只動一隻手的條件下，打完第 i 個鍵，另隻手在 j 的最小 cost
-
-        $dp(i,j) \to \begin{cases}dp(i+1, j) ,\space \text{cost}(a_{i}, a_{i+1}) \\ dp(i + 1, a_{i}) ,\space \text{cost}(j, a_{i+1}) \end{cases}$
-        
-        basecase: dp(1, 1~k) = 0, 其他 = INF
-        
-        ---
-        
-        > 實作: 資料結構優化
-        
-        我們把 $dp(i + 1, a_{i})$ 單獨拉出來看
-
-        $dp(i+1, a_i)=\min \limits_{j=1\ldots k} \{dp(i, j) + |a_{i+1} - j| \}$
-
-        $dp(i + 1, a_i) = \min \begin{cases} dp(i, j) + a_{i+1} - j \space \forall j \le a_{i+1} \\  dp(i, j) +j - a_{i+1} \space \forall j > a_{i+1} \end{cases}$
-
-        所以我們只需要去維護兩顆線段樹 $dp(i,j)+j, dp(i, j) - j$ 即可
-        
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        using namespace std;
-
-        const int INF = 2e18;
-
-        struct Node {
-            Node *lc = nullptr;
-            Node *rc = nullptr;
-            int l, r;
-            int add = 0, mn = 0;
-
-            Node(int l, int r) : l(l), r(r) {} 
-
-            void pull() {
-                mn = min(lc->mn, rc->mn);
-            }
-            void push() {
-                if (add) {
-                    lc->add += add;
-                    lc->mn += add;
-                    rc->add += add;
-                    rc->mn += add;
-                    add = 0;
-                }
-            }
-        };
-
-        Node* build(int l, int r) {
-            Node *root = new Node(l, r);
-            if (l == r) {
-                return root;
-            }
-            int mid = (l + r) / 2;
-            root->lc = build(l, mid);
-            root->rc = build(mid + 1, r);
-            root->pull();
-            return root;
-        }
-
-        void add(Node *root, int ml, int mr, int val) {
-            if (ml > mr) return;
-            if (ml <= root->l && root->r <= mr) {
-                root->add += val;
-                root->mn += val;
-                return;
-            } 
-            root->push();
-            if (ml <= root->lc->r) {
-                add(root->lc, ml, mr, val);
-            }
-            if (root->rc->l <= mr) {
-                add(root->rc, ml, mr, val);
-            }
-            root->pull();
-        }
-
-        int query(Node *root, int ql, int qr) {
-            if (ql > qr) return INF;
-            if (ql <= root->l && root->r <= qr) {
-                return root->mn;
-            }
-            root->push();
-            int ret = INF;
-            if (ql <= root->lc->r) {
-                ret = min(query(root->lc, ql, qr), ret);
-            }
-            if (root->rc->l <= qr) {
-                ret = min(query(root->rc, ql, qr), ret);
-            }
-            root->pull();
-            return ret;
-        }
-
-        const int N = 2e5 + 5;
-        int n, k;
-        int a[N];
-        signed main () {
-            cin >> n >> k;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-            }
-            Node *root_del = build(1, k);
-            Node *root_add = build(1, k);
-            for (int i = 1; i <= k; i++) {
-                add(root_del, i, i, -i);
-                add(root_add, i, i, +i);
-            }
-            for (int i = 1; i < n; i++) {
-                // calculate dp(i + 1, a[i])
-                int dp = min(query(root_del, 1, a[i + 1]) + a[i + 1], 
-                             query(root_add, a[i + 1] + 1, k) - a[i + 1]);
-
-                // update dp(i + 1, *)
-                add(root_del, 1, k, abs(a[i + 1] - a[i]));
-                add(root_add, 1, k, abs(a[i + 1] - a[i]));
-                // update dp(i + 1, a[i])
-                int now = query(root_del, a[i], a[i]) + a[i];
-                if (dp < now) {
-                    add(root_del, a[i], a[i], -now+dp);
-                    add(root_add, a[i], a[i], -now+dp);
-                }
-            }
-            int ans = INF;
-            for (int i = 1; i <= k; i++) {
-                ans = min(ans, query(root_del, i, i) + i);
-            }
-            cout << ans << '\n';
-        }
-        ```
+	
+	    $dp(i,j) \to \begin{cases}dp(i+1, j) ,\space \text{cost}(a_{i}, a_{i+1}) \\ dp(i + 1, a_{i}) ,\space \text{cost}(j, a_{i+1}) \end{cases}$
 	    
+	    basecase: dp(1, 1~k) = 0, 其他 = INF
+	    
+	    ---
+	    
+	    > 實作: 資料結構優化
+	    
+	    我們把 $dp(i + 1, a_{i})$ 單獨拉出來看
+	
+	    $dp(i+1, a_i)=\min \limits_{j=1\ldots k} \{dp(i, j) + |a_{i+1} - j| \}$
+	
+	    $dp(i + 1, a_i) = \min \begin{cases} dp(i, j) + a_{i+1} - j \space \forall j \le a_{i+1} \\  dp(i, j) +j - a_{i+1} \space \forall j > a_{i+1} \end{cases}$
+	
+	    所以我們只需要去維護兩顆線段樹 $dp(i,j)+j, dp(i, j) - j$ 即可
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pb push_back
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	
+	    struct Node {
+	        Node *lc = nullptr;
+	        Node *rc = nullptr;
+	        int l, r;
+	        int add = 0, mn = 0;
+	
+	        Node(int l, int r) : l(l), r(r) {} 
+	
+	        void pull() {
+	            mn = min(lc->mn, rc->mn);
+	        }
+	        void push() {
+	            if (add) {
+	                lc->add += add;
+	                lc->mn += add;
+	                rc->add += add;
+	                rc->mn += add;
+	                add = 0;
+	            }
+	        }
+	    };
+	
+	    Node* build(int l, int r) {
+	        Node *root = new Node(l, r);
+	        if (l == r) {
+	            return root;
+	        }
+	        int mid = (l + r) / 2;
+	        root->lc = build(l, mid);
+	        root->rc = build(mid + 1, r);
+	        root->pull();
+	        return root;
+	    }
+	
+	    void add(Node *root, int ml, int mr, int val) {
+	        if (ml > mr) return;
+	        if (ml <= root->l && root->r <= mr) {
+	            root->add += val;
+	            root->mn += val;
+	            return;
+	        } 
+	        root->push();
+	        if (ml <= root->lc->r) {
+	            add(root->lc, ml, mr, val);
+	        }
+	        if (root->rc->l <= mr) {
+	            add(root->rc, ml, mr, val);
+	        }
+	        root->pull();
+	    }
+	
+	    int query(Node *root, int ql, int qr) {
+	        if (ql > qr) return INF;
+	        if (ql <= root->l && root->r <= qr) {
+	            return root->mn;
+	        }
+	        root->push();
+	        int ret = INF;
+	        if (ql <= root->lc->r) {
+	            ret = min(query(root->lc, ql, qr), ret);
+	        }
+	        if (root->rc->l <= qr) {
+	            ret = min(query(root->rc, ql, qr), ret);
+	        }
+	        root->pull();
+	        return ret;
+	    }
+	
+	    const int N = 2e5 + 5;
+	    int n, k;
+	    int a[N];
+	    signed main () {
+	        cin >> n >> k;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	        }
+	        Node *root_del = build(1, k);
+	        Node *root_add = build(1, k);
+	        for (int i = 1; i <= k; i++) {
+	            add(root_del, i, i, -i);
+	            add(root_add, i, i, +i);
+	        }
+	        for (int i = 1; i < n; i++) {
+	            // calculate dp(i + 1, a[i])
+	            int dp = min(query(root_del, 1, a[i + 1]) + a[i + 1], 
+	                         query(root_add, a[i + 1] + 1, k) - a[i + 1]);
+	
+	            // update dp(i + 1, *)
+	            add(root_del, 1, k, abs(a[i + 1] - a[i]));
+	            add(root_add, 1, k, abs(a[i + 1] - a[i]));
+	            // update dp(i + 1, a[i])
+	            int now = query(root_del, a[i], a[i]) + a[i];
+	            if (dp < now) {
+	                add(root_del, a[i], a[i], -now+dp);
+	                add(root_add, a[i], a[i], -now+dp);
+	            }
+	        }
+	        int ans = INF;
+	        for (int i = 1; i <= k; i++) {
+	            ans = min(ans, query(root_del, i, i) + i);
+	        }
+	        cout << ans << '\n';
+	    }
+	    ```
+
 ???+note "[TOI 2022 B. 打鍵盤 (keyboard)](https://tioj.ck.tp.edu.tw/problems/2247)"
 	給一個長度為 $n$ 的字串 $S$，一開始左手指在 F，右手指在 J，每次可將一隻手指移動一單位，輸出將字串 $S$ 打完的最少次數
 	
@@ -310,11 +310,60 @@
 		先利用 Floyd Warshall 建好 dis(A-Z, A-Z)
 		
 		dp(i, j) = 每次只動一隻手的條件下，打完第 i 個鍵，另隻手在 j 的最小 cost
-
-        $dp(i,j) \to \begin{cases}dp(i+1, j) ,\space \text{cost}(a_{i}, a_{i+1}) \\ dp(i + 1, a_{i}) ,\space \text{cost}(j, a_{i+1}) \end{cases}$
+	
+	    $dp(i,j) \to \begin{cases}dp(i+1, j) ,\space \text{cost}(a_{i}, a_{i+1}) \\ dp(i + 1, a_{i}) ,\space \text{cost}(j, a_{i+1}) \end{cases}$
 		
 		轉移從 dp(i, * ) 推到 dp(i + 1, * )，時間複雜度 O(26n)
 
+### CF 484D
 
-
+???+note "[CF 484 D. Kindergarten](https://codeforces.com/problemset/problem/484/D)"
+	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，能將陣列切成好幾段，問每段的 max - min 加起來最大是多少
 	
+	$1\le n\le 10^6, -10^9 \le a_i \le 10^9$
+	
+	??? note "思路"
+		我們可以發現，將陣列分成好幾段，若遇到轉折就切，一定是最好的。感性理解的話，就是將每個能用差值都用上
+		
+		<figure markdown>
+          ![Image title](./images/15.png){ width="300" }
+        </figure>
+        
+        但在轉折處，會有一段貢獻不會選到，我們就要用 dp 到底計算選哪個比較好
+        
+        <figure markdown>
+          ![Image title](./images/16.png){ width="300" }
+        </figure>
+
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        const int maxn = 1e6 + 5;
+        int n;
+        int a[maxn], dp[maxn];
+
+        void init () {
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+            }
+        }
+
+        void solve () {
+            int j = 1; 
+            for (int i = 2; i <= n; i++) {
+                dp[i] = max(dp[j] + abs(a[i] - a[j + 1]), dp[j - 1] + abs(a[i] - a[j]));
+                if (a[i - 1] <= a[i] && a[i] >= a[i + 1]) j = i;
+                else if (a[i - 1] >= a[i] && a[i] <= a[i + 1]) j = i;
+            }
+            cout << dp[n] << "\n";
+        }
+
+        signed main () {
+            init();
+            solve();
+        }
+		```

@@ -1,5 +1,3 @@
-<https://taodaling.github.io/blog/2019/09/10/%E6%A0%91%E4%B8%8A%E7%AE%97%E6%B3%95/#heading-%E6%A0%91%E4%B8%8A%E5%8C%B9%E9%85%8D%E9%97%AE%E9%A2%98>
-
 ???+note "[hackerrank kingdom division](https://www.hackerrank.com/challenges/kingdom-division/problem)"
 	給一個 $n$ 個點的樹，每個點可以圖黑色或白色
 	
@@ -199,66 +197,114 @@
 	$n \le 10^5$
 	
 	??? note "思路"
+		其實就是 <a href="/wiki/dp/problem/#cf-484d" target="_blank">CF 484D</a> 的樹上版本
+	
 		對於 max - min 我們可以想成好幾個差值組合起來的，例如 2 → 5 → 7 → 8 可以寫成 8 - 2 = 8 - 7 - 5 - 2。
 		
-		所以對於最後的答案每個 chain 的兩端一定是 max 跟 min，而且變化會是持續遞減或持續遞增，如果不是，例如 6 → 5 → 4 → 5 → 2，那我們可以將 {6, 5, 4} 跟 {5, 2}，還能讓答案變更大。
+		所以對於最後的答案每個 chain 的兩端一定是 max 跟 min，這個已在上面 CF 484D 的題解裡面提到了。
 	
 		所以我們定義 dp[u][0/1]: u 這個點是 min/max 端，u 這顆子樹的答案
-        
-        轉移的話一種情況是 u 自己一組，= sum(max(dp[u][0], dp[u][1]))
-        
-        令一種情況是 u 有被接到 v 往下的 chain
-        
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        using namespace std;
-        #define int long long
-
-        const int maxn = 1e5 + 5;
-        int n;
-        int w[maxn], dp[maxn][2];;
-        vector<int> G[maxn];
-
-        void update(int &x, int y) {
-            if (x < y) x = y;
-        }
-
-        void dfs(int u, int pa) {
-            int sum = 0;
-            for (auto v : G[u]) {
-                if (v == pa) continue;
-                dfs(v, u);
-                sum += max(dp[v][0], dp[v][1]);
-            }
-            dp[u][0] = dp[u][1] = sum;
-            for (auto v : G[u]) {
-                if (v == pa) continue;
-                update(dp[u][0], sum + dp[v][0] + w[v] - w[u] - max(dp[v][0], dp[v][1]));
-                update(dp[u][1], sum + dp[v][1] + w[u] - w[v] - max(dp[v][0], dp[v][1]));
-            }
-        }
-
-        signed main() {
-            cin >> n;
-            for (int i = 1; i <= n; i++) {
-                cin >> w[i];
-            }
-            for (int i = 1; i < n; i++) {
-                int u, v;
-                cin >> u >> v;
-                G[u].push_back(v);
-                G[v].push_back(u);
-            }
-            dfs(1, 1);
-            cout << max(dp[1][0], dp[1][1]) << '\n';
-        }
-        ```
-        
-??? note "[CS Academy Growing Trees](https://csacademy.com/contest/archive/task/growing-trees)"
-	給一棵 $n$ 個點的樹，在第 $k$ 天的時候第 $i$ 條邊的權重是 $C_i + k \times A_i$，求在第 $[0, D]$ 天內，什麼時候會有最短的樹直徑
+	    
+	    轉移的話一種情況是 u 自己一組，= sum(max(dp[u][0], dp[u][1]))
+	    
+	    令一種情況是 u 有被接到 v 往下的 chain
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    using namespace std;
+	    #define int long long
 	
-	$n\le 2.5 \times 10^5,0\le D\le 10^6$
+	    const int maxn = 1e5 + 5;
+	    int n;
+	    int w[maxn], dp[maxn][2];;
+	    vector<int> G[maxn];
+	
+	    void update(int &x, int y) {
+	        if (x < y) x = y;
+	    }
+	
+	    void dfs(int u, int pa) {
+	        int sum = 0;
+	        for (auto v : G[u]) {
+	            if (v == pa) continue;
+	            dfs(v, u);
+	            sum += max(dp[v][0], dp[v][1]);
+	        }
+	        dp[u][0] = dp[u][1] = sum;
+	        for (auto v : G[u]) {
+	            if (v == pa) continue;
+	            update(dp[u][0], sum + dp[v][0] + w[v] - w[u] - max(dp[v][0], dp[v][1]));
+	            update(dp[u][1], sum + dp[v][1] + w[u] - w[v] - max(dp[v][0], dp[v][1]));
+	        }
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> w[i];
+	        }
+	        for (int i = 1; i < n; i++) {
+	            int u, v;
+	            cin >> u >> v;
+	            G[u].push_back(v);
+	            G[v].push_back(u);
+	        }
+	        dfs(1, 1);
+	        cout << max(dp[1][0], dp[1][1]) << '\n';
+	    }
+	    ```
+
+???+note "[CS Academy Connected Tree Subgraphs](https://csacademy.com/contest/archive/task/connected-tree-subgraphs)"
+	給一個 $n$ 個點的 Tree，有幾種用 1~n 去編號的方法滿足 :
+	
+	- 對於 $1\le k\le n$，由編號 $1\ldots k$ 組成的子圖要連通
+
+	$1\le n\le 10^5$
+
+	??? note "思路"
+		觀察到他是起點慢慢長出去的，所以我們先考慮將點 1 定根，上面放編號 1
+		
+		對於 $u$，我們假設我們能算出 $dp_v$，那麼 $dp_u$ 要怎麼計算呢 ?
+		
+		我們假設放的順序形成一個序列 $p$，對於同一個子樹我們不必困擾放的順序，因為 $dp_v$ 已計算完成，所以我們可以將同一個 subtree$(v)$ 裡面的順序視為同物，也就是 $p$ 就會是好幾個同物排列。
+		
+		所以 $dp_u=$ (同物排列的方法數) $\times \prod dp_v$ $\displaystyle =\frac{(size(u)-1)!}{\prod size(v)!}\times \prod dp_v$ 
+
+???+note "[CS Academy Triplet Min Sum](https://csacademy.com/contest/archive/task/triplet-min-sum)"
+	給一棵 $n$ 個點的樹，有 $q$ 筆詢問如下 :
+	
+	- $\text{query}(a, b, c):$ 輸出與 $a, b, c$ 三點距離總和最小的點 $d$，以及距離總和
+
+	$3\le n\le 10^5, 1\le q\le 10^5$ 
+	
+	註 : 此題同 [AHOI 2008 紧急集合](https://www.luogu.com.cn/problem/P4281)
 	
 	??? note "思路"
-		觀察到 $C_i + k \times A_i$ 會是一個峰函數，可以三分搜極值
+		分類討論題麼，分兩類大情況，如下圖
+	
+		<figure markdown>
+          ![Image title](./images/62.png){ width="500" }
+        </figure>
+	
+		要使 a, b, c 到 d 走過的邊盡量不重複，順著這個思路，那麼集合的點必定會在某兩個點的路徑上，進一步，答案的集合點便是三點中任意兩點的路徑的交點
+		
+		LCA(a, b), LCA(b, c), LCA(c, a) 最多有兩個 distinct 的，我們選深度比較大的那個，因為比較深的兩點每次的貢獻都會 *2，讓這個點越接近越好
+		
+		最後，要計算距離的話，用 dep(u) + dep(v) - 2 * dep(lca(u, v)) 即可
+		
+		證明 :
+		
+		對於三個點（假設這三個點為 x, y, z，答案為 ans）來說，有兩種情況 :
+        
+        - x, y 在一個子樹並且 x, y 的最近公共祖先 LCA(x, y) 為這個子樹的根，z 與 LCA(x, y) 不在一個子樹上，那麼最後的答案肯定是 ans = LCA(x, y)，因為此時保證了 x, y 距離最小，而如果 ans != LCA(x, y) 答案肯定會比這個大
+
+		- z 與 LCA(x, y) 在一個子樹上，但這種情況其實相當於 x, y, z 的順序不同
+		
+		---
+		
+		可以發現有這樣的性質，顯然樹上存在某一個節點，把整顆樹分割為兩顆子樹，把其中的兩個 LCA 放在一側，另一個放在另一側。所以其中一定有兩個 LCA 是相等的，顯然這個不相等的 LCA 就是最佳集合點，這個不難證。
+
+## 參考資料
+
+- <https://taodaling.github.io/blog/2019/09/10/%E6%A0%91%E4%B8%8A%E7%AE%97%E6%B3%95/#heading-%E6%A0%91%E4%B8%8A%E5%8C%B9%E9%85%8D%E9%97%AE%E9%A2%98>

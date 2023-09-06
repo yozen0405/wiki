@@ -111,59 +111,59 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        int n, k;
-        int a[maxn], b[maxn];
-
-        bool check(int x) {
-            // 求 < x 的數字有幾個
-            int cnt = 0;
-            int j = n;
-            for (int i = 1; i <= n; i++) {
-                while (1 <= j && a[i] + b[j] >= x) {
-                    j--;
-                }
-                cnt += j;
-            }
-
-            return cnt <= k;
-        }
-
-        signed main() {
-            cin >> n >> k;
-            k--;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-            }
-            for (int i = 1; i <= n; i++) {
-                cin >> b[i];
-            }
-            sort(a + 1, a + n + 1); sort(b + 1, b + n + 1);
-            // 找到最大的 x 滿足小於 x 的個數 <= k
-
-            int l = 1, r = 1e11;
-            while (r - l > 1) {
-                int mid = (l + r) / 2;
-                if (check(mid)) l = mid;
-                else r = mid;
-            }
-            cout << l << '\n';
-        } 
-        ```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
 	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, k;
+	    int a[maxn], b[maxn];
+	
+	    bool check(int x) {
+	        // 求 < x 的數字有幾個
+	        int cnt = 0;
+	        int j = n;
+	        for (int i = 1; i <= n; i++) {
+	            while (1 <= j && a[i] + b[j] >= x) {
+	                j--;
+	            }
+	            cnt += j;
+	        }
+	
+	        return cnt <= k;
+	    }
+	
+	    signed main() {
+	        cin >> n >> k;
+	        k--;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            cin >> b[i];
+	        }
+	        sort(a + 1, a + n + 1); sort(b + 1, b + n + 1);
+	        // 找到最大的 x 滿足小於 x 的個數 <= k
+	
+	        int l = 1, r = 1e11;
+	        while (r - l > 1) {
+	            int mid = (l + r) / 2;
+	            if (check(mid)) l = mid;
+	            else r = mid;
+	        }
+	        cout << l << '\n';
+	    } 
+	    ```
+
 
 ???+note "[CF 1853 C. Ntarsis' Set](https://codeforces.com/contest/1853/problem/C)"
 	給一個包含 $1,2,\ldots ,10^{1000}$ 所有數字的 Set $S$，每天從 $S$ **同時**移除第 $a_1,a_2,\ldots ,a_n$ 個數字，問 $k$ 天之後 $S$ 中最小的數字是多少
@@ -322,3 +322,18 @@
 	        }
 	    } 
 		```
+		
+???+note "[2021 附中模競 II pD. 調色盤 (Palette)](https://drive.google.com/file/d/1Qw4eUf0uSrLDOsdrq11xZxrCAVubAW4P/view)"
+	給一個長度為 $n$ 的陣列 $a_1 ,\ldots ,a_n$，有 $q$ 筆詢問如下 :
+	
+	- $\text{query}(l,r):$ 問 $a_l \sim a_r$ 裡有幾個 subarray 滿足最大最小差 $\le k$
+
+	$n,k\le 10^6,c_i\le 10^6,q\le 10^6$
+	
+	??? note "思路"
+		對於每個 i 定義 last[i] = 從 i 開始最大可以到哪個 index 滿足區間 max - min <= k
+		
+		這可以用 two pointer + sparse table 預處理
+		
+		然後對於 query(l, r) 就可以二分搜最大的分界點 t，滿足前面的 last[i] 都 <= r，後面的都 > r。前面的可以對於 last[ ] 維護 prefix sum，後面用數學解 O(1) 算即可
+	
