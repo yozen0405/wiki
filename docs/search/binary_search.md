@@ -1,21 +1,3 @@
-- 第 k 大
-
-- noi 2016
-
-- 平均 
-
-- 最大化最小值
-
-- 雙層二分搜([Google code jam](https://www.acmicpc.net/problem/27811))
-
-- JOI 蛋糕
-
-- APCS double cnt overflow
-
-- 問題 2023 toi pB (已編輯)
-
-- APCSC binary search 提單
-
 - [全國賽 2019 史蒂芬與獵人](https://sorahisa-rank.github.io/nhspc-fin/2019/problems.pdf#page=10)
 
 - [neoj 田忌賽馬](https://neoj.sprout.tw/problem/69/)
@@ -32,15 +14,19 @@
 
 - 全國賽 2021 pG subtask 1, 2
 
-!!! warning "check(x) 的 x 太大的時候，有些情況會造成 cnt overflow"
+## 細節
 
-!!! warning "記得需要開 double 的時候，l, r, mid, check(x) 都要用 double，不能有一些是 int 有一些又是 double"
+- check(x) 的 x 太大的時候，有些情況會造成 cnt overflow
 
-!!! warning "注意 l, r 一開始的有沒有還蓋答案的左界右界"
+- 記得需要開 double 的時候，l, r, mid, check(x) 都要用 double，不能有一些是 int 有一些又是 double
 
-!!! warning "while(l < r) while(r - l > 1)"
+- 注意 l, r 一開始的有沒有還蓋答案的左界右界
 
-!!! warning "TLE 有可能是二分搜壞掉導致, 可能一開始推導時有誤"
+- while(l < r) 還是 while(r - l > 1)
+
+- TLE 有可能是二分搜壞掉導致, 可能一開始推導時有誤
+
+	- 當 (l + r) / 2 是負的時候，可能會出問題[^1]
 
 ## 第 k 小
 
@@ -164,6 +150,80 @@
 	    } 
 	    ```
 
+???+note "[TIOJ 1208 . 第K大連續和](https://tioj.ck.tp.edu.tw/problems/1208)"
+	給一個長度為 $n$ 的陣列 $a_1 ,\ldots ,a_n$，輸出所有 subarray sum 中第 $k$ 大的
+	
+	$n\le 2\times 10^4 , 1\le k \le \frac{n(n+1)}{2}$
+	
+	??? note "思路"
+		二分搜最小的 x 滿足「大於 x 的 subarray sum 個數 <= k」，但要注意會有 (l + r) / 2 可能會是負的，所以必須 mid = l + (r - l) / 2
+		
+		也可以把問題轉換成第 k 小，後二分搜最大的 x 滿足「小於 x 的 subarray sum 個數 <= k」
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #include <bits/extc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define mk make_pair<int, int>
+        using namespace std;
+        using namespace __gnu_pbds;
+
+        template <typename T>
+        using rank_set = tree<T, null_type, std::less<T>, rb_tree_tag,tree_order_statistics_node_update>;
+
+        const int maxn = 2e5 + 5;
+        int n, k;
+        int a[maxn], pre[maxn];
+
+        bool check(int x) {
+            rank_set<pii> st;
+            // pre[i] - pre[j] > x
+            // pre[i] - x > pre[j]
+            int cnt = 0;
+            for (int i = 0; i <= n; i++) {
+                cnt += st.order_of_key(mk(pre[i] - x + 1, 0));
+                st.insert({pre[i], i + 1});
+            }
+            return cnt <= k;
+        }
+
+        void solve () {
+        	k--;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+                pre[i] = pre[i - 1] + a[i];
+            }
+            int l = -2e9, r = 2e9;
+            while (r - l > 1) {
+                int mid = (l + r) / 2;
+
+                if (check(mid)) r = mid;
+                else l = mid;
+            }
+            cout << l << "\n";
+        }
+
+        signed main () {
+            while (cin >> n >> k) {
+                if(n == 0 && k == 0) break;
+                solve();
+            }
+        }
+        ```
+
+???+note "[2023 TOI 初選 pB. 裁員風暴 (storm)](https://zerojudge.tw/ShowProblem?problemid=k185)"
+
+
+## 雙層二分搜
+	
+???+note "[Google Code Jam 2020 Round2 P1. Incremental House of Pancakes](https://www.acmicpc.net/problem/27811)"
+
+???+note "[JOI 2014 Final 年轮蛋糕](https://loj.ac/p/2758)"
+	
+
+## 其他
 
 ???+note "[CF 1853 C. Ntarsis' Set](https://codeforces.com/contest/1853/problem/C)"
 	給一個包含 $1,2,\ldots ,10^{1000}$ 所有數字的 Set $S$，每天從 $S$ **同時**移除第 $a_1,a_2,\ldots ,a_n$ 個數字，問 $k$ 天之後 $S$ 中最小的數字是多少
@@ -322,12 +382,12 @@
 	        }
 	    } 
 		```
-		
+
 ???+note "[2021 附中模競 II pD. 調色盤 (Palette)](https://drive.google.com/file/d/1Qw4eUf0uSrLDOsdrq11xZxrCAVubAW4P/view)"
 	給一個長度為 $n$ 的陣列 $a_1 ,\ldots ,a_n$，有 $q$ 筆詢問如下 :
 	
 	- $\text{query}(l,r):$ 問 $a_l \sim a_r$ 裡有幾個 subarray 滿足最大最小差 $\le k$
-
+	
 	$n,k\le 10^6,c_i\le 10^6,q\le 10^6$
 	
 	??? note "思路"
@@ -336,4 +396,9 @@
 		這可以用 two pointer + sparse table 預處理
 		
 		然後對於 query(l, r) 就可以二分搜最大的分界點 t，滿足前面的 last[i] 都 <= r，後面的都 > r。前面的可以對於 last[ ] 維護 prefix sum，後面用數學解 O(1) 算即可
+
+???+note "[CS Academy - Farey Sequence](https://csacademy.com/contest/archive/task/farey_sequence)"
+
+???+note "[LOJ #2086. 「NOI2016」区间](https://loj.ac/p/2086)"
 	
+[^1]: 見此處<a href="/wiki/search/images/1.html" target="_blank">此處</a>

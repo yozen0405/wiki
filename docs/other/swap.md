@@ -1,11 +1,3 @@
-???+note "問題常態"
-
-    給定 $a_1,...,a_n$，每次可做以下操作，題目會給定操作限制
-
-	- $\texttt{swap(a[i],a[j])}$
-
-	問做少操作次數使得陣列符合某個條件
-
 ## TOI 2019 p4
 
 ???+note "[TOI 2019 p4. 雲霄飛車 (rollercoaster)](https://sorahisa-rank.github.io/oi-toi/2019/problems.pdf#page=5)"
@@ -43,18 +35,30 @@
 		考慮哪個時候要切 x。在 sorted 的 permutation 中，
 	
 		先考慮 1，若 1 不是在最前面，那我們有兩種選擇 :
+	
+	    - 花一次操作使 1 移動到第一格
+	    - 讓以後的數字帶我到第一格
+	        - 考慮從 x 切，那勢必 pos[1] 要小於 pos[2], ..., pos[x] 才能被帶飛
+	        - 顯然當 x 越大的時候越難符合，所以我們其實只要考慮 x 最小，也就是 x = 2 的時候
+	        - iff pos[1] < pos[2]
+	
+	    當我們選擇完後，即可將 1 移除，變成子問題
+	    
+	    總結下來，我們其實只要看 pos[i]>pos[i+1] 的數量即可
+	    
+	    > 詳細可參考 : <https://www.youtube.com/watch?v=IhMnux8RfQw>
 
-        - 花一次操作使 1 移動到第一格
-        - 讓以後的數字帶我到第一格
-            - 考慮從 x 切，那勢必 pos[1] 要小於 pos[2], ..., pos[x] 才能被帶飛
-            - 顯然當 x 越大的時候越難符合，所以我們其實只要考慮 x 最小，也就是 x = 2 的時候
-            - iff pos[1] < pos[2]
+## CSA Swap Pairing
 
-        當我們選擇完後，即可將 1 移除，變成子問題
-        
-        總結下來，我們其實只要看 pos[i]>pos[i+1] 的數量即可
-        
-        > 詳細可參考 : <https://www.youtube.com/watch?v=IhMnux8RfQw>
+???+note "[CS Academy - Swap Pairing](https://csacademy.com/contest/archive/task/swap_pairing/statement/)"
+	給你一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，每種數字恰出現兩次，一次操作可以 swap 相鄰的，問最少操作次數使同種數字都相鄰
+	
+	$n\le 10^5,n$ 為偶數 $, 0\le a_i \le 10^9$
+	
+	??? note "思路"
+		考慮要使第一個數字與跟他相同的數字要相鄰，將比較後面的那個一路 swap 到第二個位置一定不會比較差，因為若他們兩個都 swap 到中間去，那等等其他人經過他們時還會花更多 cost
+		
+		所以我們將第一個數字做完後，就可以刪掉他們變子問題。可使用 BIT 計算 cost
 	
 ## 附中模競III pG
 

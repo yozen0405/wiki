@@ -326,44 +326,79 @@
 		我們可以發現，將陣列分成好幾段，若遇到轉折就切，一定是最好的。感性理解的話，就是將每個能用差值都用上
 		
 		<figure markdown>
-          ![Image title](./images/15.png){ width="300" }
-        </figure>
-        
-        但在轉折處，會有一段貢獻不會選到，我們就要用 dp 到底計算選哪個比較好
-        
-        <figure markdown>
-          ![Image title](./images/16.png){ width="300" }
-        </figure>
-
+	      ![Image title](./images/15.png){ width="300" }
+	    </figure>
+	    
+	    但在轉折處，會有一段貢獻不會選到，我們就要用 dp 到底計算選哪個比較好
+	    
+	    <figure markdown>
+	      ![Image title](./images/16.png){ width="300" }
+	    </figure>
+	
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int maxn = 1e6 + 5;
-        int n;
-        int a[maxn], dp[maxn];
-
-        void init () {
-            cin >> n;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-            }
-        }
-
-        void solve () {
-            int j = 1; 
-            for (int i = 2; i <= n; i++) {
-                dp[i] = max(dp[j] + abs(a[i] - a[j + 1]), dp[j - 1] + abs(a[i] - a[j]));
-                if (a[i - 1] <= a[i] && a[i] >= a[i + 1]) j = i;
-                else if (a[i - 1] >= a[i] && a[i] <= a[i + 1]) j = i;
-            }
-            cout << dp[n] << "\n";
-        }
-
-        signed main () {
-            init();
-            solve();
-        }
+	    #define int long long
+	    using namespace std;
+	
+	    const int maxn = 1e6 + 5;
+	    int n;
+	    int a[maxn], dp[maxn];
+	
+	    void init () {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	        }
+	    }
+	
+	    void solve () {
+	        int j = 1; 
+	        for (int i = 2; i <= n; i++) {
+	            dp[i] = max(dp[j] + abs(a[i] - a[j + 1]), dp[j - 1] + abs(a[i] - a[j]));
+	            if (a[i - 1] <= a[i] && a[i] >= a[i + 1]) j = i;
+	            else if (a[i - 1] >= a[i] && a[i] <= a[i + 1]) j = i;
+	        }
+	        cout << dp[n] << "\n";
+	    }
+	
+	    signed main () {
+	        init();
+	        solve();
+	    }
 		```
+		
+???+note "[CS Academy - Distinct Neighbours](https://csacademy.com/contest/archive/task/distinct_neighbours)"
+	給你一個長度為 $n$ 的陣列 $a_1, a_2, \ldots ,a_n$，問有幾種 $a$ 的 permutation 滿足相同數字不相鄰
+	
+	$1\le n\le 750,1\le a_i \le n$
+	
+	??? note "思路"
+		枚舉 k，假設有 k 個 gaps 至少有放一個東西，要將 cnt[i + 1] 個物品填入，利用隔板法得知方法數為 C(cnt[i + 1] - 1, k - 1)
+		
+		枚舉 L，代表選 L 個同 pair gaps，方法數 : C(j, L)
+		
+		也就會有 j - L 個異 pair gaps，方法數 : C(S - j, j - L)
+		
+		所以會被扣掉 L 個同 pair gaps，將 cnt[i + 1] 個物品放入 k 個 gaps 會產生 cnt[i + 1] - k 個同 pair，我們可列出轉移式 dp(i, j) → dp(i + 1, j - L + cnt[i + 1] - k)
+		
+		> 參考自 : <https://www.cnblogs.com/jiachinzhao/p/7410938.html>
+	
+???+note "[2021 全國賽 pF. 挑水果](https://tioj.ck.tp.edu.tw/problems/2258)"
+	一開始船上有 $c$ 個種類的水果，第 $i$ 種類有 $n_i$ 顆，依序經過 $c$ 個城市，每經過一個城市可以決定要不要把船上所有前 $i$ 種類的水果給當地盤商賣，積載每顆水果經過都市 $i$ 需要積載成本 $p_i$，把每顆水果給都市 $i$ 的盤商賣需要成本 $s_i$，在都市 $i$ 賣種類 $j$ 的水果最後只會賣出 $r_{i,j}$ 顆，問若積載成本和銷售成本總和不超過 $T$ 的前提下，最多能賣幾顆水果 ?
+	
+	$1\le c,n_i\le 40,1\le p_i, s_i\le 1000,T \le 10^7$
+	
+	??? note "思路"
+		類似超大背包的想法，令 dp(i, j, v): 到了第 i 個城市，上一部賣完第 j 種水果，利潤為 v 的最小成本
+		
+		轉移式如下，從 dp(i, j, v) 轉移過去
+		
+		- dp(i + 1, i + 1, v + rsum(j + 1, i + 1)) = min(dp(i, j, v) + p_sum(j + 1, n) + s_sum(j + 1, i + 1) )
+
+		- dp(i + 1, j, v) = min(dp(i, j, v) + p_sum(j + 1, n))
+
+		複雜度 : 狀態 O(40 * 40 * (40 * 40))，轉移 O(1)
+	
+???+note "[2021 全國賽 pH. 天竺鼠遊行](https://tioj.ck.tp.edu.tw/problems/2258)"
+	wiwiho 校陪簡報 歷屆試題精選

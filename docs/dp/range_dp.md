@@ -11,7 +11,9 @@
 		對於一個區間 [l, r]，枚舉 k 當 [l, r] 的根（用 L(l, k) && R(k, r) 判斷），看看是 k 否能接到 l - 1 的右子樹或 r + 1 的左子樹，可行則分別設 R(l - 1, k) = true，或 L(k, r + 1) = true
 		
 		可以先預處理 G(i, j) 代表 i 是否能根 j 連邊，在轉移時維護一個 ans(l, r) 代表 [l, r] 是否能組出一顆合法的 BST，最後輸出 ans(l, r) 即可
-		
+
+???+note "[JOI 2015 Final 分蛋糕 2](https://loj.ac/p/2725)"
+
 array shrinking
 
 atcoder dp contest slimes

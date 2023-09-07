@@ -6,7 +6,7 @@
 
 - 貪心
 	- <a href="/wiki/basic/greedy/interval" target="_blank">區間問題</a>
-	- <a href="/wiki/basic/greedy/interval_scheduling" target="_blank">排程問題</a>
+	- <a href="/wiki/basic/greedy/scheduling" target="_blank">排程問題</a>
 	- <a href="/wiki/basic/greedy/ds" target="_blank">資結貪心</a>
 
 - 資料結構
@@ -47,5 +47,4 @@
 - yozen0405
 
 - Rah（2023 TOI 女保）
-
 
