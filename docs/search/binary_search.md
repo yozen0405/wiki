@@ -163,61 +163,75 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #include <bits/extc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define mk make_pair<int, int>
-        using namespace std;
-        using namespace __gnu_pbds;
-
-        template <typename T>
-        using rank_set = tree<T, null_type, std::less<T>, rb_tree_tag,tree_order_statistics_node_update>;
-
-        const int maxn = 2e5 + 5;
-        int n, k;
-        int a[maxn], pre[maxn];
-
-        bool check(int x) {
-            rank_set<pii> st;
-            // pre[i] - pre[j] > x
-            // pre[i] - x > pre[j]
-            int cnt = 0;
-            for (int i = 0; i <= n; i++) {
-                cnt += st.order_of_key(mk(pre[i] - x + 1, 0));
-                st.insert({pre[i], i + 1});
-            }
-            return cnt <= k;
-        }
-
-        void solve () {
-        	k--;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-                pre[i] = pre[i - 1] + a[i];
-            }
-            int l = -2e9, r = 2e9;
-            while (r - l > 1) {
-                int mid = (l + r) / 2;
-
-                if (check(mid)) r = mid;
-                else l = mid;
-            }
-            cout << l << "\n";
-        }
-
-        signed main () {
-            while (cin >> n >> k) {
-                if(n == 0 && k == 0) break;
-                solve();
-            }
-        }
-        ```
+	    #include <bits/extc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define mk make_pair<int, int>
+	    using namespace std;
+	    using namespace __gnu_pbds;
+	
+	    template <typename T>
+	    using rank_set = tree<T, null_type, std::less<T>, rb_tree_tag,tree_order_statistics_node_update>;
+	
+	    const int maxn = 2e5 + 5;
+	    int n, k;
+	    int a[maxn], pre[maxn];
+	
+	    bool check(int x) {
+	        rank_set<pii> st;
+	        // pre[i] - pre[j] > x
+	        // pre[i] - x > pre[j]
+	        int cnt = 0;
+	        for (int i = 0; i <= n; i++) {
+	            cnt += st.order_of_key(mk(pre[i] - x + 1, 0));
+	            st.insert({pre[i], i + 1});
+	        }
+	        return cnt <= k;
+	    }
+	
+	    void solve () {
+	    	k--;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	            pre[i] = pre[i - 1] + a[i];
+	        }
+	        int l = -2e9, r = 2e9;
+	        while (r - l > 1) {
+	            int mid = (l + r) / 2;
+	
+	            if (check(mid)) r = mid;
+	            else l = mid;
+	        }
+	        cout << l << "\n";
+	    }
+	
+	    signed main () {
+	        while (cin >> n >> k) {
+	            if(n == 0 && k == 0) break;
+	            solve();
+	        }
+	    }
+	    ```
 
 ???+note "[2023 TOI 初選 pB. 裁員風暴 (storm)](https://zerojudge.tw/ShowProblem?problemid=k185)"
 
 
+???+note "法里西數列 [CS Academy - Farey Sequence](https://csacademy.com/contest/archive/task/farey_sequence/statement/)"
+    給 $n$，序列 $F_n$ 舉例來說如下 :
+
+    - $F_3$ = 2/3, 1/2, 1/3
+
+    - $F_4$ = 3/4, 2/3, 1/2, 1/3, 1/4
+
+    - $F_5$= 4/5, 3/4, 2/3, 3/5, 1/2, 2/5, 1/3, 1/4, 1/5
+
+    問 $F_n$ 的小到大 sort 好後的第 $k$ 項 
+    
+    ??? note "思路"
+    	見<a href="/wiki/search/images/CS Academy - Farey Sequence 題解.html" target="_blank">此處</a>
+
 ## 雙層二分搜
-	
+
 ???+note "[Google Code Jam 2020 Round2 P1. Incremental House of Pancakes](https://www.acmicpc.net/problem/27811)"
 
 ???+note "[JOI 2014 Final 年轮蛋糕](https://loj.ac/p/2758)"
@@ -401,4 +415,11 @@
 
 ???+note "[LOJ #2086. 「NOI2016」区间](https://loj.ac/p/2086)"
 	
+
+---
+
+## 參考資料
+
+- <https://drive.google.com/file/d/1xxn2H5HSd5hl0573RWoKgJ_YdG3kNIu_/view>
+
 [^1]: 見此處<a href="/wiki/search/images/1.html" target="_blank">此處</a>
