@@ -5,6 +5,8 @@
 ???+note "[CSES - Movie Festival II](https://cses.fi/problemset/task/1632)"
 	給你 $n$ 個工作 $l_i,r_i$ 每個工作的 $w_i$ 都是 $1$，一次可以作 $k$ 個工作，求最多可以領多少錢
 	
+	$k\le n\le 2\times 10^5,l_i<r_i\le 10^9$
+	
     ??? note "思路"
         - 如果同時間有好幾個工作重疊並且 $>k$
     
@@ -50,11 +52,11 @@
             return W;
         }
         ```
-        
-???+note "[TIOJ 1337. 隕石]"
+
+???+note "[TIOJ 1337. 隕石](https://tioj.ck.tp.edu.tw/problems/1337)"
 	給 $n$ 個 interval $l_i,r_i$，問在可以移除 $k$ 個 interval 的情況最小化最大的 bandwidth
 	
-	$n\le 10^5,K$
+	$k\le n\le 10^5$
 	
 	??? note "思路"
 		二分搜答案 t，也就是最大的 bandwidth，去 check(t) 說可不可以再刪掉 k 個 interval 的情況下使最大 bandwidth 不超過 t
@@ -62,65 +64,66 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-
-        using namespace std;
-        using pii = pair<int, int>;
-
-        int n, m;
-        multiset<pii> ms;
-
-        void init () {
-            cin >> n >> m;
-            for (int i = 1, l, r; i <= n; i++) {
-                cin >> l >> r;
-                ms.insert({l, r});
-            }
-        }
-
-        int check (int k) {
-            // 一次做 k 個工作歐布歐虧
-            // 但刪掉的工作不能超過 m 個
-            // 東區那題要刪多少都ok
-            multiset<pii> rev;
-            int cnt = m;
-            for (auto pos = ms.begin(); pos != ms.end(); pos++) {
-                int l = pos->first, r = pos->second;
-                //以我的角度來看重疊在左屆
-                // 刪除過期的邊界
-                while (rev.size() && rev.begin()->first <= l) {
-                    rev.erase(rev.begin());
-                }
-                rev.insert({r, l});
-                if (rev.size() > k) {
-                    if (cnt == 0) return false;
-                    rev.erase(--rev.end());
-                    cnt--;
-                }
-            }
-            return true;
-        }
-
-        void solve () {
-            int l = 0, r = n - m;
-            while (l < r) {
-                int mid = l + r >> 1;
-                if (check(mid)) r = mid;
-                else l = mid + 1;
-            }
-            cout << r;
-        }
-
-        signed main () {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            init();
-            solve();
-        }
-        ```
+	    #define int long long
+	    #define pb push_back
+	
+	    using namespace std;
+	    using pii = pair<int, int>;
+	
+	    int n, m;
+	    multiset<pii> ms;
+	
+	    void init () {
+	        cin >> n >> m;
+	        for (int i = 1, l, r; i <= n; i++) {
+	            cin >> l >> r;
+	            ms.insert({l, r});
+	        }
+	    }
+	
+	    int check (int k) {
+	        // 一次做 k 個工作歐布歐虧
+	        // 但刪掉的工作不能超過 m 個
+	        // 東區那題要刪多少都ok
+	        multiset<pii> rev;
+	        int cnt = m;
+	        for (auto pos = ms.begin(); pos != ms.end(); pos++) {
+	            int l = pos->first, r = pos->second;
+	            //以我的角度來看重疊在左屆
+	            // 刪除過期的邊界
+	            while (rev.size() && rev.begin()->first <= l) {
+	                rev.erase(rev.begin());
+	            }
+	            rev.insert({r, l});
+	            if (rev.size() > k) {
+	                if (cnt == 0) return false;
+	                rev.erase(--rev.end());
+	                cnt--;
+	            }
+	        }
+	        return true;
+	    }
+	
+	    void solve () {
+	        int l = 0, r = n - m;
+	        while (l < r) {
+	            int mid = l + r >> 1;
+	            if (check(mid)) r = mid;
+	            else l = mid + 1;
+	        }
+	        cout << r;
+	    }
+	
+	    signed main () {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        init();
+	        solve();
+	    }
+	    ```
 
 ### job scheduling problem
+
 ???+ note "延伸 job scheduling problem"
 	給 n 個 intervals，有 weight，找一些 intervals，兩兩不 overlap，最大化 weight 總和
 
@@ -145,13 +148,9 @@
 
 ### 最多能完成幾個工作
 ???+note "[洛谷 P4053 [JSOI2007] 建筑抢修](https://www.luogu.com.cn/problem/P4053)"
-	- $n$ 個工作，每個工作有需要執行的時間 $t_i$ 與截止時間 $d_i$
-
-	- 工作若在截止時間前完成就可以獲得報酬 $1$，否則報酬是 $0$
+	有 $n$ 個工作，每個工作有需要執行的時間 $t_i$ 與截止時間 $d_i$，工作若在截止時間前完成就可以獲得報酬 $1$，否則報酬是 $0$。你可以自由安排工作的順序，目標是最大化報酬總和
 	
-	- 你可以自由安排工作的順序，目標是最大化報酬總和
-	
-	- $1 \le n \le 2\times10^5, 1 \le a \le b \le10^9$
+	$1 \le n \le 2\times10^5, 1 \le a \le b \le10^9$
 	  
 	??? note "思路"
 		- 先想如何判斷 $n$ 個工作是否都可以做完?
@@ -196,16 +195,17 @@
 	        cout << pq.size() << "\n";
 	    }
 	    ```
+	    
 ### 最小化截止時間
+
 ???+ note "最小化截止時間之和"
 	給定 $n$ 個工作，第 $i$ 個工作有需要做的時間 $t[i]$，最小化每個工作完成的時間之和
 	??? note "思路"
 		其實只要 $\texttt{sort}(t[i])$ 就好了，越早做的會被累計最多次
 
 ???+ note "最小化截止時間之權重和"
-	- 給定 $n$ 個工作，第 $i$ 個工作有需要做的時間 $t[i]$ 和權重 $w[i]$
+	給定 $n$ 個工作，第 $i$ 個工作有需要做的時間 $t[i]$ 和權重 $w[i]$。令 $C[i]$ 為第 $i$ 個工作完成的時間，最小化 $\sum C[i]\times w[i]$
 	
-	- 令 $C[i]$ 為第 $i$ 個工作完成的時間，最小化 $\sum C[i]\times w[i]$
 	??? note "思路"
 		$\texttt{sort}(t[i]/w[i])$ 就好了
 		

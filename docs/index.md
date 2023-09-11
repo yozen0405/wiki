@@ -39,7 +39,7 @@
 	- <a href="/wiki/dp/convex_hull_trick" target="_blank">斜率優化</a>
 	
 - 字串
-	- <a href="/wiki/string/hash" target="_blank">hash</a>
+	- <a href="/wiki/string/hashing" target="_blank">hash</a>
 
 
 ## 作者

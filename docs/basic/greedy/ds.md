@@ -125,32 +125,32 @@
     	```cpp linenums="1"
     	#include<bits/stdc++.h>
         using namespace std;
-
+    
         typedef long long ll;
-
+    
         struct pqitem {
             ll value;
             int index;
-
+    
             bool operator<(const pqitem &b) const {
                 return value > b.value;
             }
-
+    
             pqitem() {}
             pqitem(ll value, int index) : value(value), index(index) {}
         };
-
+    
         int main() {
             int N, K;
             ll M;
             cin >> N >> K >> M;
-
+    
             vector<ll> P(N), C(N);
             for (int i = 0; i < N; i++) {
                 cin >> P[i] >> C[i];
             }
-			
-			// all min heap
+    		
+    		// all min heap
             typedef priority_queue<pqitem> pqtype;
             priority_queue<ll, vector<ll>, greater<ll> > recover;
             pqtype cheap;
@@ -161,7 +161,7 @@
                 cheap.push(pqitem(C[i], i));
                 expensive.push(pqitem(P[i], i));
             }
-
+    
             vector<bool> used(N, false);
             int ans = 0;
             while (M > 0 && nused < N) {
@@ -169,7 +169,7 @@
                     cheap.pop();
                 while (used[expensive.top().index])
                     expensive.pop();
-
+    
                 if (recover.top() + cheap.top().value < expensive.top().value) {
                     const pqitem top = cheap.top();
                     ll cost = recover.top() + top.value;
@@ -606,6 +606,66 @@
 	    }
 	    ```
 
+???+note "[CF 3 D. Least Cost Bracket Sequence](https://codeforces.com/problemset/problem/3/D)"
+	給一個長度為 $n$，由 `(`，`)` 以及 `?` 構成的字串，將第 $i$ 個 '?' 變左括號花費 $a_i$ ，變成右括號花費 $b_i$。將字串中的 `?` 都替換掉，問使字串是合法括號的最少花費
+	
+	$n\le 5\times 10^4,1\le a_i, b_i\le 10^6$
+	
+	??? note "思路"
+		默認所有問號為右括號，當前的左括號數小於右括號時，則從之前找到代價最小的問號變成的右括號代替即可
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define F first
+        #define S second
+        #define int long long
+
+        using namespace std;
+        using pii = pair<int, int>;
+
+        signed main() {
+            string s;
+            cin >> s;
+            int n = s.size();
+
+            priority_queue<pii, vector<pii>, greater<pii>> pq; 
+            int l = 0, ans = 0;
+            for (int i = 0; i < n; i++) {
+                if (s[i] == '(') {
+                    l++;
+                    continue;
+                } else {
+                    if (s[i] == '?') {
+                        int a, b;
+                        cin >> a >> b;
+                        pq.push({a - b, i});
+                        s[i] = ')';
+                        ans += b;
+                    }
+                    if (--l < 0) {
+                        if (pq.empty()) {
+                            cout << "-1" << '\n';
+                            exit(0);
+                        }
+                        ans += pq.top().F;
+                        s[pq.top().S] = '(';
+                        l += 2;
+                        pq.pop();
+                    }
+                }
+            }
+            if (l) {
+                cout << "-1" << '\n';
+                exit(0);
+            }
+            cout << ans << '\n' << s << '\n';
+        } 
+        ```
+
+???+note "[TOI 2021 二模 pC. 配對問題（Pairing）](https://drive.google.com/file/d/1aKGdK6ZjvXVAiXB5iH2eOiLdtC4w31j5/view)"
+	答案在 : 電腦的下載路徑中
+	
 ## 練習
 - [CSES Room Allocation](https://cses.fi/problemset/task/1164)
 	- max band width + 維護

@@ -14,6 +14,10 @@
 
 - 全國賽 2021 pG subtask 1, 2
 
+## Jump 寫法
+
+
+
 ## 細節
 
 - check(x) 的 x 太大的時候，有些情況會造成 cnt overflow
@@ -220,11 +224,11 @@
     給 $n$，序列 $F_n$ 舉例來說如下 :
 
     - $F_3$ = 2/3, 1/2, 1/3
-
+    
     - $F_4$ = 3/4, 2/3, 1/2, 1/3, 1/4
-
+    
     - $F_5$= 4/5, 3/4, 2/3, 3/5, 1/2, 2/5, 1/3, 1/4, 1/5
-
+    
     問 $F_n$ 的小到大 sort 好後的第 $k$ 項 
     
     ??? note "思路"
@@ -410,12 +414,39 @@
 		這可以用 two pointer + sparse table 預處理
 		
 		然後對於 query(l, r) 就可以二分搜最大的分界點 t，滿足前面的 last[i] 都 <= r，後面的都 > r。前面的可以對於 last[ ] 維護 prefix sum，後面用數學解 O(1) 算即可
-
-???+note "[CS Academy - Farey Sequence](https://csacademy.com/contest/archive/task/farey_sequence)"
-
 ???+note "[LOJ #2086. 「NOI2016」区间](https://loj.ac/p/2086)"
 	
+???+note "[2021 全國賽 pH. 天竺鼠遊行](https://tioj.ck.tp.edu.tw/problems/2258)"
+	有 $n$ 隻天竺鼠，第 $i$ 隻的高度是 $h_i$。你要選 $p$ 組各 $k$ 隻，然後把每一組的天竺鼠排成一個環，使得兩兩相鄰的天竺鼠高度差的最大值盡量小。
+	
+	$1\le n\le 10^6,1\le h_i\le 10^9$
+	
+	??? note "subtask"
+        === "subtask 1"
 
+            $k=n,n\le 10,p=1$
+
+        === "subtask 2"
+
+            $k=n,n\le 10^5,p=1$
+
+        === "subtask 3"
+
+            $p=1$
+
+        === "subtask 4"
+
+            無額外限制
+	
+	??? note "思路"
+		顯然由小到大 sort 好會使環的頭跟尾的高度差最大。我們先暴力做 subtask 1，例如 :
+		
+		$$
+		[1,2,3,4,5,6,7,8] \to [1, 3, 5, 7, 8, 6, 4, 2]
+		$$
+		
+		會觀察到答案就是 $\max \{ h_i − h_{i−2} \}$。對於 subtask 3 $p=1$，顯然選連續的 $k$ 個一定最好，可用 sliding window 維護答案。對於滿分解，我們去二分 threshold $t$，檢查最前面的 $ans \le t$ 的區間是否有 $p$ 個即可，複雜度 $O(n \log C)$
+	
 ---
 
 ## 參考資料

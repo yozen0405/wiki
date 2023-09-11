@@ -1,21 +1,215 @@
 LOJ 題單
 
+雖然時間複雜度比線段樹還差，但分塊的強處在維護資訊上更加彈性，特別是修改時難以快速更新的類型，這部分是線段樹所不及的
+
 ## 序列分塊
 
-一次好幾塊的 O(n / k)，暴力 jump，lazy tag
+我們將序列每 k 個當成一個 Block，對於每筆 query，會包含中間完整的 Block 與旁邊兩個不完整的 Block，對於完整的我們需要先預處理好答案，對於不完整的直接暴力算，複雜度 O(n / k + k)
 
-一塊的 O(k)，暴力修改
+<figure markdown>
+  ![Image title](./images/15.png){ width="500" }
+</figure>
 
+???+note "[CS Academy Modulo Queries](https://csacademy.com/contest/archive/task/modulo-queries/statement/)"
+	給一個長度為 $n$ 的陣列 $a_1, \ldots, a_n$，有 $q$ 筆查詢如下 :
+	
+	- $\text{query}(l, r, k):$ 輸出 $\max \limits_{i=l\ldots r} a_i$ % $k$
+	
+	$1\le n,q,a_i,k\le 4\times 10^4$
+	
+	??? note "思路"
+		先將 a 複製一個新陣列，將新陣列 sort 好然後慢慢放寬 threshold，將每個元素加到各自的 block 裡面，對於每個 block 令 mx[i] 為 block 內 < i 的最大值，這可以用類似前綴和的方式建好，對於每個 block 我們令 dp[i] 為 block 內 mod i 之下的最大值，這個可以去跑 mx[i], mx[i * 2], mx[i * 3], ... 取 max。最後，對於每筆詢問暴力處理不完整塊，O(1) 查表完整塊即可。這樣複雜度 $O(\frac{n}{B}\times k\log k + qB)$，$B$ 取 $k \log k$ 可得 $O(k\sqrt{k \log k})$
 
+???+note "[CF 785 E. Anton and Permutation](https://codeforces.com/problemset/problem/785/E)"
+	給一個 $1\ldots n$ 的 permutation，$q$ 次 swap$(i,j)$，每次 swap 完輸出逆序數對數量
+	
+	$2\times 10^5, q\le 5\times 10^4$
+	
+	??? note "思路"
+		將序列每 sqrt(n) 個當成一個 block。假如交換 i 位置和 j 位置（假設 i < j），那麼只需要統計 [i + 1, j - 1] 這個區間內比 a[i] 大的有幾個, 小的有幾個，比 a[j] 位置的數大的有幾個, 小的有幾個即可。所以在 query 時對於完整的 block 直接在 block 內二分（對於每個 block 開一個大小為 n 的 BIT）。
+		
+???+note "[CF 617 E. XOR and Favorite Number](https://codeforces.com/problemset/problem/617/E)"
+	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，與 $q$ 次詢問 :
+	
+	- $\text{query}(l,r):$ 輸出區間內有多少個 subarray 的 $a_i \oplus \ldots \oplus a_j=k$
+
+	$n,q\le 10^5,0\le k\le 10^6$
+	
+	??? note "思路"
+		先建好前綴 xor pre[i]。對於一個 pre[j]，能湊到 k 的 pre[i] 就是 cnt[pre[j] $\oplus$ k] 個。add, del 的代碼如下
+		
+		```cpp
+		void add(int x) {
+            ans += cnt[x ^ k];
+            cnt[x]++;
+        }
+        void del(int x) {
+            cnt[x]--;
+            ans-=flag[x ^ k];
+        }
+        ```
+	
 ## 值域分塊
 
-???+note "靜態區間第 k 小"
+一般來說，值域分塊會作為一個輔助工具出現在題目當中。
+
+依照將值域分成每 k 個一塊，修改操作就直接 O(1) 更新「值域」所在的 block 的資訊，查詢操作就一樣分成完整的 block 與不完整的，不完整的 block 就直接暴力算，完整的直接取整個 block 的資訊
+
+???+note "集合第 k 小"
+	給一個長度為 $n$ 的序列，維護以下操作 :
 	
+	- $\text{insert}(x):$ 插入 $x$
+	
+	- $\text{erase}(x):$ 刪除 $x$
+	
+	- $\text{query}(k):$ 詢問集合中第 $k$ 小的元素
+	
+	$n,x\le 5\times 10^4$
+	
+	??? note "思路"
+		將值域 C 分成每 sqrt(C) 一塊
+		
+		對於每個 insert，我們直接將值域 x 所在的塊的 cnt++，並將 v[x]++
+		
+		對於每個 query，我們一次 jump 一整個 block 直到我們發現當前 jump 過的 block 的總和 <= k，再去暴力掃過該 block，看 v[x] 總和何時會 >= k
+
+???+note "求第 k 小（支持單點修改）"
+	給一個長度為 $n$ 的陣列 $a$，有 $q$ 筆操作 :
+	
+	- 單點修改
+	
+	- 詢問區間第 k 小
+	
+	$1\le n\le 5\times 10^4$
+	
+	??? note "思路"
+		分成 sqrt(n) 塊， 塊的大小為 sqrt(n)，塊內維護有序數列。修改就暴力重構塊，這不會超時。對於每一個詢問，先二分一個區間權值（發現這道題是1~1e9），然後去統計所求的區間內小於這個數的個數有多少。對於兩邊不完整的塊暴力統計，對於完整的塊，則二分查找最小的數，即可在 log 時間內得到答案。
+		
+		> 參考自 : [洛谷題解](https://www.luogu.com.cn/blog/wsr/fen-kuai-qiu-di-k-xiao-zhi-chi-dan-dian-xiu-gai-post)
+
+???+note "[洛谷 P4867 Gty的二逼妹子序列](https://www.luogu.com.cn/problem/P4867)"
+	給 $n$ 個數 $a_1, \ldots ,a_n$，有 $q$ 筆查詢如下 :
+	
+	- $\text{query}(l,r,a,b):$ 問在 $a_l,\ldots ,a_r$ 中，值域在 $[a,b]$ 之間有幾種
+	
+	$n\le 10^5, m\le 10^6, 1\le l,r,a,b\le n$
+	
+	??? note "思路"
+		利用莫隊離線維護 query，對於詢問 [a, b] 之間的數字，使用值域分塊
+		
+		因為不管是陣列大小還是值域都是 $\le n$，所以莫隊與值域分塊的 block size 都可設成 $O(\sqrt{n})$
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define pb push_back
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int N = 1e5 + 5;
+	    const int Q = 1e6 + 5;
+	    int n, q, k;
+	    int a[N], lb[N], rb[N], cnt[N], sum[N], block[N], ans[Q];
+	
+	    struct Query {
+	        int l, r, x, y, id;
+	
+	        bool operator<(const Query &rhs) const {
+	            if (block[l] == block[rhs.l]) {
+	                return r < rhs.r;
+	            }
+	            return block[l] < block[rhs.l];
+	        }
+	    };
+	
+	    void add(int x) {
+	        if (cnt[x] == 0) {
+	            sum[block[x]]++;
+	        }
+	        cnt[x]++;
+	    }
+	
+	    void del(int x) {
+	        cnt[x]--;
+	        if (cnt[x] == 0) {
+	            sum[block[x]]--;
+	        }
+	    }
+	
+	    int query(int l, int r) {
+	        int ans = 0;
+	        if (block[l] == block[r]) {
+	            for (int i = l; i <= r; i++) {
+	                if (cnt[i]) {
+	                    ans++;
+	                }
+	            }
+	            return ans;
+	        }
+	        for (int i = block[l] + 1; i <= block[r] - 1; i++) {
+	            ans += sum[i];
+	        }
+	        for (int i = l; i <= rb[l]; i++) {
+	            if (cnt[i]) {
+	                ans++;
+	            }
+	        }
+	        for (int i = lb[r]; i <= r; i++) {
+	            if (cnt[i]) {
+	                ans++;
+	            }
+	        }
+	        return ans;
+	    }
+	
+	    signed main() {
+	        cin >> n >> q;
+	        k = sqrt(n);
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	            a[i]--;
+	        }
+	        for (int i = 0; i < n; i++) {
+	            block[i] = i / k;
+	            lb[i] = (i / k) * k;
+	            rb[i] = lb[i] + k - 1;
+	            if (rb[i] > n - 1) rb[i] = n - 1;
+	        }
+	        vector<Query> queries;
+	        for (int i = 0; i < q; i++) {
+	            int l, r, x, y;
+	            cin >> l >> r >> x >> y;
+	            l--, r--, x--, y--;
+	            queries.pb({l, r, x, y, i});
+	        }
+	        sort(ALL(queries));
+	        int l = 0, r = -1;
+	        for (auto i : queries) {
+	            while (i.l < l) add(a[--l]);
+	            while (r < i.r) add(a[++r]);
+	            while (l < i.l) del(a[l++]);
+	            while (i.r < r) del(a[r--]);
+	            ans[i.id] = query(i.x, i.y); 
+	        }
+	        for (int i = 0; i < q; i++) {
+	            cout << ans[i] << '\n';
+	        }
+	    } 
+	    ```
+
 ## 操作分塊
 
-在同一個 block 裡的，暴力掃過，複雜度 O(Q * k)
+常常出現在「不帶修改很可做，但帶了修就都沒法維護了，而且只有修改的話不難維護」的題上。
 
-在 block 外的，要讓他單調的進來（整個 block 最多只會 O(n)），複雜度 O(n * (n / k))
+操作分塊就是對操作序列（詢問 + 修改）進行分塊。處理到一塊時，我們已經將操作分成了兩個部分：
+
+1. 先前塊內的修改。這個在每次做完一個 Block 的時候就可以直接修改原本的陣列。
+2. 當前塊內的修改。而這些修改總數不會達到塊大小，因此可以樸素地計算這部分的貢獻。
+
+在 block 裡的，暴力掃過，複雜度 O(q * k)
+
+每次看完一個 block 將直接修改原本的陣列，複雜度 O((q / k) * q)
 
 ???+note "[LOJ #6280. 数列分块入门 4](https://loj.ac/p/6280)"
 	給一個長度為 $n$ 的陣列 $a$，有 $q$ 筆操作 :
@@ -30,11 +224,11 @@ LOJ 題單
 		將操作依照時間小到大分塊，每 k 個一組。對於每個 query(ql, qr)，暴力掃過跑該 block 裡面所有的 add(l, r)，計算 [l, r] 在 [ql, qr] 的貢獻。對於每個 block 結束後再重新執行一次前綴和，複雜度 O(q * k + (n / k) * n)
 
 ???+note "[APIO2019 桥梁](https://loj.ac/p/3145)"
-	給定一張 n 個點 m 邊的無向圖和 q 次詢問。可以：  
+	給定一張 $n$ 個點 $m$ 邊的無向圖和 $q$ 次詢問。可以：  
 	
 	1. 修改某條邊的邊權
 	
-	2. 從點 u 出發，只經過邊權不小於等於 k 的邊，可以到幾個點
+	2. 從點 $u$ 出發，只經過邊權 $\le k$ 的邊，可以到幾個點
 	
 	$1\le n\le 5\times 10^4,0\le m\le 10^5,1\le q\le 10^5$
 	
@@ -51,41 +245,47 @@ LOJ 題單
 	$$
 	\sum \limits_{x=1}^k \lfloor\frac{k}{x}\rfloor
 	$$
-	
-	??? note "思路"
-		
-	??? note "code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
-	    #define int long long
-	
-	    using namespace std;
-	
-	    void solve() {
-	        int n;
-	        cin >> n;
-	
-	        int total = 0, at = 1;
-	        while (at <= n) {
-	            int cur = n / at;  // n / i 到多少了
-	            int last_same = n / cur; // 這個 n/i 的質最多可以延續到哪格
-	
-	            total += cur * (last_same - at + 1);
-	            at = last_same + 1;
-	        }
-	
-	        cout << total << endl;
-	    }
-	
-	    signed main() {
-	        int t;
-	        cin >> t;
-	        while (t--) {
-	            solve();
-	        }
-	    }
-		```
-		
+
+<figure markdown>
+  ![Image title](./images/16.png){ width="500" }
+</figure>
+
+對於 $x\le \sqrt{n}$，最多只有 $\sqrt{n}$ 種不同的值
+
+對於 $x > \sqrt{n}$，$\frac{n}{x}$ 最多只有 $\sqrt{n}$ 種不同的值
+
+??? note "code"
+    ```cpp linenums="1"
+    #include <bits/stdc++.h>
+    #define int long long
+
+    using namespace std;
+    
+    void solve() {
+        int n;
+        cin >> n;
+    
+        int total = 0, at = 1;
+        while (at <= n) {
+            int cur = n / at;  // n / i 到多少了
+            int last_same = n / cur; // 這個 n/i 的質最多可以延續到哪格
+    
+            total += cur * (last_same - at + 1);
+            at = last_same + 1;
+        }
+    
+        cout << total << endl;
+    }
+    
+    signed main() {
+        int t;
+        cin >> t;
+        while (t--) {
+            solve();
+        }
+    }
+    ```
+
 ???+note "[CSES - Sum of Divisors](https://cses.fi/problemset/task/1082)"
 	令 $\sigma(n)$ 為 $n$ 的因數相加總和，問 $\sum \limits_{i=1}^n \sigma(n)$
 	
@@ -132,8 +332,66 @@ LOJ 題單
 	        cout << total << endl;
 	    }
 	    ```
+
+???+note "[洛谷 P2261 [CQOI2007] 余数求和](https://www.luogu.com.cn/problem/P2261)"
+	給 $n,k$ 問
+
+	$$
+	\sum _ {i=1}^n k \% i
+	$$
+	
+	$n,k\le 10^9$
+	
+	??? note "思路"
+		原式可以寫成 $\displaystyle \sum _ {i=1}^n k - i\times \lfloor \frac{k}{i} \rfloor = n\times k - \sum \limits_{i=1}^n \lfloor \frac{k}{i} \rfloor \times i$
+
+## 根號分治
+
+???+note "[洛谷 P3396 哈希冲突](https://www.luogu.com.cn/problem/P3396)"
+	給定一個長度 $n$ 陣列 $a_0 \dots, a_{n-1}$，初始每數皆為 $0$，
+
+    1. $\text{add}(i,v):$ 將 $a_i$ 加 $v$
+    2. $\text{query}(p, x):$ 輸出所有 $i$ % $p = x$ 的 $a_i$ 值加總
+    
+    $n,m\le 1.5 \times 10^5, 1\le a_i \le 1000$
+    
+    ??? note "思路"
+    	定義 $sum[p][x]$ 為 $i$ % $p = x$ 的 $a_i$ 值加總，但 $p\le \sqrt{n}$。
+    	
+    	在 $\text{add}(i,v)$ 的時候將 $a_i$ += $v$，也將 $sum[x][i\% x]$ += $v,x\in \{ 1, 2, \ldots ,\sqrt{n} \}$
+    	
+    	這樣當 $p \le \sqrt{n}$，我們直接輸出 $sum[p][x]$，$p > \sqrt{n}$，直接暴力加總 $a[x] + a[p + x] + a[2 \times p + x] + \ldots$
+
+???+note "例題"
+	給一個 $n$ 個點 $m$ 邊無向圖，每個節點上有一個數字，一開始都是 $0$。接下有有 $q$ 個操作 :
+
+    - $\text{query}(x):$ 輸出編號 $x$ 的節點上面的數字
+    
+    - $\text{add}(x):$ 把編號 $x$ 的節點以及它的所有鄰居上面的數字都加上 $1$
+    
+    $O(q \sqrt{m})$ 
+    
+    ??? note "思路"
+    	- add(v)
+            
+            - $\deg(v) \le \sqrt{m}$ :  暴力更新自己和鄰居的數值
+    
+            - $\deg(v)>\sqrt{m}$ : 只更新自己，並在自己將 lazy tag++
+    
+    	- query(v):
+    	
+    		- 回傳自己點上的數值和暴力查詢 $\deg(v) > \sqrt{m}$ 的鄰居，因為 $\deg(v) > \sqrt{m}$ 的數量 $<O(\sqrt{m})$
+    
+        - degree 總和為 $2m$
+
 ---
 
 ## 資料
 
 - <https://zhuanlan.zhihu.com/p/452977429>
+
+- <https://www.tw511.com/a/01/51322.html>
+
+- <https://blog.csdn.net/weixin_45675097/article/details/119709367>
+
+- <https://zhuanlan.zhihu.com/p/594018645>

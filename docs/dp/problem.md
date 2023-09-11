@@ -367,7 +367,7 @@
 	        solve();
 	    }
 		```
-		
+
 ???+note "[CS Academy - Distinct Neighbours](https://csacademy.com/contest/archive/task/distinct_neighbours)"
 	給你一個長度為 $n$ 的陣列 $a_1, a_2, \ldots ,a_n$，問有幾種 $a$ 的 permutation 滿足相同數字不相鄰
 	
@@ -383,7 +383,7 @@
 		所以會被扣掉 L 個同 pair gaps，將 cnt[i + 1] 個物品放入 k 個 gaps 會產生 cnt[i + 1] - k 個同 pair，我們可列出轉移式 dp(i, j) → dp(i + 1, j - L + cnt[i + 1] - k)
 		
 		> 參考自 : <https://www.cnblogs.com/jiachinzhao/p/7410938.html>
-	
+
 ???+note "[2021 全國賽 pF. 挑水果](https://tioj.ck.tp.edu.tw/problems/2258)"
 	一開始船上有 $c$ 個種類的水果，第 $i$ 種類有 $n_i$ 顆，依序經過 $c$ 個城市，每經過一個城市可以決定要不要把船上所有前 $i$ 種類的水果給當地盤商賣，積載每顆水果經過都市 $i$ 需要積載成本 $p_i$，把每顆水果給都市 $i$ 的盤商賣需要成本 $s_i$，在都市 $i$ 賣種類 $j$ 的水果最後只會賣出 $r_{i,j}$ 顆，問若積載成本和銷售成本總和不超過 $T$ 的前提下，最多能賣幾顆水果 ?
 	
@@ -395,10 +395,52 @@
 		轉移式如下，從 dp(i, j, v) 轉移過去
 		
 		- dp(i + 1, i + 1, v + rsum(j + 1, i + 1)) = min(dp(i, j, v) + p_sum(j + 1, n) + s_sum(j + 1, i + 1) )
-
-		- dp(i + 1, j, v) = min(dp(i, j, v) + p_sum(j + 1, n))
-
-		複雜度 : 狀態 O(40 * 40 * (40 * 40))，轉移 O(1)
 	
-???+note "[2021 全國賽 pH. 天竺鼠遊行](https://tioj.ck.tp.edu.tw/problems/2258)"
-	wiwiho 校陪簡報 歷屆試題精選
+		- dp(i + 1, j, v) = min(dp(i, j, v) + p_sum(j + 1, n))
+	
+		複雜度 : 狀態 O(40 * 40 * (40 * 40))，轉移 O(1)
+
+???+note "[CS Academy - Count Arrays
+](https://csacademy.com/contest/archive/task/count-arrays)"
+	有一個 01 序列 $a$，給 $q$ 筆限制，每筆限制 $[l_i,r_i]$ 代表在這個區間內至少要有一個 0，問 $a$ 有幾種
+	
+	$n,q\le 10^5$
+	
+	??? note "思路"
+		令 dp[i] = 只考慮 1~i，$a_i$ 放 0 的合法序列有幾種，轉移的話我們就需要去枚舉放 1 的區間 $[j+1, i-1]$，所以可列出轉移式 $dp[i] = \sum dp[j]$。我們可以按照題目給的限制來預處理出 i 之前至少到哪裡都可以放 1（也就是我們 j 最小能多小），對於轉移當 i 遞增的時候，j 的最小值是單調不降的，所以可以通過這個單調性做到 $O(n)$。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        const int N = 1e5 + 5;
+        const int M = 1e9 + 7;
+
+        int n, m;
+        int mx[N], dp[N];
+
+        signed main() {
+            cin >> n >> m;
+            for (int i = 1; i <= m; i++) {
+                int l, r;
+                cin >> l >> r;
+                mx[r + 1] = max(mx[r + 1], l);
+            }
+            dp[0] = 1;
+            int now = 0, cnt = 1;
+            for (int i = 1; i <= n + 1; i++) {
+                while(now < mx[i]) {
+                    cnt = (cnt - dp[now] + M) % M;
+                    now++;
+                }
+                dp[i] = cnt;
+                cnt = (cnt + dp[i]) % M;
+            }
+            cout << dp[n + 1] << '\n';
+        } 
+        ```
+		
+	

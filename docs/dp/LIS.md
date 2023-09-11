@@ -4,7 +4,7 @@
 	給一個長度為 $n$ 的陣列 $a_1, a_2 ,\ldots ,a_n$，找出一個最長的子序列，裡面的值是嚴格遞增的
 	
 	$n\le 2\times 10^5,a_i\le 10^9$
-	
+
 考慮最後一個東西一定要選，$dp[i]$ 表示只看 $a_1, \ldots ,a_i$，第 $i$ 項一定要選的最好答案，我們可以列出轉移式
 
 $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
@@ -59,7 +59,7 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 
 	??? note "思路"
 		$$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + w_i \}$$
-
+	
 		一樣用用值域線段樹即可
 
 ### 字典序
@@ -71,35 +71,35 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 		字典序是從序列的頭開始比較，所以要把 LIS 變化一下改成「從第 i 項到第 n 項的 LIS 長度」
 		
 		$$
-        \begin{array}{c|cccccc}
-        陣列&3&1&4&2&5&9\\
-        \hline
-        往後的 \space \texttt{LIS} \space 長度& 4 & 4 & 3 & 3 & 2 & 1\\
-        \end{array}
-        $$
+	    \begin{array}{c|cccccc}
+	    陣列&3&1&4&2&5&9\\
+	    \hline
+	    往後的 \space \texttt{LIS} \space 長度& 4 & 4 & 3 & 3 & 2 & 1\\
+	    \end{array}
+	    $$
 	
 	??? note "code"
-        ```cpp linenums="1"
-        vector<int> v[N]; // v[x] : 存 LIS(i) = x 的 i
-
-        void solve() {
-            vector<int> ans;
-            int pos = 0, last = 0;
-            for (int i = len; i >= 1; i--) {
-                int mn = 1e9;
-                int nxt_pos = 0;
-                for (auto j : v[i]) {
-                    if (a[j] > last && j > pos && a[j] < mn) {
-                        nxt_pos = j;
-                        mn = a[j];
-                    }
-                }
-                ans.push_back(mn);
-                pos = nxt_pos;
-                last = mn;
-            }
-        }
-        ```
+	    ```cpp linenums="1"
+	    vector<int> v[N]; // v[x] : 存 LIS(i) = x 的 i
+	
+	    void solve() {
+	        vector<int> ans;
+	        int pos = 0, last = 0;
+	        for (int i = len; i >= 1; i--) {
+	            int mn = 1e9;
+	            int nxt_pos = 0;
+	            for (auto j : v[i]) {
+	                if (a[j] > last && j > pos && a[j] < mn) {
+	                    nxt_pos = j;
+	                    mn = a[j];
+	                }
+	            }
+	            ans.push_back(mn);
+	            pos = nxt_pos;
+	            last = mn;
+	        }
+	    }
+	    ```
 
 ### LIS 數量
 
@@ -115,33 +115,33 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 	給一個長度為 $n$ 的陣列 $a_1, a_2 ,\ldots ,a_n$，問對於每一項 $a_i$ 是屬於哪個 type
 	
     - $\text{type 1: }$ 在每一個 LIS 都一定包含 $a_i$
-
+    
     - $\text{type 2: }$ 在至少一個 LIS 包含 $a_i$
-
+    
     - $\text{type 3: }$ $a_i$ 完全不在任何 LIS 之中
-
-	$n\le 10^5$
-	
-	??? note "思路"
-		令 $L[i],R[i]$ 分別代表以 $a_i$ 結尾，以 $a_i$ 開頭的 LIS 長度
-	
-		如果 $a_i$ 在 LIS 中就代表 : LIS 長度 $= L[i]+R[i]-1$
-		
-		這樣就可以判斷是不是 type 3 了。若為 type 1，代表 $L[i]$ 唯一，否則如果有人 $L[i]=L[j]$ 那後面的 $R[i]$ 兩個都可以接
-		
-	??? note "code"
-		```cpp linenums="1"
-		int getPos (vector<int> &lis, int x) {
+    
+    $n\le 10^5$
+    
+    ??? note "思路"
+    	令 $L[i],R[i]$ 分別代表以 $a_i$ 結尾，以 $a_i$ 開頭的 LIS 長度
+    
+    	如果 $a_i$ 在 LIS 中就代表 : LIS 長度 $= L[i]+R[i]-1$
+    	
+    	這樣就可以判斷是不是 type 3 了。若為 type 1，代表 $L[i]$ 唯一，否則如果有人 $L[i]=L[j]$ 那後面的 $R[i]$ 兩個都可以接
+    	
+    ??? note "code"
+    	```cpp linenums="1"
+    	int getPos (vector<int> &lis, int x) {
             return lower_bound(lis.begin(), lis.end(), x) - lis.begin();
         }
-
+    
         void solve () {
             cin >> n;
             a.resize(n);
             for (int i = 0; i < n; i++) {
                 cin >> a[i];
             }     
-
+    
             // 結尾的 LIS
             vector<int> lis;
             int len = 0, cur = 0;
@@ -151,7 +151,7 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
                 else lis.pb(a[i]);
                 len = max(len, l[i]);
             }
-
+    
             // 開頭的 LIS
             // 從後面看過來遞減, 加了負號相當於遞增
             lis.clear();
@@ -161,7 +161,7 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
                 if (r[i] - 1 < lis.size()) lis[r[i] - 1] = -a[i];
                 else lis.pb(-a[i]);
             }
-
+    
             for (int i = 0; i < n; i++) {
                 if (l[i] + r[i] - 1 == len) {
                     cnt[l[i]]++;
@@ -184,7 +184,7 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 	
 	??? note "思路"
 		直接把 $k$ 個特殊格的座標 $(x,y)$ 當成上面那個問題做就好
-	
+
 ### 切 k 段 LIS
 
 ???+note "問題"
@@ -192,31 +192,31 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
     
     $n\times k \le 10^5$
     
-	??? note "思路"
-		$dp(k, i)=$ $a_1 , \ldots ,a_n$ 分成 $k$ 段的最好答案，$a_i$ 一定要選
-
+    ??? note "思路"
+    	$dp(k, i)=$ $a_1 , \ldots ,a_n$ 分成 $k$ 段的最好答案，$a_i$ 一定要選
+    
         轉移式
-
+    
         $$
         dp(k, i) = \max \begin{cases} dp(k, j) + 1 \\ dp(k - 1, j) + 1 \text{ if } a_j \ge a_i\end{cases}
         $$
-
+    
         複雜度 $O(n\times k)\times O(\log n)$
-	
+    
     ??? note "code"
         ```cpp linenums="1"
         #include <algorithm>
         #include <iostream>
         #include <vector>
-
+    
         using namespace std;
-
+    
         struct BIT {
             int len;
             vector<int> bit;
             // b[x] : 某個需要快速處理的陣列
             // bit[x] = min(b[x - lowbit(x) + 1] ~ b[x])
-
+    
             BIT(int n) {
                 len = n;
                 bit.resize(n + 1);
@@ -237,10 +237,10 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
                 return ans;
             }
         };
-
+    
         int solve(int n, int K, const vector<int> &a) {
             vector<vector<int>> dp(K + 1, vector<int>(n, 0));
-
+    
             for (int k = 1; k <= K; k++) {
                 // 考慮開新的一段
                 int mx = 0;
@@ -248,14 +248,14 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
                     dp[k][i] = max(mx + 1, dp[k - 1][i]);
                     mx = max(mx, dp[k - 1][i]);
                 }
-
+    
                 // 考慮前一個選的東西在同段
                 BIT DS(n);  // b[i] = 用了 k 段，且結尾數值為 b[i] 的答案
                 for (int i = 0; i < n; i++) {
                     // 快的做法
                     dp[k][i] = max(dp[k][i], DS.prefix_max(a[i] - 1) + 1);
                     DS.update(a[i], dp[k][i]);
-
+    
                     // 慢的做法
                     /*
                     for (int j = 0; j < i; j++) {
@@ -268,22 +268,22 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
             }
             return *max_element(dp[K].begin(), dp[K].end());
         }
-
+    
         int main() {
             int n, K;
             vector<int> a;
-
+    
             cin >> n >> K;
             a = vector<int>(n);
             for (int i = 0; i < n; i++) cin >> a[i];
-
+    
             // 離散化：把 a[i] 數值範圍轉為 0~(n-1)
             vector<int> t = a;
             sort(t.begin(), t.end());
             for (int &x : a) {
                 x = 1 + lower_bound(t.begin(), t.end(), x) - t.begin();
             }
-
+    
             int ans = solve(n, K, a);
             cout << ans << '\n';
         }
@@ -293,15 +293,15 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 
 ### 嚴格
 
-???+note "問題"
+???+note "問題（Box Stacking Problem）"
 	給你 $n$ 個 $(x,y)$，問你最多可以選幾個，滿足 $x_i<x_j$ 且 $y_i < y_j$
 	
 	??? note "思路"
 		將 $(x,y)$ 先按照 $x$ 小到大排序，對於 $x$ 相同的，將 $y$ 大到小排序（這樣才不會選到兩個 $x$ 一樣的，如圖）
 		
 		<figure markdown>
-          ![Image title](./images/18.png){ width="400" }
-        </figure>
+	      ![Image title](./images/18.png){ width="400" }
+	    </figure>
 		
 		這樣就可以將問題變成由 $y$ 組成的 LIS 長度
 
@@ -309,7 +309,7 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 	給你 $n$ 個 $(x,y)$，問你最多可以選幾個，滿足 $x_i<x_j$ 且 $y_i < y_j$，輸出選的編號
 	
 	$1\le n\le 5000,1\le w,h\le 10^6$
-	
+
 ### 非嚴格
 
 ???+note "[APCS 2021 1 月 p4. 飛黃騰達](https://zerojudge.tw/ShowProblem?problemid=f608)"
@@ -329,11 +329,11 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 		將陣列 $a$ 從左到右編號 $1\sim n$，將 $b_i$ 編號為 $b_i$ 這個數值在 $a$ 內的編號，如圖
 	
 		<figure markdown>
-          ![Image title](./images/20.png){ width="400" }
-        </figure>
-        
-        這樣就可以用編號組成的新陣列求 LIS
-        
+	      ![Image title](./images/20.png){ width="400" }
+	    </figure>
+	    
+	    這樣就可以用編號組成的新陣列求 LIS
+
 ???+note "LCS - 出現兩次"
 	給兩個長度為 $n$ 的序列 $a,b$，求 LCS 長度
 	
@@ -343,9 +343,9 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 		將同一種數值出現的編號反著放，這樣可以保證小的一定會被先選
 	
 		<figure markdown>
-          ![Image title](./images/21.png){ width="400" }
-        </figure>
-	
+	      ![Image title](./images/21.png){ width="400" }
+	    </figure>
+
 ???+note "[Sprout OJ 421](https://neoj.sprout.tw/problem/421/)"
 	給長度 $n$ 的序列 $a_1, \ldots ,a_n$，可以將任一個數字變兩倍，輸出每個數字均大於 $m$ 的最長非嚴格遞增序列長度
 	
@@ -355,11 +355,11 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 		將 $2\times a_i, a_i$ 依序放到新陣列裡面，在新陣列做
 		
 		<figure markdown>
-          ![Image title](./images/22.png){ width="400" }
-        </figure>
-        
-        然後再用 upper bound 求 LIS 就好了
-	
+	      ![Image title](./images/22.png){ width="400" }
+	    </figure>
+	    
+	    然後再用 upper bound 求 LIS 就好了
+
 ???+note "[TOI 初選 2021 pC. 粉刷護欄](https://tioj.ck.tp.edu.tw/problems/2195)"
 	給兩個長度為 $n$ 的陣列 $a,b$，數字恰好都出現在 $a,b$ 各一次，你可以在 $a,b$ 之間對同種數字連線，問線不能交叉下最多能連幾條，輸出字典序最小的方案
 	
@@ -373,57 +373,57 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 	??? note "code"
 		```cpp linenums="1"
 		#include <iostream>
-        #include <vector>
-        #include <algorithm>
-        #include <queue>
-        #include <map>
-        using namespace std; 
-        int a[200005], b[200005];
-        int dp[200005];
-        map<int,int>mp;
-        vector<int>s[200005];
-        int main() {
-            int n;
-            cin >> n;
-            for (int i = 1 ; i <= n ; i++) {
-                cin >> a[i];
-            }
-            for (int i = 1 ; i <= n ; i++) {
-                cin >> b[i];
-                mp[b[i]] = i;
-            }
-            vector<int>v;
-            vector<int>arr;
-            int mx = 0;
-            for (int i = n ; i >= 1 ; i--) {
-                int pos = mp[a[i]];
-                arr.push_back(pos);
-                pos = n - 1 - pos;
-                if (!v.size() || pos > v.back()) {
-                    v.push_back(pos);
-                    dp[i] = v.size();
-                }
-                else {
-                    dp[i] = lower_bound(v.begin(), v.end(), pos) - v.begin() + 1;
-                    *lower_bound(v.begin(), v.end(), pos) = pos;
-                }
-                s[dp[i]].push_back(i);
-                mx = max(mx, dp[i]);
-            }
-            int pos1 = 0, pos2 = 0;
-            for (int i = mx ; i >= 1 ; i--) {
-                int ans = 0, pos = 0;
-                for (auto &j : s[i]) {
-                    if (a[j] > ans && j > pos1 && mp[a[j]] > pos2) {
-                        pos = j;
-                        ans = a[j];
-                    }
-                }
-                cout << ans <<' ';
-                pos1 = pos;
-                pos2 = mp[a[pos]];
-            }
-        }
+	    #include <vector>
+	    #include <algorithm>
+	    #include <queue>
+	    #include <map>
+	    using namespace std; 
+	    int a[200005], b[200005];
+	    int dp[200005];
+	    map<int,int>mp;
+	    vector<int>s[200005];
+	    int main() {
+	        int n;
+	        cin >> n;
+	        for (int i = 1 ; i <= n ; i++) {
+	            cin >> a[i];
+	        }
+	        for (int i = 1 ; i <= n ; i++) {
+	            cin >> b[i];
+	            mp[b[i]] = i;
+	        }
+	        vector<int>v;
+	        vector<int>arr;
+	        int mx = 0;
+	        for (int i = n ; i >= 1 ; i--) {
+	            int pos = mp[a[i]];
+	            arr.push_back(pos);
+	            pos = n - 1 - pos;
+	            if (!v.size() || pos > v.back()) {
+	                v.push_back(pos);
+	                dp[i] = v.size();
+	            }
+	            else {
+	                dp[i] = lower_bound(v.begin(), v.end(), pos) - v.begin() + 1;
+	                *lower_bound(v.begin(), v.end(), pos) = pos;
+	            }
+	            s[dp[i]].push_back(i);
+	            mx = max(mx, dp[i]);
+	        }
+	        int pos1 = 0, pos2 = 0;
+	        for (int i = mx ; i >= 1 ; i--) {
+	            int ans = 0, pos = 0;
+	            for (auto &j : s[i]) {
+	                if (a[j] > ans && j > pos1 && mp[a[j]] > pos2) {
+	                    pos = j;
+	                    ans = a[j];
+	                }
+	            }
+	            cout << ans <<' ';
+	            pos1 = pos;
+	            pos2 = mp[a[pos]];
+	        }
+	    }
 		```
 
 ## Dilworth's theorom
@@ -432,7 +432,7 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
   ![Image title](./images/7.png){ width="600" }
   <figcaption>Dilworth's theorom</figcaption>
 </figure>
-	    
+
 ## 題目
 
 ???+note "[CSES - Increasing Subsequence II](https://cses.fi/problemset/task/1748)"
@@ -467,7 +467,57 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 	    </figure>
 	    
 	    所以我們可以得出一個結論 : 先將 a sort 好（b 也跟著 a 的順序變），答案就是 |a| + LIS(b)
-	    
+
+???+note "Sloane's Box Stacking Problem [Atcoder dp contest X. Tower](https://atcoder.jp/contests/dp/tasks/dp_x)"
+	有 $n$ 個箱子，每個箱子有 $(w,s,v)$ 代表重量、抗壓量、高度。一個箱子上方的重量總和，不能超過這個箱子的抗壓力量。問最多能疊多高 ?
+	
+	$1\le n\le 10^3,1\le w_i, s_i\le 10^4,1\le v_i\le 10^9$
+	
+	??? note "思路"
+		考慮 Exchange Arguements，我們拿兩個箱子 $i$ 跟 $j$ 來比較。$j$ 可以放比較下面 iff $s_i - w_j < s_j - w_i$。
+		
+		當我們將陣列用上面的 Exchange Arguements sort 好後，我們做類似背包問題，$dp(i,j)=$ 考慮 $1\ldots i$，重量總和 $\le j$ 能取到的最大高度。轉移的話一樣考慮取 $i$ 或不取 $i$，取 $i$ 的話剩下的重量就必須 $\le s_i$
+		
+		$$dp(i, j)=\max \begin{cases} dp(i - 1, j - w_i)+v_i \space \text{if}\space 0 \le j - w_i \le s_i \\ dp(i - 1, j)\end{cases}$$
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+
+        using namespace std;
+        using ll = long long;
+
+        const int N = 1010,M = 20010;
+        struct faner {
+            int w, s, v;
+        } a[N];
+        ll f[M], ans;
+
+        bool cmp(faner a, faner b) {
+            return a.s + a.w < b.s + b.w;
+        }
+
+        int main() {
+            int n; 
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i].w >> a[i].s >> a[i].v;
+            }
+            sort(a + 1, a + n + 1, cmp);
+            for (int i = 1; i <= n; i++) {
+                for (int j = M - 1; j >= a[i].w; j--) {
+                    if (a[i].s + a[i].w >= j) {
+                        f[j] = max(f[j], f[j - a[i].w] + a[i].v);
+                    }
+                }
+            }       
+            for (int i = 1; i < M; i++) {
+                ans = max(ans, f[i]);
+            }
+            cout << ans << '\n';
+        }
+        ```
+		
 ---
 
 ## 參考資料
