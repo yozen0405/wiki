@@ -257,6 +257,7 @@ nav:
       - Z-value: 'string/z_value.md'
     - 各種題型:
       - 構造題: 'problem/construct.md'
+      - 互動題: 'problem/interactive.md'
     - 其他:
       - 小技巧:
         - 訓練: 'other/practice.md'

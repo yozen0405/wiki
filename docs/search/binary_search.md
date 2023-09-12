@@ -414,6 +414,7 @@
 		這可以用 two pointer + sparse table 預處理
 		
 		然後對於 query(l, r) 就可以二分搜最大的分界點 t，滿足前面的 last[i] 都 <= r，後面的都 > r。前面的可以對於 last[ ] 維護 prefix sum，後面用數學解 O(1) 算即可
+		
 ???+note "[LOJ #2086. 「NOI2016」区间](https://loj.ac/p/2086)"
 	
 ???+note "[2021 全國賽 pH. 天竺鼠遊行](https://tioj.ck.tp.edu.tw/problems/2258)"
@@ -422,21 +423,21 @@
 	$1\le n\le 10^6,1\le h_i\le 10^9$
 	
 	??? note "subtask"
-        === "subtask 1"
-
-            $k=n,n\le 10,p=1$
-
-        === "subtask 2"
-
-            $k=n,n\le 10^5,p=1$
-
-        === "subtask 3"
-
-            $p=1$
-
-        === "subtask 4"
-
-            無額外限制
+	    === "subtask 1"
+	
+	        $k=n,n\le 10,p=1$
+	
+	    === "subtask 2"
+	
+	        $k=n,n\le 10^5,p=1$
+	
+	    === "subtask 3"
+	
+	        $p=1$
+	
+	    === "subtask 4"
+	
+	        無額外限制
 	
 	??? note "思路"
 		顯然由小到大 sort 好會使環的頭跟尾的高度差最大。我們先暴力做 subtask 1，例如 :
@@ -446,7 +447,111 @@
 		$$
 		
 		會觀察到答案就是 $\max \{ h_i − h_{i−2} \}$。對於 subtask 3 $p=1$，顯然選連續的 $k$ 個一定最好，可用 sliding window 維護答案。對於滿分解，我們去二分 threshold $t$，檢查最前面的 $ans \le t$ 的區間是否有 $p$ 個即可，複雜度 $O(n \log C)$
+
+???+note "[2021 TOI pB. 掃地機器人 30%](https://tioj.ck.tp.edu.tw/problems/2194)"
+	$n$ 間教室，一開始你在第一間，給你 $T$ 分鐘的打掃時間每間教室第一分鐘可以吸到 $s[i]$ 的灰塵，每分鐘遞減 $d[i]$ 個灰塵，從第 $i$ 間教室移動到第 $i+1$ 間教室花 $t[i]$ 的時間，問這 $T$ 分鐘最多可以掃到多少灰塵
 	
+	$n\le 1000, m\le 10^9,0\le t[i], d[i] \le 10^9, 1\le s[i] \le 10^9$
+	
+	??? note "思路"
+		我們先枚舉掃到哪間教室，將中間換教室的時間扣掉，$k=T-t_1-t_2-..t_{e}$。依照 greedy 的想法，我們一定是每次拿最大的，所以我們可以去二分一個 threshold $x$ 滿足最小可以掃到 $x$ 個灰塵。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        #define mk make_pair
+        #define pii pair<int, int>
+        using namespace std;
+
+        const int INF = 9e18;
+        const int maxn = 1e3 + 5;
+        int s[maxn], d[maxn], t[maxn];
+        int n, m;
+
+        int check (int idx, int x, int k) {
+            int res = 0;
+            for (int i = 1; i <= idx; i++) {
+                if (d[i] == 0) {
+                    if (s[i] >= x) return true;
+                    // 代表有無限個 a_x 或 b_x 那 (無限)一定大於 k
+                    continue;
+                }
+                if (s[i] >= x) {
+                    res += (s[i] - x) / d[i] + 1;
+                }
+            }
+            return res >= k; 
+        }
+
+        int get_ans(int idx, int x, int k) {
+            int res = 0;
+            int x_cnt = 0; // 恰等於 x 的有幾個
+            int greater_cnt = 0; // > x 的有幾個
+            for (int i = 1; i <= idx; i++) {
+                if (s[i] > x) {
+                    int mx = s[i];
+                    int mn = s[i] - (s[i] - x) / d[i] * d[i];
+                    int tmp = (s[i] - x) / d[i];
+                    if (mn == x) {
+                        mn += d[i];
+                        x_cnt++;
+                    }
+                    int c = (mx-mn) / d[i] + 1;
+                    res += (mx+mn) * c / 2LL;
+                    greater_cnt += c;
+                }
+                if (s[i] == x) {
+                    if (d[i] != 0) x_cnt++;
+                    else x_cnt = INF;
+                }
+            }
+            res += min(x_cnt, k - greater_cnt) * x;
+            // 真正可取等於x 的量 = min(等於 x 的, 全 - 大於 x 的)
+            return res;
+        }   
+
+        void init() {
+            cin >> n >> m;
+            for (int i = 1; i < n; i++) {
+                cin >> t[i];
+            }
+            for (int i = 1; i <= n; i++) {
+                cin >> s[i];
+            }
+            for (int i = 1; i <= n; i++) {
+                cin >> d[i];
+            }
+        }
+
+        void work () {
+            int ans = 0;
+            int k = m;
+            for (int i = 1; i <= n; i++) {
+                k -= t[i - 1];
+                if (k < 0) continue;
+                // bin search x: min dust per minute
+                int l = 0, r = 2e9;
+                while (l < r - 1) {
+                    int mid = (l + r) >> 1;
+                    if (check(i, mid, k)) {
+                        l = mid;
+                    } else { // 時間還有剩, mid 不可能是答案
+                        r = mid;
+                    }
+                } 
+                ans = max(ans, get_ans(i, l, k));
+            }
+            cout << ans << "\n";
+        }
+
+        signed main () {
+            init();
+            work();
+        }
+		```
+		
 ---
 
 ## 參考資料

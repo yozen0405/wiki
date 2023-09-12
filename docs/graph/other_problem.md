@@ -357,7 +357,7 @@
 	    若為偶數
 	    
 	    - 上傳 : 兩兩配對，剩下的兩個一個單獨成線 (max)，另一個上傳 (二分)
-
+	
 		<figure markdown>
 	      ![Image title](./images/44.png){ width="200" }
 	    </figure>
@@ -376,75 +376,75 @@
 	
 	    若為奇數 : 檢查最大的是否合法，剩下兩兩配對
 	    
-        > ref : <https://blog.csdn.net/C20181220_xiang_m_y/article/details/102564783>
-        
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-    
-        using namespace std;
-        using PQ = priority_queue<int, vector<int>, greater<int>>;
-    
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-    
-        int n, cnt, lim;
-        vector<int> G[maxn];
-        int deg[maxn], f[maxn], g[maxn];
-    
-        int check (int x) {
-            for (int l = 1, r = cnt; l < r; l++, r--) {
-                if (l == x) l++;
-                if (r == x) r--;
-                if (l < r && g[l] + g[r] > lim) return false;
-            }
-            return true;
-        }
-    
-        int dfs (int u, int par) {
-            for (auto v : G[u]) {
-                if (v == par) continue;
-                if (dfs (v, u) == 0) return 0;
-            }
-            cnt = 0;
-            for (auto v : G[u]) {
-                if (v == par) continue;
-                g[++cnt] = f[v];
-            }
-            sort (g + 1, g + cnt + 1);
-            if (u == 1) {
-                if (cnt & 1) {
-                    cnt--;
-                    return check (0);
-                }
-                else {
-                    return check (0);
-                }
-            }
-            if (cnt % 2 == 0) {
-                if (check (0)) {
-                    f[u] = 1;
-                    return 1;
-                }
-                cnt--;
-            }
-    
-            int l = 1, r = cnt + 1;
-            while (l < r) {
-                int mid = (l + r) / 2;
-                if (check (mid)) r = mid;
-                else l = mid + 1;
-            }
-            if (l == cnt + 1) return 0;
-            f[u] = g[l] + 1;
+	    > ref : <https://blog.csdn.net/C20181220_xiang_m_y/article/details/102564783>
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using PQ = priority_queue<int, vector<int>, greater<int>>;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, cnt, lim;
+	    vector<int> G[maxn];
+	    int deg[maxn], f[maxn], g[maxn];
+	
+	    int check (int x) {
+	        for (int l = 1, r = cnt; l < r; l++, r--) {
+	            if (l == x) l++;
+	            if (r == x) r--;
+	            if (l < r && g[l] + g[r] > lim) return false;
+	        }
+	        return true;
+	    }
+	
+	    int dfs (int u, int par) {
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            if (dfs (v, u) == 0) return 0;
+	        }
+	        cnt = 0;
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            g[++cnt] = f[v];
+	        }
+	        sort (g + 1, g + cnt + 1);
+	        if (u == 1) {
+	            if (cnt & 1) {
+	                cnt--;
+	                return check (0);
+	            }
+	            else {
+	                return check (0);
+	            }
+	        }
+	        if (cnt % 2 == 0) {
+	            if (check (0)) {
+	                f[u] = 1;
+	                return 1;
+	            }
+	            cnt--;
+	        }
+	
+	        int l = 1, r = cnt + 1;
+	        while (l < r) {
+	            int mid = (l + r) / 2;
+	            if (check (mid)) r = mid;
+	            else l = mid + 1;
+	        }
+	        if (l == cnt + 1) return 0;
+	        f[u] = g[l] + 1;
 
 
             return f[u] <= lim;
@@ -633,3 +633,91 @@
 		$\texttt{ok}(l, r):a_l+b_r+ \texttt{sum}(c_l,\ldots, c_r)$
 		
 		利用 $\texttt{ok}(l,r)$ 在 $O(n^2)$ 對於每個 $i$ 預處理最小合法的 $k$
+		
+???+note "[CSES - Even Outdegree Edges](https://cses.fi/problemset/task/2179)"
+	給一張 $n$ 點 $m$ 邊無向圖，將邊定向，問是否能使所有的點的 out degree 是偶數
+	
+	$n\le 10^5, m\le 2\times 10^5$
+	
+	??? note "hint"
+		先想 chain 的 case
+
+        然後想 tree 的（葉子旁邊的邊要指向哪裡？
+
+        然後就可以延伸到 graph 了
+		
+	??? note "思路"
+		我們先考慮 Tree 的 case，對於一個 $u$，我們可以先做好所有的 $v$，再看 $v$ 的 out degree 是奇偶來決定 edge$(u,v)$ 的方向。同理放在圖上只是會多一些 back edge，因為最後 root 的奇偶我們是沒辦法決定的，所以將 out degree 的貢獻放在深度比較深的點才能越好處理掉
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        int n, m, stamp = 1;
+        vector<int> G[maxn];
+        int t[maxn], odd[maxn];
+        vector<pii> ans;
+
+        void dfs (int u, int par) {
+            t[u] = stamp++;
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                if (!t[v]) {
+                    dfs (v, u);
+                    if (odd[v]) {
+                        ans.pb({v, u});
+                        odd[v] = 0;
+                    } else {
+                        ans.pb({u, v});
+                        odd[u] ^= 1;
+                    }
+                } else if (t[v] < t[u]) {
+                    ans.pb({u, v});
+                    odd[u] ^= 1;
+                }
+            }
+        }
+
+        void init() {
+            cin >> n >> m;
+            int u, v;
+            for (int i = 0; i < m; i++) {
+                cin >> u >> v;
+                G[u].pb(v);
+                G[v].pb(u);
+            }
+        }
+
+        void solve() {
+            for (int i = 1; i <= n; i++) {
+                if (!t[i]) dfs (i, 0);
+            }
+
+            if (accumulate (odd + 1, odd + n + 1, 0)) cout << "IMPOSSIBLE\n", exit(0);
+            for (auto [u, v] : ans) cout << u << " " << v << "\n";
+        } 
+
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            //cin >> t;
+            while (t--) {
+                init();
+                solve();
+            }
+        } 
+        ```

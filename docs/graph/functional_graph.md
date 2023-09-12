@@ -8,14 +8,258 @@
 2. 恰有 $n$ 條邊
 
 <figure markdown>
-  ![Image title](https://user-images.githubusercontent.com/71330526/204506183-b92d0490-06ce-4b5b-a2cc-33246ed2ffb2.png){ width="300" }
+  ![Image title](./images/63.png){ width="300" }
 </figure>
 
+## 找環寫法
 
-- 一張圖每個點的 out degree 都是 1，為內向基環樹森林
+??? question "為什麼不能用一般的 dfs ?"
+	一般的 dfs 在找還得後可能發生以下問題
 
-- 一張圖恰有 $n$ 個點， $n$ 條邊，為基環樹森林
+    <figure markdown>
+      ![Image title](./images/64.png){ width="300" }
+    </figure>
+    
+    例如要輸出每個基環樹上的 cycle size，那你有可能第二次在走的時候，碰到已 visited 的點就以為找到環了，實則不是
+    
+找到環就是在目前這次的 dfs 中，我碰到了我之前（還是這一輪）走過的點。
 
+### 有向圖
+
+??? note "code"
+	```cpp linenums="1"
+	void dfs(int u) {
+        instk[u] = vis[u] = true;
+        for (auto v : G[u]) {
+            if (vis[v] == false) {
+                dfs(v);
+            } else if (instk[v]) {
+                // cycle: v → … → u
+            }
+        }
+        instk[u] = false;
+    }
+    ```
+
+### 無向圖
+
+??? note "無重邊"
+	```cpp linenums="1"
+	void dfs(int u, int par) {
+        instk[u] = vis[u] = true;
+        for (auto v : G[u]) {
+        	if (v == par) continue;
+            if (vis[v] == false) {
+                dfs(v, u);
+            } else if (instk[v]) {
+                // cycle: v → … → u
+            }
+        }
+        instk[u] = false;
+    }
+    ```
+
+??? note "有重邊"
+	```cpp linenums="1"
+	void dfs(int u, int pre_eid) {
+        vis[u] = instk[u] = true;
+        for (auto eid : G[u]) {
+            if ((eid ^ 1) == pre_eid) continue;
+            auto [u, v] = edges[eid];
+
+            if (!vis[v]) {
+                from[v] = eid;
+                dfs(v, eid);
+            } else if (instk[v]) {
+                // cycle: v → … → u
+            }
+        }
+        instk[u] = false;
+    }
+    ```
+	
+???+note "[CSES - Round Trip II](https://cses.fi/problemset/task/1678)"
+	給一張 $n$ 點 $m$ 邊無向圖，輸出環上的點
+	
+	$n\le 10^5,m\le 2\times 10^5$
+	
+	??? note "思路"
+		
+		使用上面提到的 dfs 方式來做即可
+	
+		---
+		
+		> 另法 :
+	
+		我們想法是先把這張圖變成一張基環樹。找 cycle 只需要用 topo sort 把  in degree = 0 的點刪掉讓圖上只剩環即可
+		
+		所有 outdegree 是 0 的點一直移除，做完之後，所有人的 outdegree 都至少 1。對於每個剩下的點，把指出去的邊 （out-going edge） 只保留一條，就會變成基環樹了
+		
+	??? note "code"
+		```cpp linenums="1"
+	    #include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+        using pii = pair<int, int>;
+
+        const int INF = 2e18;
+        const int maxn = 1e5 + 5;
+
+        int n, m;
+        vector<int> G[maxn];
+        int from[maxn];
+        bool vis[maxn], instk[maxn];
+        stack<int> cycle;
+
+        void get_cycle(int s, int t) {
+            int x = t;
+            cycle.push(s);
+            while (x != s) {
+                cycle.push(x);
+                x = from[x];
+            }
+            cycle.push(s);
+        }
+
+        bool dfs(int u) {
+            instk[u] = vis[u] = true;
+            for (auto v : G[u]) {
+                if (vis[v] == false) {
+                    from[v] = u;
+                    if (dfs(v)) return true;
+                } else if (instk[v]) {
+                    get_cycle(v, u);
+                    return true;
+                }
+            }
+            instk[u] = false;
+            return false;
+        }
+
+        signed main() {
+            cin >> n >> m;
+            for (int i = 0; i < m; i++) {
+                int u, v;
+                cin >> u >> v;
+                G[u].push_back(v);
+            }
+            for (int i = 1; i <= n; i++) {
+                if (vis[i] == false) {
+                    if (dfs(i)) {
+                        cout << cycle.size() << '\n';
+                        while (cycle.size()) {
+                            cout << cycle.top() << ' ';
+                            cycle.pop();
+                        }
+                        exit(0);
+                    }
+                }
+            }
+            cout << "IMPOSSIBLE\n";
+        } 
+	    ```
+
+???+note "基環樹環大小 [CF 1867 D. Cyclic Operations](https://codeforces.com/contest/1867/problem/D)"
+	有一個長度為 $n$ 的陣列 $a$，一開始裡面都是 $0$。給 $k$，給陣列 $b$，你可對 $a$ 做好幾次以下操作，問你是否能將 $a$ 變成 $b$。
+	
+	- $\text{change}(l):$ 將 $a_{l_i}$ 變成 $l_{(i \% k) + 1}$
+
+	$1\le k\le n\le 10^5, 1\le b_i\le n, 1\le l_i\le n, l$ 的長度為 $k$ 且裡面的元素 distinct
+    
+    ??? note "思路"
+    	
+    	i → b[i] 建圖，看每個連通塊（基環樹）的環大小是否恰為 k 
+    	
+        k = 1 特判
+        
+    ??? note "code"
+ 		```cpp linenums="1"
+ 		#include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+        using pii = pair<int, int>;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        int n, k, fg;
+        vector<int> G[maxn];
+        int a[maxn], dis[maxn], instk[maxn];
+
+        void dfs(int u) {
+            instk[u] = true;
+            for (auto v : G[u]) {
+                if (dis[v] == 0) {
+                    dis[v] = dis[u] + 1;
+                    dfs(v);
+                } else if (instk[v]) {
+                    if (dis[u] - dis[v] + 1 != k) {
+                        fg = false;
+                    }
+                }
+            }
+            instk[u] = false;
+        }
+
+        void solve() {
+            cin >> n >> k;
+            fg = true;
+            for (int i = 1; i <= n; i++) {
+                dis[i] = 0;
+                instk[i] = 0;
+                G[i].clear();
+            }
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+                G[i].pb(a[i]);
+            }
+            if (k == 1) {
+                for (int i = 1; i <= n; i++) {
+                    if (a[i] != i) {
+                        cout << "NO\n";
+                        return;
+                    }
+                }
+                cout << "YES\n";
+                return;
+            }
+            for (int i = 1; i <= n; i++) {
+                if (dis[i] == 0) {
+                    dis[i] = 1;
+                    dfs(i);
+                    if (fg == false) {
+                        cout << "NO\n";
+                        return;
+                    }
+                }
+            }
+            cout << "YES\n";
+        } 
+
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            cin >> t;
+            while (t--) {
+                solve();
+            }
+        } 
+ 		```
+ 		
 ## 例題
 
 ### 基環樹 dp
@@ -643,16 +887,16 @@
 		有 cnt 個物品，第 i 個物品的價值為 $-2a_i$，當前有的價值為 ans，你需要選擇一些物品，使得最後的總價值 $\le k$
 		
 		使用 0/1 背包，複雜度為 $O(n\times \sum s_i)$，使用 bitset 優化到 $O(\frac{n\times \sum s_i}{w})$，而 $\sum s_i$ 最大是 $40n$，所以這樣是 $\frac{3\times 10^4\times 40\times 3\times 10^4}{64}\approx 562500000$，可以通過
-	
+
 ???+note "[USACO 2022 Silver JAN Cereal 2](https://www.luogu.com.cn/problem/P8095)"
     有 $M$ 種不同種類的麥片，每種麥片只有一箱，$N$ 頭牛中的每頭都有她最愛的麥片 $f_i$ 和次愛的麥片 $s_i$。牛會執行如下的過程：
 
     - 如果她最愛的麥片還在，取走並離開
-
+    
     - 否則，如果她第次愛的麥片還在，取走並離開
-
+    
     - 否則，她只能飢餓
-
+    
     求出一個 $N$ 頭牛的 permutation，使飢餓的牛的數量最小。輸出最小飢餓數量與 permutation
     
     $1\le N\le 10^5, 2\le M\le 10^5$
@@ -673,33 +917,33 @@
     ??? note "code(by usaco)"
     	```cpp linenums="1"
     	#include <bits/stdc++.h>
- 
+     
         using namespace std;
-
+    
         struct edge {
             int cow; // which cow's choice 
             int to;
             bool is_first;
-
+    
             edge() {};
             edge(int cow, int to, bool is_first) : cow(cow), to(to), is_first(is_first) {};
         };
-
+    
         int N, M;
-
+    
         vector<edge> adj[100001];
         bool visited_cycle[100001]; // array for cycle finding
         bool visited[100001]; // visited array for finding which order of cows we should use
         bool gets_cereal[100001]; 
-
+    
         int hungry_cows = 0;
         queue<int> order;
         int ignore_edge = -1;
         int first_cereal = -1; // the cereal we start the search from, if the CC is not a tree then this must be on a cycle
-
+    
         void find_cycle(int cur, int prev = -1) {
             visited_cycle[cur] = true; 
-
+    
             for (edge next : adj[cur]) {
                 if (visited_cycle[next.to]) {
                     if (first_cereal == -1 && next.to != prev) {
@@ -708,7 +952,7 @@
                         } else {
                             first_cereal = cur;
                         }
-
+    
                         ignore_edge = next.cow; 
                         order.push(next.cow);
                         gets_cereal[next.cow] = true;
@@ -740,13 +984,13 @@
                 adj[a].push_back(edge(i+1, b, false));
                 adj[b].push_back(edge(i+1, a, true));
             }
-
+    
             for (int i = 1; i <= M; ++i) {
                 first_cereal = -1;
                 ignore_edge = -1;
                 if (!visited[i]) {
                     find_cycle(i);
-
+    
                     if (first_cereal > 0) {
                         dfs(first_cereal);
                     } else {
@@ -754,150 +998,25 @@
                     }
                 }
             }
-
+    
             for (int i = 1; i <= N; ++i) {
                 if (!gets_cereal[i]) {
                     ++hungry_cows;
                     order.push(i);
                 } 
             }
-
+    
             cout << hungry_cows << endl;
             while (!order.empty()) {
                 cout << order.front() << endl; 
                 order.pop();
             }
-
+    
             return 0;
         }
         ```
-	 
-### CSES 
 
-???+note "[CSES - Round Trip II](https://cses.fi/problemset/task/1678)"
-	給一張 $n$ 點 $m$ 邊無向圖，輸出環上的點
-	
-	$n\le 10^5,m\le 2\times 10^5$
-	
-	??? note "思路"
-		我們想法是先把這張圖變成一張基環樹。找 cycle 只需要用 topo sort 把  in degree = 0 的點刪掉讓圖上只剩環即可
-		
-		所有 outdegree 是 0 的點一直移除，做完之後，所有人的 outdegree 都至少 1。對於每個剩下的點，把指出去的邊 （out-going edge） 只保留一條，就會變成基環樹了
-		
-	??? note "code"
-		```cpp linenums="1"
-	    #include <bits/stdc++.h>
-	    #define int long long
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    using namespace std;
-	
-	    const int INF = 2e18;
-	    const int maxn = 1e5 + 5;
-	    int n, m;
-	    vector<int> G[maxn], R[maxn], H[maxn], F[maxn];
-	    int out[maxn], in[maxn], vis[maxn];
-	    vector<int> ans;
-	
-	    void init () {
-	        cin >> n >> m;
-	        int u, v;
-	        for (int i = 0; i < m; i++) {
-	            cin >> u >> v;
-	            G[u].pb(v);
-	            R[v].pb(u);
-	            out[u]++;
-	        }
-	    }
-	
-	    void del () {
-	        queue<int> q;
-	        for (int i = 1; i <= n; i++) {
-	            if (out[i] == 0) q.push(i);
-	        }
-	
-	        while (q.size()) {
-	            int u = q.front();
-	            q.pop();
-	            for (auto v : R[u]) {
-	                out[v]--;
-	                if (out[v] == 0) {
-	                    q.push(v);
-	                }
-	            }
-	        }
-	    }
-	
-	    void topo () {
-	        queue<int> q;
-	        for (int i = 1; i <= n; i++) {
-	            if (in[i] == 0 && out[i] >= 1) q.push(i);
-	        }
-	
-	        while (q.size()) {
-	            int u = q.front();
-	            q.pop();
-	            for (auto v : H[u]) {
-	                in[v]--;
-	                if (in[v] == 0) {
-	                    q.push(v);
-	                }
-	            }
-	        }
-	    }
-	
-	    void dfs (int u) { // print cycle
-	        ans.pb(u);
-	        if (vis[u]) {
-	            cout << ans.size() << "\n";
-	            for (auto ele : ans) cout << ele << " ";
-	            exit(0);
-	        }
-	        vis[u] = true;
-	        for (auto v : F[u]) {
-	            dfs (v);
-	        }
-	    }
-	
-	    void solve () {
-	        del(); // delete out[i] == 0
-	        for (int i = 1; i <= n; i++) {
-	            if (out[i] >= 1) {
-	                for (auto v : G[i]) {
-	                    if (out[v] >= 1) {
-	                        H[i].pb(v); // 頂環樹
-	                        in[v]++;
-	                        break;
-	                    }
-	                }
-	            }
-	        }
-	        topo (); // only keep the cycle
-	        int tmp = -1;
-	        for (int i = 1; i <= n; i++) {
-	            if (out[i] >= 1 && in[i] >= 1) {
-	                tmp = i;
-	                for (auto v : H[i]) {
-	                    if (out[v] >= 1 && in[v] >= 1) {
-	                        F[i].pb(v); // only cycle graph
-	                        break;
-	                    }
-	                }
-	            }
-	        }
-	        if (~tmp) dfs (tmp);
-	        cout << "IMPOSSIBLE\n";
-	    }
-	
-	    signed main () {
-	        ios::sync_with_stdio(0);
-	        cin.tie(0);
-	        init ();
-	        solve ();
-	    }
-	    ```
+### CSES 
 
 ???+note "[CSES - Planets Queries I](https://cses.fi/problemset/task/1750)"
 	給一張 $n$ 點內向基環樹，$q$ 筆詢問 :
@@ -905,6 +1024,69 @@
 	- 從 $x$ 點走 $k$ 步，到達哪個點
 	
 	$n,q\le 2\times 10^5,k\le 10^9$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 2e5 + 5;
+        int n, q;
+        int par[maxn][32], vis[maxn];
+        vector<int> G[maxn];
+
+        void init () {
+            cin >> n >> q;
+            for (int i = 1; i <= n; i++) {
+                cin >> par[i][0];
+            }
+        }
+
+        // void dfs (int u) {
+        //     if (vis[u]) return;
+        //     vis[u] = true;
+        //     dfs (par[u][0]);
+        // }
+
+        int jump (int x, int d) {
+            int i = 0;
+            while (d != 0) {
+                if (d & 1) x = par[x][i];
+                d >>= 1;
+                i++;
+            }
+            return x;
+        }
+
+        void solve () {
+            // for (int i = 1; i <= n; i++) {
+            //     if (!vis[i]) dfs (i);
+            // }
+            for (int j = 1; j < 32; j++) {
+                for (int i = 1; i <= n; i++) {
+                    par[i][j] = par[par[i][j - 1]][j - 1];
+                }
+            }
+            while (q--) {
+                int u, k;
+                cin >> u >> k;
+                cout << jump (u, k) << "\n";
+            }
+        }
+
+        signed main () {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            init ();
+            solve ();
+        }
+        ```
 
 ???+note "[CSES - Planets Queries II](https://cses.fi/problemset/task/1160)"
 	給一張 $n$ 點內向基環樹，$q$ 筆詢問 :

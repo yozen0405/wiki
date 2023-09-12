@@ -493,8 +493,10 @@
 
 ### 2021 TOI pB 部分分
 
-???+note "[TIOJ 掃地機器人 30%](https://tioj.ck.tp.edu.tw/problems/2194)"
+???+note "[2021 TOI pB. 掃地機器人 30%](https://tioj.ck.tp.edu.tw/problems/2194)"
 	$n$ 間教室，一開始你在第一間，給你 $T$ 分鐘的打掃時間每間教室第一分鐘可以吸到 $s[i]$ 的灰塵，每分鐘遞減 $d[i]$ 個灰塵，從第 $i$ 間教室移動到第 $i+1$ 間教室花 $t[i]$ 的時間，問這 $T$ 分鐘最多可以掃到多少灰塵
+	
+	$n\le 1000, m\le 1000,0\le t[i], d[i] \le 10^9, 1\le s[i] \le 10^9$
 
 	??? note "思路 1 (from APCSC)"
 		反悔法，時間如果夠就都掃，再靠反悔堆把之前的決策反悔掉
@@ -572,6 +574,7 @@
             ```
 
 ### 2018 高雄市賽 p6
+
 ???+ note "[ZJ 背包問題](https://zerojudge.tw/ShowProblem?problemid=c835)"
 	給你 $n$ 個物品，背包重量限制為 $2^W$，每個物品的重量是 $2^{w_i}$，價值是 $v_i$，求能放到背包內的最大價值和
 	
@@ -617,51 +620,51 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define F first
-        #define S second
-        #define int long long
-
-        using namespace std;
-        using pii = pair<int, int>;
-
-        signed main() {
-            string s;
-            cin >> s;
-            int n = s.size();
-
-            priority_queue<pii, vector<pii>, greater<pii>> pq; 
-            int l = 0, ans = 0;
-            for (int i = 0; i < n; i++) {
-                if (s[i] == '(') {
-                    l++;
-                    continue;
-                } else {
-                    if (s[i] == '?') {
-                        int a, b;
-                        cin >> a >> b;
-                        pq.push({a - b, i});
-                        s[i] = ')';
-                        ans += b;
-                    }
-                    if (--l < 0) {
-                        if (pq.empty()) {
-                            cout << "-1" << '\n';
-                            exit(0);
-                        }
-                        ans += pq.top().F;
-                        s[pq.top().S] = '(';
-                        l += 2;
-                        pq.pop();
-                    }
-                }
-            }
-            if (l) {
-                cout << "-1" << '\n';
-                exit(0);
-            }
-            cout << ans << '\n' << s << '\n';
-        } 
-        ```
+	    #define F first
+	    #define S second
+	    #define int long long
+	
+	    using namespace std;
+	    using pii = pair<int, int>;
+	
+	    signed main() {
+	        string s;
+	        cin >> s;
+	        int n = s.size();
+	
+	        priority_queue<pii, vector<pii>, greater<pii>> pq; 
+	        int l = 0, ans = 0;
+	        for (int i = 0; i < n; i++) {
+	            if (s[i] == '(') {
+	                l++;
+	                continue;
+	            } else {
+	                if (s[i] == '?') {
+	                    int a, b;
+	                    cin >> a >> b;
+	                    pq.push({a - b, i});
+	                    s[i] = ')';
+	                    ans += b;
+	                }
+	                if (--l < 0) {
+	                    if (pq.empty()) {
+	                        cout << "-1" << '\n';
+	                        exit(0);
+	                    }
+	                    ans += pq.top().F;
+	                    s[pq.top().S] = '(';
+	                    l += 2;
+	                    pq.pop();
+	                }
+	            }
+	        }
+	        if (l) {
+	            cout << "-1" << '\n';
+	            exit(0);
+	        }
+	        cout << ans << '\n' << s << '\n';
+	    } 
+	    ```
 
 ???+note "[TOI 2021 二模 pC. 配對問題（Pairing）](https://drive.google.com/file/d/1aKGdK6ZjvXVAiXB5iH2eOiLdtC4w31j5/view)"
 	答案在 : 電腦的下載路徑中

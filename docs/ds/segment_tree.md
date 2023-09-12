@@ -7,11 +7,93 @@
 
     -  $\text{query}(l,r):$ 查詢序列 $a$ 在區間 $[l, r]$ 的和。
     -  $\text{sqrt}(l,r):$ 把 $a_l,\ldots ,a_r$ 的值個別開根號後取下高斯。
+    
+    $n\le 10^5,q\le 2\times 10^5,a_i\le 10^9$
+    
+    ??? note "思路"
+    	跟區間除法一樣 mx > 0 再跟新，區間和就用線段樹的 pull 維護就好了
 
-	$n\le 10^5,q\le 2\times 10^5,a_i\le 10^9$
+## 括號
+
+### 合法定義
+
+- 左右括號數量要相同 
+
+- 任意前綴中，右括號的數目不能大於左括號的數目
+
+### 題目
+
+???+note "最長合法括號序列 [CF 380 C. Sereja and Brackets](https://www.luogu.com.cn/problem/CF380C)"
+	給定一個長度 $n$ 的括號序列 $s$，有 $q$ 個詢問 :
+	
+	- $\text{query}(l, r):$ 輸出 $s_l,\ldots ,s_r$ 的最長合法括號序列長度
+
+	$1\le n\le 10^6, 1\le m\le 10^5$
+
+	??? note "思路"
+		我們考慮用線段樹去維護。考慮記錄每個區間
+		
+		- 未匹配的左括號數量
+
+		- 未匹配的右括號數量
+
+		- 當前區間已經產生的貢獻和
+
+		在合併兩個區間時: 新區間的貢獻 = 左區間原先的貢獻 + 右區間原先的貢獻 + 合併後新產生的貢獻。其中，合併後新產生的貢獻 = 2 * min(左區間未匹配的左括號數, 右區間未匹配的右括號數)。
+		
+		```cpp linenums="1"
+		struct Node {
+			Node *lc = nullptr;
+			Node *rc = nullptr;
+			int l, r;
+			int sum, vl, vr;
+			
+			void pull() {
+				int macthes = min(l->vl, r->vr);
+				sum = lc->sum + rc->sum + 2 * macthes;
+				vl = l->vl + r->vl - matches;
+				vr = l->vr + r->vr - matches;
+			}
+		};
+		```
+		
+		> 參考 : <https://blog.csdn.net/weixin_45799835/article/details/120037468>
+		
+???+note "合法判斷/最大匹配深度 [CF 1263 E. Editor](https://codeforces.com/contest/1263/problem/E)"
+	現在有一個打字機，有以下操作 :
+	
+	- `L` : 將 pointer 往左移 1 格
+
+	- `R` : 將 pointer 往右移 1 格
+
+	- 一個小寫字母或者 `(`, `)` : 將 pointer 上的字元替換為給定字元
+
+	在每次操作後，判斷這一行是否是合法括號序列
 	
 	??? note "思路"
-		跟區間除法一樣 mx > 0 再跟新，區間和就用線段樹的 pull 維護就好了
+		對於一個區間而言，括號能否成功匹配有兩個判斷標準: 
+		
+		1. 左右括號數量要相同
+		2. 任意前綴中，右括號的數目不能大於左括號的數目.
+	
+		如果我們把左括號看為 +1，右括號看為 -1，則上述標準等價於: 
+		
+		1. 區間和為 0
+		2. 區間最小前綴和也應等於 0
+
+		此時最大匹配深度應是區間最大連續子段和。假設區間可以正確匹配，則前綴和不會出現負數情況，因此最大連續子段和等價於最大前綴和，我們只需要維護最大前綴和即可。
+		
+		因此對於這類問題，我們只需要維護 :
+		
+		- 最大前綴和（最大深度）
+
+		- 最小前綴和（判斷合法）
+
+		- 區間和（判斷合法）
+
+		> 參考 : <https://blog.csdn.net/weixin_45799835/article/details/120182104>
+
+???+note "[CF 1149 C](https://www.luogu.com.cn/blog/368107/solution-cf1149c)"
 
 ## 掃描線
 
