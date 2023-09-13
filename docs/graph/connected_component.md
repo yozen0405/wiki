@@ -14,37 +14,17 @@
   ![Image title](./images/67.png){ width="450" }
 </figure>
 
-## 割點
-
-當拔掉點 u 使得圖不連通，則 u 為割點
-
 ## low 函數
 
 low(u) : u 的子樹內的 back edge 可以到達到最小時間
-
-<div class="result" markdown>
-
-![Image title](./images/65.png){ align=right width=200 }
 
 - case 1:  他的 Tree Edge 連到的點 
 
 	- low(u) = min(low(u), low(v))
 
-</div>
-
-<br><br><br><br><br><br><br><br>
-
-<div class="result" markdown>
-
-![Image title](./images/66.png){ align=right width=200 }
-
 - case2: 他的 Back Edge 連到的點
 
 	- low(u) = min(low(u), t(v))
-
-</div>
-
-<br><br><br><br><br><br><br><br>
 
 ???+note "code"
 	```cpp linenums="1"
@@ -62,9 +42,7 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
     }
     ```
 
-## Tarjan
-
-### 橋
+## 橋
 
 一張無向圖上，把某些邊移除會導致連通塊數量變多，這種邊稱為 bridge。
 
@@ -94,7 +72,7 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
 
 
 
-### 邊 BCC 實作
+## Tarjan 邊 BCC
 
 如果把所有的 bridge 移除，那每一個連通塊在原圖上就稱為「邊雙連通分量」（bridge-connected component，簡稱 BCC）。
 
@@ -131,7 +109,15 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
     }
     ```
 
-### 割點
+### 縮點
+
+若將每個 BCC 視為一個點，新的圖將形成一棵樹
+
+<figure markdown>
+  ![Image title](./images/79.png){ width="300" }
+</figure>
+
+## 割點
 
 若一張無向圖移除某點會使連通塊變多，該點就稱為「割點」。
 
@@ -164,7 +150,7 @@ u是割點的條件是：
     }
     ```
 
-### 點 BCC
+## Tarjan 點 BCC
 
 如果一個連通分量沒有割點 (表示也沒有橋)，則該分量為雙連通分量
 
@@ -290,7 +276,15 @@ u是割點的條件是：
         } 
 		```
 
-### SCC
+### 縮點
+
+可以縮成仙人掌圖，詳見此 [Blog](https://www.cnblogs.com/Oier-GGG/p/16049166.html)
+
+<figure markdown>
+  ![Image title](./images/71.png){ width="300" }
+</figure>
+
+## SCC
 
 給一個有向圖，若一個連通分量內的任兩點均可以互相到達，則稱為強連通分量。
 
@@ -298,9 +292,11 @@ u是割點的條件是：
   ![Image title](./images/73.png){ width="250" }
 </figure>
 
-每當發現某一點恰是最高祖先，即 low(u) = dfn(u)，即表示此點與子孫已經形成 SCC。
+### Tarjan
 
-要注意在有向圖計算 Low 函數的時候，會出現無向圖不存在的 Cross Edge 與 Forward Edge，可能連往之前做好的 SCC，不得計算。
+我們維護一個 stack，紀錄子樹中訪問的點每當發現某一點恰是最高祖先，即 low(u) = dfn(u)，即表示 u 與子孫已經形成 SCC，而且走不上去了，我們就將這些點從 stack 中拿出來。
+
+要注意在有向圖計算 Low 函數的時候，會出現無向圖不存在的 Cross Edge 與 Forward Edge，可能連往之前做好的 SCC，不得計算，這個可以用判斷點是否在當前 SCC 內（也就是 stack）。
 
 <figure markdown>
   ![Image title](./images/72.png){ width="400" }
@@ -334,22 +330,9 @@ u是割點的條件是：
     }
     ```
 
-## SCC - kosaraju
+### Kosaraju
 
-在反圖上按照離開順序由大到小 dfs，若 u 還沒被走訪，則在反圖上從 u 去 dfs，走到的所有點即是同一個 SCC。
-
-???+info "過程"
-	<figure markdown>
-      ![Image title](./images/74.png){ width="300" }
-    </figure>
-    
-    <figure markdown>
-      ![Image title](./images/75.png){ width="300" }
-    </figure>
-    
-    <figure markdown>
-      ![Image title](./images/76.png){ width="300" }
-    </figure>
+在反圖上按照離開順序由大到小 dfs[^1]，若 u 還沒被走訪，則在反圖上從 u 去 dfs，走到的所有點即是同一個 SCC。
 
 ??? note "code"
     ```cpp linenums="1"
@@ -397,432 +380,335 @@ u是割點的條件是：
     }
     ```
 
-## 縮點
+### 縮點
 
-### 點 BCC
+將同一個強連通分量縮成一個點，可以得到 DAG。
 
 <figure markdown>
-  ![Image title](./images/71.png){ width="300" }
+  ![Image title](./images/78.png){ width="300" }
 </figure>
 
-### 邊 BCC
+實作上在新圖將每個 SCC 視為一個點，跑過原圖的每一條邊，若兩端在不同的 SCC 上，就在新圖建邊。
 
+???+note "[CSES - Coin Collector](https://cses.fi/problemset/task/1686)"
+	給 $n$ 點 $m$ 邊的有向圖，每個點上有 $w_i$ 個金幣，可以自由決定起點、終點，問最多可以拿到多少金幣
+	
+	$n\le 10^5, m\le 2\times 10^5, 1\le w_i\le 10^9$
+	
+	??? note "code"
+	
+        ```cpp linenums="1"
+        #include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        #include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        using namespace std;
 
+        const int INF = 2e18;
+        const int maxn = 1e5 + 5;
+        int n, m;
+        int low[maxn], t[maxn], instk[maxn], stamp, sccID, scc[maxn], in[maxn], cost[maxn], dp[maxn], w[maxn];
+        vector<int> G[maxn], W[maxn];
+        vector<int> sc[maxn];
+        stack<int> stk;
 
-### SCC
-
-```cpp linenums="1"
-#include <bits/stdc++.h>
-#define pii pair<int, int>
-#define mk make_pair
-#define pb push_back
-using namespace std;
-
-const int maxn = 1e4 + 5;
-vector<int> G[maxn];
-vector<int> R[maxn];
-vector<int> W[maxn];
-int n, m;
-int sccID;
-int ans = 0;
-int vis[maxn];
-int sc[maxn];
-int in[maxn];
-int dp[maxn];
-vector<int> scc[maxn];
-stack<int> stk;
-
-void dfs1(int u = 1) {
-    vis[u] = true;
-    for (auto v : G[u]) {
-        if(!vis[v]) dfs1(v);
-    }
-    stk.push(u);
-}
-
-void dfs2(int u = 1) {
-    vis[u] = true;
-    scc[sccID].push_back(u);
-    sc[u] = sccID;
-    for (auto v : R[u]) {
-        if (!vis[v]) dfs2(v);
-    }
-}
-
-void topo() {
-    queue<int> q;
-    for (int i = 1; i <= sccID; i++) {
-        if(!in[i]){
-            q.push(i);
-            dp[i] = scc[i].size();
-            ans = max(ans, dp[i]);
-        } 
-    }
-    while(q.size()) {
-        int u = q.front();
-        q.pop();
-        for (auto v : W[u]) {
-            int sz = scc[v].size();
-            dp[v] = max(dp[v], dp[u] + sz);
-            ans = max(ans, dp[v]);
-            in[v]--;
-            if(!in[v]) q.push(v);
-        }
-    }
-}
-
-void init() {
-    cin >> n >> m;
-    for (int i = 1; i <= n; i++) {
-        G[i].clear();
-        R[i].clear();
-        W[i].clear();
-        scc[i].clear();
-    }
-    for (int i = 0, u, v; i < m; i++) {
-        cin >> u >> v;
-        G[u].pb(v);
-        R[v].pb(u);
-    }
-    sccID = 0;
-    ans = 0;
-    memset(in, 0, sizeof(in));
-    memset(dp, 0, sizeof(dp));
-    memset(sc, 0, sizeof(sc));
-    memset(vis, 0, sizeof(vis));
-    for (int i = 1; i <= n; i++) {
-        if(!vis[i]) {
-            dfs1(i);
-        }
-    }
-    memset(vis, 0, sizeof(vis));
-    while(stk.size()) {
-        if(!vis[stk.top()]) {
-            sccID++;
-            dfs2(stk.top());
-        }
-        stk.pop();
-    }
-}
-
-void solve() {
-    for (int i = 1; i <= sccID; i++) {
-        for (int u : scc[i]) {
-            for (int v : G[u]) {
-                // 重新建圖
-                if (sc[u] != sc[v]) {
-                    W[sc[u]].pb(sc[v]);
-                    in[sc[v]]++;
-                }
-            }
-        }
-    }
-    topo();
-    cout << ans << "\n"; 
-}
-
-signed main() {
-    int t;
-    cin >> t;
-    while(t--) {
-        init();
-        solve();
-    }
-}
-```
-
-```cpp linenums="1"
-#include <bits/stdc++.h>
-#define int long long
-#define pb push_back
-#define mk make_pair
-#define F first
-#define S second
-using namespace std;
- 
-const int INF = 2e18;
-const int maxn = 1e5 + 5;
-int n, m;
-int low[maxn], t[maxn], instk[maxn], stamp, sccID, scc[maxn], in[maxn], cost[maxn], dp[maxn], w[maxn];
-vector<int> G[maxn], W[maxn];
-vector<int> sc[maxn];
-stack<int> stk;
- 
-void dfs (int u) {
-    low[u] = t[u] = ++stamp;
-    instk[u] = true;
-    stk.push(u);
-    for (auto v : G[u]) {
-        if (t[v] == 0) {
-            dfs(v);
-            low[u] = min (low[u], low[v]);
-        }
-        else if (instk[v]) {
-            low[u] = min (low[u], t[v]);
-        }
-    }
-    if (low[u] == t[u]) {
-        int x;
-        sccID++;
-        do {
-            x = stk.top();
-            stk.pop();
-            scc[x] = sccID;
-            instk[x] = false;
-            sc[sccID].pb(x);
-            w[sccID] += cost[x];
-        } while (x != u);
-    }
-}
- 
-void init () {
-    cin >> n >> m;
-    int u, v;
-    for (int i = 1; i <= n; i++) cin >> cost[i];
-    for (int i = 0; i < m; i++) {
-        cin >> u >> v;
-        G[u].pb(v);
-    }
-}
- 
-void topo () {
-    queue<int> q;
-    for (int i = 1; i <= sccID; i++) {
-        if (in[i] == 0) q.push(i), dp[i] = w[i];
-    }
- 
-    int res = 0;
-    while (q.size()) {
-        int u = q.front();
-        q.pop();
-        for (auto v : W[u]) {
-            dp[v] = max (dp[v], dp[u] + w[v]);
-            res = max (res, dp[v]);
-            in[v]--;
-            if (in[v] == 0) {
-                q.push(v);
-            }
-        }
-    }
-    cout << res << "\n";
-}
- 
-void solve () {
-    for (int i = 1; i <= n; i++) {
-        if (t[i] == 0) {
-            dfs (i);
-        }
-    }
-    for (int i = 1; i <= sccID; i++) {
-        for (auto u : sc[i]) {
+        void dfs(int u) {
+            low[u] = t[u] = ++stamp;
+            instk[u] = true;
+            stk.push(u);
             for (auto v : G[u]) {
-                if (scc[u] != scc[v]) {
-                    W[scc[u]].pb(scc[v]);
-                    in[scc[v]]++;
+                if (t[v] == 0) {
+                    dfs(v);
+                    low[u] = min(low[u], low[v]);
+                } else if (instk[v]) {
+                    low[u] = min(low[u], t[v]);
                 }
             }
+            if (low[u] == t[u]) {
+                int x;
+                sccID++;
+                do {
+                    x = stk.top();
+                    stk.pop();
+                    scc[x] = sccID;
+                    instk[x] = false;
+                    sc[sccID].pb(x);
+                    w[sccID] += cost[x];
+                } while (x != u);
+            }
         }
-    }
-    topo();
-}
- 
-signed main () {
-    // ios::sync_with_stdio(0);
-    // cin.tie(0);
-    int t = 1;
-    //cin >> t;
-    while (t--) {
-        init ();
-        solve ();
-    }
-}
- 
- 
-/*
-10 10
-1 1 1 1 1 1 1 1 1 1
-2 7
- 
-*/
-```
+
+        void init() {
+            cin >> n >> m;
+            int u, v;
+            for (int i = 1; i <= n; i++) cin >> cost[i];
+            for (int i = 0; i < m; i++) {
+                cin >> u >> v;
+                G[u].pb(v);
+            }
+        }
+
+        void topo() {
+            queue<int> q;
+            for (int i = 1; i <= sccID; i++) {
+                if (in[i] == 0) q.push(i), dp[i] = w[i];
+            }
+
+            int res = 0;
+            while (q.size()) {
+                int u = q.front();
+                q.pop();
+                for (auto v : W[u]) {
+                    dp[v] = max(dp[v], dp[u] + w[v]);
+                    res = max(res, dp[v]);
+                    in[v]--;
+                    if (in[v] == 0) {
+                        q.push(v);
+                    }
+                }
+            }
+            cout << res << "\n";
+        }
+
+        void solve () {
+            for (int i = 1; i <= n; i++) {
+                if (t[i] == 0) {
+                    dfs(i);
+                }
+            }
+            for (int i = 1; i <= sccID; i++) {
+                for (auto u : sc[i]) {
+                    for (auto v : G[u]) {
+                        if (scc[u] != scc[v]) {
+                            W[scc[u]].pb(scc[v]);
+                            in[scc[v]]++;
+                        }
+                    }
+                }
+            }
+            topo();
+        }
+
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            //cin >> t;
+            while (t--) {
+                init();
+                solve();
+            }
+        }
+        ```
 
 ## 2-SAT
 
-```cpp linenums="1"
-struct TwoSAT {
-    static const int MAXv = 2 * MAXN;
-    vector<int> GO[MAXv], BK[MAXv], stk;
-    int vis[MAXv];
-    int SC[MAXv];
-    void imply(int u, int v) { // u imply v
-        GO[u].push_back(v);
-        BK[v].push_back(u);
-    }
-    void dfs(int u, vector<int> *G, int sc) {
-        vis[u] = 1, SC[u] = sc;
-        for (int v : G[u]) {
-        	if (!vis[v]) dfs(v, G, sc);
+### 判斷是否有解
+
+???+note "問題"
+	給一個 boolean formula，例如 
+	
+	$$(x_1 \vee x_2) \wedge (\neg x_1 \vee x_3) \wedge (\neg x_2 \vee \neg x_5) \wedge \dots$$
+	
+	能否賦予 $x_1, \ldots ,x_n$ True 或是 False，使 formula 為 True
+
+將每個點代表狀態，每個邊 (u, v) 代表若 u 則 v。對於每一個變數 $x$，有狀態 $x$ 與 $\neg x$，代表 $x$ 選 True 或 $x$ 選 False。假設有一個 $x \vee y$，則代表[^2]
+
+- 若 $x$ 為 false，$y$ 一定要為 true
+
+- 若 $y$ 為 false，$x$ 一定要為 true
+
+接著我們要來判斷是否有解。觀察到 :
+
+- $x \rightarrow \neg x$：若 $x$ 為 true，則 $x$ 必定為 false $\Rightarrow$ $x$ 不能為真 true
+
+- $\neg x \rightarrow x$：若 $x$ 為 false，則 $x$ 必定為 true $\Rightarrow$ $x$ 不能為 false
+
+這些都是有解的情況。可以發現，當 $x \rightarrow \neg x$ 和 $\neg x \rightarrow x$ 同時存在，代表問題無解。這也就代表 $x$ 與 $\neg x$ 在同一個 SCC 內。
+
+實作上對於變數個數建點，對於每個條件建立有向邊，在圖上做 SCC，檢查每個變數是否矛盾。
+
+??? note "code"
+	```cpp linenums="1"
+    struct TwoSAT {
+        static const int MAXv = 2 * MAXN;
+        vector<int> GO[MAXv], BK[MAXv], stk;
+        int vis[MAXv];
+        int SC[MAXv];
+        void imply(int u, int v) { // u imply v
+            GO[u].push_back(v);
+            BK[v].push_back(u);
         }
-        if (G == GO) stk.push_back(u);
-    }
-    void scc(int n) {
-        memset(vis, 0, sizeof(vis));
-        for (int i = 0; i < n; i++) {
-        	if (!vis[i]) dfs(i, GO, -1);
-        }
-        memset(vis, 0, sizeof(vis));
-        int sc = 0;
-        while (!stk.empty()) {
-            if (!vis[stk.back()]) {
-            	dfs(stk.back(), BK, sc++);
+        void dfs(int u, vector<int> *G, int sc) {
+            vis[u] = 1, SC[u] = sc;
+            for (int v : G[u]) {
+                if (!vis[v]) dfs(v, G, sc);
             }
-            stk.pop_back();
+            if (G == GO) stk.push_back(u);
         }
+        void scc(int n) {
+            memset(vis, 0, sizeof(vis));
+            for (int i = 0; i < n; i++) {
+                if (!vis[i]) dfs(i, GO, -1);
+            }
+            memset(vis, 0, sizeof(vis));
+            int sc = 0;
+            while (!stk.empty()) {
+                if (!vis[stk.back()]) {
+                    dfs(stk.back(), BK, sc++);
+                }
+                stk.pop_back();
+            }
+        }
+    };
+
+    signed main() {
+        TwoSAT SAT;
+        SAT.scc(2 * n);
+
+        // todo
+        for (int i = 0; i < n; i++) {
+            if (SAT.SC[2 * i] == SAT.SC[2 * i + 1])
+                flg = 1;
+
+            // 2*i (+), 2*i + 1 (-)
+        }
+
+        if (flg) cout << "BAD\n";
+        else cout << "GOOD\n";
     }
-};
-
-signed main() {
-    TwoSAT SAT;
-    SAT.scc(2 * n);
-
-    // todo
-    for (int i = 0; i < n; i++) {
-        if (SAT.SC[2 * i] == SAT.SC[2 * i + 1])
-            flg = 1;
-
-        // 2*i (+), 2*i + 1 (-)
-    }
-
-    if (flg) cout << "BAD\n";
-    else cout << "GOOD\n";
-}
-```
+    ```
 
 ### 印出一組解
 
-- 選 topo sort 反向
+先觀察，當 $x \rightarrow \neg x$ 時，如果我選 $x=$true 結果會推倒到 $x=$false
+，但如果我選 $x=$false 那不會發生任何事情，代表選後面的為正解。
 
-- $x \rightarrow \neg x$ 
-    - 如果我選 $x=\texttt{true}$ 結果會推倒到 $x=\texttt{false}$
-    - 但如果我選 $x=\texttt{false}$ 那不會發生任何事情
-    - 選箭頭後面的為正確的解
+同一個 SCC 內的點必定全選或全不選，所以我們可以先將圖縮成 DAG，跑反向的 topo sort，將 SCC 內的點設定解即可。
 
-```cpp linenums="1"
-#include <iostream>
-#include <vector>
-#include <stack>
-#include <queue>
-using namespace std;
-  
-int n, m, a, b, dfn[200005], stk[200005], low[200005], pa[200005], opp[200005], in[200005], pick[200005], scc, idx;
-char c[2];
-vector <int> v[200005];
-vector <int> v2[200005];
-stack <int> st;
-  
-void tarjan(int x){
-    idx++;
-    dfn[x] = low[x] = idx;
-    st.push(x);
-    stk[x] = 1;
-    for (auto i:v[x]){
-        if (!dfn[i]){
-            tarjan(i);
-            low[x] = min(low[x], low[i]);
+??? note "code"
+
+    ```cpp linenums="1"
+    #include <iostream>
+    #include <vector>
+    #include <stack>
+    #include <queue>
+    using namespace std;
+
+    int n, m, a, b, dfn[200005], stk[200005], low[200005], pa[200005], opp[200005], in[200005], pick[200005], scc, idx;
+    char c[2];
+    vector <int> v[200005];
+    vector <int> v2[200005];
+    stack <int> st;
+
+    void tarjan(int x){
+        idx++;
+        dfn[x] = low[x] = idx;
+        st.push(x);
+        stk[x] = 1;
+        for (auto i:v[x]){
+            if (!dfn[i]){
+                tarjan(i);
+                low[x] = min(low[x], low[i]);
+            }
+            else if (stk[i]){
+                low[x] = min(low[x], dfn[i]);
+            }
         }
-        else if (stk[i]){
-            low[x] = min(low[x], dfn[i]);
-        }
-    }
-    if (dfn[x] == low[x]){
-        scc++;
-        pa[x] = scc;
-        int nxt = -1;
-        while (nxt != x){
-            nxt = st.top();
-            st.pop();
-            pa[nxt] = scc;
-            stk[nxt] = 0;
-        }
-    }
-}
-int tr(int x){ // 正變負, 負變正
-    if (x <= m) return x+m;
-    else return x-m;
-}
-bool check(){
-    for (int i = 1; i <= m; i++){
-        if (pa[i] == pa[i+m]) return 0; // pa[i] 紀錄 i 的 scc
-        else{
-            opp[pa[i]] = pa[i+m];
-            opp[pa[i+m]] = pa[i]; // opp 紀錄 x 跟 ~x 對方各自的 scc
-            /*
-            如果 opp[scc] 有被改到的話, 那就代表說
-            前一個改的數(x)跟後一個改的數(y) 他們是互相連通的 (例如 ~x -> y 之類的)
-            那麼因為如果有 (~x -> y) 的邊那也就代表有 (~y -> x) 的邊 
-            (也不一定是邊但這兩個會互相成立，因為在加入2SAT的時候都是兩個成對的邊一起加入)
-            所以一旦 opp[scc] 一被改過後就是那個答案了, 有其他人想再改他的話也只是做 opp[scc] = opp[scc]
-            */
-        }
-    }
-    return 1;
-}
-void build(){
-    for (int i = 1; i <= m * 2; i++){
-        for (int j:v[i]){
-            if (pa[i] != pa[j]){
-                v2[pa[j]].push_back(pa[i]); // 加入的邊是topo排序的"反向"
-                in[pa[i]]++;
+        if (dfn[x] == low[x]){
+            scc++;
+            pa[x] = scc;
+            int nxt = -1;
+            while (nxt != x){
+                nxt = st.top();
+                st.pop();
+                pa[nxt] = scc;
+                stk[nxt] = 0;
             }
         }
     }
-}
-void topo(){
-    queue <int> q;
-    for (int i = 1; i <= scc; i++){
-        if (in[i] == 0) q.push(i);
+    int tr(int x){ // 正變負, 負變正
+        if (x <= m) return x+m;
+        else return x-m;
     }
-    while (!q.empty()){
-        int now = q.front();
-        q.pop();
-        if (!pick[now]){
-            pick[now] = 1;
-            pick[opp[now]] = 2;
+    bool check(){
+        for (int i = 1; i <= m; i++){
+            if (pa[i] == pa[i+m]) return 0; // pa[i] 紀錄 i 的 scc
+            else{
+                opp[pa[i]] = pa[i+m];
+                opp[pa[i+m]] = pa[i]; // opp 紀錄 x 跟 ~x 對方各自的 scc
+                /*
+                如果 opp[scc] 有被改到的話, 那就代表說
+                前一個改的數(x)跟後一個改的數(y) 他們是互相連通的 (例如 ~x -> y 之類的)
+                那麼因為如果有 (~x -> y) 的邊那也就代表有 (~y -> x) 的邊 
+                (也不一定是邊但這兩個會互相成立，因為在加入2SAT的時候都是兩個成對的邊一起加入)
+                所以一旦 opp[scc] 一被改過後就是那個答案了, 有其他人想再改他的話也只是做 opp[scc] = opp[scc]
+                */
+            }
         }
-        for (auto i:v2[now]){
-            in[i]--;
-            if (!in[i]) q.push(i);
+        return 1;
+    }
+    void build(){
+        for (int i = 1; i <= m * 2; i++){
+            for (int j:v[i]){
+                if (pa[i] != pa[j]){
+                    v2[pa[j]].push_back(pa[i]); // 加入的邊是topo排序的"反向"
+                    in[pa[i]]++;
+                }
+            }
         }
     }
-    for (int i = 1; i <= m; i++){
-        if (pick[pa[i]] == 1) cout << "+ ";
-        else cout << "- ";
+    void topo(){
+        queue <int> q;
+        for (int i = 1; i <= scc; i++){
+            if (in[i] == 0) q.push(i);
+        }
+        while (!q.empty()){
+            int now = q.front();
+            q.pop();
+            if (!pick[now]){
+                pick[now] = 1;
+                pick[opp[now]] = 2;
+            }
+            for (auto i:v2[now]){
+                in[i]--;
+                if (!in[i]) q.push(i);
+            }
+        }
+        for (int i = 1; i <= m; i++){
+            if (pick[pa[i]] == 1) cout << "+ ";
+            else cout << "- ";
+        }
     }
-}
-  
-int main() {
-    cin >> n >> m; // n 個式子, m 個變數
-    for (int i = 0; i < n; i++){
-        cin >> c[0] >> a >> c[1] >> b;
-        /*
-        x + m (-)
-        x (+)
-        */
-        if (c[0] == '-') a += m;
-        if (c[1] == '-') b += m;
-        v[tr(a)].push_back(b);
-        v[tr(b)].push_back(a);
+
+    int main() {
+        cin >> n >> m; // n 個式子, m 個變數
+        for (int i = 0; i < n; i++){
+            cin >> c[0] >> a >> c[1] >> b;
+            /*
+            x + m (-)
+            x (+)
+            */
+            if (c[0] == '-') a += m;
+            if (c[1] == '-') b += m;
+            v[tr(a)].push_back(b);
+            v[tr(b)].push_back(a);
+        }
+        for (int i = 1; i <= m*2; i++){
+            if (!dfn[i]) tarjan(i);
+        }
+        if (check()){
+            build();
+            topo();
+        }
+        else cout << "IMPOSSIBLE\n";
     }
-    for (int i = 1; i <= m*2; i++){
-        if (!dfn[i]) tarjan(i);
-    }
-    if (check()){
-        build();
-        topo();
-    }
-    else cout << "IMPOSSIBLE\n";
-}
-```
+    ```
 
 ---
 
@@ -841,3 +727,7 @@ int main() {
 - <https://hackmd.io/@Ccucumber12/HylySg2xF#>
 
 - <https://slides.com/sylveon/graph-7>
+
+[^1]: 見此處<a href="/wiki/graph/images/Kosaraju Algorithm.html" target="_blank">此處</a>
+
+[^2]: $x$ 為 true 的狀態就不用考慮了，因為 $y$ 不管選什麼都可以，記得我們邊代表的是「若 u 則 v」
