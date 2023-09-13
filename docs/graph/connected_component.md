@@ -1,93 +1,149 @@
+## DFS Tree
+
+在無向圖上，只會出現 Tree Edge 與 Back Edge。而在有向圖上，有以下四種 :
+
+- Tree Edge：真正在 DFS Tree 上的邊，從父親連往小孩
+
+- Back Edge：從子孫連回祖先的邊
+
+- Forward Edge：連向沒有直接親子關係的子孫的邊
+
+- Cross Edge：連向非直系血親的邊
+
+<figure markdown>
+  ![Image title](./images/67.png){ width="450" }
+</figure>
+
 ## 割點
 
 當拔掉點 u 使得圖不連通，則 u 為割點
-
-
-
-## 橋
 
 ## low 函數
 
 low(u) : u 的子樹內的 back edge 可以到達到最小時間
 
-case 1:  他的 Tree Edge 連到的點 
+<div class="result" markdown>
 
-low(u) = min(low(u), low(v))
+![Image title](./images/65.png){ align=right width=200 }
 
-<figure markdown>
-  ![Image title](./images/65.png){ width="200" }
-</figure>
+- case 1:  他的 Tree Edge 連到的點 
 
-case2: 他的 Back Edge 連到的點
+	- low(u) = min(low(u), low(v))
 
-low(u) = min(low(u), t(v))
+</div>
 
-<figure markdown>
-  ![Image title](./images/66.png){ width="200" }
-</figure>
+<br><br><br><br><br><br><br><br>
 
+<div class="result" markdown>
 
+![Image title](./images/66.png){ align=right width=200 }
 
-```cpp linenums="1"
-// low 
-int dfs(int u, int par) {
-    low[u] = t[u] = stamp++;
-    for (auto v : G[u]) {
-        if (v == par) continue;
-        if (t[v] == 0) {
-            dfs(v, u);
-            low[u] = min(low[u], low[v]);
-        }
-        else {
-            low[u] = min(low[u], t[v]);
-        }
-    }
-}
-```
-## bridge
-```cpp linenums="1"
-// bridge
-int dfs(int u, int par) {
-    low[u] = t[u] = stamp++;
-    for (auto v : G[u]) {
-        if (t[v] == 0) {
-            dfs(v, u);
-            low[u] = min(low[u], low[v]);
-            if (low[v] >= t[v]) {
-                // is bridge
+- case2: 他的 Back Edge 連到的點
+
+	- low(u) = min(low(u), t(v))
+
+</div>
+
+<br><br><br><br><br><br><br><br>
+
+???+note "code"
+	```cpp linenums="1"
+    int dfs(int u, int par) {
+        low[u] = t[u] = stamp++;
+        for (auto v : G[u]) {
+            if (v == par) continue;
+            if (t[v] == 0) {
+                dfs(v, u);
+                low[u] = min(low[u], low[v]);
+            } else {
+                low[u] = min(low[u], t[v]);
             }
         }
-        else if (v != par) {
-            low[u] = min(low[u], t[v]);
-        }
     }
-}
-```
+    ```
 
-以上的 code 在重邊的情況會壞掉，如果要能判重邊的話如下
+## 邊 BCC
 
-```cpp linenums="1"
-// bridge
-int dfs(int u, int pre_eid) {
-    low[u] = t[u] = stamp++;
-    for (auto [v, eid] : G[u]) {
-        if (t[v] == 0) {
-            dfs(v, u);
-            low[u] = min(low[u], low[v]);
-            if (low[v] >= t[v]) {
-                // is bridge
+一張無向圖上，把某些邊移除會導致連通塊數量變多，這種邊稱為 bridge。如果把所有的橋移除，那每一個連通塊在原圖上就稱為「邊雙連通分量」（bridge-connected component，簡稱 BCC）。之所以稱為雙連通，是因為要讓一個邊雙連通圖不連通，至少需要移除兩個邊。
+
+### 利用 low 函數找出橋
+
+(u, v) 是 bridge 的條件是 :
+
+- t[v] <= low[v] 
+	- v的子樹中沒有 back edge 能跨越 (u, v) 這條邊
+
+???+note "code"
+    ```cpp linenums="1"
+    int dfs(int u, int par) {
+        low[u] = t[u] = stamp++;
+        for (auto v : G[u]) {
+            if (v == par) continue;
+            if (t[v] == 0) {
+                dfs(v, u);
+                low[u] = min(low[u], low[v]);
+                if (low[v] >= t[v]) {
+                    // is bridge
+                }
+            } else {
+                low[u] = min(low[u], t[v]);
             }
         }
-        else if (pre_eid != eid) {
-            low[u] = min(low[u], t[v]);
+    }
+    ```
+
+
+
+### 邊 BCC 實作
+
+<figure markdown>
+  ![Image title](./images/69.png){ width="200" }
+</figure>
+
+在尋找 bridge 的過程中順便找 BCC。如果 u 的父邊是橋，則 u 往下形成一個BCC，我們利用 stack 紀錄。拜訪一個新的點時，將該點塞入 stack 若發現 u 父邊是橋，將 stack 裡的東西取出直到 u 也被取出這些被取出的點即形成 BCC。判斷回邊的方法是單純地判斷點走過了沒(因為無向圖中,已經走過的點肯定是祖先,所以也等同判斷是不是祖先),但是有向圖上,回邊肯定會製造環,而前向邊
+不影響誰能到達誰,交錯邊則可能會影響,也可能不會。要考慮這麼多種狀況的方法,
+
+???+note "code"
+	```cpp linenums="1"
+    //BCC 注意: 以下 code "沒有" 考慮重邊的情況
+    int dfs(int u, int par) {
+        low[u] = t[u] = stamp++;
+        stk.push(u);
+        for (auto v : G[u]) {
+            if (v == par) continue;
+            if (t[v] == 0) {
+                dfs(v, u);
+                low[u] = min(low[u], low[v]);
+            } else {
+                low[u] = min(low[u], t[v]);
+            }
+        }
+        if (low[u] == t[u]) {
+            int tmp;
+            bccID++;
+            do {
+                tmp = stk.top();
+                bcc[tmp] = bccID;
+                stk.pop();
+            } while (tmp != u);
         }
     }
-}
-```
+    ```
 
-## AP
+## 點 BCC
+
+若一張無向圖移除某點會使連通塊變多，該點就稱為「割點」（cut vertex）或「關節點」（articulation point）。點雙連通分量（2-vertex-connected component），或直接稱為「雙連通分量」（biconnected component，或稱 block，但是注意 BCC 指的通常是邊雙連通），和邊的定義方式也相同。
+
+### 利用 low 函數找出割點
+
+u是割點的條件是：
+
+- t[u] <= low[v] 
+	-  v 的子樹中沒有 back edge 能跨越u點
+
+- 有多個兒子的 root
+
 ```cpp linenums="1"
-// AP
 int dfs(int u, int par) {
     low[u] = t[u] = stamp++;
     int cnt = 0;
@@ -102,54 +158,56 @@ int dfs(int u, int par) {
             if (par == 0 && cnt++) {
              	// root is AP   
             }
-        }
-        else {
+        } else {
             low[u] = min(low[u], t[v]);
         }
     }
 }
 ```
-## BCC
-- 注意: 以下 code "沒有" 考慮重邊的情況
 
+### 點 BCC 實作
+
+對於求解具體的點雙連通分量，我們可以直接在判斷割點的時候求解點雙連通分量。具體來講，我們只需要額外加一個棧，記住訪問的子樹，之後遇到判斷割點的條件成立的時候說明有點雙連通分量，直接像下面代碼一樣放入即可。要注意的是，如果這個點是一個孤立點的話，那麼我們需要額外給它加一個點雙，因為它自己就是一個點雙連通分量了。
+
+<figure markdown>
+  ![Image title](./images/70.png){ width="300" }
+</figure>
+
+## SCC
+
+給一個有向圖，若一個連通分量內的任兩點均可以互相到達，則稱為強連通分量。將同一個強連通分量縮成一個點，可以得到DAG。要注意在有向圖計算 Low 函數的時候，會出現無向圖不存在的 Cross Edge 與 Forward Edge，可能連往之前做好的 SCC，不得計算
+
+### targain
 
 ```cpp linenums="1"
-//BCC
-const int maxn = 1e6 + 5;
-int n;
-int dep[maxn];
-int t[maxn];
-int low[maxn];
-int bcc[maxn];
-int stamp = 1, bccID;
-stack<int> stk;
-vector<int> G[maxn];
-int dfs(int u, int par) {
-    low[u] = t[u] = stamp++;
+void dfs (int u) {
+    low[u] = t[u] = ++stamp;
+    instk[u] = true;
     stk.push(u);
     for (auto v : G[u]) {
-        if (v == par) continue;
         if (t[v] == 0) {
-            dfs(v, u);
-            low[u] = min(low[u], low[v]);
+            dfs(v);
+            low[u] = min (low[u], low[v]);
         }
-        else {
-            low[u] = min(low[u], t[v]);
+        else if (instk[v]) { // 注意
+            low[u] = min (low[u], t[v]);
         }
     }
     if (low[u] == t[u]) {
-        int tmp;
-        bccID++;
-        do{
-            tmp = stk.top();
-            bcc[tmp] = bccID;
+        int x;
+        sccID++;
+        do {
+            x = stk.top();
             stk.pop();
-        } while (tmp != u);
+            scc[x] = sccID;
+            instk[x] = false;
+        } while (x != u);
     }
 }
 ```
-## SCC
+
 ### kosaraju
+
 ```cpp linenums="1"
 //SCC
 const int maxn = 1e6 + 5;
@@ -191,35 +249,6 @@ int solve() {
             dfs2(stk.top(), 0);
         }
         stk.pop();
-    }
-}
-```
-
-### targain
-
-```cpp linenums="1"
-void dfs (int u) {
-    low[u] = t[u] = ++stamp;
-    instk[u] = true;
-    stk.push(u);
-    for (auto v : G[u]) {
-        if (t[v] == 0) {
-            dfs(v);
-            low[u] = min (low[u], low[v]);
-        }
-        else if (instk[v]) { // 注意
-            low[u] = min (low[u], t[v]);
-        }
-    }
-    if (low[u] == t[u]) {
-        int x;
-        sccID++;
-        do {
-            x = stk.top();
-            stk.pop();
-            scc[x] = sccID;
-            instk[x] = false;
-        } while (x != u);
     }
 }
 ```
@@ -638,3 +667,13 @@ int main() {
 - <https://cp-algorithms.com/graph/bridge-searching-online.html>
 
 - <https://oi-wiki.org/topic/dsu-app>
+
+- <https://sprout.tw/algo2023/ppt_pdf/week14/tp-Graph2-2023.pdf>
+
+- <https://zhuanlan.zhihu.com/p/562961398?utm_id=0>
+
+- <https://web.ntnu.edu.tw/~algo/ConnectedComponent.html#2>
+
+- <https://hackmd.io/@Ccucumber12/HylySg2xF#>
+
+- <https://slides.com/sylveon/graph-7>

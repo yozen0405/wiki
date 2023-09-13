@@ -22,8 +22,8 @@
 	- <a href="/wiki/graph/other_problem" target="_blank">其他類型</a>
 
 - 圖論
-	- <a href="/wiki/graph/DSU" target="_blank">Disjoint Set</a>
-	- <a href="/wiki/graph/SP" target="_blank">最短路</a>
+	- <a href="/wiki/graph/dsu" target="_blank">Disjoint Set</a>
+	- <a href="/wiki/graph/sp" target="_blank">最短路</a>
 	- <a href="/wiki/graph/mst" target="_blank">MST</a>
 
 - 數學
