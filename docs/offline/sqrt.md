@@ -27,12 +27,12 @@ LOJ 題單
 	
 	??? note "思路"
 		將序列每 sqrt(n) 個當成一個 block。假如交換 i 位置和 j 位置（假設 i < j），那麼只需要統計 [i + 1, j - 1] 這個區間內比 a[i] 大的有幾個, 小的有幾個，比 a[j] 位置的數大的有幾個, 小的有幾個即可。所以在 query 時對於完整的 block 直接在 block 內二分（對於每個 block 開一個大小為 n 的 BIT）。
-		
+
 ???+note "[CF 617 E. XOR and Favorite Number](https://codeforces.com/problemset/problem/617/E)"
 	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，與 $q$ 次詢問 :
 	
 	- $\text{query}(l,r):$ 輸出區間內有多少個 subarray 的 $a_i \oplus \ldots \oplus a_j=k$
-
+	
 	$n,q\le 10^5,0\le k\le 10^6$
 	
 	??? note "思路"
@@ -40,15 +40,15 @@ LOJ 題單
 		
 		```cpp
 		void add(int x) {
-            ans += cnt[x ^ k];
-            cnt[x]++;
-        }
-        void del(int x) {
-            cnt[x]--;
-            ans-=flag[x ^ k];
-        }
-        ```
-	
+	        ans += cnt[x ^ k];
+	        cnt[x]++;
+	    }
+	    void del(int x) {
+	        cnt[x]--;
+	        ans-=flag[x ^ k];
+	    }
+	    ```
+
 ## 值域分塊
 
 一般來說，值域分塊會作為一個輔助工具出現在題目當中。
@@ -384,7 +384,113 @@ LOJ 題單
     
         - degree 總和為 $2m$
 
----
+???+note "[CF 13 E. Holes](https://codeforces.com/contest/13/problem/E)"
+	有 $n$ 個點，點 $i$ 有一個權值 $a_i$，表示站下一步會跳到點 $i+a_i$，可能跳出區間 $[1,n]$。給 $q$ 筆操作 :
+	
+	- $\text{update}(i,x):$ 將某個 $a_i$ 改成 $x$
+
+	- $\text{query}(x):$ 詢問從點 $x$ 開始，需要多少步才能跳到 $n$ 以外，以及最後一個經過的點是哪一個。
+
+	$n,m\le 10^5$
+	
+	??? note "思路"
+		對於每個塊，對於每個點，維護需要多少步跳出此塊，並且跳出此塊後將跳向哪個點。單點修改只需要動一塊就好，query 只會跳 $\sqrt{n}$ 次
+		
+	??? note "code"
+		```cpp linenums="1"
+		# include <bits/stdc++.h>
+
+        typedef long long ll;
+        using namespace std;
+
+        const int N = 1e5 + 5;
+        const int M = 4e2 + 50;
+        int n, m;
+        int l[N], r[N], belong[N];
+        int cnt, num, x, v, ans;
+        int a[N], tot[M], go[N], nxt[N];
+
+        void init() {
+            num = sqrt(n);
+            cnt = n / num;
+            if (n % num)
+                cnt++;
+            for (int i = 1; i <= n; i++) {
+                belong[i] = (i - 1) / num + 1;
+            }
+            for (int i = 1; i <= cnt; i++) {
+                l[i] = (i - 1) * num + 1;
+                r[i] = min(n, i * num);
+                for (int j = r[i]; j >= l[i]; j--) {
+                    if (nxt[j] > r[i]) {
+                        tot[j] = 1;
+                        go[j] = nxt[j];
+                    } else {
+                        tot[j] = tot[nxt[j]] + 1;
+                        go[j] = go[nxt[j]];
+                    }
+                }
+            }
+        }
+
+        int main() {
+            int op, ll, rr, x, y;
+            scanf("%d%d", &n, &m);
+            for (int i = 1; i <= n; i++) {
+                scanf("%d", &a[i]);
+                nxt[i] = min(n + 1, a[i] + i);
+            }
+            init();
+            while (m--) {
+                scanf("%d", &op);
+                if (!op) {
+                    scanf("%d%d", &x, &y);
+                    int b = belong[x];
+                    nxt[x] = min(n + 1, x + y);
+                    for (int j = r[b]; j >= l[b]; j--) {
+                        if (nxt[j] > r[b]) {
+                            tot[j] = 1;
+                            go[j] = nxt[j];
+                        } else {
+                            tot[j] = tot[nxt[j]] + 1;
+                            go[j] = go[nxt[j]];
+                        }
+                    }
+                } else {
+                    scanf("%d", &x);
+                    int b, y;
+                    int ans1, ans2 = 0;
+                    while (x <= n) {
+                        ans2 += tot[x];
+                        if (go[x] > n) y = x;
+                        x = go[x];
+                    }
+                    while (y <= n) {
+                        ans1 = y;
+                        y = nxt[y];
+                    }
+                    printf("%d %d\n", ans1, ans2);
+                }
+            }
+            return 0;
+        }
+        ```
+	
+???+note "[CF 797 E. Array Queries](https://codeforces.com/problemset/problem/797/E)"
+	給長度為 $n$ 的序列 $a_1, \ldots, a_n$，有 $q$ 筆詢問 :
+	
+	- $\text{query(p, k):}$ 不斷進行操作 $p=p + a_p + k$，直到 $p > n$ 為止，共幾次操作
+
+	$n,\le 10^5, 1\le a_i, p, k\le n$
+	
+	??? note "思路"
+		若 k >= sqrt(n)，那麼暴力跳，做多 sqrt(n) 次
+		
+		若 k < sqrt(n)，令 sum[p][k] 為詢問的答案，O(n * sqrt(n)) 預處理
+		
+		> 參考 : <https://blog.csdn.net/weixin_44178736/article/details/110395582>
+	
+ ---
 
 ## 資料
 

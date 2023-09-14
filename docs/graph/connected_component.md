@@ -150,6 +150,38 @@ u是割點的條件是：
     }
     ```
 
+???+note "[TOI 2023 pE. 公路 (road)](https://zerojudge.tw/ShowProblem?problemid=k188)"
+	給一張 $n$ 點 $m$ 邊的帶權無向圖，有 $q$ 筆查詢 :
+	
+	- $\text{query}(u,v):$ 問 $u$ 到 $v$ 之間兩條「不相交的路徑」各自權重和的最大值，最小可以是多少，或不存在
+
+	$2\le n\le 1000,n-1\le m\le \frac{n × (n − 1)}{2},1\le w_i\le 10^9,q\le 10^5$
+	
+	??? note "思路"
+		先想無解的 case，iff u 跟 v 不在相同的 BCC 內無解。
+		
+		考慮要最小化答案，我們採用離線作法，將 $m$ 條邊依照邊權小到大加入，若連接的點已在同一 BCC 內則 continue，否則就重跑一次 tarjan，這樣最多跑 $n-1$ 次。對於 query，我們只要二分哪時候 $u,v$ 在同一個 BCC 內即可。
+		
+		---
+		
+		> 另法（類似並查集生成樹） : From [twpca](https://toip2023.twpca.org/editorial/editorial)
+		
+		<figure markdown>
+          ![Image title](./images/80.png){ width="600" }
+        </figure>
+	
+???+note "[Neoj 737. 平衡的技能樹](https://neoj.sprout.tw/problem/737/)"
+	給一張 $n$ 點 $m$ 邊帶權無向圖，問至少要修改幾條邊的邊權才能使得圖上的最大生成樹與最小生成樹的權值總和一樣
+	
+	$n\le 2\times 10^5, m\le 2\times 10^5$
+	
+	??? note "思路"
+		對於 Bridge，我們一定是不用修改的
+		
+		不是 Bridge，就代表是在一個邊雙連通分量內，邊雙連通分量是由多個環組成，所以我們可以先想環的 case。若環上有兩種不同的權重，那最大一定會選 total - max，最小賄選 total - min，所以可以發現 iff 環上權重都一樣最大與最小 MST 權重才會相等。
+		
+		所以我們對於每個 BCC 用 unorder map 紀錄每種權重出現的次數，我們就挑出現最多次的，將 BCC 內剩下其他的邊都替換成這個權重即可
+	
 ## Tarjan 點 BCC
 
 如果一個連通分量沒有割點 (表示也沒有橋)，則該分量為雙連通分量
@@ -204,76 +236,76 @@ u是割點的條件是：
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-        using pii = pair<int, int>;
-
-        const int N = 5e5 + 5;
-        int n, m, stamp;
-        vector<int> G[N];
-        int dfn[N], low[N]; 
-        vector<vector<int>> bcc;
-        stack<int> stk;
-
-        void dfs (int u, int par) {
-            dfn[u] = low[u] = ++stamp; 
-            stk.push(u);
-            int cnt = 0; // 兒子個數
-            for (auto v : G[u]) {
-                if (v == par) continue; 
-                if (!dfn[v]) {
-                    dfs(v, u);
-                    low[u] = min(low[u], low[v]);
-                    cnt++;
-                    if (low[v] >= dfn[u]) { // 若 u 為割點
-                        int now = 0;
-                        bcc.push_back({});
-                        do {
-                            now = stk.top();
-                            stk.pop();
-                            bcc.back().push_back(now);
-                        } while (now != v);
-                        bcc.back().push_back(u);
-                    }
-                } else {
-                    low[u] = min(low[u], dfn[v]); 
-                }
-            }
-            // 特判孤立點
-            if (par == 0 && cnt == 0) {
-                bcc.push_back({u});
-                return;
-            }
-        }
-
-        signed main() {
-            cin >> n >> m;
-            for (int i = 0; i < m; i++) {
-                int u, v;
-                cin >> u >> v;
-                G[u].push_back(v);
-                G[v].push_back(u);
-            }
-            for (int i = 1; i <= n; i++) {
-                if (!dfn[i]) {
-                    dfs(i, 0);
-                }
-            }
-            cout << bcc.size() << '\n';
-            for (auto v : bcc) {
-                cout << v.size() << ' ';
-                for (auto it : v) {
-                    cout << it << ' ';
-                }
-                cout << '\n';
-            }
-        } 
+	    #define int long long
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using pii = pair<int, int>;
+	
+	    const int N = 5e5 + 5;
+	    int n, m, stamp;
+	    vector<int> G[N];
+	    int dfn[N], low[N]; 
+	    vector<vector<int>> bcc;
+	    stack<int> stk;
+	
+	    void dfs (int u, int par) {
+	        dfn[u] = low[u] = ++stamp; 
+	        stk.push(u);
+	        int cnt = 0; // 兒子個數
+	        for (auto v : G[u]) {
+	            if (v == par) continue; 
+	            if (!dfn[v]) {
+	                dfs(v, u);
+	                low[u] = min(low[u], low[v]);
+	                cnt++;
+	                if (low[v] >= dfn[u]) { // 若 u 為割點
+	                    int now = 0;
+	                    bcc.push_back({});
+	                    do {
+	                        now = stk.top();
+	                        stk.pop();
+	                        bcc.back().push_back(now);
+	                    } while (now != v);
+	                    bcc.back().push_back(u);
+	                }
+	            } else {
+	                low[u] = min(low[u], dfn[v]); 
+	            }
+	        }
+	        // 特判孤立點
+	        if (par == 0 && cnt == 0) {
+	            bcc.push_back({u});
+	            return;
+	        }
+	    }
+	
+	    signed main() {
+	        cin >> n >> m;
+	        for (int i = 0; i < m; i++) {
+	            int u, v;
+	            cin >> u >> v;
+	            G[u].push_back(v);
+	            G[v].push_back(u);
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            if (!dfn[i]) {
+	                dfs(i, 0);
+	            }
+	        }
+	        cout << bcc.size() << '\n';
+	        for (auto v : bcc) {
+	            cout << v.size() << ' ';
+	            for (auto it : v) {
+	                cout << it << ' ';
+	            }
+	            cout << '\n';
+	        }
+	    } 
 		```
 
 ### 縮點
@@ -281,7 +313,7 @@ u是割點的條件是：
 可以縮成仙人掌圖，詳見此 [Blog](https://www.cnblogs.com/Oier-GGG/p/16049166.html)
 
 <figure markdown>
-  ![Image title](./images/71.png){ width="300" }
+  ![Image title](./images/71.png){ width="400" }
 </figure>
 
 ## SCC
@@ -354,7 +386,7 @@ u是割點的條件是：
         }
         stk.push(u);
     }
-
+    
     int dfs2(int u, int par) {
         vis[u] = true;
         scc[u] = sccID;
@@ -363,7 +395,7 @@ u是割點的條件是：
             dfs2(v, u);
         }
     }
-
+    
     void solve() {
         memset(vis, 0, sizeof(vis));
         for (int i = 1; i <= n; i++) {
@@ -397,114 +429,114 @@ u是割點的條件是：
 	
 	??? note "code"
 	
-        ```cpp linenums="1"
-        #include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 1e5 + 5;
-        int n, m;
-        int low[maxn], t[maxn], instk[maxn], stamp, sccID, scc[maxn], in[maxn], cost[maxn], dp[maxn], w[maxn];
-        vector<int> G[maxn], W[maxn];
-        vector<int> sc[maxn];
-        stack<int> stk;
-
-        void dfs(int u) {
-            low[u] = t[u] = ++stamp;
-            instk[u] = true;
-            stk.push(u);
-            for (auto v : G[u]) {
-                if (t[v] == 0) {
-                    dfs(v);
-                    low[u] = min(low[u], low[v]);
-                } else if (instk[v]) {
-                    low[u] = min(low[u], t[v]);
-                }
-            }
-            if (low[u] == t[u]) {
-                int x;
-                sccID++;
-                do {
-                    x = stk.top();
-                    stk.pop();
-                    scc[x] = sccID;
-                    instk[x] = false;
-                    sc[sccID].pb(x);
-                    w[sccID] += cost[x];
-                } while (x != u);
-            }
-        }
-
-        void init() {
-            cin >> n >> m;
-            int u, v;
-            for (int i = 1; i <= n; i++) cin >> cost[i];
-            for (int i = 0; i < m; i++) {
-                cin >> u >> v;
-                G[u].pb(v);
-            }
-        }
-
-        void topo() {
-            queue<int> q;
-            for (int i = 1; i <= sccID; i++) {
-                if (in[i] == 0) q.push(i), dp[i] = w[i];
-            }
-
-            int res = 0;
-            while (q.size()) {
-                int u = q.front();
-                q.pop();
-                for (auto v : W[u]) {
-                    dp[v] = max(dp[v], dp[u] + w[v]);
-                    res = max(res, dp[v]);
-                    in[v]--;
-                    if (in[v] == 0) {
-                        q.push(v);
-                    }
-                }
-            }
-            cout << res << "\n";
-        }
-
-        void solve () {
-            for (int i = 1; i <= n; i++) {
-                if (t[i] == 0) {
-                    dfs(i);
-                }
-            }
-            for (int i = 1; i <= sccID; i++) {
-                for (auto u : sc[i]) {
-                    for (auto v : G[u]) {
-                        if (scc[u] != scc[v]) {
-                            W[scc[u]].pb(scc[v]);
-                            in[scc[v]]++;
-                        }
-                    }
-                }
-            }
-            topo();
-        }
-
-        signed main() {
-            // ios::sync_with_stdio(0);
-            // cin.tie(0);
-            int t = 1;
-            //cin >> t;
-            while (t--) {
-                init();
-                solve();
-            }
-        }
-        ```
+	    ```cpp linenums="1"
+	    #include <bits/stdc++.h>
+	    #define int long long
+	    #define pb push_back
+	    #include <bits/stdc++.h>
+	    #define int long long
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 1e5 + 5;
+	    int n, m;
+	    int low[maxn], t[maxn], instk[maxn], stamp, sccID, scc[maxn], in[maxn], cost[maxn], dp[maxn], w[maxn];
+	    vector<int> G[maxn], W[maxn];
+	    vector<int> sc[maxn];
+	    stack<int> stk;
+	
+	    void dfs(int u) {
+	        low[u] = t[u] = ++stamp;
+	        instk[u] = true;
+	        stk.push(u);
+	        for (auto v : G[u]) {
+	            if (t[v] == 0) {
+	                dfs(v);
+	                low[u] = min(low[u], low[v]);
+	            } else if (instk[v]) {
+	                low[u] = min(low[u], t[v]);
+	            }
+	        }
+	        if (low[u] == t[u]) {
+	            int x;
+	            sccID++;
+	            do {
+	                x = stk.top();
+	                stk.pop();
+	                scc[x] = sccID;
+	                instk[x] = false;
+	                sc[sccID].pb(x);
+	                w[sccID] += cost[x];
+	            } while (x != u);
+	        }
+	    }
+	
+	    void init() {
+	        cin >> n >> m;
+	        int u, v;
+	        for (int i = 1; i <= n; i++) cin >> cost[i];
+	        for (int i = 0; i < m; i++) {
+	            cin >> u >> v;
+	            G[u].pb(v);
+	        }
+	    }
+	
+	    void topo() {
+	        queue<int> q;
+	        for (int i = 1; i <= sccID; i++) {
+	            if (in[i] == 0) q.push(i), dp[i] = w[i];
+	        }
+	
+	        int res = 0;
+	        while (q.size()) {
+	            int u = q.front();
+	            q.pop();
+	            for (auto v : W[u]) {
+	                dp[v] = max(dp[v], dp[u] + w[v]);
+	                res = max(res, dp[v]);
+	                in[v]--;
+	                if (in[v] == 0) {
+	                    q.push(v);
+	                }
+	            }
+	        }
+	        cout << res << "\n";
+	    }
+	
+	    void solve () {
+	        for (int i = 1; i <= n; i++) {
+	            if (t[i] == 0) {
+	                dfs(i);
+	            }
+	        }
+	        for (int i = 1; i <= sccID; i++) {
+	            for (auto u : sc[i]) {
+	                for (auto v : G[u]) {
+	                    if (scc[u] != scc[v]) {
+	                        W[scc[u]].pb(scc[v]);
+	                        in[scc[v]]++;
+	                    }
+	                }
+	            }
+	        }
+	        topo();
+	    }
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        //cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    }
+	    ```
 
 ## 2-SAT
 
@@ -570,15 +602,15 @@ u是割點的條件是：
     signed main() {
         TwoSAT SAT;
         SAT.scc(2 * n);
-
+    
         // todo
         for (int i = 0; i < n; i++) {
             if (SAT.SC[2 * i] == SAT.SC[2 * i + 1])
                 flg = 1;
-
+    
             // 2*i (+), 2*i + 1 (-)
         }
-
+    
         if (flg) cout << "BAD\n";
         else cout << "GOOD\n";
     }
@@ -599,13 +631,13 @@ u是割點的條件是：
     #include <stack>
     #include <queue>
     using namespace std;
-
+    
     int n, m, a, b, dfn[200005], stk[200005], low[200005], pa[200005], opp[200005], in[200005], pick[200005], scc, idx;
     char c[2];
     vector <int> v[200005];
     vector <int> v2[200005];
     stack <int> st;
-
+    
     void tarjan(int x){
         idx++;
         dfn[x] = low[x] = idx;
@@ -685,7 +717,7 @@ u是割點的條件是：
             else cout << "- ";
         }
     }
-
+    
     int main() {
         cin >> n >> m; // n 個式子, m 個變數
         for (int i = 0; i < n; i++){
