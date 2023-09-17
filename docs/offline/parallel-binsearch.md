@@ -1688,15 +1688,6 @@ $$
 		
 		對每個 $j$ 計算有幾個 $i$ 滿足 $\begin{cases}\texttt{in}_i \ge \texttt{in}_j \\ \texttt{out}_i \le \texttt{out}_j \end{cases}$，cost 就是這些的 $x$ 相加
 
-### YTP 2022 早上好YTP
-
-???+note "[2022 YTP 初賽 p6 早上好YTP](https://www.tw-ytp.org/wp-content/uploads/2022/12/YTP2022PreliminaryContest_S1.pdf#page=32)"
-    有⼀張 $N$ 個點的圖，⼀開始有 $0$ 條邊
-    
-    現在請你依序加入 $M$ 條邊，每加完⼀條邊請輸出當前圖中的橋的數量
-    
-    $N,M\le 2\times 10^5$
-
 ### CSES New Roads Queries
 
 ???+note "[CSES - New Roads Queries](https://cses.fi/problemset/task/2101)"

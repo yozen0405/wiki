@@ -412,35 +412,336 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
+	    #define int long long
+	
+	    using namespace std;
+	
+	    const int N = 1e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, m;
+	    int mx[N], dp[N];
+	
+	    signed main() {
+	        cin >> n >> m;
+	        for (int i = 1; i <= m; i++) {
+	            int l, r;
+	            cin >> l >> r;
+	            mx[r + 1] = max(mx[r + 1], l);
+	        }
+	        dp[0] = 1;
+	        int now = 0, cnt = 1;
+	        for (int i = 1; i <= n + 1; i++) {
+	            while(now < mx[i]) {
+	                cnt = (cnt - dp[now] + M) % M;
+	                now++;
+	            }
+	            dp[i] = cnt;
+	            cnt = (cnt + dp[i]) % M;
+	        }
+	        cout << dp[n + 1] << '\n';
+	    } 
+	    ```
 
+???+note "[Zerojudge e900. 交換紙牌遊戲](https://zerojudge.tw/ShowProblem?problemid=e900)"
+	共有 $n$ 個 pair，可以交換同個 pair 的兩項，目標使第一項總和與第二項總和的差值最小，問最少交換次數。
+	
+	$n\le 1000,1\le$ pair 中的元素 $\le 13$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
         using namespace std;
 
-        const int N = 1e5 + 5;
-        const int M = 1e9 + 7;
+        int n,a[100000],b[100000],sum,times,mi,dp[1001][13001];
+        const int INF=0x3f3f3f3f;
 
-        int n, m;
-        int mx[N], dp[N];
-
-        signed main() {
-            cin >> n >> m;
-            for (int i = 1; i <= m; i++) {
-                int l, r;
-                cin >> l >> r;
-                mx[r + 1] = max(mx[r + 1], l);
-            }
-            dp[0] = 1;
-            int now = 0, cnt = 1;
-            for (int i = 1; i <= n + 1; i++) {
-                while(now < mx[i]) {
-                    cnt = (cnt - dp[now] + M) % M;
-                    now++;
+        signed main(){
+            while(cin>>n){
+                times=INF;
+                mi=INF;
+                sum=0;
+                memset(dp,INF,sizeof(dp));
+                dp[0][0]=0;
+                //dp(i, j) 表示前 i 項，陣列 A 的總和是 j，最少要換幾次
+                for(int i=1;i<=n;i++){
+                    cin>>a[i]>>b[i];
+                    sum+=a[i]+b[i];
+                    for(int j=1*i;j<=13*i;j++){
+                        if(j-a[i]>=0) dp[i][j]=dp[i-1][j-a[i]];
+                        if(j-b[i]>=0) dp[i][j]=min(dp[i][j],dp[i-1][j-b[i]]+1);
+                    }
                 }
-                dp[i] = cnt;
-                cnt = (cnt + dp[i]) % M;
+                //找AB最小差值
+                for(int j=1*n;j<=13*n;j++){
+                    if(dp[n][j]<INF){
+                        //abs(B的卡牌總和-A的卡牌總和)=abs((全-A)-A)=abs(sum-j-j)
+                        if(abs(sum-j-j)<mi){
+                            mi=abs(sum-j-j);
+                            times=dp[n][j];
+                        }
+                        else if(abs(sum-j-j)==mi){
+                            if(times>dp[n][j]){
+                                times=dp[n][j];
+                            }
+                        }
+                    }
+
+                }   
+                cout<<times<<"\n";
+
             }
-            cout << dp[n + 1] << '\n';
-        } 
+        }
+		```
+	
+???+note "[CF 510 D. Fox And Jumping](https://codeforces.com/problemset/problem/510/D)"
+	給你 $n$ 張卡片，初始坐標為 0，每張卡片都有一個 $l_i,c_i$，代表買了之後可以跳 $-l_i$ 或 $+l_i$。問可以跳到任意格子的最小花費。
+	
+	$n\le 300, 1\le l_i \le 10^9, 1\le c_i \le 10^5$
+	
+	??? note "思路"
+		根據貝祖定理，$ax+by=m$ 有解 iff $m$ 為 $\gcd (a,b)$ 的倍數，反過來看，$a,b$ 的 $\gcd$ 要是 $m$ 的因數才有解
+	
+		同理，設當前選取卡片能跳的距離為 $a_1, \ldots ,a_k$，我們可以列出
+		
+		$$
+		b_1 \times a_1 + b_2 \times a_2 + \ldots + b_k \times a_k = 1
+		$$
+		
+		也就是 $\gcd(a_1, \ldots ,a_k)$ 要等於 $1$。令 $dp[i]$ 為當前能得到的gcd 等於 $i$ 的最小花費，每次用一張卡片的值去更新這些 gcd 即可。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        using namespace std;
+        #define ll long long
+
+        struct node {
+            int l, c;
+            friend bool operator<(node a, node b) {
+                return a.c > b.c;
+            }
+        } a[310];
+        map<int, int> dp;
+
+        int main() {
+            map<int, int>::iterator iter;
+            int n;
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i].l;
+            }
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i].c;
+            }
+            ll ans = 1e18;
+            sort(a + 1, a + 1 + n);
+            int gcd = a[1].l;
+            for (int i = 1; i <= n; i++) {
+                gcd = __gcd(gcd, a[i].l);
+            }
+            if (gcd > 1) {
+                cout << -1 << endl;
+                return 0;
+            }
+            for (int i = 1; i <= n; i++) {
+                dp[a[i].l] = a[i].c;
+            }
+            for (int i = 1; i <= n; i++) {
+                for (iter = dp.begin(); iter != dp.end(); iter++) {
+                    if (dp[__gcd(a[i].l, iter->first)] == 0) {
+                        dp[__gcd(a[i].l, iter->first)] = a[i].c + iter->second;
+                    } else {
+                        dp[__gcd(a[i].l, iter->first)] = min(dp[__gcd(a[i].l, iter->first)], a[i].c + iter->second);
+                    }
+
+                }
+            }
+            cout << dp[1] << endl;
+        }
         ```
 		
+???+note "[CF 1442 D. sum](https://codeforces.com/contest/1442/problem/D)"
+	給定 $n$ 個單調不降的序列，可以從這些序列的最左端依次往右取，問取 $k$ 個數的最大值
 	
+	$n,k\le 3000, 0\le a_{i,j}\le 10^8, \sum |a_i| \le 10^6$
+	
+	??? note "思路"
+		有一個序列的取部分元素，其他序列要馬全取，要馬全不取。因為若部分取兩個序列，一定可以專注取其中一個一定會更好。所以問題就轉換成 01 背包了，我們可以去枚舉取一部分的，剩下做 01 背包，但這樣會 TLE。考慮分治，當遞迴到每個 leaf 就是不包含該項的 01 背包，複雜度 $O(nk \log n)$。 
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define mk make_pair
+        #define pb push_back
+        using namespace std;
+
+        const int maxn = 3e3 + 5;
+        const long long mod = 1e9 + 7;
+        int n, K, ans;
+        int a[maxn][maxn];
+        int t[maxn];
+        int tot[maxn];
+        int dp[maxn];
+
+        void solve (int l, int r) {
+            if (l > r) return;
+            if (l == r) {
+                int cur = 0;
+                for (int i = 0; i <= t[l]; i++) {
+                    cur += a[l][i];
+                    ans = max(dp[K - i] + cur, ans);
+                }
+                return;
+            }
+            int mid = (l + r) >> 1;
+            vector<int> tmp(K + 1);
+            for (int i = 1; i <= K; i++) {
+                tmp[i] = dp[i];
+            } 
+            for (int i = mid + 1; i <= r; i++) {
+                for (int j = K; j >= t[i]; j--) {
+                    dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
+                }
+            }
+            solve (l, mid);
+            for (int i = 1; i <= K; i++) dp[i] = tmp[i];
+            for (int i = l; i <= mid; i++) {
+                for (int j = K; j >= t[i]; j--) {
+                    dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
+                }
+            }
+            solve (mid + 1, r);
+        }
+
+        signed main () {
+           ios::sync_with_stdio(0);
+            cin.tie(0);
+            cin >> n >> K;
+            for (int i = 1; i <= n; i++) {
+                cin >> t[i];
+                int x;
+                for (int j = 1; j <= t[i]; j++) {
+                    if(j <= K) cin >> a[i][j];
+                    else cin >> x;
+                    if (j <= K) tot[i] += a[i][j];
+                }
+                if (t[i] > K) t[i] = K;
+            }
+            solve (1, n);
+            cout << ans;
+        }
+        ```
+	
+???+note "[CF 1483 C. Skyline Photo](https://codeforces.com/problemset/problem/1483/C)"
+	給 $n$ 個建築，每個建築有高度 $a_i$ 和美麗值 $b_i$。劃分成若干個連續段，使得所有區間的貢獻之和最大。其中每個區間的貢獻值為，區間中高度最低的建築物的美麗值。輸出最大貢獻和。
+	
+	$n\le 3\times 10^5, 0\le |b_i| \le 10^9$
+	
+	??? note "思路"
+		$$dp(i)=\max \{dp_j + \text{cost}(j + 1, i) \}$$
+		
+		我們想辦法利用線段樹來快速查詢最大值，但瓶頸在於後面的 cost 沒辦法很快地計算。不過可以觀察到實際上在 cost 貢獻的那一項可以用一個單調隊列（遞增）維護，複雜度 $O(n \log n)$
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        #define mk make_pair
+        #define pii pair<int, int>
+        using namespace std;
+
+        const int INF = 9e18;
+        const int maxn = 3e5 + 5;
+        int a[maxn], w[maxn], stk[maxn], dp[maxn];
+        int n;
+
+        struct seg {
+            int mx, tag;
+            seg *lch, *rch;
+            seg () {
+                tag = 0;
+                mx = 0;
+                lch = rch = nullptr;
+            }
+            void push () {
+                if (tag) {
+                    lch -> mx += tag;
+                    rch -> mx += tag;
+                    lch -> tag = tag;
+                    rch -> tag = tag;
+                    tag = 0;
+                }
+            }
+            void modify (int l, int r, int mL, int mR, int val) {
+                if (mL <= l && r <= mR) {
+                    mx += val, tag += val;
+                    return;
+                }
+                int mid = (l + r) >> 1;
+                if (!lch) lch = new seg();
+                if (!rch) rch = new seg();
+                push();
+                if (mL <= mid) {
+                    lch -> modify(l, mid, mL, mR, val);
+                } 
+                if (mid + 1 <= mR) {
+                    rch -> modify(mid + 1, r, mL, mR, val);
+                } 
+                mx = max(lch -> mx, rch -> mx);
+            }
+            int query (int l, int r, int qL, int qR) {
+                if (qL <= l && r <= qR) {
+                    return mx;
+                }
+                int mid = (l + r) >> 1;
+                if (!lch) lch = new seg();
+                if (!rch) rch = new seg();
+                push();
+                int ret = -INF;
+                if (qL <= mid) {
+                    ret = max(ret, lch -> query(l, mid, qL, qR));
+                } 
+                if (mid + 1 <= qR) {
+                    ret = max(ret, rch -> query(mid + 1, r, qL, qR));
+                } 
+                return ret;
+            }
+        };
+
+        void init () {
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+            }
+            for (int i = 1; i <= n; i++) {
+                cin >> w[i];
+            }
+        }
+
+        void solve () {
+            seg *rt = new seg();
+            a[0] = -INF;
+            int top = 1;
+            for (int i = 1; i <= n; i++) {
+                while (top && a[stk[top - 1]] >= a[i]) {
+                    rt -> modify(0, n, stk[top - 2], stk[top - 1] - 1, -w[stk[top - 1]]);
+                    top--;
+                }
+                rt -> modify(0, n, stk[top - 1], i - 1, w[i]);
+                dp[i] = rt -> query(0, n, 0, i - 1);
+                rt -> modify(0, n, i, i, dp[i]);
+                stk[top++] = i;
+            }
+            cout << dp[n] << "\n";
+        }
+
+        signed main () {
+            init();
+            solve();
+        }
+        ```

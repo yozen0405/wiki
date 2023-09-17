@@ -29,14 +29,14 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
 ???+note "code"
 	```cpp linenums="1"
     int dfs(int u, int par) {
-        low[u] = t[u] = stamp++;
+        low[u] = dfn[u] = stamp++;
         for (auto v : G[u]) {
             if (v == par) continue;
-            if (t[v] == 0) {
+            if (dfn[v] == 0) {
                 dfs(v, u);
                 low[u] = min(low[u], low[v]);
             } else {
-                low[u] = min(low[u], t[v]);
+                low[u] = min(low[u], dfn[v]);
             }
         }
     }
@@ -48,30 +48,33 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
 
 (u, v) 是 bridge 的條件是 :
 
-- t[v] <= low[v] 
+- dfn[v] <= low[v] 
 	- v的子樹中沒有 back edge 能跨越 (u, v) 這條邊
 
 ???+note "code"
     ```cpp linenums="1"
     int dfs(int u, int par) {
-        low[u] = t[u] = stamp++;
+        low[u] = dfn[u] = stamp++;
         for (auto v : G[u]) {
             if (v == par) continue;
-            if (t[v] == 0) {
+            if (dfn[v] == 0) {
                 dfs(v, u);
                 low[u] = min(low[u], low[v]);
-                if (low[v] >= t[v]) {
+                if (low[v] >= dfn[v]) {
                     // is bridge
                 }
             } else {
-                low[u] = min(low[u], t[v]);
+                low[u] = min(low[u], dfn[v]);
             }
         }
     }
     ```
-
-
-
+    
+???+note "[洛谷 T103481 【模板】割边](https://www.luogu.com.cn/problem/T103481)"
+	給一張 $n$ 個點的無向圖，輸出 bridge 的數量
+	
+	$n\le 5\times 10^4, m\le 3\times 10^5$
+	
 ## Tarjan 邊 BCC
 
 如果把所有的 bridge 移除，那每一個連通塊在原圖上就稱為「邊雙連通分量」（bridge-connected component，簡稱 BCC）。
@@ -86,15 +89,15 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
 	```cpp linenums="1"
     //BCC 注意: 以下 code "沒有" 考慮重邊的情況
     int dfs(int u, int par) {
-        low[u] = t[u] = stamp++;
+        low[u] = dfn[u] = stamp++;
         stk.push(u);
         for (auto v : G[u]) {
             if (v == par) continue;
-            if (t[v] == 0) {
+            if (dfn[v] == 0) {
                 dfs(v, u);
                 low[u] = min(low[u], low[v]);
             } else {
-                low[u] = min(low[u], t[v]);
+                low[u] = min(low[u], dfn[v]);
             }
         }
         if (low[u] == t[u]) {
@@ -109,6 +112,16 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
     }
     ```
 
+???+note "[TIOJ 1879 . 我傳了一份code結果妳就來了](https://tioj.ck.tp.edu.tw/problems/1879)"
+	給一張 $n$ 點 $m$ 邊無向圖，有重邊，輸出所有雙連通分量
+	
+	$n\le 10^4, m\le 4\times 10^4$
+	
+???+note "[洛谷 【模板】边双连通分量](https://www.luogu.com.cn/problem/P8436)"
+	給一張 $n$ 點 $m$ 邊無向圖，輸出邊雙連通分量的個數，並且輸出每個點邊連通分量。
+	
+	$1\le n,m\le 10^5$
+	
 ### 縮點
 
 若將每個 BCC 視為一個點，新的圖將形成一棵樹
@@ -123,19 +136,19 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
 
 u是割點的條件是：
 
-- t[u] <= low[v] 
-	-  v 的子樹中沒有 back edge 能跨越u點
+- dfn[u] <= low[v] 
+	-  v 的子樹中沒有 back edge 能跨越 u 點
 
 - 有多個兒子的 root
 
 ??? note "code"
 	```cpp linenums="1"
     int dfs(int u, int par) {
-        low[u] = t[u] = stamp++;
+        low[u] = dfn[u] = stamp++;
         int cnt = 0;
         for (auto v : G[u]) {
             if (v == par) continue;
-            if (t[v] == 0) {
+            if (dfn[v] == 0) {
                 dfs(v, u);
                 low[u] = min(low[u], low[v]);
                 if (low[v] >= t[u]) {
@@ -144,32 +157,12 @@ u是割點的條件是：
                     }
                 }
             } else {
-                low[u] = min(low[u], t[v]);
+                low[u] = min(low[u], dfn[v]);
             }
         }
     }
     ```
 
-???+note "[TOI 2023 pE. 公路 (road)](https://zerojudge.tw/ShowProblem?problemid=k188)"
-	給一張 $n$ 點 $m$ 邊的帶權無向圖，有 $q$ 筆查詢 :
-	
-	- $\text{query}(u,v):$ 問 $u$ 到 $v$ 之間兩條「不相交的路徑」各自權重和的最大值，最小可以是多少，或不存在
-
-	$2\le n\le 1000,n-1\le m\le \frac{n × (n − 1)}{2},1\le w_i\le 10^9,q\le 10^5$
-	
-	??? note "思路"
-		先想無解的 case，iff u 跟 v 不在相同的 BCC 內無解。
-		
-		考慮要最小化答案，我們採用離線作法，將 $m$ 條邊依照邊權小到大加入，若連接的點已在同一 BCC 內則 continue，否則就重跑一次 tarjan，這樣最多跑 $n-1$ 次。對於 query，我們只要二分哪時候 $u,v$ 在同一個 BCC 內即可。
-		
-		---
-		
-		> 另法（類似並查集生成樹） : From [twpca](https://toip2023.twpca.org/editorial/editorial)
-		
-		<figure markdown>
-          ![Image title](./images/80.png){ width="600" }
-        </figure>
-	
 ???+note "[Neoj 737. 平衡的技能樹](https://neoj.sprout.tw/problem/737/)"
 	給一張 $n$ 點 $m$ 邊帶權無向圖，問至少要修改幾條邊的邊權才能使得圖上的最大生成樹與最小生成樹的權值總和一樣
 	
@@ -181,7 +174,171 @@ u是割點的條件是：
 		不是 Bridge，就代表是在一個邊雙連通分量內，邊雙連通分量是由多個環組成，所以我們可以先想環的 case。若環上有兩種不同的權重，那最大一定會選 total - max，最小賄選 total - min，所以可以發現 iff 環上權重都一樣最大與最小 MST 權重才會相等。
 		
 		所以我們對於每個 BCC 用 unorder map 紀錄每種權重出現的次數，我們就挑出現最多次的，將 BCC 內剩下其他的邊都替換成這個權重即可
+
+???+note "[CF 555 E. Case of Computer Network](https://codeforces.com/problemset/problem/555/E)"
+	給一張 $n$ 點 $m$ 邊無向圖，給 $q$ 組限制 $(u,v)$，問能否給每條邊標上方向，使中每一組限制中的 $u$ 都能到達 $v$。
+	 
+	$n,m,q \le 2\times 10^5$
 	
+## 動態維護 BCC
+
+???+note "動態維護 BCC"
+	給一顆 $n$ 個點的樹，有 $q$ 次以下操作 :
+	
+	- $\text{add}(u,v):$ 在 $u,v$ 之間加一條邊
+
+	- $\text{query}(u,v):$ 問 $u,v$ 之間是否有至少兩條邊不相交的路徑
+
+每次我們都是加一條邊進去樹上後，將樹上與其形成環的路徑全部縮成一個 BCC。我們採用暴力跳並查集的方式來進行縮點。對於每個縮點後的 BCC，記錄在 BCC 內深度最淺的點，我們也會記錄每個點在縮點過後的父親。加一條邊 $(u,v)$ 時（令 dfn[v] > dfn[u]），我們從 $v$ 慢慢往上爬，並將路上的點與 $v$ 在並查集內合併。由於爬過的點都是縮點過後的，每條邊爬過後就會消失，所以最多合併 $n-1$ 次，複雜度 $O(n \alpha (n))$
+
+???+note "[POJ - 3694 Network](https://vjudge.net/problem/POJ-3694)"
+	給一張 $n$ 點 $m$ 邊的無向圖，有 $q$ 次以下操作 :
+	
+	- $\text{add}(u,v):$ 在 $u,v$ 之間加一條邊，並輸出 bridge 的個數
+
+	$n\le 10^5, n-1\le m\le 2\times 10^5, q\le 1000$
+
+	??? note "思路"
+		先用 tarjan 將圖上的 bridge 數量算出來，過程中用並查集將非 bridge 邊的兩端 union 起來。之後每次加一條邊時就像上面暴力跳並查集即可。
+		
+???+note "[TOI 2023 pE. 公路 (road)](https://zerojudge.tw/ShowProblem?problemid=k188)"
+	給一張 $n$ 點 $m$ 邊的帶權無向圖，有 $q$ 筆查詢 :
+	
+	- $\text{query}(u,v):$ 問 $u$ 到 $v$ 之間兩條「不相交的路徑」各自權重和的最大值，最小可以是多少，或不存在
+	
+	$2\le n\le 1000,n-1\le m\le \frac{n × (n − 1)}{2},1\le w_i\le 10^9,q\le 10^5$
+	
+	??? note "思路"
+		先想無解的 case，iff u 跟 v 不在相同的 BCC 內無解。
+		
+		考慮要最小化答案，我們採用離線作法，將 $m$ 條邊依照邊權小到大加入，若連接的點已在同一 BCC 內則 continue，否則就重跑一次 tarjan，這樣最多跑 $n-1$ 次。對於 query，我們只要二分哪時候 $u,v$ 在同一個 BCC 內即可。
+		
+		---
+		
+		> 另法: From [twpca](https://toip2023.twpca.org/editorial/editorial)
+		
+		我們發現「讓兩個連通塊合併的邊」會形成一顆最小生成樹，然後就可以用上面動態維護 BCC 的方法來繼續加邊了。考慮維護 query 的答案，建完最小生成樹後，從原本權重由小到大加入還沒加入的邊，$(u,v,w)$，若使不同 BCC 合併，就在新圖上建立一條權重為 $w$ 的邊，這個圖會形成並查集生成樹。最後讀取 query 我們就可以直接看 path 上權重最大是多少即可，這個可以直接暴力在並查集上一格一格跑，因為並查集高度只有 $O(\log n)$
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <iostream>
+        #include <numeric>
+        #include <vector>
+        #include <algorithm>
+        using namespace std;
+
+        const int MAXN = 1005;
+        const int MAXM = 500005;
+
+        struct Edge {
+            int a, b, l;
+            bool operator<(const Edge &e) const {
+                return l < e.l;
+            }
+        } edge[MAXM];
+
+        vector<int> G[MAXN];
+        bool used[MAXM];
+        int djs_father[MAXN], sz[MAXN], light[MAXN], up[MAXN];
+        int father[MAXN], deep[MAXN];
+
+        int djs_find_root(int x) {
+            while (x != djs_father[x]) {
+                x = djs_father[x];
+            }
+            return x;
+        }
+
+        bool djs_union(int a, int b, int l) {
+            a = djs_find_root(a), b = djs_find_root(b);
+            if (a == b) {
+                return false;
+            }
+            if (sz[a] < sz[b]) {
+                swap(a, b);
+            }
+            djs_father[b] = a;
+            up[b] = l;
+            sz[a] += sz[b];
+            if (deep[light[a]] > deep[light[b]])
+                light[a] = light[b];
+            return true;
+        }
+
+        void dfs(int u, int f, int d) {
+            father[u] = f, deep[u] = d;
+            for (int v : G[u]) {
+                if (v != f) {
+                    dfs(v, u, d + 1);
+                }
+            }
+        }
+
+        int main() {
+            ios::sync_with_stdio(0), cin.tie(0);
+            int n, m;
+            cin >> n >> m;
+            for (int i = 1; i <= m; i++) {
+                cin >> edge[i].a >> edge[i].b >> edge[i].l;
+            }
+            sort(edge + 1, edge + m + 1);
+            iota(djs_father + 1, djs_father + n + 1, 1);
+            fill(sz + 1, sz + n + 1, 1);
+            for (int i = 1; i <= m; i++) {
+                used[i] = djs_union(edge[i].a, edge[i].b, edge[i].l);
+                if (used[i]) {
+                    G[edge[i].a].push_back(edge[i].b);
+                    G[edge[i].b].push_back(edge[i].a);
+                }
+            }
+            dfs(1, 1, 0);
+            iota(djs_father + 1, djs_father + n + 1, 1);
+            iota(light + 1, light + n + 1, 1);
+            fill(sz + 1, sz + n + 1, 1);
+            for (int i = 1; i <= m; i++) {
+                if (!used[i]) {
+                    int a = djs_find_root(edge[i].a);
+                    int b = djs_find_root(edge[i].b);
+                    while (a != b) {
+                        if (deep[light[a]] > deep[light[b]]) {
+                            swap(a, b);
+                        }
+                        djs_union(b, father[light[b]], edge[i].l);
+                        a = djs_find_root(a), b = djs_find_root(b);
+                    }
+                }
+            }
+            int q;
+            cin >> q;
+            while (q--) {
+                int u, v, ans = 0;
+                cin >> u >> v;
+                if (djs_find_root(u) != djs_find_root(v)) { 
+                    cout << "-1\n";
+                } else {
+                    while (u != v) {
+                        if (sz[u] < sz[v]) {
+                            swap(u, v);
+                        }
+                        ans = max(ans, up[v]);
+                        v = djs_father[v];
+                    }
+                    cout << ans << "\n";
+                }
+            }
+        }
+        ```
+	    
+???+note "[2022 YTP 初賽 p6 早上好YTP](https://www.tw-ytp.org/wp-content/uploads/2022/12/YTP2022PreliminaryContest_S1.pdf#page=32)"
+    給⼀張 $n$ 點無向圖，⼀開始沒有任何邊。依序加入 $m$ 條邊，每加完⼀條邊請輸出當前圖中的橋的數量
+    
+    $n,m\le 2\times 10^5$
+    
+    ??? note "思路"
+    	開兩個 dsu，一個維護連通性，一個維護同一個 CC 中縮點的動作
+    	
+    	在維護連通性的部分不要進行路徑壓縮
+		
 ## Tarjan 點 BCC
 
 如果一個連通分量沒有割點 (表示也沒有橋)，則該分量為雙連通分量
@@ -310,7 +467,7 @@ u是割點的條件是：
 
 ### 縮點
 
-可以縮成仙人掌圖，詳見此 [Blog](https://www.cnblogs.com/Oier-GGG/p/16049166.html)
+可以縮成園方樹，詳見此 [Blog](https://www.cnblogs.com/Oier-GGG/p/16049166.html)
 
 <figure markdown>
   ![Image title](./images/71.png){ width="400" }
@@ -421,6 +578,11 @@ u是割點的條件是：
 </figure>
 
 實作上在新圖將每個 SCC 視為一個點，跑過原圖的每一條邊，若兩端在不同的 SCC 上，就在新圖建邊。
+
+???+note "[CSES - Planets and Kingdoms](https://cses.fi/problemset/task/1683)"
+	給一張 $n$ 點 $m$ 邊有向圖，輸出所有強連通分量
+	
+	$n\le 10^5, m\le 2\times 10^5$
 
 ???+note "[CSES - Coin Collector](https://cses.fi/problemset/task/1686)"
 	給 $n$ 點 $m$ 邊的有向圖，每個點上有 $w_i$ 個金幣，可以自由決定起點、終點，問最多可以拿到多少金幣
@@ -538,6 +700,11 @@ u是割點的條件是：
 	    }
 	    ```
 
+???+note "[TIOJ  1451 . 八卦傳播系統](https://tioj.ck.tp.edu.tw/problems/1451)"
+	給一張 $n$ 點 $m$ 邊有向圖，求最少需要從幾個點開始 DFS 才能經過所有點至少一次。
+	
+	$n,m\le 10^5$
+	
 ## 2-SAT
 
 ### 判斷是否有解
@@ -742,6 +909,13 @@ u是割點的條件是：
     }
     ```
 
+### 題目
+
+???+note "[CSES - Giant Pizza](https://cses.fi/problemset/task/1684)"
+	共有 $n$ 個 boolean，給 $m$ 組限制，構造出一組 2-SAT 的解
+	
+	$n,m\le 10^5$
+	
 ---
 
 ## 資料
@@ -759,6 +933,8 @@ u是割點的條件是：
 - <https://hackmd.io/@Ccucumber12/HylySg2xF#>
 
 - <https://slides.com/sylveon/graph-7>
+
+- <https://slides.com/fhvirus/advanced_graph_theory>
 
 [^1]: 見此處<a href="/wiki/graph/images/Kosaraju Algorithm.html" target="_blank">此處</a>
 

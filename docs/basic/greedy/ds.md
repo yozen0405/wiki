@@ -497,7 +497,7 @@
 	$n$ 間教室，一開始你在第一間，給你 $T$ 分鐘的打掃時間每間教室第一分鐘可以吸到 $s[i]$ 的灰塵，每分鐘遞減 $d[i]$ 個灰塵，從第 $i$ 間教室移動到第 $i+1$ 間教室花 $t[i]$ 的時間，問這 $T$ 分鐘最多可以掃到多少灰塵
 	
 	$n\le 1000, m\le 1000,0\le t[i], d[i] \le 10^9, 1\le s[i] \le 10^9$
-
+	
 	??? note "思路 1 (from APCSC)"
 		反悔法，時間如果夠就都掃，再靠反悔堆把之前的決策反悔掉
 		??? note "code"
@@ -667,7 +667,56 @@
 	    ```
 
 ???+note "[TOI 2021 二模 pC. 配對問題（Pairing）](https://drive.google.com/file/d/1aKGdK6ZjvXVAiXB5iH2eOiLdtC4w31j5/view)"
-	答案在 : 電腦的下載路徑中
+	給定一個序列 $a_1, a_2, ..., a_n$，一個點只能被匹配最多一次，當兩個點 $i$ 與 $j$ 配對時，就會獲得 $a_i + a_{i+1} + \cdots + a_j$ 的分數。任何配對都不能出現部份相交的情形。匹配結束後，所有沒有被匹配到的點 $i$ ，如果 $a_i > 0$，可以獲得 $a_i$ 分。問分數最大是多少
+
+	$1 \leq n \leq 10^5, -10^9 \leq a_i \leq 10^9$
+	
+	??? note "思路"
+		【**區間 dp : O(n^3)**】
+
+        dp(l, r) : l ~ r 的最多 cost
+
+        - dp(l+1, r) + a[l]
+
+        - dp(l, r-1) + a[r]
+
+        - 切兩半 dp(l, k) + dp(k+1, r)
+
+        - l 和 r 配對 dp(l+1, r-1) + (a[l]+...+a[r])
+
+		---
+
+        【**前綴 dp : O(n^2)**】
+
+        dp(i, k) : 1~i 的 (#左括號 - #右括號) = k
+
+        ans = dp(n, 0)
+
+        轉移
+
+        - i 是 "(" : dp(i-1, k-1) - pre[i-1]
+
+        - i 是 ")" : dp(i-1, k+1) + pre[i]
+
+        - i 是 "X" : dp(i-1, k) + pre[i] - pre[i-1]
+
+		---
+		
+		【**Greedy 觀察性質, 後悔法: O(n log n)**】
+		
+		如果有辦法匹配（與 pq.top 的貢獻是正的），就將目前這項選為右括弧，並 push 到 heap 中。若沒辦法匹配，也 push 到 heap 中。
+		
+		那麼要如何處理「不選」的貢獻呢，我們其實可以將有選的貢獻中加入 -a[i]，這樣就可以用扣得算了
+		
+		這邊提供一組範例
+		
+        ```
+                i         1   2   3  4  5  6  7  8
+                a[i]:     3  -1  -5  3  8  4 -3  4
+                pre[i]:   3   2  -3  0  8 12  9 13
+        ```
+		
+		> 參考自 : [TOI 2021 Solutions - p3 pairing](https://omeletwithoutegg.github.io/2021/09/22/toi-2021-sols/)
 	
 ## 練習
 - [CSES Room Allocation](https://cses.fi/problemset/task/1164)
