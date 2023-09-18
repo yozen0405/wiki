@@ -27,18 +27,18 @@
 	給定一個長度 $n$ 的括號序列 $s$，有 $q$ 個詢問 :
 	
 	- $\text{query}(l, r):$ 輸出 $s_l,\ldots ,s_r$ 的最長合法括號序列長度
-
+	
 	$1\le n\le 10^6, 1\le m\le 10^5$
-
+	
 	??? note "思路"
 		我們考慮用線段樹去維護。考慮記錄每個區間
 		
 		- 未匹配的左括號數量
-
+	
 		- 未匹配的右括號數量
-
+	
 		- 當前區間已經產生的貢獻和
-
+	
 		在合併兩個區間時: 新區間的貢獻 = 左區間原先的貢獻 + 右區間原先的貢獻 + 合併後新產生的貢獻。其中，合併後新產生的貢獻 = 2 * min(左區間未匹配的左括號數, 右區間未匹配的右括號數)。
 		
 		```cpp linenums="1"
@@ -58,16 +58,16 @@
 		```
 		
 		> 參考 : <https://blog.csdn.net/weixin_45799835/article/details/120037468>
-		
+
 ???+note "合法判斷/最大匹配深度 [CF 1263 E. Editor](https://codeforces.com/contest/1263/problem/E)"
 	現在有一個打字機，有以下操作 :
 	
 	- `L` : 將 pointer 往左移 1 格
-
+	
 	- `R` : 將 pointer 往右移 1 格
-
+	
 	- 一個小寫字母或者 `(`, `)` : 將 pointer 上的字元替換為給定字元
-
+	
 	在每次操作後，判斷這一行是否是合法括號序列
 	
 	??? note "思路"
@@ -80,17 +80,17 @@
 		
 		1. 區間和為 0
 		2. 區間最小前綴和也應等於 0
-
+	
 		此時最大匹配深度應是區間最大連續子段和。假設區間可以正確匹配，則前綴和不會出現負數情況，因此最大連續子段和等價於最大前綴和，我們只需要維護最大前綴和即可。
 		
 		因此對於這類問題，我們只需要維護 :
 		
 		- 最大前綴和（最大深度）
-
+	
 		- 最小前綴和（判斷合法）
-
+	
 		- 區間和（判斷合法）
-
+	
 		> 參考 : <https://blog.csdn.net/weixin_45799835/article/details/120182104>
 
 ???+note "[CF 1149 C](https://www.luogu.com.cn/blog/368107/solution-cf1149c)"
@@ -611,8 +611,176 @@
 	???+note "思路"
 		ceil 除法的話是把 floor 的除法改一下變區間最大值是 1 的時候不遞迴做下去
 
+???+note "[2016 全國賽 直升機抓寶 (Helicopter)](https://tioj.ck.tp.edu.tw/problems/1941)"
+	有一個 $n\times n$ 的 grid。你一開始在左下角，要走到右上角去，你只能往上或往右走。每一個 row 都有一個特殊的區間，範圍是 $l_i$ 到 $r_i$，求你最多能經過幾個特殊區間。
+	
+	$n\le 8\times 10^5$
+	
+	??? note "思路"
+		考慮 dp(i, j) = 走到 (i, j) 最多經過幾個，轉移式 dp(i, j) = max(dp(i, j - 1), dp(i - 1, j) + 1 | if (i, j) is in interval)
+		
+		可以觀察到一個 row 的 dp(i, j) 會是單調遞增的，且會被改變的只有 interval 以及 interval 以後的一個前綴
+		
+		<figure markdown>
+	      ![Image title](./images/16.png){ width="400" }
+	    </figure>
+	    
+	    這樣我們就只要維護一個 segment tree 代表當前 row 的 dp 值，看到 interval 的時候就在上面 walk 到最後一個小於等於的。
 
+???+note "[CSES - Increasing Array Queries](https://cses.fi/problemset/task/2416)"
+	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，有 $q$ 筆查詢 :
+	
+	$\text{query}(l,r):$ 每次可以將某一項 +1，問需要做幾次 $a_l, \ldots ,a_r$ 才會非嚴格遞增
+	
+	$n,q\le 2\times 10^5, 1\le a_i\le 10^9$
+	
+	??? note "思路"
+		將詢問按照 $l_i$ 大到小排序，用單調 stack 維護支配的項
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define ALL(x) x.begin(), x.end()
 
+        using namespace std;
+
+        const int INF = 2e18;
+
+        struct Query{
+            int l, r, id;
+
+            bool operator<(const Query &rhs) const {
+                return l > rhs.l;
+            }
+        };
+
+        struct Node{
+            Node* lc = nullptr;
+            Node* rc = nullptr;
+            int l, r;
+            int chg, sum;
+            Node(int l, int r) : l(l), r(r) {
+                chg = 0;
+            }
+
+            void pull() {
+                sum = lc->sum + rc->sum;
+            }
+            void push() {
+                if (chg) {
+                    lc->sum = chg * (lc->r - lc->l + 1);
+                    rc->sum = chg * (lc->r - lc->l + 1);
+                    lc->chg = chg;
+                    rc->chg = chg;
+                    chg = 0;
+                }
+            }
+        };
+
+        Node* build(int l, int r) {
+            Node* root = new Node(l, r);
+            if (l == r) {
+                root->sum = 0;
+                return root;
+            }
+            int mid = (l + r) / 2;
+            root->lc = build(l, mid);
+            root->rc = build(mid + 1, r);
+            root->pull();
+            return root;
+        }
+
+        void update(Node* root, int ml, int mr, int val) {
+            if (mr < root->l || root->r < ml) {
+                return;
+            }
+            if (ml <= root->l && root->r <= mr) {
+                root->sum = val * (root->r - root->l + 1);
+                root->chg = val;
+                return;
+            }
+            root->push();
+            update(root->lc, ml, mr, val);
+            update(root->rc, ml, mr, val);
+            root->pull();
+        }
+
+        int ask(Node* root, int ql, int qr) {
+            if (qr < root->l || root->r < ql) {
+                return 0;
+            }
+            if (ql <= root->l && root->r <= qr) {
+                return root->sum;
+            }
+            root->push();
+            return ask(root->lc, ql, qr) + ask(root->rc, ql, qr);
+        }
+
+        const int N = 2e5 + 5;
+        int n, q;
+        int a[N], pre[N], ans[N];
+
+        signed main() {
+            cin >> n >> q;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+                pre[i] = pre[i - 1] + a[i];
+            }
+            vector<Query> query;
+            for (int i = 1; i <= q; i++) {
+                int l, r;
+                cin >> l >> r;
+                query.push_back({l, r, i});
+            }
+            sort(ALL(query));
+            Node* root = build(1, n);
+            stack<int> stk;
+            int l = n + 1;
+            for (auto &i : query) {
+                while (i.l < l) {
+                    l--;
+                    while (stk.size() && a[stk.top()] <= a[l]) {
+                        int ml = stk.top();
+                        stk.pop();
+                        int mr;
+                        if (stk.size()) {
+                            mr = stk.top() - 1;
+                        } else {
+                            mr = n;
+                        }
+                        update(root, ml, mr, a[l]);
+                    }
+                    update(root, l, l, a[l]);
+                    stk.push(l);
+                }
+                ans[i.id] = ask(root, i.l, i.r) - (pre[i.r] - pre[i.l - 1]);
+            }
+            for (int i = 1; i <= q; i++) {
+                cout << ans[i] << '\n';
+            }
+        } 
+        ```
+	
+## 二維 BIT
+
+???+note "[CSES - Forest Queries II](https://cses.fi/problemset/task/1739)"
+	$n\times n$ 的 grid 上，$q$ 個以下操作 :
+
+    - 改變一格的狀態（0/1）
+
+    - 詢問一個矩形區域的和
+	
+	$n\le 1000, q\le 2\times 10^5$
+	
+	??? note "思路"
+		yuihuang code
+		
+	??? note "code"
+		```cpp linenums="1"
+		
+		```
+	
 ## 參考
 
 - <https://drive.google.com/file/d/1-X36kSojmhmMofC6zMLmLAt88j87ZJsn/view>

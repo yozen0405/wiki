@@ -400,8 +400,7 @@
 	
 		複雜度 : 狀態 O(40 * 40 * (40 * 40))，轉移 O(1)
 
-???+note "[CS Academy - Count Arrays
-](https://csacademy.com/contest/archive/task/count-arrays)"
+???+note "[CS Academy - Count Arrays](https://csacademy.com/contest/archive/task/count-arrays)"
 	有一個 01 序列 $a$，給 $q$ 筆限制，每筆限制 $[l_i,r_i]$ 代表在這個區間內至少要有一個 0，問 $a$ 有幾種
 	
 	$n,q\le 10^5$
@@ -451,50 +450,50 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        int n,a[100000],b[100000],sum,times,mi,dp[1001][13001];
-        const int INF=0x3f3f3f3f;
-
-        signed main(){
-            while(cin>>n){
-                times=INF;
-                mi=INF;
-                sum=0;
-                memset(dp,INF,sizeof(dp));
-                dp[0][0]=0;
-                //dp(i, j) 表示前 i 項，陣列 A 的總和是 j，最少要換幾次
-                for(int i=1;i<=n;i++){
-                    cin>>a[i]>>b[i];
-                    sum+=a[i]+b[i];
-                    for(int j=1*i;j<=13*i;j++){
-                        if(j-a[i]>=0) dp[i][j]=dp[i-1][j-a[i]];
-                        if(j-b[i]>=0) dp[i][j]=min(dp[i][j],dp[i-1][j-b[i]]+1);
-                    }
-                }
-                //找AB最小差值
-                for(int j=1*n;j<=13*n;j++){
-                    if(dp[n][j]<INF){
-                        //abs(B的卡牌總和-A的卡牌總和)=abs((全-A)-A)=abs(sum-j-j)
-                        if(abs(sum-j-j)<mi){
-                            mi=abs(sum-j-j);
-                            times=dp[n][j];
-                        }
-                        else if(abs(sum-j-j)==mi){
-                            if(times>dp[n][j]){
-                                times=dp[n][j];
-                            }
-                        }
-                    }
-
-                }   
-                cout<<times<<"\n";
-
-            }
-        }
-		```
+	    #define int long long
+	    using namespace std;
 	
+	    int n,a[100000],b[100000],sum,times,mi,dp[1001][13001];
+	    const int INF=0x3f3f3f3f;
+	
+	    signed main(){
+	        while(cin>>n){
+	            times=INF;
+	            mi=INF;
+	            sum=0;
+	            memset(dp,INF,sizeof(dp));
+	            dp[0][0]=0;
+	            //dp(i, j) 表示前 i 項，陣列 A 的總和是 j，最少要換幾次
+	            for(int i=1;i<=n;i++){
+	                cin>>a[i]>>b[i];
+	                sum+=a[i]+b[i];
+	                for(int j=1*i;j<=13*i;j++){
+	                    if(j-a[i]>=0) dp[i][j]=dp[i-1][j-a[i]];
+	                    if(j-b[i]>=0) dp[i][j]=min(dp[i][j],dp[i-1][j-b[i]]+1);
+	                }
+	            }
+	            //找AB最小差值
+	            for(int j=1*n;j<=13*n;j++){
+	                if(dp[n][j]<INF){
+	                    //abs(B的卡牌總和-A的卡牌總和)=abs((全-A)-A)=abs(sum-j-j)
+	                    if(abs(sum-j-j)<mi){
+	                        mi=abs(sum-j-j);
+	                        times=dp[n][j];
+	                    }
+	                    else if(abs(sum-j-j)==mi){
+	                        if(times>dp[n][j]){
+	                            times=dp[n][j];
+	                        }
+	                    }
+	                }
+	
+	            }   
+	            cout<<times<<"\n";
+	
+	        }
+	    }
+		```
+
 ???+note "[CF 510 D. Fox And Jumping](https://codeforces.com/problemset/problem/510/D)"
 	給你 $n$ 張卡片，初始坐標為 0，每張卡片都有一個 $l_i,c_i$，代表買了之後可以跳 $-l_i$ 或 $+l_i$。問可以跳到任意格子的最小花費。
 	
@@ -514,54 +513,54 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        using namespace std;
-        #define ll long long
+	    using namespace std;
+	    #define ll long long
+	
+	    struct node {
+	        int l, c;
+	        friend bool operator<(node a, node b) {
+	            return a.c > b.c;
+	        }
+	    } a[310];
+	    map<int, int> dp;
+	
+	    int main() {
+	        map<int, int>::iterator iter;
+	        int n;
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i].l;
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i].c;
+	        }
+	        ll ans = 1e18;
+	        sort(a + 1, a + 1 + n);
+	        int gcd = a[1].l;
+	        for (int i = 1; i <= n; i++) {
+	            gcd = __gcd(gcd, a[i].l);
+	        }
+	        if (gcd > 1) {
+	            cout << -1 << endl;
+	            return 0;
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            dp[a[i].l] = a[i].c;
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            for (iter = dp.begin(); iter != dp.end(); iter++) {
+	                if (dp[__gcd(a[i].l, iter->first)] == 0) {
+	                    dp[__gcd(a[i].l, iter->first)] = a[i].c + iter->second;
+	                } else {
+	                    dp[__gcd(a[i].l, iter->first)] = min(dp[__gcd(a[i].l, iter->first)], a[i].c + iter->second);
+	                }
+	
+	            }
+	        }
+	        cout << dp[1] << endl;
+	    }
+	    ```
 
-        struct node {
-            int l, c;
-            friend bool operator<(node a, node b) {
-                return a.c > b.c;
-            }
-        } a[310];
-        map<int, int> dp;
-
-        int main() {
-            map<int, int>::iterator iter;
-            int n;
-            cin >> n;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i].l;
-            }
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i].c;
-            }
-            ll ans = 1e18;
-            sort(a + 1, a + 1 + n);
-            int gcd = a[1].l;
-            for (int i = 1; i <= n; i++) {
-                gcd = __gcd(gcd, a[i].l);
-            }
-            if (gcd > 1) {
-                cout << -1 << endl;
-                return 0;
-            }
-            for (int i = 1; i <= n; i++) {
-                dp[a[i].l] = a[i].c;
-            }
-            for (int i = 1; i <= n; i++) {
-                for (iter = dp.begin(); iter != dp.end(); iter++) {
-                    if (dp[__gcd(a[i].l, iter->first)] == 0) {
-                        dp[__gcd(a[i].l, iter->first)] = a[i].c + iter->second;
-                    } else {
-                        dp[__gcd(a[i].l, iter->first)] = min(dp[__gcd(a[i].l, iter->first)], a[i].c + iter->second);
-                    }
-
-                }
-            }
-            cout << dp[1] << endl;
-        }
-        ```
-		
 ???+note "[CF 1442 D. sum](https://codeforces.com/contest/1442/problem/D)"
 	給定 $n$ 個單調不降的序列，可以從這些序列的最左端依次往右取，問取 $k$ 個數的最大值
 	
@@ -573,69 +572,69 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define mk make_pair
-        #define pb push_back
-        using namespace std;
-
-        const int maxn = 3e3 + 5;
-        const long long mod = 1e9 + 7;
-        int n, K, ans;
-        int a[maxn][maxn];
-        int t[maxn];
-        int tot[maxn];
-        int dp[maxn];
-
-        void solve (int l, int r) {
-            if (l > r) return;
-            if (l == r) {
-                int cur = 0;
-                for (int i = 0; i <= t[l]; i++) {
-                    cur += a[l][i];
-                    ans = max(dp[K - i] + cur, ans);
-                }
-                return;
-            }
-            int mid = (l + r) >> 1;
-            vector<int> tmp(K + 1);
-            for (int i = 1; i <= K; i++) {
-                tmp[i] = dp[i];
-            } 
-            for (int i = mid + 1; i <= r; i++) {
-                for (int j = K; j >= t[i]; j--) {
-                    dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
-                }
-            }
-            solve (l, mid);
-            for (int i = 1; i <= K; i++) dp[i] = tmp[i];
-            for (int i = l; i <= mid; i++) {
-                for (int j = K; j >= t[i]; j--) {
-                    dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
-                }
-            }
-            solve (mid + 1, r);
-        }
-
-        signed main () {
-           ios::sync_with_stdio(0);
-            cin.tie(0);
-            cin >> n >> K;
-            for (int i = 1; i <= n; i++) {
-                cin >> t[i];
-                int x;
-                for (int j = 1; j <= t[i]; j++) {
-                    if(j <= K) cin >> a[i][j];
-                    else cin >> x;
-                    if (j <= K) tot[i] += a[i][j];
-                }
-                if (t[i] > K) t[i] = K;
-            }
-            solve (1, n);
-            cout << ans;
-        }
-        ```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define mk make_pair
+	    #define pb push_back
+	    using namespace std;
 	
+	    const int maxn = 3e3 + 5;
+	    const long long mod = 1e9 + 7;
+	    int n, K, ans;
+	    int a[maxn][maxn];
+	    int t[maxn];
+	    int tot[maxn];
+	    int dp[maxn];
+	
+	    void solve (int l, int r) {
+	        if (l > r) return;
+	        if (l == r) {
+	            int cur = 0;
+	            for (int i = 0; i <= t[l]; i++) {
+	                cur += a[l][i];
+	                ans = max(dp[K - i] + cur, ans);
+	            }
+	            return;
+	        }
+	        int mid = (l + r) >> 1;
+	        vector<int> tmp(K + 1);
+	        for (int i = 1; i <= K; i++) {
+	            tmp[i] = dp[i];
+	        } 
+	        for (int i = mid + 1; i <= r; i++) {
+	            for (int j = K; j >= t[i]; j--) {
+	                dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
+	            }
+	        }
+	        solve (l, mid);
+	        for (int i = 1; i <= K; i++) dp[i] = tmp[i];
+	        for (int i = l; i <= mid; i++) {
+	            for (int j = K; j >= t[i]; j--) {
+	                dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
+	            }
+	        }
+	        solve (mid + 1, r);
+	    }
+	
+	    signed main () {
+	       ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> n >> K;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> t[i];
+	            int x;
+	            for (int j = 1; j <= t[i]; j++) {
+	                if(j <= K) cin >> a[i][j];
+	                else cin >> x;
+	                if (j <= K) tot[i] += a[i][j];
+	            }
+	            if (t[i] > K) t[i] = K;
+	        }
+	        solve (1, n);
+	        cout << ans;
+	    }
+	    ```
+
 ???+note "[CF 1483 C. Skyline Photo](https://codeforces.com/problemset/problem/1483/C)"
 	給 $n$ 個建築，每個建築有高度 $a_i$ 和美麗值 $b_i$。劃分成若干個連續段，使得所有區間的貢獻之和最大。其中每個區間的貢獻值為，區間中高度最低的建築物的美麗值。輸出最大貢獻和。
 	
@@ -649,99 +648,335 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pb push_back
+	    #define mk make_pair
+	    #define pii pair<int, int>
+	    using namespace std;
+	
+	    const int INF = 9e18;
+	    const int maxn = 3e5 + 5;
+	    int a[maxn], w[maxn], stk[maxn], dp[maxn];
+	    int n;
+	
+	    struct seg {
+	        int mx, tag;
+	        seg *lch, *rch;
+	        seg () {
+	            tag = 0;
+	            mx = 0;
+	            lch = rch = nullptr;
+	        }
+	        void push () {
+	            if (tag) {
+	                lch -> mx += tag;
+	                rch -> mx += tag;
+	                lch -> tag = tag;
+	                rch -> tag = tag;
+	                tag = 0;
+	            }
+	        }
+	        void modify (int l, int r, int mL, int mR, int val) {
+	            if (mL <= l && r <= mR) {
+	                mx += val, tag += val;
+	                return;
+	            }
+	            int mid = (l + r) >> 1;
+	            if (!lch) lch = new seg();
+	            if (!rch) rch = new seg();
+	            push();
+	            if (mL <= mid) {
+	                lch -> modify(l, mid, mL, mR, val);
+	            } 
+	            if (mid + 1 <= mR) {
+	                rch -> modify(mid + 1, r, mL, mR, val);
+	            } 
+	            mx = max(lch -> mx, rch -> mx);
+	        }
+	        int query (int l, int r, int qL, int qR) {
+	            if (qL <= l && r <= qR) {
+	                return mx;
+	            }
+	            int mid = (l + r) >> 1;
+	            if (!lch) lch = new seg();
+	            if (!rch) rch = new seg();
+	            push();
+	            int ret = -INF;
+	            if (qL <= mid) {
+	                ret = max(ret, lch -> query(l, mid, qL, qR));
+	            } 
+	            if (mid + 1 <= qR) {
+	                ret = max(ret, rch -> query(mid + 1, r, qL, qR));
+	            } 
+	            return ret;
+	        }
+	    };
+	
+	    void init () {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            cin >> w[i];
+	        }
+	    }
+	
+	    void solve () {
+	        seg *rt = new seg();
+	        a[0] = -INF;
+	        int top = 1;
+	        for (int i = 1; i <= n; i++) {
+	            while (top && a[stk[top - 1]] >= a[i]) {
+	                rt -> modify(0, n, stk[top - 2], stk[top - 1] - 1, -w[stk[top - 1]]);
+	                top--;
+	            }
+	            rt -> modify(0, n, stk[top - 1], i - 1, w[i]);
+	            dp[i] = rt -> query(0, n, 0, i - 1);
+	            rt -> modify(0, n, i, i, dp[i]);
+	            stk[top++] = i;
+	        }
+	        cout << dp[n] << "\n";
+	    }
+	
+	    signed main () {
+	        init();
+	        solve();
+	    }
+	    ```
+	    
+???+note "[2019 全國賽 pG. 隔離採礦](https://judge.tcirc.tw/ShowProblem?problemid=d088)"	
+	有 $n$ 個礦井，每個礦井有高度 $h_i$ 與價值 $v_i$，挑一些礦井，使得相鄰兩個礦井間都存在一個更高的礦井
+	
+	$n\le 10^6, h_i\le 10^9, v_i\le 10^5$
+	
+	??? note "思路"
+		$$dp[i]=\max \{ dp[j]+v[i] \}$$
+		
+		可以發現能轉移的 $j$ 會長這樣 :
+		
+		<figure markdown>
+          ![Image title](./images/1.png){ width="300" }
+          <figcaption>綠色有辦法轉移，紅色沒辦法</figcaption>
+        </figure>
+        
+        所以我們可以用單調 stack 維護無法轉移的 $j$。但不能直接取 stack.top，因為可能會發生 $h_i=h_j$ 的情況，所以我們必須在 stack 內二分出比 $h_i$ 大且最靠近 $i$ 的 $j$，用 BIT 去 query_max$(1, j)$ 來轉移即可
+        
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        const int N = 1e6 + 5;
+        int n;
+        int h[N], v[N], dp[N];
+
+        struct BIT {
+            #define lowbit(x) (x & (-x))
+            int n;
+            vector<int> bit;
+
+            BIT(int _n) {
+                n = _n;
+                bit = vector<int>(n + 1, 0);
+            }
+            int query(int x) {
+                int ret = 0;
+                while (x > 0) {
+                    ret = max(ret, bit[x]);
+                    x -= lowbit(x);
+                }
+                return ret;
+            }
+            void update(int x, int d) {
+                while (x <= n) {
+                    bit[x] = max(bit[x], d);
+                    x += lowbit(x);
+                }
+            }
+        }; 
+
+        signed main() {
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
+                cin >> h[i];
+            }
+            for (int i = 1; i <= n; i++) {
+                cin >> v[i];
+            }
+            BIT bit(n);
+            vector<int> stk;
+            for (int i = 1; i <= n; i++) {
+                while (stk.size() && h[stk.back()] < h[i]) {
+                    bit.update(stk.back(), dp[stk.back()]);
+                    stk.pop_back();
+                }
+                int l = 0, r = stk.size();
+                while (r - l > 1) {
+                    int mid = (l + r) / 2;
+                    if (h[stk[mid]] <= h[i]) {
+                        r = mid;
+                    } else {
+                        l = mid;
+                    }
+                }
+
+                if (stk.size() && h[stk[l]] > h[i]) {
+                    dp[i] = bit.query(stk[l]) + v[i];
+                } else {
+                    dp[i] = v[i];
+                }
+                stk.push_back(i);
+            }
+            cout << *max_element(dp + 1, dp + n + 1) << '\n';
+        }
+    	```
+    	
+???+note "[洛谷 P4141 消失之物](https://www.luogu.com.cn/problem/P4141)"
+    有 $n$ 個物品，體積分別是 $w_1,w_2,\dots,w_n$。第 $i$ 個物品丟失了。
+
+    「要使用剩下的 $n-1$ 物品裝滿容積為 $x$ 的背包，有幾種方法呢 ?」
+
+    把答案記為$\text{cnt}(i,x)$ ，輸出所有$i \in [1,n]$, $x \in [1,m]$ 的$\text{cnt}(i, x)$。
+    
+???+note "[CF 730 J. Bottles](https://codeforces.com/problemset/problem/730/J)"
+	有 $n$ 個瓶子，各有水量 $a_i$ 和容量 $b_i$。現在要將這寫瓶子裡的水存入最少的瓶子裡。問最少需要的瓶子數，與在保證瓶子數最少的情況下，轉移的水量最少是多少。
+	
+	$n\le 100, 1\le a_i,b_i\le 100$
+	
+	??? note "思路"
+		首先，最少瓶子數可以透過貪心的枚舉前幾大的 $b_i$，看枚舉到哪時可以裝得下 $\sum a_i$。
+		
+		在來，我們來整理一下「最少轉移的水量」所需符合的條件 :
+		
+		- 需要 ans1 個來儲存（第一個答案）
+
+		- 容量和要足夠讓剩下的水量倒進去
+
+		- 轉移的水量越少越好 ⇒ 已固定的水量要越大越好
+
+		考慮 dp(i, j, k) = 考慮 1...i，我們已經選了 j 個來儲存，容量能湊到 k 的，水量最多可以是多少
+        
+        最後的答案就是 dp(n, ans1, $\sum a_i \ldots \sum b_i$) 取 max
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
         #define int long long
         #define pb push_back
         #define mk make_pair
+        #define a first
+        #define b second
         #define pii pair<int, int>
         using namespace std;
 
         const int INF = 9e18;
-        const int maxn = 3e5 + 5;
-        int a[maxn], w[maxn], stk[maxn], dp[maxn];
-        int n;
+        const int maxn = 105;
+        int n, m;
+        int sumA, sumB, dp[maxn][maxn * maxn];
+        vector<pii> v;
 
-        struct seg {
-            int mx, tag;
-            seg *lch, *rch;
-            seg () {
-                tag = 0;
-                mx = 0;
-                lch = rch = nullptr;
-            }
-            void push () {
-                if (tag) {
-                    lch -> mx += tag;
-                    rch -> mx += tag;
-                    lch -> tag = tag;
-                    rch -> tag = tag;
-                    tag = 0;
-                }
-            }
-            void modify (int l, int r, int mL, int mR, int val) {
-                if (mL <= l && r <= mR) {
-                    mx += val, tag += val;
-                    return;
-                }
-                int mid = (l + r) >> 1;
-                if (!lch) lch = new seg();
-                if (!rch) rch = new seg();
-                push();
-                if (mL <= mid) {
-                    lch -> modify(l, mid, mL, mR, val);
-                } 
-                if (mid + 1 <= mR) {
-                    rch -> modify(mid + 1, r, mL, mR, val);
-                } 
-                mx = max(lch -> mx, rch -> mx);
-            }
-            int query (int l, int r, int qL, int qR) {
-                if (qL <= l && r <= qR) {
-                    return mx;
-                }
-                int mid = (l + r) >> 1;
-                if (!lch) lch = new seg();
-                if (!rch) rch = new seg();
-                push();
-                int ret = -INF;
-                if (qL <= mid) {
-                    ret = max(ret, lch -> query(l, mid, qL, qR));
-                } 
-                if (mid + 1 <= qR) {
-                    ret = max(ret, rch -> query(mid + 1, r, qL, qR));
-                } 
-                return ret;
-            }
-        };
+        void solve () {
+             cin >> n;
+             v.resize(n + 1);
+             for (int i = 1; i <= n; i++) {
+                  cin >> v[i].a;
+                  sumA += v[i].a;
+             }
+             for (int i = 1; i <= n; i++) {
+                  cin >> v[i].b;
+                  sumB += v[i].b;
+             }
 
-        void init () {
-            cin >> n;
+             sort (v.begin() + 1, v.end(), [](pii x, pii y) { return x.b > y.b; });
+             int N;
+             for (int i = 1, s = 0; i <= n; i++) {
+                  s += v[i].b;
+                  if (s >= sumA) {
+                       N = i;
+                       break;
+                  }
+             }
+
+             // dp[i][j] = 容量為 j 的最大水量
+             memset (dp, -1, sizeof dp);
+             dp[0][0] = 0;
+             for (int i = 1; i <= n; i++) {
+                  for (int j = sumB; j >= v[i].b; j--) {
+                       for (int k = i; k >= 1; k--) {
+                            if (dp[k - 1][j - v[i].b] != -1)
+                                 dp[k][j] = max(dp[k - 1][j - v[i].b] + v[i].a, dp[k][j]);
+                       }
+                  }
+             }
+
+             int ans = 0;
+             for (int j = sumA; j <= sumB; j++) {
+                  ans = max(ans, dp[N][j]);
+             }
+             cout << N << " " << sumA - ans << "\n";
+        }
+
+        signed main () {
+            solve();
+        }
+        ```
+        
+???+note "[CF 366 C. Dima and Salad](https://codeforces.com/problemset/problem/366/C)"
+	有 $n$ 個物品，每個物品有權值 $a_i$ 與 $b_i$，選一些物品，使得
+	
+	$$
+	\frac{\sum \limits_{j=1}^m a_j}{\sum \limits_{j=1}^m b_j} =k
+	$$
+	
+	滿足上面條件的這一些物品 $a_i$ 和最大可以是多少
+	
+	$n\le 100, 1\le k\le 10, 1\le a_i, b_i\le 100$
+	
+	??? note "思路"
+		類似 01 分數規劃的形式，問題就變成 :
+		
+		有 $n$ 個物品重量 $a_i - k\times b_i$ 與價值 $a_i$，求重量為 $0$ 最大的 $a_i$ 總和
+		
+		實作上不能狀態壓縮，因為 $a_i - k\times b_i$ 有可能是正的也有可能是負的，可以用滾動陣列代替。本來重量和的 range 會在 [-1e5, 1e5]，但陣列 index 不能用負的，所以要改成 [0, 2e5]，最後的答案就是 dp(n, 1e5)
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+
+        using namespace std;
+
+        const int N = 105;
+        const int M = 1e5;
+        int n, k;
+        int a[N], b[N], dp[2][200005];
+
+        signed main() {
+            cin >> n >> k;
             for (int i = 1; i <= n; i++) {
                 cin >> a[i];
             }
             for (int i = 1; i <= n; i++) {
-                cin >> w[i];
+                cin >> b[i];
             }
-        }
-
-        void solve () {
-            seg *rt = new seg();
-            a[0] = -INF;
-            int top = 1;
+            memset(dp, -0x3f, sizeof(dp));
+            dp[0][M] = 0;
             for (int i = 1; i <= n; i++) {
-                while (top && a[stk[top - 1]] >= a[i]) {
-                    rt -> modify(0, n, stk[top - 2], stk[top - 1] - 1, -w[stk[top - 1]]);
-                    top--;
+                int w = a[i] - k * b[i];
+                for (int j = 2e5; j >= 0; j--) {
+                    if (j - w >= 0 && j - w <= 2e5) {
+                        dp[i % 2][j] = max(dp[(i - 1) % 2][j], dp[(i - 1) % 2][j - w] + a[i]);
+                    }
                 }
-                rt -> modify(0, n, stk[top - 1], i - 1, w[i]);
-                dp[i] = rt -> query(0, n, 0, i - 1);
-                rt -> modify(0, n, i, i, dp[i]);
-                stk[top++] = i;
             }
-            cout << dp[n] << "\n";
-        }
-
-        signed main () {
-            init();
-            solve();
-        }
+            if (dp[n % 2][M] == 0) {
+                cout << "-1\n";
+            } else {
+                cout << dp[n % 2][M] << '\n';
+            }
+        } 
         ```
+	
+	

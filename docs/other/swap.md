@@ -56,10 +56,24 @@
 	$n\le 10^5,n$ 為偶數 $, 0\le a_i \le 10^9$
 	
 	??? note "思路"
+		考慮 n = 4 只會有這幾種 case :
+		
+		- aabb
+		
+		- abab
+
+		- abba
+
+		那麼當 n 可以任意的時候，我們就只要枚舉 i, j，看他們的位置排列是哪種然後加入貢獻即可，因為例如 abcbca，後面的 a **一定**要經過兩個 b 才能到達前面的 a，abba, acca, bcbc : 2 + 2 + 1 = 5，有點類似[比較排序](https://tmt514.github.io/algorithm-analysis/sorting/minimum-comparison-sort.html)。
+		
+		可以用 BIT 之類的來優化這個過程，變 O(n log n)
+		
+		---
+
 		考慮要使第一個數字與跟他相同的數字要相鄰，將比較後面的那個一路 swap 到第二個位置一定不會比較差，因為若他們兩個都 swap 到中間去，那等等其他人經過他們時還會花更多 cost
 		
 		所以我們將第一個數字做完後，就可以刪掉他們變子問題。可使用 BIT 計算 cost
-	
+
 ## 附中模競III pG
 
 - https://codeforces.com/gym/375522
