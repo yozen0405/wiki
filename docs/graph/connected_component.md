@@ -74,7 +74,7 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
 	給一張 $n$ 個點的無向圖，輸出 bridge 的數量
 	
 	$n\le 5\times 10^4, m\le 3\times 10^5$
-	
+
 ## Tarjan 邊 BCC
 
 如果把所有的 bridge 移除，那每一個連通塊在原圖上就稱為「邊雙連通分量」（bridge-connected component，簡稱 BCC）。
@@ -100,7 +100,7 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
                 low[u] = min(low[u], dfn[v]);
             }
         }
-        if (low[u] == t[u]) {
+        if (low[u] == dfn[u]) {
             int tmp;
             bccID++;
             do {
@@ -116,12 +116,12 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
 	給一張 $n$ 點 $m$ 邊無向圖，有重邊，輸出所有雙連通分量
 	
 	$n\le 10^4, m\le 4\times 10^4$
-	
+
 ???+note "[洛谷 【模板】边双连通分量](https://www.luogu.com.cn/problem/P8436)"
 	給一張 $n$ 點 $m$ 邊無向圖，輸出邊雙連通分量的個數，並且輸出每個點邊連通分量。
 	
 	$1\le n,m\le 10^5$
-	
+
 ### 縮點
 
 若將每個 BCC 視為一個點，新的圖將形成一棵樹
@@ -151,7 +151,7 @@ u是割點的條件是：
             if (dfn[v] == 0) {
                 dfs(v, u);
                 low[u] = min(low[u], low[v]);
-                if (low[v] >= t[u]) {
+                if (low[v] >= dfn[u]) {
                     if (par != 0 || cnt >= 2) {
                         // is AP
                     }
@@ -180,13 +180,18 @@ u是割點的條件是：
 	 
 	$n,m,q \le 2\times 10^5$
 	
+	??? note "思路"
+		首先考慮在同一個邊雙連通分量中，必然可以建構出一個方案使得其中所有點兩兩之間可以互相到達。 而剩餘的割邊會構造出一個森林結構。 問題可簡化成考慮在一棵樹中，怎麼給樹邊標方向使得各項不衝突，不同樹中的兩個點顯然是不可達的。 那麼在一顆樹中，兩點之間的路徑一定有一部分是確定的，即 u → lca(u,v) → v。 那麼題目就變成了，如果維護每條邊的方向。 可以考慮維護每條親子關係的樹鏈的差分關係，具體來說，用 dp[i][0] 表示 i 號邊（i 節點表示的邊是連向它父親的那一邊）向下的差分關係 dp[i][1] 表示 i 節點向上的差關係，對於每一個條件(u,v)，將 dp[lca(u,v)][0] + 1，dp[u][0] - 1，dp[lca(u,v)][1] +1，dp[v][1] - 1，然後把親子關係的值累加上去，就可以得到每個點的 dp[i][0], dp[i][1]。 dp[i][0] 如果不為 0 表示這條邊需要有向下的方向，dp[i][1] 不為 0 表示它需要有向上的方向，兩者不能同時存在。 
+		
+		> 參考自 : <https://www.cnblogs.com/badcw/p/13142026.html>
+
 ## 動態維護 BCC
 
 ???+note "動態維護 BCC"
 	給一顆 $n$ 個點的樹，有 $q$ 次以下操作 :
 	
 	- $\text{add}(u,v):$ 在 $u,v$ 之間加一條邊
-
+	
 	- $\text{query}(u,v):$ 問 $u,v$ 之間是否有至少兩條邊不相交的路徑
 
 每次我們都是加一條邊進去樹上後，將樹上與其形成環的路徑全部縮成一個 BCC。我們採用暴力跳並查集的方式來進行縮點。對於每個縮點後的 BCC，記錄在 BCC 內深度最淺的點，我們也會記錄每個點在縮點過後的父親。加一條邊 $(u,v)$ 時（令 dfn[v] > dfn[u]），我們從 $v$ 慢慢往上爬，並將路上的點與 $v$ 在並查集內合併。由於爬過的點都是縮點過後的，每條邊爬過後就會消失，所以最多合併 $n-1$ 次，複雜度 $O(n \alpha (n))$
@@ -195,12 +200,129 @@ u是割點的條件是：
 	給一張 $n$ 點 $m$ 邊的無向圖，有 $q$ 次以下操作 :
 	
 	- $\text{add}(u,v):$ 在 $u,v$ 之間加一條邊，並輸出 bridge 的個數
-
+	
 	$n\le 10^5, n-1\le m\le 2\times 10^5, q\le 1000$
-
+	
 	??? note "思路"
 		先用 tarjan 將圖上的 bridge 數量算出來，過程中用並查集將非 bridge 邊的兩端 union 起來。之後每次加一條邊時就像上面暴力跳並查集即可。
-		
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <iostream>
+        #include <cstdio>
+        #include <cstring>
+        #include <cmath>
+        #include <queue>
+        #include <algorithm>
+        #include <vector>
+        
+        using namespace std;
+
+        const int maxn = 1e5 + 5;
+        int dfn[maxn], dep[maxn], low[maxn];
+        int f[maxn], pa[maxn], sz[maxn], light[maxn];
+        int n, m, ret, cnt;
+        int stamp;
+        vector<int> G[maxn];
+
+        int find(int x) {
+            if (f[x] == x) {
+                return x;
+            } else {
+                return f[x] = find(f[x]);
+            }
+        }
+
+        bool merge(int u, int v) {
+            u = find(u), v = find(v);
+            if (u == v) return 0;
+            if (sz[v] > sz[u]) swap(u, v);
+            sz[u] += sz[v];
+            if (dep[light[v]] < dep[light[u]]) {
+                light[u] = light[v];
+            }
+            f[v] = u;
+            return 1;
+        }
+
+        void dfs(int u, int fa) {
+            pa[u] = fa;
+            low[u] = dfn[u] = ++stamp;
+            for (int i = 0; i < G[u].size(); i++) {
+                int v = G[u][i];
+                if (v == fa) continue;
+                if (!dfn[v]) {
+                    dep[v] = dep[u] + 1;
+                    dfs(v, u);
+                    low[u] = min(low[u], low[v]);
+                    if (low[v] > dfn[u]) {
+                        ret++;
+                    } else {
+                        merge(u, v); 
+                    }
+                } else if (dfn[v] < dfn[u]) {
+                    low[u] = min(low[u], dfn[v]);
+                }
+            }
+        }
+
+        int lca(int u, int v) {
+            u = find(u);
+            v = find(v);
+            while (u != v) {
+                if (dep[light[u]] > dep[light[v]]) {
+                    swap(u, v);
+                }
+                if (merge(v, pa[light[v]])) ret--;
+                u = find(u);
+                v = find(v);
+            }
+            return ret;
+        }
+
+        void init() {
+            memset(dfn, 0, sizeof(dfn));
+            memset(pa, 0, sizeof(pa));
+            memset(dep, 0, sizeof(dep));
+            memset(low, 0, sizeof(low));
+            for (int i = 1; i <= n; i++) {
+                f[i] = i;
+                sz[i] = 1;
+                light[i] = i;
+                G[i].clear();
+            }
+            stamp = 0;
+            ret = 0;
+        }
+
+        int main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            int kase = 0;
+            while (cin >> n >> m) {
+                if (n == 0 && m == 0) break;
+                init();
+                for (int i = 0; i < m; i++) {
+                    int u, v;
+                    cin >> u >> v; 
+                    G[u].push_back(v);
+                    G[v].push_back(u);
+                }
+                dfs(1, 0);
+                int q;
+                cin >> q;
+                cout << "Case " << ++kase << ":\n";
+                for (int i = 0; i < q; i++) {
+                    int u, v;
+                    cin >> u >> v;
+                    cout << lca(u, v) << '\n';
+                }
+                cout << '\n';
+            }
+            return 0;
+        }
+        ```
+	
 ???+note "[TOI 2023 pE. 公路 (road)](https://zerojudge.tw/ShowProblem?problemid=k188)"
 	給一張 $n$ 點 $m$ 邊的帶權無向圖，有 $q$ 筆查詢 :
 	
@@ -222,113 +344,113 @@ u是割點的條件是：
 	??? note "code"
 		```cpp linenums="1"
 		#include <iostream>
-        #include <numeric>
-        #include <vector>
-        #include <algorithm>
-        using namespace std;
+	    #include <numeric>
+	    #include <vector>
+	    #include <algorithm>
+	    using namespace std;
+	
+	    const int MAXN = 1005;
+	    const int MAXM = 500005;
+	
+	    struct Edge {
+	        int a, b, l;
+	        bool operator<(const Edge &e) const {
+	            return l < e.l;
+	        }
+	    } edge[MAXM];
+	
+	    vector<int> G[MAXN];
+	    bool used[MAXM];
+	    int djs_father[MAXN], sz[MAXN], light[MAXN], up[MAXN];
+	    int father[MAXN], deep[MAXN];
+	
+	    int djs_find_root(int x) {
+	        while (x != djs_father[x]) {
+	            x = djs_father[x];
+	        }
+	        return x;
+	    }
+	
+	    bool djs_union(int a, int b, int l) {
+	        a = djs_find_root(a), b = djs_find_root(b);
+	        if (a == b) {
+	            return false;
+	        }
+	        if (sz[a] < sz[b]) {
+	            swap(a, b);
+	        }
+	        djs_father[b] = a;
+	        up[b] = l;
+	        sz[a] += sz[b];
+	        if (deep[light[a]] > deep[light[b]])
+	            light[a] = light[b];
+	        return true;
+	    }
+	
+	    void dfs(int u, int f, int d) {
+	        father[u] = f, deep[u] = d;
+	        for (int v : G[u]) {
+	            if (v != f) {
+	                dfs(v, u, d + 1);
+	            }
+	        }
+	    }
+	
+	    int main() {
+	        ios::sync_with_stdio(0), cin.tie(0);
+	        int n, m;
+	        cin >> n >> m;
+	        for (int i = 1; i <= m; i++) {
+	            cin >> edge[i].a >> edge[i].b >> edge[i].l;
+	        }
+	        sort(edge + 1, edge + m + 1);
+	        iota(djs_father + 1, djs_father + n + 1, 1);
+	        fill(sz + 1, sz + n + 1, 1);
+	        for (int i = 1; i <= m; i++) {
+	            used[i] = djs_union(edge[i].a, edge[i].b, edge[i].l);
+	            if (used[i]) {
+	                G[edge[i].a].push_back(edge[i].b);
+	                G[edge[i].b].push_back(edge[i].a);
+	            }
+	        }
+	        dfs(1, 1, 0);
+	        iota(djs_father + 1, djs_father + n + 1, 1);
+	        iota(light + 1, light + n + 1, 1);
+	        fill(sz + 1, sz + n + 1, 1);
+	        for (int i = 1; i <= m; i++) {
+	            if (!used[i]) {
+	                int a = djs_find_root(edge[i].a);
+	                int b = djs_find_root(edge[i].b);
+	                while (a != b) {
+	                    if (deep[light[a]] > deep[light[b]]) {
+	                        swap(a, b);
+	                    }
+	                    djs_union(b, father[light[b]], edge[i].l);
+	                    a = djs_find_root(a), b = djs_find_root(b);
+	                }
+	            }
+	        }
+	        int q;
+	        cin >> q;
+	        while (q--) {
+	            int u, v, ans = 0;
+	            cin >> u >> v;
+	            if (djs_find_root(u) != djs_find_root(v)) { 
+	                cout << "-1\n";
+	            } else {
+	                while (u != v) {
+	                    if (sz[u] < sz[v]) {
+	                        swap(u, v);
+	                    }
+	                    ans = max(ans, up[v]);
+	                    v = djs_father[v];
+	                }
+	                cout << ans << "\n";
+	            }
+	        }
+	    }
+	    ```
 
-        const int MAXN = 1005;
-        const int MAXM = 500005;
-
-        struct Edge {
-            int a, b, l;
-            bool operator<(const Edge &e) const {
-                return l < e.l;
-            }
-        } edge[MAXM];
-
-        vector<int> G[MAXN];
-        bool used[MAXM];
-        int djs_father[MAXN], sz[MAXN], light[MAXN], up[MAXN];
-        int father[MAXN], deep[MAXN];
-
-        int djs_find_root(int x) {
-            while (x != djs_father[x]) {
-                x = djs_father[x];
-            }
-            return x;
-        }
-
-        bool djs_union(int a, int b, int l) {
-            a = djs_find_root(a), b = djs_find_root(b);
-            if (a == b) {
-                return false;
-            }
-            if (sz[a] < sz[b]) {
-                swap(a, b);
-            }
-            djs_father[b] = a;
-            up[b] = l;
-            sz[a] += sz[b];
-            if (deep[light[a]] > deep[light[b]])
-                light[a] = light[b];
-            return true;
-        }
-
-        void dfs(int u, int f, int d) {
-            father[u] = f, deep[u] = d;
-            for (int v : G[u]) {
-                if (v != f) {
-                    dfs(v, u, d + 1);
-                }
-            }
-        }
-
-        int main() {
-            ios::sync_with_stdio(0), cin.tie(0);
-            int n, m;
-            cin >> n >> m;
-            for (int i = 1; i <= m; i++) {
-                cin >> edge[i].a >> edge[i].b >> edge[i].l;
-            }
-            sort(edge + 1, edge + m + 1);
-            iota(djs_father + 1, djs_father + n + 1, 1);
-            fill(sz + 1, sz + n + 1, 1);
-            for (int i = 1; i <= m; i++) {
-                used[i] = djs_union(edge[i].a, edge[i].b, edge[i].l);
-                if (used[i]) {
-                    G[edge[i].a].push_back(edge[i].b);
-                    G[edge[i].b].push_back(edge[i].a);
-                }
-            }
-            dfs(1, 1, 0);
-            iota(djs_father + 1, djs_father + n + 1, 1);
-            iota(light + 1, light + n + 1, 1);
-            fill(sz + 1, sz + n + 1, 1);
-            for (int i = 1; i <= m; i++) {
-                if (!used[i]) {
-                    int a = djs_find_root(edge[i].a);
-                    int b = djs_find_root(edge[i].b);
-                    while (a != b) {
-                        if (deep[light[a]] > deep[light[b]]) {
-                            swap(a, b);
-                        }
-                        djs_union(b, father[light[b]], edge[i].l);
-                        a = djs_find_root(a), b = djs_find_root(b);
-                    }
-                }
-            }
-            int q;
-            cin >> q;
-            while (q--) {
-                int u, v, ans = 0;
-                cin >> u >> v;
-                if (djs_find_root(u) != djs_find_root(v)) { 
-                    cout << "-1\n";
-                } else {
-                    while (u != v) {
-                        if (sz[u] < sz[v]) {
-                            swap(u, v);
-                        }
-                        ans = max(ans, up[v]);
-                        v = djs_father[v];
-                    }
-                    cout << ans << "\n";
-                }
-            }
-        }
-        ```
-	    
 ???+note "[2022 YTP 初賽 p6 早上好YTP](https://www.tw-ytp.org/wp-content/uploads/2022/12/YTP2022PreliminaryContest_S1.pdf#page=32)"
     給⼀張 $n$ 點無向圖，⼀開始沒有任何邊。依序加入 $m$ 條邊，每加完⼀條邊請輸出當前圖中的橋的數量
     
@@ -338,7 +460,7 @@ u是割點的條件是：
     	開兩個 dsu，一個維護連通性，一個維護同一個 CC 中縮點的動作
     	
     	在維護連通性的部分不要進行路徑壓縮
-		
+
 ## Tarjan 點 BCC
 
 如果一個連通分量沒有割點 (表示也沒有橋)，則該分量為雙連通分量
@@ -704,7 +826,76 @@ u是割點的條件是：
 	給一張 $n$ 點 $m$ 邊有向圖，求最少需要從幾個點開始 DFS 才能經過所有點至少一次。
 	
 	$n,m\le 10^5$
+
+???+note "[POJ 1515 - Street Directions](https://vjudge.net/problem/POJ-1515)"
+	給一張 $n$ 點 $m$ 邊無向圖，保證圖連通。選一些無向邊定向，使得最終圖保持強連通的特性。選的邊要盡量多，輸出每個邊的方向（無向邊及輸出兩次，方向不同）
 	
+	$n\le 1000, m\le 10^6$
+	
+	??? note "思路"
+		首先，bridge 只能是無向。其他邊就按照 dfs tree 的方向將其定向即可
+		
+	??? note "code(from [cnblog](https://www.cnblogs.com/00isok/p/10629693.html))"
+		```cpp linenums="1"
+		#include <cstdio>
+	    #include <cstring>
+	    #include <iostream>
+	    using namespace std;
+	
+	    const int N = 1005 , M = N * N;
+	
+	    struct Edge {
+	        int from, to, nxt,cut;
+	    } edge[M];
+	
+	    int dfn[N],low[N],head[N]; 
+	    int n, m,tot,cnt;
+	    inline void init(){
+	        tot = cnt = 0;
+	        memset(dfn, 0, sizeof dfn);
+	        memset(head, -1, sizeof head);
+	    }
+	    inline void add(int u,int v){
+	        edge[cnt]=(Edge){u,v,head[u],0};
+	        head[u]=cnt++;
+	    }
+	    void Tarjan(int u, int pre){
+	        dfn[u] = low[u] = ++tot;
+	        for (int i=head[u];~i;i=edge[i].nxt){
+	            int v=edge[i].to;
+	            if (edge[i].cut) continue;    //如果这个边已经被标记了(标记为-1也是被标记过)，则无需改变之前的标记，因为只需要找到一种可行的标记方案即可
+	            edge[i].cut=1;edge[i^1].cut=-1;     //贪心的将一个方向的边标记
+	            if (v == pre) continue;
+	            if (!dfn[v]){
+	                Tarjan(v, u);
+	                low[u] = min(low[u], low[v]);
+	                if (dfn[u] < low[v])edge[i].cut=edge[i^1].cut=1;
+	            } else low[u] = min(low[u], dfn[v]);
+	        }
+	    } 
+	    inline void Solve(){
+	        for (int i = 0; i < cnt; ++i) {
+	            if (edge[i].cut==1) {
+	                printf("%d %d\n", edge[i].from, edge[i].to);
+	            }
+	        }
+	        printf("#\n");
+	    }
+	    int main(){
+	        int ncase=0;
+	        while(~scanf("%d%d",&n,&m),n||m){
+	            printf("%d\n\n",++ncase);
+	            init();
+	            for(int i=1;i<=m;i++){
+	                int u,v;scanf("%d%d", &u, &v);
+	                add(u,v);add(v,u);
+	            }
+	            Tarjan(1, -1);
+	            Solve(); 
+	        }
+	    }
+	    ```
+
 ## 2-SAT
 
 ### 判斷是否有解
@@ -915,7 +1106,7 @@ u是割點的條件是：
 	共有 $n$ 個 boolean，給 $m$ 組限制，構造出一組 2-SAT 的解
 	
 	$n,m\le 10^5$
-	
+
 ---
 
 ## 資料

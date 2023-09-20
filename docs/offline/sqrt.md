@@ -388,9 +388,9 @@ LOJ 題單
 	有 $n$ 個點，點 $i$ 有一個權值 $a_i$，表示站下一步會跳到點 $i+a_i$，可能跳出區間 $[1,n]$。給 $q$ 筆操作 :
 	
 	- $\text{update}(i,x):$ 將某個 $a_i$ 改成 $x$
-
+	
 	- $\text{query}(x):$ 詢問從點 $x$ 開始，需要多少步才能跳到 $n$ 以外，以及最後一個經過的點是哪一個。
-
+	
 	$n,m\le 10^5$
 	
 	??? note "思路"
@@ -399,88 +399,88 @@ LOJ 題單
 	??? note "code"
 		```cpp linenums="1"
 		# include <bits/stdc++.h>
-
-        typedef long long ll;
-        using namespace std;
-
-        const int N = 1e5 + 5;
-        const int M = 4e2 + 50;
-        int n, m;
-        int l[N], r[N], belong[N];
-        int cnt, num, x, v, ans;
-        int a[N], tot[M], go[N], nxt[N];
-
-        void init() {
-            num = sqrt(n);
-            cnt = n / num;
-            if (n % num)
-                cnt++;
-            for (int i = 1; i <= n; i++) {
-                belong[i] = (i - 1) / num + 1;
-            }
-            for (int i = 1; i <= cnt; i++) {
-                l[i] = (i - 1) * num + 1;
-                r[i] = min(n, i * num);
-                for (int j = r[i]; j >= l[i]; j--) {
-                    if (nxt[j] > r[i]) {
-                        tot[j] = 1;
-                        go[j] = nxt[j];
-                    } else {
-                        tot[j] = tot[nxt[j]] + 1;
-                        go[j] = go[nxt[j]];
-                    }
-                }
-            }
-        }
-
-        int main() {
-            int op, ll, rr, x, y;
-            scanf("%d%d", &n, &m);
-            for (int i = 1; i <= n; i++) {
-                scanf("%d", &a[i]);
-                nxt[i] = min(n + 1, a[i] + i);
-            }
-            init();
-            while (m--) {
-                scanf("%d", &op);
-                if (!op) {
-                    scanf("%d%d", &x, &y);
-                    int b = belong[x];
-                    nxt[x] = min(n + 1, x + y);
-                    for (int j = r[b]; j >= l[b]; j--) {
-                        if (nxt[j] > r[b]) {
-                            tot[j] = 1;
-                            go[j] = nxt[j];
-                        } else {
-                            tot[j] = tot[nxt[j]] + 1;
-                            go[j] = go[nxt[j]];
-                        }
-                    }
-                } else {
-                    scanf("%d", &x);
-                    int b, y;
-                    int ans1, ans2 = 0;
-                    while (x <= n) {
-                        ans2 += tot[x];
-                        if (go[x] > n) y = x;
-                        x = go[x];
-                    }
-                    while (y <= n) {
-                        ans1 = y;
-                        y = nxt[y];
-                    }
-                    printf("%d %d\n", ans1, ans2);
-                }
-            }
-            return 0;
-        }
-        ```
 	
+	    typedef long long ll;
+	    using namespace std;
+	
+	    const int N = 1e5 + 5;
+	    const int M = 4e2 + 50;
+	    int n, m;
+	    int l[N], r[N], belong[N];
+	    int cnt, num, x, v, ans;
+	    int a[N], tot[M], go[N], nxt[N];
+	
+	    void init() {
+	        num = sqrt(n);
+	        cnt = n / num;
+	        if (n % num)
+	            cnt++;
+	        for (int i = 1; i <= n; i++) {
+	            belong[i] = (i - 1) / num + 1;
+	        }
+	        for (int i = 1; i <= cnt; i++) {
+	            l[i] = (i - 1) * num + 1;
+	            r[i] = min(n, i * num);
+	            for (int j = r[i]; j >= l[i]; j--) {
+	                if (nxt[j] > r[i]) {
+	                    tot[j] = 1;
+	                    go[j] = nxt[j];
+	                } else {
+	                    tot[j] = tot[nxt[j]] + 1;
+	                    go[j] = go[nxt[j]];
+	                }
+	            }
+	        }
+	    }
+	
+	    int main() {
+	        int op, ll, rr, x, y;
+	        scanf("%d%d", &n, &m);
+	        for (int i = 1; i <= n; i++) {
+	            scanf("%d", &a[i]);
+	            nxt[i] = min(n + 1, a[i] + i);
+	        }
+	        init();
+	        while (m--) {
+	            scanf("%d", &op);
+	            if (!op) {
+	                scanf("%d%d", &x, &y);
+	                int b = belong[x];
+	                nxt[x] = min(n + 1, x + y);
+	                for (int j = r[b]; j >= l[b]; j--) {
+	                    if (nxt[j] > r[b]) {
+	                        tot[j] = 1;
+	                        go[j] = nxt[j];
+	                    } else {
+	                        tot[j] = tot[nxt[j]] + 1;
+	                        go[j] = go[nxt[j]];
+	                    }
+	                }
+	            } else {
+	                scanf("%d", &x);
+	                int b, y;
+	                int ans1, ans2 = 0;
+	                while (x <= n) {
+	                    ans2 += tot[x];
+	                    if (go[x] > n) y = x;
+	                    x = go[x];
+	                }
+	                while (y <= n) {
+	                    ans1 = y;
+	                    y = nxt[y];
+	                }
+	                printf("%d %d\n", ans1, ans2);
+	            }
+	        }
+	        return 0;
+	    }
+	    ```
+
 ???+note "[CF 797 E. Array Queries](https://codeforces.com/problemset/problem/797/E)"
 	給長度為 $n$ 的序列 $a_1, \ldots, a_n$，有 $q$ 筆詢問 :
 	
 	- $\text{query(p, k):}$ 不斷進行操作 $p=p + a_p + k$，直到 $p > n$ 為止，共幾次操作
-
+	
 	$n,\le 10^5, 1\le a_i, p, k\le n$
 	
 	??? note "思路"
@@ -489,8 +489,44 @@ LOJ 題單
 		若 k < sqrt(n)，令 sum[p][k] 為詢問的答案，O(n * sqrt(n)) 預處理
 		
 		> 參考 : <https://blog.csdn.net/weixin_44178736/article/details/110395582>
+
+???+note "[NPSC 2020 高中組初賽 pA. 邊緣人](https://contest.cc.ntu.edu.tw/npsc2020/teamclient/semi_senior.pdf#page=3)"
+	有 $N$ 個人，當 $x$ 個人分成一組時，最後 $N \space \text{mod} \space x$ 會自成一組，稱這些人為邊緣人。令 $f(i)=$ 所有 $1\le x\le N$ 中，會使第 $i$ 人是邊緣人的數量。給定 $L, R$，請求出 $f(L), f(L + 1), \ldots , f(R)$。
 	
- ---
+	$1\le N\le 2^{30}, L\le R\le N, R - L \le 3\times 10^5$
+	
+	??? note "思路"
+		可以列出 $i$ 在 $x$ 人一組時是邊緣人的範圍是 [1 + [N/x] * x, N]
+		
+		我們先想暴力怎麼做 :
+		
+		```cpp
+		f[] = 0
+        for x = 1 ~ N:
+            u = 1 +[N/x] * x
+            v = N
+            f[u] += 1, f[v+1] -= 1
+        ```
+        
+        我們發現對於 $\lfloor \frac{N}{x} \rfloor$ 是一樣的 $x$，$\lfloor \frac{N}{x} \rfloor\times x$ 會形成一個等差數列，這樣我們就得到了一個類似塞法的做法
+        
+        ```cpp
+        f[] = 0
+        for d = 1 ~ sqrt(N):
+            minx = ???
+            maxx = ???
+            u = 1 + d * x
+            v = N
+            for (i = minx; i<= maxx; i++) {
+                    if (1 + d*i <= L): f[L] += 1
+                    else: f[1 + d*i] += 1     // O( (R-L+1) / d )
+        			f[v+1] -= 1; 
+        	}
+		```
+		
+		其中，在 1 + d*i 在 L 以下的可以用數學算，所以我們其實只要枚舉 [N/x]*x 在 [L, R] 之間的即可，這樣對於 [N/x] 為 d 時複雜度是 O( (R-L+1) / d )，類似篩法，加起來就是 O((R - L + 1) * log(sqrt(N)))
+
+---
 
 ## 資料
 

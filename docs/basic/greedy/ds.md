@@ -232,7 +232,7 @@
 
 #### 洛谷 P4053 建筑抢修
 ???+note "洛谷 P4053 [JSOI2007] 建筑抢修"
-	- 參見[此處](/wiki/greedy/interval_scheduling/#_1)
+	- 參見[此處](/wiki/basic/greedy/scheduling/#_1)
 
 #### CF 1271D Portals
 ???+note "[CF 1271D Portals](https://codeforces.com/problemset/problem/1271/D)"
@@ -673,33 +673,33 @@
 	
 	??? note "思路"
 		【**區間 dp : O(n^3)**】
-
-        dp(l, r) : l ~ r 的最多 cost
-
-        - dp(l+1, r) + a[l]
-
-        - dp(l, r-1) + a[r]
-
-        - 切兩半 dp(l, k) + dp(k+1, r)
-
-        - l 和 r 配對 dp(l+1, r-1) + (a[l]+...+a[r])
-
+	
+	    dp(l, r) : l ~ r 的最多 cost
+	
+	    - dp(l+1, r) + a[l]
+	
+	    - dp(l, r-1) + a[r]
+	
+	    - 切兩半 dp(l, k) + dp(k+1, r)
+	
+	    - l 和 r 配對 dp(l+1, r-1) + (a[l]+...+a[r])
+	
 		---
-
-        【**前綴 dp : O(n^2)**】
-
-        dp(i, k) : 1~i 的 (#左括號 - #右括號) = k
-
-        ans = dp(n, 0)
-
-        轉移
-
-        - i 是 "(" : dp(i-1, k-1) - pre[i-1]
-
-        - i 是 ")" : dp(i-1, k+1) + pre[i]
-
-        - i 是 "X" : dp(i-1, k) + pre[i] - pre[i-1]
-
+	
+	    【**前綴 dp : O(n^2)**】
+	
+	    dp(i, k) : 1~i 的 (#左括號 - #右括號) = k
+	
+	    ans = dp(n, 0)
+	
+	    轉移
+	
+	    - i 是 "(" : dp(i-1, k-1) - pre[i-1]
+	
+	    - i 是 ")" : dp(i-1, k+1) + pre[i]
+	
+	    - i 是 "X" : dp(i-1, k) + pre[i] - pre[i-1]
+	
 		---
 		
 		【**Greedy 觀察性質, 後悔法: O(n log n)**】
@@ -710,14 +710,26 @@
 		
 		這邊提供一組範例
 		
-        ```
-                i         1   2   3  4  5  6  7  8
-                a[i]:     3  -1  -5  3  8  4 -3  4
-                pre[i]:   3   2  -3  0  8 12  9 13
-        ```
+	    ```
+	            i         1   2   3  4  5  6  7  8
+	            a[i]:     3  -1  -5  3  8  4 -3  4
+	            pre[i]:   3   2  -3  0  8 12  9 13
+	    ```
 		
 		> 參考自 : [TOI 2021 Solutions - p3 pairing](https://omeletwithoutegg.github.io/2021/09/22/toi-2021-sols/)
+
+???+note "[2020 全國賽 D. 水果包裝](https://tioj.ck.tp.edu.tw/problems/2226)"
+	有 $n$ 個水果，第 $i$ 個的重量是 $w_i$，然後機器會按照 $p_1, \ldots ,p_n$ 的順序將水果裝袋。有 $m$ 個袋子，機器在裝某個水果時，會把它放到總重最小的那個袋子裡，如果有等重的會放到編號最小的那個裡面。
 	
+	已知全部裝完後，第 $i$ 個袋子裡的水果有哪些，求 $p_1, \ldots ,p_n$，或者說無解。
+	
+	$n\le 2\times 10^5, 1\le w_i\le 10^9$
+	
+	??? note "思路"
+		第一個選的一定是從最輕的且編號最小的，也就是從第一個袋子裡面的選。而要讓第一個袋子的其他水果之後有辦法被選到，先把最小的選出來最合適，把它移除掉後，再來就是子問題。所以我們可以用 priority queue 維護每個袋子的 (剩餘重量, 編號)，對於每個袋子也用 priority queue 維護剩下的物品的重量，越小的越先被 pop 出來，如果沒東西可 pop 就代表無解
+		
+		> 更詳細可參考 : [twpca editorial](https://github.com/twpca/nhspc-2020/blob/main/editorial/editorial.md#d---%E6%B0%B4%E6%9E%9C%E5%8C%85%E8%A3%9D) [twpca code](https://github.com/twpca/nhspc-2020/blob/main/solution/tester2/fruit.cpp)
+
 ## 練習
 - [CSES Room Allocation](https://cses.fi/problemset/task/1164)
 	- max band width + 維護

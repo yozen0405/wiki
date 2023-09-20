@@ -640,147 +640,169 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-
-        struct Query{
-            int l, r, id;
-
-            bool operator<(const Query &rhs) const {
-                return l > rhs.l;
-            }
-        };
-
-        struct Node{
-            Node* lc = nullptr;
-            Node* rc = nullptr;
-            int l, r;
-            int chg, sum;
-            Node(int l, int r) : l(l), r(r) {
-                chg = 0;
-            }
-
-            void pull() {
-                sum = lc->sum + rc->sum;
-            }
-            void push() {
-                if (chg) {
-                    lc->sum = chg * (lc->r - lc->l + 1);
-                    rc->sum = chg * (lc->r - lc->l + 1);
-                    lc->chg = chg;
-                    rc->chg = chg;
-                    chg = 0;
-                }
-            }
-        };
-
-        Node* build(int l, int r) {
-            Node* root = new Node(l, r);
-            if (l == r) {
-                root->sum = 0;
-                return root;
-            }
-            int mid = (l + r) / 2;
-            root->lc = build(l, mid);
-            root->rc = build(mid + 1, r);
-            root->pull();
-            return root;
-        }
-
-        void update(Node* root, int ml, int mr, int val) {
-            if (mr < root->l || root->r < ml) {
-                return;
-            }
-            if (ml <= root->l && root->r <= mr) {
-                root->sum = val * (root->r - root->l + 1);
-                root->chg = val;
-                return;
-            }
-            root->push();
-            update(root->lc, ml, mr, val);
-            update(root->rc, ml, mr, val);
-            root->pull();
-        }
-
-        int ask(Node* root, int ql, int qr) {
-            if (qr < root->l || root->r < ql) {
-                return 0;
-            }
-            if (ql <= root->l && root->r <= qr) {
-                return root->sum;
-            }
-            root->push();
-            return ask(root->lc, ql, qr) + ask(root->rc, ql, qr);
-        }
-
-        const int N = 2e5 + 5;
-        int n, q;
-        int a[N], pre[N], ans[N];
-
-        signed main() {
-            cin >> n >> q;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-                pre[i] = pre[i - 1] + a[i];
-            }
-            vector<Query> query;
-            for (int i = 1; i <= q; i++) {
-                int l, r;
-                cin >> l >> r;
-                query.push_back({l, r, i});
-            }
-            sort(ALL(query));
-            Node* root = build(1, n);
-            stack<int> stk;
-            int l = n + 1;
-            for (auto &i : query) {
-                while (i.l < l) {
-                    l--;
-                    while (stk.size() && a[stk.top()] <= a[l]) {
-                        int ml = stk.top();
-                        stk.pop();
-                        int mr;
-                        if (stk.size()) {
-                            mr = stk.top() - 1;
-                        } else {
-                            mr = n;
-                        }
-                        update(root, ml, mr, a[l]);
-                    }
-                    update(root, l, l, a[l]);
-                    stk.push(l);
-                }
-                ans[i.id] = ask(root, i.l, i.r) - (pre[i.r] - pre[i.l - 1]);
-            }
-            for (int i = 1; i <= q; i++) {
-                cout << ans[i] << '\n';
-            }
-        } 
-        ```
+	    #define int long long
+	    #define ALL(x) x.begin(), x.end()
 	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	
+	    struct Query{
+	        int l, r, id;
+	
+	        bool operator<(const Query &rhs) const {
+	            return l > rhs.l;
+	        }
+	    };
+	
+	    struct Node{
+	        Node* lc = nullptr;
+	        Node* rc = nullptr;
+	        int l, r;
+	        int chg, sum;
+	        Node(int l, int r) : l(l), r(r) {
+	            chg = 0;
+	        }
+	
+	        void pull() {
+	            sum = lc->sum + rc->sum;
+	        }
+	        void push() {
+	            if (chg) {
+	                lc->sum = chg * (lc->r - lc->l + 1);
+	                rc->sum = chg * (lc->r - lc->l + 1);
+	                lc->chg = chg;
+	                rc->chg = chg;
+	                chg = 0;
+	            }
+	        }
+	    };
+	
+	    Node* build(int l, int r) {
+	        Node* root = new Node(l, r);
+	        if (l == r) {
+	            root->sum = 0;
+	            return root;
+	        }
+	        int mid = (l + r) / 2;
+	        root->lc = build(l, mid);
+	        root->rc = build(mid + 1, r);
+	        root->pull();
+	        return root;
+	    }
+	
+	    void update(Node* root, int ml, int mr, int val) {
+	        if (mr < root->l || root->r < ml) {
+	            return;
+	        }
+	        if (ml <= root->l && root->r <= mr) {
+	            root->sum = val * (root->r - root->l + 1);
+	            root->chg = val;
+	            return;
+	        }
+	        root->push();
+	        update(root->lc, ml, mr, val);
+	        update(root->rc, ml, mr, val);
+	        root->pull();
+	    }
+	
+	    int ask(Node* root, int ql, int qr) {
+	        if (qr < root->l || root->r < ql) {
+	            return 0;
+	        }
+	        if (ql <= root->l && root->r <= qr) {
+	            return root->sum;
+	        }
+	        root->push();
+	        return ask(root->lc, ql, qr) + ask(root->rc, ql, qr);
+	    }
+	
+	    const int N = 2e5 + 5;
+	    int n, q;
+	    int a[N], pre[N], ans[N];
+	
+	    signed main() {
+	        cin >> n >> q;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	            pre[i] = pre[i - 1] + a[i];
+	        }
+	        vector<Query> query;
+	        for (int i = 1; i <= q; i++) {
+	            int l, r;
+	            cin >> l >> r;
+	            query.push_back({l, r, i});
+	        }
+	        sort(ALL(query));
+	        Node* root = build(1, n);
+	        stack<int> stk;
+	        int l = n + 1;
+	        for (auto &i : query) {
+	            while (i.l < l) {
+	                l--;
+	                while (stk.size() && a[stk.top()] <= a[l]) {
+	                    int ml = stk.top();
+	                    stk.pop();
+	                    int mr;
+	                    if (stk.size()) {
+	                        mr = stk.top() - 1;
+	                    } else {
+	                        mr = n;
+	                    }
+	                    update(root, ml, mr, a[l]);
+	                }
+	                update(root, l, l, a[l]);
+	                stk.push(l);
+	            }
+	            ans[i.id] = ask(root, i.l, i.r) - (pre[i.r] - pre[i.l - 1]);
+	        }
+	        for (int i = 1; i <= q; i++) {
+	            cout << ans[i] << '\n';
+	        }
+	    } 
+	    ```
+
+???+note "[CSES - Polynomial Queries](https://cses.fi/problemset/task/1736)"
+	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，有 $q$ 次以下操作 :
+	
+	- $\text{update}(i):$ 將 $a_i$ += 1, $a_{i+1}$ += 2, ...
+
+	- $\text{query}(l,r):$ 輸出 $a_l + \ldots ,a_r$
+
+	$1\le n,q \le 2\times 10^5$
+	
+	??? note "思路"
+		開兩顆 Segment Tree，Seg1 維護 $1\times i_1, 2\times i_2, 3\times i_3, \ldots$，Seg2 就是一般的線段樹
+		
+		- update
+
+			- Seg1 : 區間每項都 +1
+
+			- Seg2 : 區間每項都 -(l - 1)
+
+		- query 
+
+			- Seg1[l, r] + Seg2[l, r]
+		
 ## 二維 BIT
 
 ???+note "[CSES - Forest Queries II](https://cses.fi/problemset/task/1739)"
 	$n\times n$ 的 grid 上，$q$ 個以下操作 :
 
     - 改變一格的狀態（0/1）
-
+    
     - 詢問一個矩形區域的和
-	
-	$n\le 1000, q\le 2\times 10^5$
-	
-	??? note "思路"
-		yuihuang code
-		
-	??? note "code"
-		```cpp linenums="1"
-		
-		```
-	
+    
+    $n\le 1000, q\le 2\times 10^5$
+    
+    ??? note "思路"
+    	yuihuang code
+    	
+    ??? note "code"
+    	```cpp linenums="1"
+    	
+    	```
+
 ## 參考
 
 - <https://drive.google.com/file/d/1-X36kSojmhmMofC6zMLmLAt88j87ZJsn/view>

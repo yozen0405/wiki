@@ -744,7 +744,7 @@
 	        solve();
 	    }
 	    ```
-	    
+
 ???+note "[2019 全國賽 pG. 隔離採礦](https://judge.tcirc.tw/ShowProblem?problemid=d088)"	
 	有 $n$ 個礦井，每個礦井有高度 $h_i$ 與價值 $v_i$，挑一些礦井，使得相鄰兩個礦井間都存在一個更高的礦井
 	
@@ -756,94 +756,105 @@
 		可以發現能轉移的 $j$ 會長這樣 :
 		
 		<figure markdown>
-          ![Image title](./images/1.png){ width="300" }
-          <figcaption>綠色有辦法轉移，紅色沒辦法</figcaption>
-        </figure>
-        
-        所以我們可以用單調 stack 維護無法轉移的 $j$。但不能直接取 stack.top，因為可能會發生 $h_i=h_j$ 的情況，所以我們必須在 stack 內二分出比 $h_i$ 大且最靠近 $i$ 的 $j$，用 BIT 去 query_max$(1, j)$ 來轉移即可
-        
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        #define int long long
+	      ![Image title](./images/1.png){ width="300" }
+	      <figcaption>綠色有辦法轉移，紅色沒辦法</figcaption>
+	    </figure>
+	    
+	    所以我們可以用單調 stack 維護無法轉移的 $j$。但不能直接取 stack.top，因為可能會發生 $h_i=h_j$ 的情況，所以我們必須在 stack 內二分出比 $h_i$ 大且最靠近 $i$ 的 $j$，用 BIT 去 query_max$(1, j)$ 來轉移即可
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	
+	    using namespace std;
+	
+	    const int N = 1e6 + 5;
+	    int n;
+	    int h[N], v[N], dp[N];
+	
+	    struct BIT {
+	        #define lowbit(x) (x & (-x))
+	        int n;
+	        vector<int> bit;
+	
+	        BIT(int _n) {
+	            n = _n;
+	            bit = vector<int>(n + 1, 0);
+	        }
+	        int query(int x) {
+	            int ret = 0;
+	            while (x > 0) {
+	                ret = max(ret, bit[x]);
+	                x -= lowbit(x);
+	            }
+	            return ret;
+	        }
+	        void update(int x, int d) {
+	            while (x <= n) {
+	                bit[x] = max(bit[x], d);
+	                x += lowbit(x);
+	            }
+	        }
+	    }; 
+	
+	    signed main() {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> h[i];
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            cin >> v[i];
+	        }
+	        BIT bit(n);
+	        vector<int> stk;
+	        for (int i = 1; i <= n; i++) {
+	            while (stk.size() && h[stk.back()] < h[i]) {
+	                bit.update(stk.back(), dp[stk.back()]);
+	                stk.pop_back();
+	            }
+	            int l = 0, r = stk.size();
+	            while (r - l > 1) {
+	                int mid = (l + r) / 2;
+	                if (h[stk[mid]] <= h[i]) {
+	                    r = mid;
+	                } else {
+	                    l = mid;
+	                }
+	            }
+	
+	            if (stk.size() && h[stk[l]] > h[i]) {
+	                dp[i] = bit.query(stk[l]) + v[i];
+	            } else {
+	                dp[i] = v[i];
+	            }
+	            stk.push_back(i);
+	        }
+	        cout << *max_element(dp + 1, dp + n + 1) << '\n';
+	    }
+		```
 
-        using namespace std;
-
-        const int N = 1e6 + 5;
-        int n;
-        int h[N], v[N], dp[N];
-
-        struct BIT {
-            #define lowbit(x) (x & (-x))
-            int n;
-            vector<int> bit;
-
-            BIT(int _n) {
-                n = _n;
-                bit = vector<int>(n + 1, 0);
-            }
-            int query(int x) {
-                int ret = 0;
-                while (x > 0) {
-                    ret = max(ret, bit[x]);
-                    x -= lowbit(x);
-                }
-                return ret;
-            }
-            void update(int x, int d) {
-                while (x <= n) {
-                    bit[x] = max(bit[x], d);
-                    x += lowbit(x);
-                }
-            }
-        }; 
-
-        signed main() {
-            cin >> n;
-            for (int i = 1; i <= n; i++) {
-                cin >> h[i];
-            }
-            for (int i = 1; i <= n; i++) {
-                cin >> v[i];
-            }
-            BIT bit(n);
-            vector<int> stk;
-            for (int i = 1; i <= n; i++) {
-                while (stk.size() && h[stk.back()] < h[i]) {
-                    bit.update(stk.back(), dp[stk.back()]);
-                    stk.pop_back();
-                }
-                int l = 0, r = stk.size();
-                while (r - l > 1) {
-                    int mid = (l + r) / 2;
-                    if (h[stk[mid]] <= h[i]) {
-                        r = mid;
-                    } else {
-                        l = mid;
-                    }
-                }
-
-                if (stk.size() && h[stk[l]] > h[i]) {
-                    dp[i] = bit.query(stk[l]) + v[i];
-                } else {
-                    dp[i] = v[i];
-                }
-                stk.push_back(i);
-            }
-            cout << *max_element(dp + 1, dp + n + 1) << '\n';
-        }
-    	```
-    	
 ???+note "[洛谷 P4141 消失之物](https://www.luogu.com.cn/problem/P4141)"
     有 $n$ 個物品，體積分別是 $w_1,w_2,\dots,w_n$。第 $i$ 個物品丟失了。
 
     「要使用剩下的 $n-1$ 物品裝滿容積為 $x$ 的背包，有幾種方法呢 ?」
-
-    把答案記為$\text{cnt}(i,x)$ ，輸出所有$i \in [1,n]$, $x \in [1,m]$ 的$\text{cnt}(i, x)$。
     
+    把答案記為$\text{cnt}(i,x)$ ，輸出所有 $i \in [1,n]$, $x \in [1,m]$ 的$\text{cnt}(i, x)$。
+    
+    $n,m\le 2\times 10^3$
+    
+    ??? note "思路"
+    	設 f[i][j] 為只用前 i 件物品，不考慮刪除任何物品時，恰好裝滿容量為 j 的方法數，設 g[i][j] 為不考慮物品 i 的貢獻恰好裝滿容量為 j 的方法數。我們列出轉移式 :
+    	
+    	g[i][j] = f[n][j] - g[i][j - w[i]]
+    	
+    	此時的 g[i][j - w[i]] 恰好刪除了物品 i 的貢獻
+    	
+    	參考自 : <https://blog.csdn.net/qq_50332374/article/details/124864380>
+
 ???+note "[CF 730 J. Bottles](https://codeforces.com/problemset/problem/730/J)"
 	有 $n$ 個瓶子，各有水量 $a_i$ 和容量 $b_i$。現在要將這寫瓶子裡的水存入最少的瓶子裡。問最少需要的瓶子數，與在保證瓶子數最少的情況下，轉移的水量最少是多少。
-	
+
 	$n\le 100, 1\le a_i,b_i\le 100$
 	
 	??? note "思路"
@@ -852,78 +863,78 @@
 		在來，我們來整理一下「最少轉移的水量」所需符合的條件 :
 		
 		- 需要 ans1 個來儲存（第一個答案）
-
+	
 		- 容量和要足夠讓剩下的水量倒進去
-
+	
 		- 轉移的水量越少越好 ⇒ 已固定的水量要越大越好
-
+	
 		考慮 dp(i, j, k) = 考慮 1...i，我們已經選了 j 個來儲存，容量能湊到 k 的，水量最多可以是多少
-        
-        最後的答案就是 dp(n, ans1, $\sum a_i \ldots \sum b_i$) 取 max
+	    
+	    最後的答案就是 dp(n, ans1, $\sum a_i \ldots \sum b_i$) 取 max
 		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define mk make_pair
-        #define a first
-        #define b second
-        #define pii pair<int, int>
-        using namespace std;
+	    #define int long long
+	    #define pb push_back
+	    #define mk make_pair
+	    #define a first
+	    #define b second
+	    #define pii pair<int, int>
+	    using namespace std;
+	
+	    const int INF = 9e18;
+	    const int maxn = 105;
+	    int n, m;
+	    int sumA, sumB, dp[maxn][maxn * maxn];
+	    vector<pii> v;
+	
+	    void solve () {
+	         cin >> n;
+	         v.resize(n + 1);
+	         for (int i = 1; i <= n; i++) {
+	              cin >> v[i].a;
+	              sumA += v[i].a;
+	         }
+	         for (int i = 1; i <= n; i++) {
+	              cin >> v[i].b;
+	              sumB += v[i].b;
+	         }
+	
+	         sort (v.begin() + 1, v.end(), [](pii x, pii y) { return x.b > y.b; });
+	         int N;
+	         for (int i = 1, s = 0; i <= n; i++) {
+	              s += v[i].b;
+	              if (s >= sumA) {
+	                   N = i;
+	                   break;
+	              }
+	         }
+	
+	         // dp[i][j] = 容量為 j 的最大水量
+	         memset (dp, -1, sizeof dp);
+	         dp[0][0] = 0;
+	         for (int i = 1; i <= n; i++) {
+	              for (int j = sumB; j >= v[i].b; j--) {
+	                   for (int k = i; k >= 1; k--) {
+	                        if (dp[k - 1][j - v[i].b] != -1)
+	                             dp[k][j] = max(dp[k - 1][j - v[i].b] + v[i].a, dp[k][j]);
+	                   }
+	              }
+	         }
+	
+	         int ans = 0;
+	         for (int j = sumA; j <= sumB; j++) {
+	              ans = max(ans, dp[N][j]);
+	         }
+	         cout << N << " " << sumA - ans << "\n";
+	    }
+	
+	    signed main () {
+	        solve();
+	    }
+	    ```
 
-        const int INF = 9e18;
-        const int maxn = 105;
-        int n, m;
-        int sumA, sumB, dp[maxn][maxn * maxn];
-        vector<pii> v;
-
-        void solve () {
-             cin >> n;
-             v.resize(n + 1);
-             for (int i = 1; i <= n; i++) {
-                  cin >> v[i].a;
-                  sumA += v[i].a;
-             }
-             for (int i = 1; i <= n; i++) {
-                  cin >> v[i].b;
-                  sumB += v[i].b;
-             }
-
-             sort (v.begin() + 1, v.end(), [](pii x, pii y) { return x.b > y.b; });
-             int N;
-             for (int i = 1, s = 0; i <= n; i++) {
-                  s += v[i].b;
-                  if (s >= sumA) {
-                       N = i;
-                       break;
-                  }
-             }
-
-             // dp[i][j] = 容量為 j 的最大水量
-             memset (dp, -1, sizeof dp);
-             dp[0][0] = 0;
-             for (int i = 1; i <= n; i++) {
-                  for (int j = sumB; j >= v[i].b; j--) {
-                       for (int k = i; k >= 1; k--) {
-                            if (dp[k - 1][j - v[i].b] != -1)
-                                 dp[k][j] = max(dp[k - 1][j - v[i].b] + v[i].a, dp[k][j]);
-                       }
-                  }
-             }
-
-             int ans = 0;
-             for (int j = sumA; j <= sumB; j++) {
-                  ans = max(ans, dp[N][j]);
-             }
-             cout << N << " " << sumA - ans << "\n";
-        }
-
-        signed main () {
-            solve();
-        }
-        ```
-        
 ???+note "[CF 366 C. Dima and Salad](https://codeforces.com/problemset/problem/366/C)"
 	有 $n$ 個物品，每個物品有權值 $a_i$ 與 $b_i$，選一些物品，使得
 	
@@ -945,38 +956,52 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-
-        using namespace std;
-
-        const int N = 105;
-        const int M = 1e5;
-        int n, k;
-        int a[N], b[N], dp[2][200005];
-
-        signed main() {
-            cin >> n >> k;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-            }
-            for (int i = 1; i <= n; i++) {
-                cin >> b[i];
-            }
-            memset(dp, -0x3f, sizeof(dp));
-            dp[0][M] = 0;
-            for (int i = 1; i <= n; i++) {
-                int w = a[i] - k * b[i];
-                for (int j = 2e5; j >= 0; j--) {
-                    if (j - w >= 0 && j - w <= 2e5) {
-                        dp[i % 2][j] = max(dp[(i - 1) % 2][j], dp[(i - 1) % 2][j - w] + a[i]);
-                    }
-                }
-            }
-            if (dp[n % 2][M] == 0) {
-                cout << "-1\n";
-            } else {
-                cout << dp[n % 2][M] << '\n';
-            }
-        } 
-        ```
 	
+	    using namespace std;
 	
+	    const int N = 105;
+	    const int M = 1e5;
+	    int n, k;
+	    int a[N], b[N], dp[2][200005];
+	
+	    signed main() {
+	        cin >> n >> k;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            cin >> b[i];
+	        }
+	        memset(dp, -0x3f, sizeof(dp));
+	        dp[0][M] = 0;
+	        for (int i = 1; i <= n; i++) {
+	            int w = a[i] - k * b[i];
+	            for (int j = 2e5; j >= 0; j--) {
+	                if (j - w >= 0 && j - w <= 2e5) {
+	                    dp[i % 2][j] = max(dp[(i - 1) % 2][j], dp[(i - 1) % 2][j - w] + a[i]);
+	                }
+	            }
+	        }
+	        if (dp[n % 2][M] == 0) {
+	            cout << "-1\n";
+	        } else {
+	            cout << dp[n % 2][M] << '\n';
+	        }
+	    } 
+	    ```
+
+???+note "[延平中學 2022 校內賽 p8. 大樓拆除 (building)](/wiki/dp/images/building_TWN.pdf)"
+	有 $n$ 棟建築高度為 $h_1, \ldots, h_n$，在第一棟不能炸的情況下，最少需要炸幾棟才能從左往右看恰看到 $k$ 棟
+	
+	$1\le n\le 10^5, 1\le k\le 10, 1\le h_i\le 10^9$
+	
+	??? note "思路"
+		考慮 dp，令 dp(i, k) = 從 n 往 i 考慮，第 i 棟是第 k 個被看見的最小 cost
+		
+		dp(i, k) = dp(j, k - 1) + cost(i + 1, j - 1) | h[i] < h[j]，其中 cost 為 h[i + 1, j - 1] 有幾個比 h[i] 大
+		
+		我們轉移都是先枚舉 k。考慮優化，我們開一顆線段樹，每隔紀錄 dp(i, k - 1)，初始化都將其設為 dp(i, k - 1) + INF，讓待會的區間最小值不會挑到 h[j] 比 h[i] 小的。還有一個問題，就是我們要怎麼計算 cost，我們可以想辦法先算好 h[i + 1, n] 比 h[i] 的數量，然後讓線段樹每隔裡面都扣掉我們多選的貢獻。我們從 h[i] 的數值大到小做，dp(i, k) 就直接等於「線段樹 [i + 1, n] 的 min」+「h[i + 1, n] 比 h[i] 大的數量」，再來，要將自己會被別人多算的貢獻給扣掉，所以要將線段樹的 [1, i - 1] 都 -1。
+		
+		可以將 (i, h[i]) 打在二維座標平面上理解會更清楚。
+		
+		> 參考自 : <https://hackmd.io/@HNO2/HysqfODG3#pH-%E5%A4%A7%E6%A8%93%E6%8B%86%E9%99%A4>
