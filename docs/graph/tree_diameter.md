@@ -64,16 +64,16 @@
     using namespace std;
 
     const int maxn = 1e6;
-
+    
     int n, ans = 0, h[maxn], dp[maxn];
     vector<int> G[maxn];
-
+    
     void dfs(int u, int par) {
         int mx = 0, sec = 0;
         for (auto v : G[u]) {
             if (v == par) continue;
             dfs(v, u);
-
+    
             if (dp[v] > mx) {
                 sec = mx;
                 mx = dp[v];
@@ -84,7 +84,7 @@
         dp[u] = mx + 1;
         ans = max(ans, mx + sec);
     }
-
+    
     signed main() {
         cin >> n;
         int u, v;
@@ -265,3 +265,15 @@
 	        }
 	    } 
 	    ```
+	    
+???+note "[CF 1294 F. Tree Paths on a Tree](https://codeforces.com/problemset/problem/1294/F)"
+	給你一顆 $n$ 個點的樹，選相異三個點 $a, b, c$，使得至少有包含 $a,b,c$ 其中兩個的 path 數量最大，輸出最大 path 數量和 $a,b,c$。
+	
+	$3\le n\le 2\times 10^5$
+	
+	??? note "思路"
+		其中兩點一定是樹直徑的兩端點。剩下一個點如何確定？到兩個點距離合最大即可，在兩次 bfs 過程中保留兩個端點到任意點的距離然後找這個最大值就好
+		
+		或者也可以找到樹直徑兩端 s, t，將樹用 s 重新定根，求每個點 u 與 LCA(u, t) 的距離即可
+		
+		> 參考自 : <https://newcoder-glm.blog.csdn.net/article/details/104080663?ydreferer=aHR0cHM6Ly9ibG9nLmNzZG4ubmV0Lw%3D%3D>

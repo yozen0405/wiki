@@ -258,6 +258,7 @@ nav:
     - 各種題型:
       - 構造題: 'problem/construct.md'
       - 互動題: 'problem/interactive.md'
+      - 雜題: 'problem/problem.md'
     - 其他:
       - 小技巧:
         - 訓練: 'other/practice.md'

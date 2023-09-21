@@ -175,6 +175,14 @@ u是割點的條件是：
 		
 		所以我們對於每個 BCC 用 unorder map 紀錄每種權重出現的次數，我們就挑出現最多次的，將 BCC 內剩下其他的邊都替換成這個權重即可
 
+???+note "[NPSC 2020 高中組決賽 pA. 城市分類](https://contest.cc.ntu.edu.tw/npsc2020/teamclient/final-senior.pdf#page=3)"
+	有一張 $n$ 個點的圖，任兩點最多共一個環，求最小著色數和著色方法。
+	
+	$1\le n\le 5\times 10^5$
+	
+	??? note "思路"
+		$n=1$ 時特判。給定的圖其實就是仙人掌圖，將每 BCC 可以獨立考慮，只有存在 odd cycle 才需要圖 3 種顏色，其餘情況為二分圖圖 2 種即可。實作上先用 tarjan 將每個 BCC 找出來，然後我們就可以先交錯圖兩種顏色，若為 odd cycle 最後一格再塗第三種顏色即可
+
 ???+note "[CF 555 E. Case of Computer Network](https://codeforces.com/problemset/problem/555/E)"
 	給一張 $n$ 點 $m$ 邊無向圖，給 $q$ 組限制 $(u,v)$，問能否給每條邊標上方向，使中每一組限制中的 $u$ 都能到達 $v$。
 	 
@@ -209,120 +217,120 @@ u是割點的條件是：
 	??? note "code"
 		```cpp linenums="1"
 		#include <iostream>
-        #include <cstdio>
-        #include <cstring>
-        #include <cmath>
-        #include <queue>
-        #include <algorithm>
-        #include <vector>
-        
-        using namespace std;
-
-        const int maxn = 1e5 + 5;
-        int dfn[maxn], dep[maxn], low[maxn];
-        int f[maxn], pa[maxn], sz[maxn], light[maxn];
-        int n, m, ret, cnt;
-        int stamp;
-        vector<int> G[maxn];
-
-        int find(int x) {
-            if (f[x] == x) {
-                return x;
-            } else {
-                return f[x] = find(f[x]);
-            }
-        }
-
-        bool merge(int u, int v) {
-            u = find(u), v = find(v);
-            if (u == v) return 0;
-            if (sz[v] > sz[u]) swap(u, v);
-            sz[u] += sz[v];
-            if (dep[light[v]] < dep[light[u]]) {
-                light[u] = light[v];
-            }
-            f[v] = u;
-            return 1;
-        }
-
-        void dfs(int u, int fa) {
-            pa[u] = fa;
-            low[u] = dfn[u] = ++stamp;
-            for (int i = 0; i < G[u].size(); i++) {
-                int v = G[u][i];
-                if (v == fa) continue;
-                if (!dfn[v]) {
-                    dep[v] = dep[u] + 1;
-                    dfs(v, u);
-                    low[u] = min(low[u], low[v]);
-                    if (low[v] > dfn[u]) {
-                        ret++;
-                    } else {
-                        merge(u, v); 
-                    }
-                } else if (dfn[v] < dfn[u]) {
-                    low[u] = min(low[u], dfn[v]);
-                }
-            }
-        }
-
-        int lca(int u, int v) {
-            u = find(u);
-            v = find(v);
-            while (u != v) {
-                if (dep[light[u]] > dep[light[v]]) {
-                    swap(u, v);
-                }
-                if (merge(v, pa[light[v]])) ret--;
-                u = find(u);
-                v = find(v);
-            }
-            return ret;
-        }
-
-        void init() {
-            memset(dfn, 0, sizeof(dfn));
-            memset(pa, 0, sizeof(pa));
-            memset(dep, 0, sizeof(dep));
-            memset(low, 0, sizeof(low));
-            for (int i = 1; i <= n; i++) {
-                f[i] = i;
-                sz[i] = 1;
-                light[i] = i;
-                G[i].clear();
-            }
-            stamp = 0;
-            ret = 0;
-        }
-
-        int main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            int kase = 0;
-            while (cin >> n >> m) {
-                if (n == 0 && m == 0) break;
-                init();
-                for (int i = 0; i < m; i++) {
-                    int u, v;
-                    cin >> u >> v; 
-                    G[u].push_back(v);
-                    G[v].push_back(u);
-                }
-                dfs(1, 0);
-                int q;
-                cin >> q;
-                cout << "Case " << ++kase << ":\n";
-                for (int i = 0; i < q; i++) {
-                    int u, v;
-                    cin >> u >> v;
-                    cout << lca(u, v) << '\n';
-                }
-                cout << '\n';
-            }
-            return 0;
-        }
-        ```
+	    #include <cstdio>
+	    #include <cstring>
+	    #include <cmath>
+	    #include <queue>
+	    #include <algorithm>
+	    #include <vector>
+	    
+	    using namespace std;
 	
+	    const int maxn = 1e5 + 5;
+	    int dfn[maxn], dep[maxn], low[maxn];
+	    int f[maxn], pa[maxn], sz[maxn], light[maxn];
+	    int n, m, ret, cnt;
+	    int stamp;
+	    vector<int> G[maxn];
+	
+	    int find(int x) {
+	        if (f[x] == x) {
+	            return x;
+	        } else {
+	            return f[x] = find(f[x]);
+	        }
+	    }
+	
+	    bool merge(int u, int v) {
+	        u = find(u), v = find(v);
+	        if (u == v) return 0;
+	        if (sz[v] > sz[u]) swap(u, v);
+	        sz[u] += sz[v];
+	        if (dep[light[v]] < dep[light[u]]) {
+	            light[u] = light[v];
+	        }
+	        f[v] = u;
+	        return 1;
+	    }
+	
+	    void dfs(int u, int fa) {
+	        pa[u] = fa;
+	        low[u] = dfn[u] = ++stamp;
+	        for (int i = 0; i < G[u].size(); i++) {
+	            int v = G[u][i];
+	            if (v == fa) continue;
+	            if (!dfn[v]) {
+	                dep[v] = dep[u] + 1;
+	                dfs(v, u);
+	                low[u] = min(low[u], low[v]);
+	                if (low[v] > dfn[u]) {
+	                    ret++;
+	                } else {
+	                    merge(u, v); 
+	                }
+	            } else if (dfn[v] < dfn[u]) {
+	                low[u] = min(low[u], dfn[v]);
+	            }
+	        }
+	    }
+	
+	    int lca(int u, int v) {
+	        u = find(u);
+	        v = find(v);
+	        while (u != v) {
+	            if (dep[light[u]] > dep[light[v]]) {
+	                swap(u, v);
+	            }
+	            if (merge(v, pa[light[v]])) ret--;
+	            u = find(u);
+	            v = find(v);
+	        }
+	        return ret;
+	    }
+	
+	    void init() {
+	        memset(dfn, 0, sizeof(dfn));
+	        memset(pa, 0, sizeof(pa));
+	        memset(dep, 0, sizeof(dep));
+	        memset(low, 0, sizeof(low));
+	        for (int i = 1; i <= n; i++) {
+	            f[i] = i;
+	            sz[i] = 1;
+	            light[i] = i;
+	            G[i].clear();
+	        }
+	        stamp = 0;
+	        ret = 0;
+	    }
+	
+	    int main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        int kase = 0;
+	        while (cin >> n >> m) {
+	            if (n == 0 && m == 0) break;
+	            init();
+	            for (int i = 0; i < m; i++) {
+	                int u, v;
+	                cin >> u >> v; 
+	                G[u].push_back(v);
+	                G[v].push_back(u);
+	            }
+	            dfs(1, 0);
+	            int q;
+	            cin >> q;
+	            cout << "Case " << ++kase << ":\n";
+	            for (int i = 0; i < q; i++) {
+	                int u, v;
+	                cin >> u >> v;
+	                cout << lca(u, v) << '\n';
+	            }
+	            cout << '\n';
+	        }
+	        return 0;
+	    }
+	    ```
+
 ???+note "[TOI 2023 pE. 公路 (road)](https://zerojudge.tw/ShowProblem?problemid=k188)"
 	給一張 $n$ 點 $m$ 邊的帶權無向圖，有 $q$ 筆查詢 :
 	
@@ -826,6 +834,9 @@ u是割點的條件是：
 	給一張 $n$ 點 $m$ 邊有向圖，求最少需要從幾個點開始 DFS 才能經過所有點至少一次。
 	
 	$n,m\le 10^5$
+	
+	??? note "思路"
+		縮點後看有幾個 in degree = 0 的點就是答案
 
 ???+note "[POJ 1515 - Street Directions](https://vjudge.net/problem/POJ-1515)"
 	給一張 $n$ 點 $m$ 邊無向圖，保證圖連通。選一些無向邊定向，使得最終圖保持強連通的特性。選的邊要盡量多，輸出每個邊的方向（無向邊及輸出兩次，方向不同）

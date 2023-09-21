@@ -766,24 +766,24 @@
 	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，有 $q$ 次以下操作 :
 	
 	- $\text{update}(i):$ 將 $a_i$ += 1, $a_{i+1}$ += 2, ...
-
+	
 	- $\text{query}(l,r):$ 輸出 $a_l + \ldots ,a_r$
-
+	
 	$1\le n,q \le 2\times 10^5$
 	
 	??? note "思路"
 		開兩顆 Segment Tree，Seg1 維護 $1\times i_1, 2\times i_2, 3\times i_3, \ldots$，Seg2 就是一般的線段樹
 		
 		- update
-
+	
 			- Seg1 : 區間每項都 +1
-
+	
 			- Seg2 : 區間每項都 -(l - 1)
-
+	
 		- query 
-
+	
 			- Seg1[l, r] + Seg2[l, r]
-		
+
 ## 二維 BIT
 
 ???+note "[CSES - Forest Queries II](https://cses.fi/problemset/task/1739)"
@@ -803,6 +803,20 @@
     	
     	```
 
+???+note "[NPSC 2020 高中組初賽 pF. 兔田建設](https://contest.cc.ntu.edu.tw/npsc2020/teamclient/semi_senior.pdf#page=15)"
+	給一個長度為 $n$ 的序列 $a_1, \ldots, a_n$，給 $k$，有 $q$ 筆詢問 : 
+	
+	- $\text{query}(v,l,r,c):$ 問 $a_l, \ldots, a_r$ 有沒有長度為 $k$ 的區間中，恰有 $c$ 個 $\le v$ 的數
+
+	$n,q,k\le 10^6$
+	
+	??? note "思路"
+		把詢問按 $v$ 排序，就可以先把 $<v$ 的位置都塗上顏色，可以用線段樹維護每個位置開頭的長度 $k$ 的區間中，有幾個位置塗顏色，最難的地方是找有沒有出現 $c$。
+		
+		開頭在 $i$ 的區間和開頭在 $i+1$ 的區間，塗色的位置數量最多只會差 1，所以可以用類似介值定理的想法，$c$ 在最小值和最大值之間就表示有出現 $c$。
+		
+		> 參考自 : <https://www.wiwiho.me/2020/11/21/npsc2020pre/>
+	
 ## 參考
 
 - <https://drive.google.com/file/d/1-X36kSojmhmMofC6zMLmLAt88j87ZJsn/view>

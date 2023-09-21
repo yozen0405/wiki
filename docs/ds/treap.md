@@ -1380,6 +1380,28 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 	??? note "思路"
 		離線解決，把區間排序好，區間移動時，把不用的元素刪掉，還沒加進 Treap 的元素加進去
 
+???+note "[TIOJ 1169. 氣球博覽會](https://tioj.ck.tp.edu.tw/problems/1169)"
+	有一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，有以下 $q$ 筆操作 :
+
+	- 單點修改
+	
+	- 區間查詢不含某數的最長連續序列
+
+	$n,q\le 2\times 10^5, a_i<2^{24}$
+	
+	??? note "思路"
+		對於每種數字，開一個 Treap 紀錄出現的 index，Treap Node 裡維護 :
+		
+		- index
+
+		- 相鄰兩個距離的最大值
+
+		- 子樹最小 index
+
+		- 子樹最大 index
+		
+		當查詢時就 Treap[c].SplitByIndex(l, r)，將「相鄰兩個距離的最大值」與「l - 最小 index - 1」與「r - 最大 index - 1」取 max 就是答案
+	
 ## 持久化 Treap
 
 ### 基本操作
@@ -1524,10 +1546,10 @@ splitBySize(t, k)：把 treap 按照中序分成兩棵，第一棵的包含恰�
 		一般的 Treap 沒辦法做到「複製」。如下圖
 		
 		<figure markdown>
-          ![Image title](./images/11.png){ width="500" }
-        </figure>
-        
-        兩個「cde」使用的記憶體是一樣的，所以當你要 Merge(cde, cde) 的時候，在改動其中一側時會直接改動到另一側節點的資訊，所以不可行。
+	      ![Image title](./images/11.png){ width="500" }
+	    </figure>
+	    
+	    兩個「cde」使用的記憶體是一樣的，所以當你要 Merge(cde, cde) 的時候，在改動其中一側時會直接改動到另一側節點的資訊，所以不可行。
 		
 		考慮使用持久化 Treap，我們先把 [l, r] 切出來後，直接 Merge 兩次。
 		
