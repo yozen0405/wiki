@@ -1005,3 +1005,76 @@
 		可以將 (i, h[i]) 打在二維座標平面上理解會更清楚。
 		
 		> 參考自 : <https://hackmd.io/@HNO2/HysqfODG3#pH-%E5%A4%A7%E6%A8%93%E6%8B%86%E9%99%A4>
+		
+???+note "[EOJ 2799. 区间覆盖](https://acm.ecnu.edu.cn/problem/2799/)"
+	給 $n$ 個 interval $[l, r]$，每個 interval 有一個權重 $w$，問至少覆蓋 $k$ 個 point 的最小權重和
+	
+	$n\le 10^5, 1\le w_i\le 10^9,$ point 數量 $\le 300$
+	
+	??? note "思路"
+		dp(i, k) = 在 point 1 ~ i 內恰好覆蓋 k 個 point 的 min cost
+		
+		$$dp(i, k) = \min \begin{cases}dp(i - 1, k) \\ dp(i - j, k - j) +  \text{cost}(i - j + 1, i) \text{for} \space \textt{all}\space j=1 \ldots k\end{cases}$$
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <stdio.h>
+        #include <iostream>
+        #define MAX_N 307
+        #define INFINITY 0x3F3F3F3F
+
+        using namespace std;
+
+        int costs[MAX_N][MAX_N]; // costs[i][j]表示从i放到j的花费
+        int dp[MAX_N][MAX_N]; // dp[i][j]表示在总共i个里面放k个的最小花费
+
+        int main() {
+            int caseNumber;
+            scanf("%d", &caseNumber);
+            for (int caseIndex = 0; caseIndex<caseNumber; ++caseIndex) {
+                for (int i=0; i<MAX_N; ++i) {
+                    for (int j=0; j<MAX_N; ++j) {
+                        costs[i][j]=INFINITY;
+                    }
+                }
+                for (int i=0; i<MAX_N; ++i) {
+                    for (int j=0; j<MAX_N; ++j) {
+                        dp[i][j]=INFINITY;
+                    }
+                }
+                int n, m, k;
+                scanf("%d%d%d", &n, &m, &k);
+                while (m--) {
+                    int left, right, cost;
+                    scanf("%d%d%d", &left, &right, &cost);
+                    costs[left][right] = min(costs[left][right], cost);
+
+                    for (int i=left; i<=right; ++i) {
+                        for (int j=i; j<=right; ++j) {
+                            costs[i][j]=min(costs[i][j],cost);
+                        }
+                    }
+                }
+                for (int i=1; i<=n; ++i) {
+                    for (int j=i; j<=n; ++j) {
+                        for (int t=i; t<j; ++t) {
+                            costs[i][j]=min(costs[i][j],costs[i][t]+costs[t+1][j]);
+                        }
+                    }
+                }
+
+                for (int i = 0; i <= n; ++i) dp[i][0] = 0;
+
+                for (int i = 1; i <= n; ++i)
+                    for (int j = 1; j <= i; ++j) {
+                        dp[i][j] = dp[i - 1][j];
+                        for (int t = 1; t <= j; ++t)
+                            if (costs[i - t + 1][i] != INFINITY)
+                                dp[i][j] = min(dp[i][j], dp[i - t][j - t] + costs[i - t + 1][i]);
+                    }
+                printf("case #%d:\n%d\n",caseIndex,dp[n][k]==INFINITY?-1:dp[n][k]);
+            }
+
+            return 0;
+        }
+        ```

@@ -75,6 +75,16 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
 	
 	$n\le 5\times 10^4, m\le 3\times 10^5$
 
+???+note "[CS Academy - Simple Paths](https://csacademy.com/contest/archive/task/simple-paths/)"
+	給一張 $n$ 點 $m$ 邊無向圖，有 $q$ 筆查詢，問兩點之間是否只存在一條簡單路徑
+	
+	$n,m,q\le 1000$
+	
+	??? note "思路"
+		只存在一條簡單路徑 iff 路徑上的邊都是 bridge
+		
+		我們可以先用 tarjan 找出所有 bridge，然後用一個 dsu 將 bridge 兩端的點 merge 起來，這樣在 query 時只要看兩點是否在 dsu 的同一組即可，複雜度 $O(n\alpha (n))$
+	
 ## Tarjan 邊 BCC
 
 如果把所有的 bridge 移除，那每一個連通塊在原圖上就稱為「邊雙連通分量」（bridge-connected component，簡稱 BCC）。

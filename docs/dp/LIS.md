@@ -293,16 +293,16 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，有 $q$ 筆詢問 :
 	
 	- $\text{query}(i,x):$ 若將 $a_i$ 改成 $x$，LIS$(a)$ 是多少
-
+	
 	$n,m\le 4\times 10^5, 1\le a_i, x\le 10^9$
 	
 	??? note "思路"
 		將以下兩種情況取 max 就是改變後的 LIS 長度
 		
 		- $a_i$ 是必經的，答案變成 lis - 1
-
+	
 		- 包含 $a_i = x$ 的 lis 長度
-
+	
 		其中，包含 $a_i = x$ 的 lis 可以在建 l[ ], r[ ] 的時候順便做好，詳見代碼
 		
 		小心這題會卡時間
@@ -310,96 +310,96 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define pii pair<int, int>
-        using namespace std;
-
-        struct qry {
-            int idx, val, id, ans;
-        };
-
-        const int INF = 9e18;
-        const int maxn = 4e6 + 5;
-        int n, m;
-        vector<int> a;
-        vector<qry> q;
-        int l[maxn], r[maxn], all[maxn], cnt[maxn];
-
-        int getPos(vector<int> &lis, int x) {
-            return lower_bound(lis.begin(), lis.end(), x) - lis.begin();
-        }
-
-        void solve() {
-            scanf("%lld%lld", &n, &m);
-            a.resize(n);
-            q.resize(m);
-            for (int i = 0; i < n; i++) {
-                scanf("%lld", &a[i]);
-            }
-            for (int i = 0; i < m; i++) {
-                scanf("%lld%lld", &q[i].idx, &q[i].val);
-                q[i].idx--;
-                q[i].id = i;
-            }
-
-            sort(q.begin(), q.end(), [](qry a, qry b)
-                 { return a.idx < b.idx; });
-            vector<int> lis;
-            int len = 0, cur = 0;
-            for (int i = 0; i < n; i++) {
-                while (cur < m && q[cur].idx == i) {
-                    q[cur++].ans += getPos(lis, q[cur].val);
-                }
-                l[i] = getPos(lis, a[i]) + 1;
-                if (l[i] - 1 < lis.size()) {
-                    lis[l[i] - 1] = a[i];
-                } else {
-                    lis.pb(a[i]);
-                }
-                len = max(len, l[i]);
-            }
-
-            lis.clear();
-            cur = m - 1;
-            for (int i = n - 1; i >= 0; i--) {
-                while (cur >= 0 && q[cur].idx == i) {
-                    q[cur--].ans += getPos(lis, -q[cur].val);
-                }
-                r[i] = getPos(lis, -a[i]) + 1;
-                if (r[i] - 1 < lis.size()) {
-                    lis[r[i] - 1] = -a[i];
-                } else {
-                    lis.pb(-a[i]);
-                }
-            }
-
-            for (int i = 0; i < n; i++) {
-                if (l[i] + r[i] - 1 == len) {
-                    cnt[l[i]]++;
-                }
-            }
-            for (int i = 0; i < n; i++) {
-                if (l[i] + r[i] - 1 == len) {
-                    all[i] = (cnt[l[i]] == 1);
-                }
-            }
-
-            sort(q.begin(), q.end(), [](qry a, qry b)
-                 { return a.id < b.id; });
-            for (int i = 0; i < m; i++) {
-                printf("%lld\n", max(q[i].ans + 1, len - all[q[i].idx]));
-            }
-        }
-
-        signed main() {
-            solve();
-        }
+	    #define int long long
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define pii pair<int, int>
+	    using namespace std;
+	
+	    struct qry {
+	        int idx, val, id, ans;
+	    };
+	
+	    const int INF = 9e18;
+	    const int maxn = 4e6 + 5;
+	    int n, m;
+	    vector<int> a;
+	    vector<qry> q;
+	    int l[maxn], r[maxn], all[maxn], cnt[maxn];
+	
+	    int getPos(vector<int> &lis, int x) {
+	        return lower_bound(lis.begin(), lis.end(), x) - lis.begin();
+	    }
+	
+	    void solve() {
+	        scanf("%lld%lld", &n, &m);
+	        a.resize(n);
+	        q.resize(m);
+	        for (int i = 0; i < n; i++) {
+	            scanf("%lld", &a[i]);
+	        }
+	        for (int i = 0; i < m; i++) {
+	            scanf("%lld%lld", &q[i].idx, &q[i].val);
+	            q[i].idx--;
+	            q[i].id = i;
+	        }
+	
+	        sort(q.begin(), q.end(), [](qry a, qry b)
+	             { return a.idx < b.idx; });
+	        vector<int> lis;
+	        int len = 0, cur = 0;
+	        for (int i = 0; i < n; i++) {
+	            while (cur < m && q[cur].idx == i) {
+	                q[cur++].ans += getPos(lis, q[cur].val);
+	            }
+	            l[i] = getPos(lis, a[i]) + 1;
+	            if (l[i] - 1 < lis.size()) {
+	                lis[l[i] - 1] = a[i];
+	            } else {
+	                lis.pb(a[i]);
+	            }
+	            len = max(len, l[i]);
+	        }
+	
+	        lis.clear();
+	        cur = m - 1;
+	        for (int i = n - 1; i >= 0; i--) {
+	            while (cur >= 0 && q[cur].idx == i) {
+	                q[cur--].ans += getPos(lis, -q[cur].val);
+	            }
+	            r[i] = getPos(lis, -a[i]) + 1;
+	            if (r[i] - 1 < lis.size()) {
+	                lis[r[i] - 1] = -a[i];
+	            } else {
+	                lis.pb(-a[i]);
+	            }
+	        }
+	
+	        for (int i = 0; i < n; i++) {
+	            if (l[i] + r[i] - 1 == len) {
+	                cnt[l[i]]++;
+	            }
+	        }
+	        for (int i = 0; i < n; i++) {
+	            if (l[i] + r[i] - 1 == len) {
+	                all[i] = (cnt[l[i]] == 1);
+	            }
+	        }
+	
+	        sort(q.begin(), q.end(), [](qry a, qry b)
+	             { return a.id < b.id; });
+	        for (int i = 0; i < m; i++) {
+	            printf("%lld\n", max(q[i].ans + 1, len - all[q[i].idx]));
+	        }
+	    }
+	
+	    signed main() {
+	        solve();
+	    }
 		```
-		
+
 ## 二維偏序
 
 ### 嚴格
@@ -629,6 +629,13 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 	    }
 	    ```
 
+???+note "竹科實中 2023 校內賽 pB. 構造 LIS"
+
+???+note "LIS deletion"
+	給一長度為 $n$ 的陣列 $a$，每次可以從 $a$ 刪掉一個嚴格遞增的子序列，求最少幾次才能刪完
+	
+	$n\le 2\times 10^5, 1\le a_i \le 10^9$
+	
 ---
 
 ## 參考資料

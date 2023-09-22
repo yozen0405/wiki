@@ -1,19 +1,3 @@
-## 介紹
-
-- 持久化並查集
-- 帶權並查集 (CF imposter)
-- 可撤銷並查集 (2023 成大賽 p4)
-- 加點技巧 (海牛 class 11 hm)
-
-## 連結
-
-- 二分圖
-- 啟發式合併
-	- 海牛 class 11
-	- DSU 啟發式合併複雜度證明 (知乎)
-	- 啟發式合併複雜度 (oi wiki)
-- 持久化線段樹
-
 ## 一般的並查集
 
 ???+note "模板 [CF EDU A. Disjoint Sets Union](https://codeforces.com/edu/course/2/lesson/7/1/practice/contest/289390/problem/A)"
@@ -119,7 +103,7 @@
 
 若將「路徑壓縮」和「啟發式合併」都用上的話複雜度是 $\Theta(\alpha (n))$[^1]
 
-若不使用「啟發式合併」，平均複雜度依然是 $O(\alpha (n))$，但 worst case $O(\log n)$
+若不使用「啟發式合併」，平均複雜度是 $O(\log^* n)$
 	
 ## rollback DSU
 
@@ -183,7 +167,7 @@
         }
     };
     ```
-    
+
 ??? note "rollback dsu 支援判二分圖"
 	```cpp linenums="1"
 	struct Graph {
@@ -223,14 +207,14 @@
             // return : 有沒有 odd cycle
             return (cnt > 0);
         }
-
+    
     private :
         int n, cnt;
         vector<int> sz;
         vector<int> par;
         vector<int> dis;
         stack<pii> stk;
-
+    
         pii find(int x) {
             if (par[x] == x) return {x, 0};
             else {
@@ -241,7 +225,8 @@
     };
     ```
 
-	
+
+​	
 ### 複雜度
 
 不能使用路徑壓縮（但還是可以啟發式合併），故複雜度 $O(\log n)$
@@ -1074,7 +1059,7 @@
 	
 	??? note "思路"
 		跟上一題的做法差不多只是 dsu 要可以判二分圖
-	
+
 ???+note "序列上的 DSU [CF 982 D. Shark](https://codeforces.com/contest/982/problem/D)"
 	給大小為 $n$ 的序列 $a_1,\ldots, a_n$。刪除大於等於 $k$ 的數字，使得其滿足以下條件： 
 	
