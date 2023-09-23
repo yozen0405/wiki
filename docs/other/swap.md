@@ -16,6 +16,20 @@
 	
 		可以使用 BIT，複雜度 O(n log n)
 
+???+note "[CS Academy - Sorting Steps](https://csacademy.com/contest/archive/task/sorting-steps)"
+	給一個長度為 $n$ 陣列 $a_1, \ldots ,a_n$，問 bubble sort 外層迴圈需要跑幾次（詳見原題）
+	
+	$n\le 10^5, 1 < a_i < 10^9$
+	
+	??? note "思路"
+		對於每個數字，我們計算一個 lower bound，代表我們保證這個數字一定至少需要跑過幾輪，才能 swap 回原本的位置 
+		
+        - 首先如果前面有一些比 $a_i$ 大的話，每次這些比我大的會恰有一個跳過我。
+
+        - 到了前面都沒有比 $a_i$ 大的時候，這時我就會去跳別人，變成別人 1. 的 case。
+
+        因為是 lower bound，所以我們最後的答案必須取「每個人左邊比她大的數字」的 max
+		
 ## CF Split Sort
 
 ???+note "[CF 1863 B. Split Sort](https://codeforces.com/contest/1863/problem/B)"
@@ -61,15 +75,15 @@
 		- aabb
 		
 		- abab
-
+	
 		- abba
-
+	
 		那麼當 n 可以任意的時候，我們就只要枚舉 i, j，看他們的位置排列是哪種然後加入貢獻即可，因為例如 abcbca，後面的 a **一定**要經過兩個 b 才能到達前面的 a，abba, acca, bcbc : 2 + 2 + 1 = 5，有點類似[比較排序](https://tmt514.github.io/algorithm-analysis/sorting/minimum-comparison-sort.html)。
 		
 		可以用 BIT 之類的來優化這個過程，變 O(n log n)
 		
 		---
-
+	
 		考慮要使第一個數字與跟他相同的數字要相鄰，將比較後面的那個一路 swap 到第二個位置一定不會比較差，因為若他們兩個都 swap 到中間去，那等等其他人經過他們時還會花更多 cost
 		
 		所以我們將第一個數字做完後，就可以刪掉他們變子問題。可使用 BIT 計算 cost
