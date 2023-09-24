@@ -629,13 +629,43 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 	    }
 	    ```
 
-???+note "竹科實中 2023 校內賽 pB. 構造 LIS"
+???+note "[竹科實中 2023 校內賽 pB. 構造 LIS](https://nehshcedutw-my.sharepoint.com/:o:/g/personal/h091160_nehs_hc_edu_tw/EuSmByedqi1Ljj-ZoafGIaoBB136-UXC91YIIAR8PRZcYQ?rtime=zn2YHSW520g)"
+	給一顆 $n$ 個點的樹，每個點上有一個未定的數 $p_i$，構造 $p=1\ldots n$ 的 permutation 使得 :
+    
+    - 從 root 到 $i$，以 $p_i$ 結尾的 LIS 長度為 $b_i$
+    
+    $n\le 2\times 10^5$
+    
+    ??? note "思路"
+    	先分析 :
+    	
+    	- 對於 $j<i$ 且 $b_j=b_i$ ，要滿足 $p_j>p_i$
+    
+    	- 對於 $j<i$ 且 $b_j=b_i-1$，至少存在一個 $p_j<p_i$
+    
+    	考慮建圖，我們從小的連到大的。可以觀察到對於同樣 $b_i$ 的 $i$，越後面的 $p_i$ 越小，所以上面兩個限制其實都只要連到最後面滿足條件的即可。
+    	
+    	- $i\to j$
+    
+    	- $j\to i$
+    
+    	這樣會形成一個 DAG，所以答案就是 topo order
+
+???+note "[CS Academy - Strictly Increasing Array](https://csacademy.com/contest/archive/task/strictly-increasing-array)"
+	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，每次操作可以將某項變成任意整數，問最少幾次操作可使陣列嚴格遞增
+	
+	$n\le 10^5, 1\le a_i\le 10^9$
+	
+	??? note "思路"
+		將問題轉換成「最多可以不改動幾個數」。若不動的相鄰兩項為 $i,j$ 其中 $(i<j)$，那必須滿足 $j-i \le a_j-a_i$，這樣中間才有辦法塞值域進去。
+		
+		我們將式子整理一下變成 $a_i - i \le a_j-j$，也就是在 $a_i'=a_i-i$ 上找最長非嚴格遞增子序列
 
 ???+note "LIS deletion"
 	給一長度為 $n$ 的陣列 $a$，每次可以從 $a$ 刪掉一個嚴格遞增的子序列，求最少幾次才能刪完
 	
 	$n\le 2\times 10^5, 1\le a_i \le 10^9$
-	
+
 ---
 
 ## 參考資料

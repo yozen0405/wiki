@@ -721,7 +721,7 @@
 	        }
 	    } 
 	    ```
-	    
+
 ???+note "[CF 1527 D. MEX Tree](https://codeforces.com/problemset/problem/1527/D)"
 	給一顆 $n$ 個點的樹，node 編號為 $0\ldots (n-1)$。對於每個 $k = 0\ldots n$，輸出有幾個 path 上 node 的集合的 mex 為 $k$
 	
@@ -729,3 +729,4 @@
 	
 	??? note "思路"
 		見 <https://www.acwing.com/file_system/file/content/whole/index/content/3177876/>
+		

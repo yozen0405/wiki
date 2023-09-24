@@ -1005,7 +1005,7 @@
 		可以將 (i, h[i]) 打在二維座標平面上理解會更清楚。
 		
 		> 參考自 : <https://hackmd.io/@HNO2/HysqfODG3#pH-%E5%A4%A7%E6%A8%93%E6%8B%86%E9%99%A4>
-		
+
 ???+note "[EOJ 2799. 区间覆盖](https://acm.ecnu.edu.cn/problem/2799/)"
 	給 $n$ 個 interval $[l, r]$，每個 interval 有一個權重 $w$，問至少覆蓋 $k$ 個 point 的最小權重和
 	
@@ -1019,62 +1019,150 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <stdio.h>
-        #include <iostream>
-        #define MAX_N 307
-        #define INFINITY 0x3F3F3F3F
+	    #include <iostream>
+	    #define MAX_N 307
+	    #define INFINITY 0x3F3F3F3F
+	
+	    using namespace std;
+	
+	    int costs[MAX_N][MAX_N]; // costs[i][j]表示从i放到j的花费
+	    int dp[MAX_N][MAX_N]; // dp[i][j]表示在总共i个里面放k个的最小花费
+	
+	    int main() {
+	        int caseNumber;
+	        scanf("%d", &caseNumber);
+	        for (int caseIndex = 0; caseIndex<caseNumber; ++caseIndex) {
+	            for (int i=0; i<MAX_N; ++i) {
+	                for (int j=0; j<MAX_N; ++j) {
+	                    costs[i][j]=INFINITY;
+	                }
+	            }
+	            for (int i=0; i<MAX_N; ++i) {
+	                for (int j=0; j<MAX_N; ++j) {
+	                    dp[i][j]=INFINITY;
+	                }
+	            }
+	            int n, m, k;
+	            scanf("%d%d%d", &n, &m, &k);
+	            while (m--) {
+	                int left, right, cost;
+	                scanf("%d%d%d", &left, &right, &cost);
+	                costs[left][right] = min(costs[left][right], cost);
+	
+	                for (int i=left; i<=right; ++i) {
+	                    for (int j=i; j<=right; ++j) {
+	                        costs[i][j]=min(costs[i][j],cost);
+	                    }
+	                }
+	            }
+	            for (int i=1; i<=n; ++i) {
+	                for (int j=i; j<=n; ++j) {
+	                    for (int t=i; t<j; ++t) {
+	                        costs[i][j]=min(costs[i][j],costs[i][t]+costs[t+1][j]);
+	                    }
+	                }
+	            }
+	
+	            for (int i = 0; i <= n; ++i) dp[i][0] = 0;
+	
+	            for (int i = 1; i <= n; ++i)
+	                for (int j = 1; j <= i; ++j) {
+	                    dp[i][j] = dp[i - 1][j];
+	                    for (int t = 1; t <= j; ++t)
+	                        if (costs[i - t + 1][i] != INFINITY)
+	                            dp[i][j] = min(dp[i][j], dp[i - t][j - t] + costs[i - t + 1][i]);
+	                }
+	            printf("case #%d:\n%d\n",caseIndex,dp[n][k]==INFINITY?-1:dp[n][k]);
+	        }
+	
+	        return 0;
+	    }
+	    ```
+
+???+note "[洛谷 P1077 [NOIP2012 普及组] 摆花](https://www.luogu.com.cn/problem/P1077)"
+	有 $n$ 種花，依序編號為 $1$ 到 $n$，第 $i$ 種有 $a_i$ 個。問依編號小到大放 $m$ 朵花有幾種方法
+	
+	$n\le 100, m\le 100, a_i\le 100$
+	
+	??? note "思路"
+		$dp(i,k)=$ 看前 $k$ 種花，目前已經放了 $i$ 個
+		
+		$dp(i,k)=\sum \limits_{i-a_i\le j}dp(j,k-1)$
+		
+	??? note "code"
+		```cpp linenums="1"
+		cin >> n >> m;
+		for (int i = 1; i <= n; i++) {
+			cin >> a[i];
+		}
+		for (int k = 0; k <= n; k++) {
+			dp[0][k] = 1;
+		}
+		for (int k = 1; k <= n; k++) {
+			for (int i = 1; i <= m; i++)  {
+				for (int j = i; j >= max(i - a[k]); j--) {
+					dp[i][k] = (dp[i][k] + dp[i - 1][k]) % M;
+				}
+			}
+		}
+		cout << dp[m][n] << '\n';
+		```
+		
+???+note "[CSES - Permutation Inversions](https://cses.fi/problemset/task/2229)"
+	問有多少個 $1\ldots n$ 的 permutation 的逆序數對數量為 $k$
+	
+	$n\le 500, k\le \frac{n(n-1)}{2}$
+	
+	??? note "思路"
+		dp(i, j) = 1 ... i 組成的 permutation 內，逆序數對數量為 j 的有幾個
+		
+		$dp(i, j) = \sum \limits_{j-(i-1)\le k\le j} dp(i - 1, k)$
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
 
         using namespace std;
 
-        int costs[MAX_N][MAX_N]; // costs[i][j]表示从i放到j的花费
-        int dp[MAX_N][MAX_N]; // dp[i][j]表示在总共i个里面放k个的最小花费
+        const int maxn = 505;
+        const int M = 1e9 + 7;
+        int n, k;
+        int dp[maxn][maxn * maxn];
 
-        int main() {
-            int caseNumber;
-            scanf("%d", &caseNumber);
-            for (int caseIndex = 0; caseIndex<caseNumber; ++caseIndex) {
-                for (int i=0; i<MAX_N; ++i) {
-                    for (int j=0; j<MAX_N; ++j) {
-                        costs[i][j]=INFINITY;
-                    }
-                }
-                for (int i=0; i<MAX_N; ++i) {
-                    for (int j=0; j<MAX_N; ++j) {
-                        dp[i][j]=INFINITY;
-                    }
-                }
-                int n, m, k;
-                scanf("%d%d%d", &n, &m, &k);
-                while (m--) {
-                    int left, right, cost;
-                    scanf("%d%d%d", &left, &right, &cost);
-                    costs[left][right] = min(costs[left][right], cost);
+        signed main() {
+            cin >> n >> k;
 
-                    for (int i=left; i<=right; ++i) {
-                        for (int j=i; j<=right; ++j) {
-                            costs[i][j]=min(costs[i][j],cost);
-                        }
+            dp[1][0] = 1;
+            for(int i = 2; i <= n; i++){
+                int sum = 0, p = 0; 
+                for(int j = 0; j <= k; j++){
+                    if(j - (i - 1) > p) {
+                        sum -= dp[i - 1][p];
+                        p++;
                     }
+                    sum += dp[i - 1][j];
+                    dp[i][j] = sum % M;
                 }
-                for (int i=1; i<=n; ++i) {
-                    for (int j=i; j<=n; ++j) {
-                        for (int t=i; t<j; ++t) {
-                            costs[i][j]=min(costs[i][j],costs[i][t]+costs[t+1][j]);
-                        }
-                    }
-                }
-
-                for (int i = 0; i <= n; ++i) dp[i][0] = 0;
-
-                for (int i = 1; i <= n; ++i)
-                    for (int j = 1; j <= i; ++j) {
-                        dp[i][j] = dp[i - 1][j];
-                        for (int t = 1; t <= j; ++t)
-                            if (costs[i - t + 1][i] != INFINITY)
-                                dp[i][j] = min(dp[i][j], dp[i - t][j - t] + costs[i - t + 1][i]);
-                    }
-                printf("case #%d:\n%d\n",caseIndex,dp[n][k]==INFINITY?-1:dp[n][k]);
             }
-
-            return 0;
-        }
+            cout << dp[n][k] << "\n";
+        } 
         ```
+        
+???+note "[CSES - Coding Company](https://cses.fi/problemset/task/1665/)"
+	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，問有幾種分組方式使每組的最大最小差之和 $\le x$
+	
+	$n\le 100, 0\le x\le 5000, 0\le t_i \le 100$
+	
+	??? note "思路"
+		先將陣列 $a$ 小到大 sort，我們在算 max - min 就可以一段一段的算
+	
+		dp(i, j, x): 1~i，有 j 組已經開始，但還沒結束，cost 是 x 的方法數
+		
+		dp(i, j, x) +=
+		
+		- 繼續接 dp(i - 1, j, x - (a[i] - a[i - 1]) * j)
+
+		- 再開一組 dp(i - 1, j - 1, x - (a[i] - a[i - 1]) * (j - 1))
+
+		- 結束一組 dp(i - 1, j + 1, x - (a[i] - a[i - 1]) * (j + 1))

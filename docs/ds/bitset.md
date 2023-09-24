@@ -379,51 +379,145 @@ __builtin_ctz(x)
 	??? note "code"
 		```cpp linenums="1"
 		#include <bitset>
+	    #include <iostream>
+	    #include <vector>
+	
+	    using namespace std;
+	
+	    bitset<10000> B;
+	
+	    void solve(vector<int> vec) {
+	        B[0] = true;
+	
+	        for (int x : vec) {
+	            B |= (B << x);
+	        }
+	    }
+	
+	    int main() {
+	        vector<int> w = {2, 4, 9};
+	        vector<int> cnt = {3, 5, 4};
+	
+	        vector<int> vec;
+	        for (int i = 0; i < (int)w.size(); i++) {
+	            int k = 1;
+	            while (k < cnt[i]) {
+	                vec.push_back(w[i] * k);
+	                cnt[i] -= k;
+	                k *= 2;
+	            }
+	            if (k > 0) {
+	                vec.push_back(w[i] * k);
+	            }
+	            /*
+	            slow version
+	            for (int j = 0; j < cnt[i]; j++) {
+	                vec.push_back(w[i]);
+	            }
+	            */
+	        }
+	
+	        solve(vec);  // 01 背包
+	        cout << B << '\n';
+	
+	        return 0;
+	    }
+	    ```
+
+???+note "[CSES - School Excursion](https://cses.fi/problemset/task/1706/)"
+	給你一張 $n$ 點 $m$ 邊的圖，可以取 $k$ 個連通塊，問取到的 node 總和有哪些可能，依序輸出
+	
+	$n\le 10^5, m\le 10^5$
+	
+	??? note "思路"
+		將問題轉換成有限背包，使用拆成 log c 組的優化 + bitset
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bitset>
         #include <iostream>
         #include <vector>
 
+        #define int long long
+
         using namespace std;
 
-        bitset<10000> B;
+        const int maxn = 1e5 + 5;
 
-        void solve(vector<int> vec) {
-            B[0] = true;
+        int n, m;
+        int par[maxn], sz[maxn];
+        vector<int> W;
 
-            for (int x : vec) {
-                B |= (B << x);
+        void dsu_init() {
+            for (int i = 1; i <= n; i++) {
+                par[i] = i;
+                sz[i] = 1;
             }
         }
 
-        int main() {
-            vector<int> w = {2, 4, 9};
-            vector<int> cnt = {3, 5, 4};
+        int find(int x) {
+            if (par[x] == x) return x;
+            return par[x] = find(par[x]);
+        }
 
-            vector<int> vec;
-            for (int i = 0; i < (int)w.size(); i++) {
-                int k = 1;
-                while (k < cnt[i]) {
-                    vec.push_back(w[i] * k);
-                    cnt[i] -= k;
-                    k *= 2;
+        void merge(int a, int b) {
+            int x = find(a), y = find(b);
+            if (x == y) return;
+            par[x] = y;
+            sz[y] += sz[x];
+            sz[x] = 0;
+        }
+
+        void init() {
+            cin >> n >> m;
+            int u, v;
+            dsu_init();
+            for (int i = 0; i < m; i++) {
+                cin >> u >> v;
+                merge(u, v);
+            }
+        }
+
+        void solve() {
+            W.resize(n + 1);
+            for (int i = 1; i <= n; i++) {
+                W[sz[i]]++;
+            }
+            bitset<maxn> B;
+            B.reset();
+            B[0] = 1;
+
+            for (int i = 1; i <= n; i++) {
+                if (W[i] >= 2) {
+                    int k = (W[i] - 1) / 2;
+                    W[2 * i] += k;
+                    W[i] -= 2 * k;
                 }
-                if (k > 0) {
-                    vec.push_back(w[i] * k);
-                }
-                /*
-                slow version
-                for (int j = 0; j < cnt[i]; j++) {
-                    vec.push_back(w[i]);
-                }
-                */
             }
 
-            solve(vec);  // 01 背包
-            cout << B << '\n';
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= W[i]; j++) {
+                    B |= (B << i);
+                }
+            }
 
-            return 0;
+            for (int i = 1; i <= n; i++) {
+                cout << B[i];
+            }
+        }
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            int t = 1;
+            // cin >> t;
+            while (t--) {
+                init();
+                solve();
+            }
         }
         ```
-	
+
 ### 習題
 
 ???+note "[CF 1854 B. Earn or Unlock](https://codeforces.com/contest/1854/problem/B)"

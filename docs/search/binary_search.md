@@ -8,8 +8,6 @@
 
 - [JOI Kingdom](https://loj.ac/p/2334)
 
-- 2021 nhspc pD
-
 - whale Atcoder 
 
 - 全國賽 2021 pG subtask 1, 2
@@ -563,36 +561,44 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #include <bits/extc++.h>
-        using namespace __gnu_pbds;
-        using namespace std;
+	    #include <bits/extc++.h>
+	    using namespace __gnu_pbds;
+	    using namespace std;
+	
+	    #define ll long long
+	    typedef tree<int, null_type, less<int>, rb_tree_tag, tree_order_statistics_node_update> ordered_set;
+	
+	    int main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cout.tie(0);
+	        ll n, k;
+	        cin >> n >> k;
+	        ordered_set st;
+	        for (int i = 1; i <= n; i++) st.insert(i);
+	        vector<int> ans;
+	        for (ll i = n - 1; i >= 0; i--) {
+	            int l = 0, r = st.size() - 1;
+	            while (l != r) {
+	                int mid = (l + r) / 2;
+	                if (mid + i * (i - 1) / 2 >= k) r = mid;
+	                else l = mid + 1;
+	            }
+	            ans.push_back(*st.find_by_order(l));
+	            k -= l;
+	            st.erase(st.find_by_order(l));
+	        }
+	        for (auto &i : ans) cout << i << ' ';
+	    }
+	    ```
 
-        #define ll long long
-        typedef tree<int, null_type, less<int>, rb_tree_tag, tree_order_statistics_node_update> ordered_set;
-
-        int main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cout.tie(0);
-            ll n, k;
-            cin >> n >> k;
-            ordered_set st;
-            for (int i = 1; i <= n; i++) st.insert(i);
-            vector<int> ans;
-            for (ll i = n - 1; i >= 0; i--) {
-                int l = 0, r = st.size() - 1;
-                while (l != r) {
-                    int mid = (l + r) / 2;
-                    if (mid + i * (i - 1) / 2 >= k) r = mid;
-                    else l = mid + 1;
-                }
-                ans.push_back(*st.find_by_order(l));
-                k -= l;
-                st.erase(st.find_by_order(l));
-            }
-            for (auto &i : ans) cout << i << ' ';
-        }
-        ```
+???+note "[2021 全國賽 pD. 汽車不再繞圈圈](https://tioj.ck.tp.edu.tw/problems/2254)"
+	給一張 $n$ 點 $m$ 邊的有向圖，反轉第 $i$ 條邊至少要擁有權限 $c_i$。問至少要有多少權限才能讓整張圖沒有環 ? 並輸出反轉方案。
+	
+	$n\le 10^5, m\le 10^5, 1\le c_i\le 10^9$
+	
+	??? note "思路"
+		二分搜權限，在 check 的時候只考慮權限 > t 所形成的圖是否有環（可以用拓樸排序檢查），因為其他邊一定可以按照拓樸順序比較小的指向比較大的。
 	
 ---
 

@@ -109,78 +109,78 @@
 	
 	??? note "思路"
 		令 f(u, v) 是 u 到 v path 上的 $a_i$ xor 起來的值。f(u, v) = f(root, u) ⨁ f(root, v) ⨁ a[ lca(u, v) ]
-
-        對於一個 x 為根的子樹，我們只要去子樹內看有沒有存在兩個點 (u, v) 滿足 f(root, u) ⨁ f(root, v) ⨁ a[x] 是不是 0，如果是 0 的話我們可將 x 改變成 $2^{30+t}$，這樣兩個點都在 x 子樹內的點就不可能與任何點 xor 是 0 了。
-
-        實作上從 leaf 往 root dfs，採用 set + 啟發式合併維護子樹內所有點的 f(root, u)，去看當前 set 內是否有 f(root, u) ⨁ a[x] 這個值即可，若有那我們將 ans++，且不用將任何 f(root, u) 上傳到上面的 parent，因為在 x 改過後不會與其他權值重複，也就代表不可能與任何點 xor 是 0
-        
-        > 更詳細可參考 : <https://zhuanlan.zhihu.com/p/645890524>
-    
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        #define int long long
-
-        using namespace std;
-
-        const int N = 2e5 + 5;
-        int n, ans;
-        int f[N], a[N];
-        vector<int> G[N];
-        set<int> st[N];
-
-        void dfs(int u, int par) {
-            st[u].insert(f[u]);
-
-            for (auto v : G[u]) {
-                if (v == par) continue;
-                f[v] ^= f[u];
-                dfs(v, u);
-
-                if (st[v].size() > st[u].size()) {
-                    swap(st[u], st[v]);
-                }
-            }
-
-            bool ok = true;
-            for (auto v : G[u]) {
-                if (v == par) continue;
-                if (ok == false) continue;
-
-                for (auto val : st[v]) {
-                    if (st[u].count(val ^ a[u])) {
-                        ok = false;
-                        st[u].clear();
-                        ans++;
-                        break;
-                    }
-                }
-                if (ok) {
-                    for (auto val : st[v]) {
-                        st[u].insert(val);
-                    }
-                }
-            }
-        }
-
-        signed main() {
-            cin >> n;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-                f[i] = a[i];
-            }
-            for (int i = 1; i < n; i++) {
-                int u, v;
-                cin >> u >> v;
-                G[u].push_back(v);
-                G[v].push_back(u);
-            }
-
-            dfs(1, 0);
-
-            cout << ans << "\n";
-        }
-        ```
+	
+	    對於一個 x 為根的子樹，我們只要去子樹內看有沒有存在兩個點 (u, v) 滿足 f(root, u) ⨁ f(root, v) ⨁ a[x] 是不是 0，如果是 0 的話我們可將 x 改變成 $2^{30+t}$，這樣兩個點都在 x 子樹內的點就不可能與任何點 xor 是 0 了。
+	
+	    實作上從 leaf 往 root dfs，採用 set + 啟發式合併維護子樹內所有點的 f(root, u)，去看當前 set 內是否有 f(root, u) ⨁ a[x] 這個值即可，若有那我們將 ans++，且不用將任何 f(root, u) 上傳到上面的 parent，因為在 x 改過後不會與其他權值重複，也就代表不可能與任何點 xor 是 0
+	    
+	    > 更詳細可參考 : <https://zhuanlan.zhihu.com/p/645890524>
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	
+	    using namespace std;
+	
+	    const int N = 2e5 + 5;
+	    int n, ans;
+	    int f[N], a[N];
+	    vector<int> G[N];
+	    set<int> st[N];
+	
+	    void dfs(int u, int par) {
+	        st[u].insert(f[u]);
+	
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            f[v] ^= f[u];
+	            dfs(v, u);
+	
+	            if (st[v].size() > st[u].size()) {
+	                swap(st[u], st[v]);
+	            }
+	        }
+	
+	        bool ok = true;
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            if (ok == false) continue;
+	
+	            for (auto val : st[v]) {
+	                if (st[u].count(val ^ a[u])) {
+	                    ok = false;
+	                    st[u].clear();
+	                    ans++;
+	                    break;
+	                }
+	            }
+	            if (ok) {
+	                for (auto val : st[v]) {
+	                    st[u].insert(val);
+	                }
+	            }
+	        }
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	            f[i] = a[i];
+	        }
+	        for (int i = 1; i < n; i++) {
+	            int u, v;
+	            cin >> u >> v;
+	            G[u].push_back(v);
+	            G[v].push_back(u);
+	        }
+	
+	        dfs(1, 0);
+	
+	        cout << ans << "\n";
+	    }
+	    ```
 
 ## 啟發式合併
 
@@ -196,7 +196,7 @@
 	    - 若非 Tree edge，則直接 push back 到答案
 	
 		至於要怎麼看非 Tree edge 會不會變合法，可以用 Disjoint set 在維護有碰到該連通塊的非 Tree edge 的 set/vector，在 Disjoint set Merge 的時候使用啟發式合併即可，複雜度 $O((n + m) \log (n + m))$
-		
+
 ???+note "[USACO 2020 Open Gold p2. Favorite Colors](http://www.usaco.org/index.php?page=viewproblem2&cpid=1042)"
 	給一張 $N$ 點 $M$ 邊有向圖，點編號為 $1\ldots N$，每種顏色也可以用 $1\ldots N$ 中的一個整數表示
 	
@@ -273,7 +273,7 @@
 	        }
 	    }
 	    ```
-        
+
 ???+note "[APIO 2012 Dispatching](https://tioj.ck.tp.edu.tw/problems/1429)"
 	給定一個 $n$ 個點，以 $1$ 為根的樹，每個點有 $c_i, w_i$ 兩個屬性，你需要從某個點 $u$ 子樹內選一些點，滿足選出來的點 $\sum w_i \le W$，最大化「選的數量 $\times c_u$」
 	
@@ -281,3 +281,13 @@
 	
 	??? note "思路"
 		選 $w_i$ 越小的點越好。每個點維護一個 Min Heap，當 Min Heap 裡面的 $\sum w_i$ 超過 $W$，就 pop 直到 $\le W$，Min Heap 合併時採用啟發式合併。
+		
+???+note "[CF 1805 E. There Should Be a Lot of Maximums](https://codeforces.com/contest/1805/problem/E)"
+	給一棵 $n$ 個點的樹，定義一棵樹的 MAD 值為「出現兩次以上的點權最大值」。對於每條邊，輸出若刪除該邊，形成的兩棵子樹的 MAD 值取 max。
+	
+	$2\le n\le 10^5$
+	
+	??? note "思路"
+		開兩個 set 分別維護子樹內的資訊以及子樹外的資訊，使用啟發式合併，複雜度 $O(n\log^2 n)$
+		
+		> 參考自 : <https://www.luogu.com.cn/blog/KnownError/solution-cf1805e>
