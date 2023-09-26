@@ -12,6 +12,9 @@
 		
 		可以先預處理 G(i, j) 代表 i 是否能根 j 連邊，在轉移時維護一個 ans(l, r) 代表 [l, r] 是否能組出一顆合法的 BST，最後輸出 ans(l, r) 即可
 
+???+note "[全國賽模擬賽 pF. 鬧鐘設置 (F_Alarm_Clock)](https://drive.google.com/file/d/1KAaPOYdzBuoC0hXdFwS5W0ZEItY61ktk/view)"
+	
+	
 ???+note "[JOI 2015 Final 分蛋糕 2](https://loj.ac/p/2725)"
 
 array shrinking

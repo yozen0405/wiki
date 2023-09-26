@@ -10,10 +10,7 @@
 - https://codeforces.com/gym/375522/problem/F
 - CSES cyclic array
 - 2021 附中模競 III pF
-- ![](https://i.imgur.com/YtNLrDn.png)
-- nhspc2022 mock pF
 - https://zerojudge.tw/ShowProblem?problemid=c313
-- 以 $A$ 為根 
 - CF Lynyrd Skynyrd
 
 ## 模板
@@ -303,3 +300,23 @@
 		考慮 dfs 序是一進一出，剛好每條邊都走過兩次。我們將有選的點 $v_1,\ldots v_k$ 按照 dfs 序小到大排序，$ans=dis(v_1,v_2)+dis(v_2, v_3) + \ldots + dis(v_k, v_1)$。對於樹直徑，我們用兩次貪心的方法做，先隨便挑一個指定的點，枚舉其他指定點，用 LCA 算與他們之中的誰距離最大，然後再從那個點做一次，總複雜度 $O(\sum k \log n)$
 	
 		> 參考 : <https://sorahisa-rank.github.io/nhspc-fin/2018/editorial.pdf#page=23>
+
+???+note "[全國賽模擬賽 2022 pF. LCA 遊戲 (LCA)](https://www.csie.ntu.edu.tw/~b11902109/PreNHSPC2022/IqwxCSqc_Pre_NHSPC_zh_TW.pdf#page=17)"
+	給一顆 $n$ 個點的樹，給點 $A$，Alice 會想著一個點 $B$，Bob 的目標是找出 $B$。每次 Bob 可以詢問 :
+	
+	- 把 root 定為 $C$，$\text{lca}(A, B)$ 是多少
+
+	兩者皆 play optimal 的情況下，問 Bob 至少需要詢問幾次
+	
+	??? note "思路"
+		等價於將根都定為 A，LCA(B, C) 是多少
+	
+		<figure markdown>
+          ![Image title](./images/81.png){ width="400" }
+        </figure>
+        
+        每次詢問完都會確定答案是不是在這子樹，如果要確定在哪個子樹，最差要用「子樹數量 -1 次」，所以要花費最多次的子樹必定最先詢問，所以可以列出 :
+         
+        假設 $v_1, v_2, \ldots$ 是以 $dp[v_1] \ge dp[v_2] \ge \ldots$ 排序過的
+        
+        $$dp[u]=\max\{ dp[v_1]+0, dp[v_2] + 1, dp[v_3] + 2, \ldots \}$$

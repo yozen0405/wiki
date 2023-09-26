@@ -117,3 +117,37 @@
 	
 	??? note "思路"	
 		<https://github.com/yozen0405/c-projects/blob/main/markdown/2426.md>
+
+???+note "[CF 1882 C. Card Game](https://codeforces.com/contest/1882/problem/C)"
+	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，每次操作可以 :
+	
+	- 移除一個奇數項，得分加上 $a_i$
+	
+	- 移除一個偶數項
+	
+	每次操作完後陣列都會 reindexed。可以做任意次操作，問最大得分
+	
+	$n\le 2\times 10^5, -10^9 \le a_i \le 10^9$
+	
+	??? note "思路"
+		令 a 為要取的 odd 項，b 為要取的 even 項。例如陣列是 a..b.bab...b..a..b，我們可以先取最後的 a，這樣後面的 b 就會變 odd，再由後往前取，然後重複這個步驟，就可以取完。但可能會有一個 case 例如 .b.b.bab...b，這樣最前面的三個 b 無論如何都是沒辦法取的，必須捨棄，我們必須在前面再取一個才能讓這三個 b 取到。
+		
+		所以我們得到了一個 greedy 的結論，將 $i$-th 移除，我們可以得到 $\sum\limits_{j>i} \max (0, a_j)$，所以枚舉第一個選的，然後將 ans 與他的答案取 max
+		
+	??? note "code"
+		```cpp linenums="1"
+		scanf("%d",&n);
+		for(int i = 1; i <= n; i++) {
+			scanf("%d",&a[i]);
+		}
+		long long s=0;
+		for (int i = n; i >= 1; i--) {
+			if(i&1) {
+				ans = max(ans, s + a[i]);
+			} else {
+				ans = max(ans, s);
+			}
+			s += max(a[i], 0);
+		}
+		printf("%lld\n", ans);
+		```

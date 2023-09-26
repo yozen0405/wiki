@@ -2178,11 +2178,11 @@
 	給一個字串 S，每個相鄰兩個字母叫一個位置，有 q 筆詢問從位置 s → t 的最少操作次數是多少。一次操作可執行以下三個選項之一：
 	
 	- 往左移一格
-
+	
 	- 往右移一格
-
+	
 	- 傳送到同樣的相鄰兩個字母同樣的位置
-
+	
 	$2\le |S|\le 5\times 10^4,1\le q\le 5\times 10^4$
 	
 	??? note "思路"
@@ -2191,84 +2191,84 @@
 		考慮建邊，對於一個位置，他可以 :
 		
 		- 傳送到相同的字串，cost = 1
-
+	
 		- 往左走或往右走，cost = 1
-
+	
 		因為在相同的字串之間建完全圖太費時了，我們考慮對於每種字串組合都建一個虛點，分別與同種字串組合的 node 連邊。考慮邊權，當從一個 index $i$ 走到虛點再走到 index $j$ 會花 cost = 1 很難實作，我們不如將與虛點連接的邊權都設為 1，最後答案再除以 2 就好了，這麼做的話往左走或往右走的邊權也要設為 2。
 		
 		<figure markdown>
-          ![Image title](./images/54.png){ width="400" }
-        </figure>
-        
-        考慮 query 的部分，每次重跑一次 dijkstra 會太久，我們可以分成兩種 case，有至少做一次傳送與完全沒做傳送。
-        
-        有做一次傳送我們就可以枚舉有做傳送的虛點，答案就是 dis(s → 虛點) + dis(虛點 → t) 再除以 2。（因為一定只能透過相同字串組合的點進去虛點，所以可以保整有經過兩次）。到虛點的部分可以預處理所有虛點當起點的 dijkstra。
-        
-        完全沒做的部分就直接算 index s 跟 index t 的距離就好了
-        
-        > 類似題 : <https://codeforces.com/contest/1301/problem/F>
-        
-    ??? note "code(from abc)"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        using namespace std;
-        #define ll long long
-        #define pb push_back
-        #define all(x) (x).begin(), (x).end()
-        #define pii pair<int, int>
-        const int mod = 998244353, N = 6e4, M = 26 * 26;
-
-        int dis[M][N];
-        vector <pii> adj[N];
-
-        void build(int s, int id) {
-            fill(dis[id], dis[id] + N, N);
-            queue <int> q;
-            dis[id][s] = 0;
-            q.push(s);
-            while (!q.empty()) {
-                int v = q.front(); q.pop();
-                for (auto [u, w] : adj[v]) if (dis[id][u] > dis[id][v] + w) {
-                    dis[id][u] = dis[id][v] + w;
-                    q.push(u);
-                }
-            }
-        }
-
-        void solve() {
-            string s;
-            cin >> s;
-            int n = s.length();
-            for (int i = 0; i < n - 1; ++i) {
-                int x = (s[i] - 'a') * 26 + (s[i + 1] - 'a') + n; // 虛點
-                adj[i].emplace_back(x, 1), adj[x].emplace_back(i, 1);
-            }
-            for (int i = 0; i + 2 < n; ++i) { // 相鄰的建邊
-                adj[i].emplace_back(i + 1, 2), adj[i + 1].emplace_back(i, 2);
-            }
-            for (int i = 0; i < M; ++i) { // 預處理
-                build(i + n, i);
-            }
-            int q; cin >> q;
-            while (q--) {
-                int s, t; cin >> s >> t, --s, --t;
-                int ans = abs(s - t);
-                for (int i = 0; i < M; ++i) {
-                    ans = min(ans, (dis[i][s] + dis[i][t]) / 2);
-                }
-                cout << ans << '\n';
-            }
-        }
-
-        int main() {
-            ios::sync_with_stdio(false), cin.tie(0);
-            int t = 1;
-            // cin >> t;
-            while (t--) {
-                solve();
-            }
-        }
-        ```
+	      ![Image title](./images/54.png){ width="400" }
+	    </figure>
+	    
+	    考慮 query 的部分，每次重跑一次 dijkstra 會太久，我們可以分成兩種 case，有至少做一次傳送與完全沒做傳送。
+	    
+	    有做一次傳送我們就可以枚舉有做傳送的虛點，答案就是 dis(s → 虛點) + dis(虛點 → t) 再除以 2。（因為一定只能透過相同字串組合的點進去虛點，所以可以保整有經過兩次）。到虛點的部分可以預處理所有虛點當起點的 dijkstra。
+	    
+	    完全沒做的部分就直接算 index s 跟 index t 的距離就好了
+	    
+	    > 類似題 : <https://codeforces.com/contest/1301/problem/F>
+	    
+	??? note "code(from abc)"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    using namespace std;
+	    #define ll long long
+	    #define pb push_back
+	    #define all(x) (x).begin(), (x).end()
+	    #define pii pair<int, int>
+	    const int mod = 998244353, N = 6e4, M = 26 * 26;
+	
+	    int dis[M][N];
+	    vector <pii> adj[N];
+	
+	    void build(int s, int id) {
+	        fill(dis[id], dis[id] + N, N);
+	        queue <int> q;
+	        dis[id][s] = 0;
+	        q.push(s);
+	        while (!q.empty()) {
+	            int v = q.front(); q.pop();
+	            for (auto [u, w] : adj[v]) if (dis[id][u] > dis[id][v] + w) {
+	                dis[id][u] = dis[id][v] + w;
+	                q.push(u);
+	            }
+	        }
+	    }
+	
+	    void solve() {
+	        string s;
+	        cin >> s;
+	        int n = s.length();
+	        for (int i = 0; i < n - 1; ++i) {
+	            int x = (s[i] - 'a') * 26 + (s[i + 1] - 'a') + n; // 虛點
+	            adj[i].emplace_back(x, 1), adj[x].emplace_back(i, 1);
+	        }
+	        for (int i = 0; i + 2 < n; ++i) { // 相鄰的建邊
+	            adj[i].emplace_back(i + 1, 2), adj[i + 1].emplace_back(i, 2);
+	        }
+	        for (int i = 0; i < M; ++i) { // 預處理
+	            build(i + n, i);
+	        }
+	        int q; cin >> q;
+	        while (q--) {
+	            int s, t; cin >> s >> t, --s, --t;
+	            int ans = abs(s - t);
+	            for (int i = 0; i < M; ++i) {
+	                ans = min(ans, (dis[i][s] + dis[i][t]) / 2);
+	            }
+	            cout << ans << '\n';
+	        }
+	    }
+	
+	    int main() {
+	        ios::sync_with_stdio(false), cin.tie(0);
+	        int t = 1;
+	        // cin >> t;
+	        while (t--) {
+	            solve();
+	        }
+	    }
+	    ```
 
 
 ### 次短路
@@ -3031,6 +3031,16 @@
 	    } 
 	    ```
 
+???+note "[全國賽模擬賽 2022 pD. 小風的遊戲 (Game)](https://www.csie.ntu.edu.tw/~b11902109/PreNHSPC2022/IqwxCSqc_Pre_NHSPC_zh_TW.pdf#page=9)"
+	給一張 $n$ 點 $m$ 邊無向圖，目標是讓 $s$ 到 $t$ 的最短路徑長度恰好為 $d$。給一個 $1\ldots m$ 的 permutation $p$，代表 $w_{p_1}<w_{p_2} < \ldots < w_{p_m}$，問是否有辦法構造 $w_1, \ldots ,w_m$，有的話請輸出
+	
+	$n\le 10^5, m\le 2\times 10^5, 1\le d\le 10^{11}$
+	
+	??? note "思路"
+		最小的解就是 $w_{p_1}=1,w_{p_2}=2,\ldots$，我們二分搜一個 threshold $t$，滿足使用邊權 $\le t$ 的邊恰能使 $s\to t$ 的最短路 $\le d$，若全部的邊都用上 $d$ 還是小於最短路 $L$，就輸出無解。
+		
+		因為到 $w_i=t$ 恰好連通，所以 $w_i=t$ 一定在最短路徑上，所以我們可以將 $w_i$ 改成 $t+d-L$，使得最短路加起來恰好變成 $L$，剩下 $< t$ 的邊就是 $1, 2, \ldots$，$>t$ 的邊就設為 $d+1, d+2, \ldots$ 即可
+		
 ???+note "[CF 1307 D. Cow and Fields](https://codeforces.com/problemset/problem/1307/D)"
 	給定一個 $n$ 個點 $m$ 邊無向圖，$n$ 個點中有 $k$ 個是特殊點，可以在這 $k$ 個點中找兩個點連一條無向邊。每條邊的距離都是 $1$。問從 $1$ 到 $n$ 的最短路最大是多少。
 	

@@ -154,7 +154,6 @@ nav:
         - 資結貪心: 'basic/greedy/ds.md'
         - maximum subarray: 'basic/greedy/max_subarray.md'
         - 雜題整理: 'basic/greedy/problem.md'
-        - 其他: 'basic/greedy/other.md'
       - Sorting: 'basic/sorting_algorithms.md'
     - 搜索算法:
       - 二分搜: 'search/binary_search.md'
