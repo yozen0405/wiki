@@ -72,13 +72,15 @@ $\text{query}(i,j)=\max\begin{cases} M(i, D) \\ M(j - D + 1, D) \end{cases}$
 	給一個長度為 $n$ 的陣列 $a_1,\ldots ,a_n$，$q$ 次詢問 :
 	
 	- $\text{min}(l,r):$ $\{a_l,\ldots ,a_r\}$ 的最小值
-
-	$n,q\le 2\times 10^5,1\le a_i\le 10^9$
 	
+	$n,q\le 2\times 10^5,1\le a_i\le 10^9$
+
 ???+note " [2021 附中模競 調色盤]()"
 	class 5
 	
 ## Disjoint Sparse Table
+
+<https://codeforces.com/blog/entry/87940>
 
 query[l, r]
 

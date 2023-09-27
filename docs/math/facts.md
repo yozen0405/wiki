@@ -561,3 +561,17 @@
 	        cout << ans << '\n';
 	    }
 	    ```
+	    
+???+note "[全國賽模擬賽 2023 pI. 子集合和 (SOS)](https://www.csie.ntu.edu.tw/~b11902109/PreNHSPC2022/IqwxCSqc_Pre_NHSPC_zh_TW.pdf#page=25)"
+	令函數 $f(S)=S\times \prod\limits_{x\in S}x$，問 $\sum\limits_{S\subseteq A} f(S)$
+	
+	$1\le n\le 10^6, 1\le a_i\le 10^9$
+	
+	??? note "思路"
+		觀察到可能跟 $(a_1 + 1)(a_2 + 1)(a_3 + 1) \ldots (a_n + 1)$ 有關
+		
+		答案為 
+		
+		$$a_1(a_2 + 1)(a_3 + 1) \ldots (a_n + 1)+a_2(a_1 + 1)(a_3 + 1) \ldots (a_n + 1) + a_n(a_1 + 1)(a_2 + 1) \ldots (a_{n-1} + 1)$$
+		
+		預處理 $(a_1+1)(a_2+1)(a_3+1)...(a_n+1)$ 即可
