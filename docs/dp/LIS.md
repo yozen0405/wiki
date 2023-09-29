@@ -544,6 +544,16 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
   <figcaption>Dilworth's theorom</figcaption>
 </figure>
 
+### 例題
+
+???+note "LIS deletion"
+	給一長度為 $n$ 的陣列 $a$，每次可以從 $a$ 刪掉一個嚴格遞增的子序列，求最少幾次才能刪完
+	
+	$n\le 2\times 10^5, 1\le a_i \le 10^9$
+	
+	??? note "思路"
+		答案相當於求 LDS
+
 ## 題目
 
 ???+note "[CSES - Increasing Subsequence II](https://cses.fi/problemset/task/1748)"
@@ -661,11 +671,6 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 		
 		我們將式子整理一下變成 $a_i - i \le a_j-j$，也就是在 $a_i'=a_i-i$ 上找最長非嚴格遞增子序列
 
-???+note "LIS deletion"
-	給一長度為 $n$ 的陣列 $a$，每次可以從 $a$ 刪掉一個嚴格遞增的子序列，求最少幾次才能刪完
-	
-	$n\le 2\times 10^5, 1\le a_i \le 10^9$
-	
 ???+note "[CSES - Collecting Numbers II](https://cses.fi/problemset/task/2217)"
 	給一個 $1\ldots n$ permutation $a$，每輪可以從 $a$ 刪掉一個遞增的子序列，一一定要從 $1$ 取到 $n$。有 $q$ 筆操作如下 :
 	
@@ -679,58 +684,58 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define pii pair<int, int>
-        using namespace std;
-
-        const int INF = 9e18;
-        const int maxn = 2e5 + 5;
-        int n, m, cnt;
-        int a[maxn], pos[maxn];
-        int up[maxn], down[maxn];
-
-        void update(int u, int v) {
-            vector<pii> st;
-            if (a[u] < n) st.pb({a[u], a[u] + 1});
-            if (a[v] > 1) st.pb({a[v] - 1, a[v]});
-            if (a[u] > 1) st.pb({a[u] - 1, a[u]});
-            if (a[v] < n) st.pb({a[v], a[v] + 1});
-
-            pos[a[u]] = v;
-            pos[a[v]] = u;
-            swap(a[u], a[v]);
-            for (auto p = st.begin(); p != st.end(); p++) {
-                cnt -= up[p -> F];
-                if (pos[p -> F] > pos[p -> S])  cnt++;
-                up[p -> F] = pos[p -> F] > pos[p -> S];
-            }                                                           
-        }
-        
-        void solve() {
-            cin >> n >> m;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-                pos[a[i]] = i;
-            }
-            for (int i = 1; i <= n - 1; i++) {
-                up[i] = pos[i] > pos[i + 1];
-                if (up[i]) cnt++;
-            }
-            int u, v;
-            while (m--) {
-                cin >> u >> v;
-                update(u, v);
-                cout << cnt + 1 << "\n";
-            }
-        }
-
-        signed main() {
-            solve();
-        }
+	    #define int long long
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define pii pair<int, int>
+	    using namespace std;
+	
+	    const int INF = 9e18;
+	    const int maxn = 2e5 + 5;
+	    int n, m, cnt;
+	    int a[maxn], pos[maxn];
+	    int up[maxn], down[maxn];
+	
+	    void update(int u, int v) {
+	        vector<pii> st;
+	        if (a[u] < n) st.pb({a[u], a[u] + 1});
+	        if (a[v] > 1) st.pb({a[v] - 1, a[v]});
+	        if (a[u] > 1) st.pb({a[u] - 1, a[u]});
+	        if (a[v] < n) st.pb({a[v], a[v] + 1});
+	
+	        pos[a[u]] = v;
+	        pos[a[v]] = u;
+	        swap(a[u], a[v]);
+	        for (auto p = st.begin(); p != st.end(); p++) {
+	            cnt -= up[p -> F];
+	            if (pos[p -> F] > pos[p -> S])  cnt++;
+	            up[p -> F] = pos[p -> F] > pos[p -> S];
+	        }                                                           
+	    }
+	    
+	    void solve() {
+	        cin >> n >> m;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	            pos[a[i]] = i;
+	        }
+	        for (int i = 1; i <= n - 1; i++) {
+	            up[i] = pos[i] > pos[i + 1];
+	            if (up[i]) cnt++;
+	        }
+	        int u, v;
+	        while (m--) {
+	            cin >> u >> v;
+	            update(u, v);
+	            cout << cnt + 1 << "\n";
+	        }
+	    }
+	
+	    signed main() {
+	        solve();
+	    }
 		```
 
 ---

@@ -16,20 +16,6 @@
 	
 		可以使用 BIT，複雜度 O(n log n)
 
-???+note "[CS Academy - Sorting Steps](https://csacademy.com/contest/archive/task/sorting-steps)"
-	給一個長度為 $n$ 陣列 $a_1, \ldots ,a_n$，問 bubble sort 外層迴圈需要跑幾次（詳見原題）
-	
-	$n\le 10^5, 1 < a_i < 10^9$
-	
-	??? note "思路"
-		對於每個數字，我們計算一個 lower bound，代表我們保證這個數字一定至少需要跑過幾輪，才能 swap 回原本的位置 
-		
-	    - 首先如果前面有一些比 $a_i$ 大的話，每次這些比我大的會恰有一個跳過我。
-	
-	    - 到了前面都沒有比 $a_i$ 大的時候，這時我就會去跳別人，變成別人 1. 的 case。
-	
-	    因為是 lower bound，所以我們最後的答案必須取「每個人左邊比她大的數字」的 max
-
 ## CF Split Sort
 
 ???+note "[CF 1863 B. Split Sort](https://codeforces.com/contest/1863/problem/B)"

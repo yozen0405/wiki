@@ -91,31 +91,83 @@
 	        
 	        > ref : <https://www.csie.ntu.edu.tw/~sprout/algo2021/homework/hand05.pdf>
 
-???+note "TOI 2015 ⼆模"
-	有⼀些⾯額為 1,5,10,50,100,500,1000 的錢幣，問你⽤這些硬幣最⼩湊不出來的錢是
-多少?
-
 ???+note "[TIOJ 1579.來自未來的新台幣](https://tioj.ck.tp.edu.tw/problems/1579)"
 	給長度為 $n$，⾯額分別為 $1,5,10,50,100,500,1000,\ldots$ 的錢幣，第 $i$ 個錢幣的數量為 $c_i$，能湊出的金額共有多少種
 	
 	$1\le n\le 19$
 	
 	??? note "思路"
-		小的 >= 大的，就將大的都換成小的。例如 1 元有 5 個，5 元有 1 個，那麼等價於 1 元有 10 個，若 1 元只有 3 個，那麼湊不出來 4，也就不能換了，兩者變成獨立的。
+		若小的足以表達大的，就將大的都換成小的。例如 1 元有 5 個，5 元有 2 個，那麼因為 1 * 5 > 5，所以可將 5 都換成 1 元，變成 1 元有 15 個，若 1 元只有 3 個，那麼湊不出來 4，也就不能換了，兩者變成獨立的。
 		
-		所以我們就依序看大的能不能換成當前最小的即可，最後的答案為 $(x_1 + 1)\cdot (x_2 + 1) \ldots (x_k+1) - 1$
+		所以我們就依序看大的能不能換成當前最小的即可，最後的答案為 $(c_1 + 1)\cdot (c_2 + 1) \ldots (c_k+1) - 1$
+		
+		> 參考自 : [PTT](https://www.ptt.cc/bbs/tutor/M.1304705220.A.35E.html)
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
 
+        using namespace std;
+        using pii = pair<int, int>;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        int a[maxn], cnt[maxn];
+
+        signed main() {
+            int n;
+            cin >> n;
+
+            a[0] = 1;
+            for (int i = 1; i < n; i++) {
+                if (i & 1) {
+                    a[i] = a[i - 1] * 5;
+                } else {
+                    a[i] = a[i - 1] * 2;
+                }
+            }
+
+            int cur = 0;
+            for (int i = 0; i < n; i++) {
+                cin >> cnt[i];
+                if (i == 0) {
+                    continue;
+                }
+                if (a[cur] * cnt[cur] >= a[i]) {
+                    cnt[cur] += (a[i] / a[cur]) * cnt[i];
+                    cnt[i] = 0;
+                } else {
+                    cur = i;
+                }
+            }
+            int ans = 1;
+            for (int i = 0; i < n; i++) {
+                if (cnt[i]) {
+                    ans = (ans * ((cnt[i] + 1) % M)) % M;
+                }
+            }
+            cout << (ans - 1 + M) % M << '\n';
+        }  
+        ```
+		
 ## 交換法
 
-- sorting [APCS 物品堆疊](https://zerojudge.tw/ShowProblem?problemid=c471) 
-- merge sort [CF 559B](https://codeforces.com/problemset/problem/559/B)
+???+note "[APCS 物品堆疊](https://zerojudge.tw/ShowProblem?problemid=c471)"
+
+???+note "[CF 559B](https://codeforces.com/problemset/problem/559/B)"
 
 ## 霍夫曼編碼
 
 ???+note "例題"
-	- 給你一個陣列 $a$ , 合併 $a_x,a_y$ 要花 $a_x+a_y$ ( $x,y$ 不一定要相鄰)
-
- 	- 求把陣列整個合併完得最小花費
+	給你一個陣列 $a$ , 合併 $a_x,a_y$ 要花 $a_x+a_y$，求把陣列整個合併完得最小花費
  	
  	??? note "思路"
  	    - 貪心的想法每次都合併最小的

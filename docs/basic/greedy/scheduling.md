@@ -7,51 +7,51 @@
 	
 	$k\le n\le 2\times 10^5,l_i<r_i\le 10^9$
 	
-    ??? note "思路"
-        - 如果同時間有好幾個工作重疊並且 $>k$
-    
-        - 貪心想法，我們把 $r$ 最右邊的刪掉
-    
-        - 從左掃到右因為我們在這之前都處理好了(重疊不超過 $k$ ) 所以你左邊不管怎麼延伸我都沒差, 現在右邊的還沒處理所以我們要看的是 $r$
-    
-        - 如果有多個最大的 $r$ 一樣那你刪哪一個其實都沒差(左邊都處理好了)
-    
-    ??? note "code"
-        ```cpp linenums="1"
-        int n;
-        multiset<pii> ms;
-    
-        void init () {
-            cin >> n;
-            for (int i = 1, l, r; i <= n; i++) {
-                cin >> l >> r;
-                ms.insert({l, r});
-            }
-        }
-    
-        int solve (int k) {
-            // 一次做 k 個工作歐布歐虧
-            multiset<pii> rev;
-            int W = n;
-            for (auto pos = ms.begin(); pos != ms.end(); pos++) {
-                int l = pos->first, r = pos->second;
-                //以我目前的 L 來看重疊的左屆
-                // 刪除過期的邊界
-                while (rev.size() && rev.begin()->first < l) {
-                    rev.erase(rev.begin());
-                }
-                rev.insert({r, l});
-                // 保證大於 k 的大小只會剛好是 k + 1
-                // 因為一到 k + 1 就會被刪掉一個
-                if (rev.size() > k) {
-                    rev.erase(--rev.end());
-                    // rev.end() 就是 r 最大的, 必須刪掉
-                    W--;
-                }
-            }
-            return W;
-        }
-        ```
+	??? note "思路"
+	    - 如果同時間有好幾個工作重疊並且 $>k$
+	
+	    - 貪心想法，我們把 $r$ 最右邊的刪掉
+	
+	    - 從左掃到右因為我們在這之前都處理好了(重疊不超過 $k$ ) 所以你左邊不管怎麼延伸我都沒差, 現在右邊的還沒處理所以我們要看的是 $r$
+	
+	    - 如果有多個最大的 $r$ 一樣那你刪哪一個其實都沒差(左邊都處理好了)
+	
+	??? note "code"
+	    ```cpp linenums="1"
+	    int n;
+	    multiset<pii> ms;
+	
+	    void init () {
+	        cin >> n;
+	        for (int i = 1, l, r; i <= n; i++) {
+	            cin >> l >> r;
+	            ms.insert({l, r});
+	        }
+	    }
+	
+	    int solve (int k) {
+	        // 一次做 k 個工作歐布歐虧
+	        multiset<pii> rev;
+	        int W = n;
+	        for (auto pos = ms.begin(); pos != ms.end(); pos++) {
+	            int l = pos->first, r = pos->second;
+	            //以我目前的 L 來看重疊的左屆
+	            // 刪除過期的邊界
+	            while (rev.size() && rev.begin()->first < l) {
+	                rev.erase(rev.begin());
+	            }
+	            rev.insert({r, l});
+	            // 保證大於 k 的大小只會剛好是 k + 1
+	            // 因為一到 k + 1 就會被刪掉一個
+	            if (rev.size() > k) {
+	                rev.erase(--rev.end());
+	                // rev.end() 就是 r 最大的, 必須刪掉
+	                W--;
+	            }
+	        }
+	        return W;
+	    }
+	    ```
 
 ???+note "[TIOJ 1337. 隕石](https://tioj.ck.tp.edu.tw/problems/1337)"
 	給 $n$ 個 interval $l_i,r_i$，問在可以移除 $k$ 個 interval 的情況最小化最大的 bandwidth
@@ -144,6 +144,12 @@
 	
 		- 二分搜查找 $j$
 
+???+note "[POJ 3680 - Intervals](https://vjudge.net/problem/POJ-3680)"
+	給 $n$ 個 interval，有 weight $w_i$，選一些 interval 使每個 point 至多被 $k$ 個 interval 覆蓋，問最多可以領多少錢
+	
+	$n,k\le 200, 1\le a_i < b_i \le 10^5, 1\le w_i \le 10^5$
+	
+	
 ## machine scheduling
 
 ### 最多能完成幾個工作
@@ -195,7 +201,7 @@
 	        cout << pq.size() << "\n";
 	    }
 	    ```
-	    
+
 ### 最小化截止時間
 
 ???+ note "最小化截止時間之和"

@@ -1012,9 +1012,11 @@
 	$n\le 10^5, 1\le w_i\le 10^9,$ point 數量 $\le 300$
 	
 	??? note "思路"
+		cost(l, r) : 用一個 interval 覆蓋 point[l ~ r] 的最小權重
+		
 		dp(i, k) = 在 point 1 ~ i 內恰好覆蓋 k 個 point 的 min cost
 		
-		$$dp(i, k) = \min \begin{cases}dp(i - 1, k) \\ dp(i - j, k - j) +  \text{cost}(i - j + 1, i) \text{for} \space \textt{all}\space j=1 \ldots k\end{cases}$$
+		$$dp(i, k) = \min \begin{cases}dp(i - 1, k) \\ dp(i - j, k - j) +  \text{cost}(i - j + 1, i) \text{for} \space \text{all}\space j=1 \ldots k\end{cases}$$
 		
 	??? note "code"
 		```cpp linenums="1"
@@ -1107,7 +1109,7 @@
 		}
 		cout << dp[m][n] << '\n';
 		```
-		
+
 ???+note "[CSES - Permutation Inversions](https://cses.fi/problemset/task/2229)"
 	問有多少個 $1\ldots n$ 的 permutation 的逆序數對數量為 $k$
 	
@@ -1121,34 +1123,34 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
+	    #define int long long
+	
+	    using namespace std;
+	
+	    const int maxn = 505;
+	    const int M = 1e9 + 7;
+	    int n, k;
+	    int dp[maxn][maxn * maxn];
+	
+	    signed main() {
+	        cin >> n >> k;
+	
+	        dp[1][0] = 1;
+	        for(int i = 2; i <= n; i++){
+	            int sum = 0, p = 0; 
+	            for(int j = 0; j <= k; j++){
+	                if(j - (i - 1) > p) {
+	                    sum -= dp[i - 1][p];
+	                    p++;
+	                }
+	                sum += dp[i - 1][j];
+	                dp[i][j] = sum % M;
+	            }
+	        }
+	        cout << dp[n][k] << "\n";
+	    } 
+	    ```
 
-        using namespace std;
-
-        const int maxn = 505;
-        const int M = 1e9 + 7;
-        int n, k;
-        int dp[maxn][maxn * maxn];
-
-        signed main() {
-            cin >> n >> k;
-
-            dp[1][0] = 1;
-            for(int i = 2; i <= n; i++){
-                int sum = 0, p = 0; 
-                for(int j = 0; j <= k; j++){
-                    if(j - (i - 1) > p) {
-                        sum -= dp[i - 1][p];
-                        p++;
-                    }
-                    sum += dp[i - 1][j];
-                    dp[i][j] = sum % M;
-                }
-            }
-            cout << dp[n][k] << "\n";
-        } 
-        ```
-        
 ???+note "[CSES - Coding Company](https://cses.fi/problemset/task/1665/)"
 	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，問有幾種分組方式使每組的最大最小差之和 $\le x$
 	
@@ -1157,12 +1159,75 @@
 	??? note "思路"
 		先將陣列 $a$ 小到大 sort，我們在算 max - min 就可以一段一段的算
 	
-		dp(i, j, x): 1~i，有 j 組已經開始，但還沒結束，cost 是 x 的方法數
+		dp(i, j, x): 1~i，有 j 組已經開始，但還沒結束，最大最小差之和是 x 的方法數
 		
 		dp(i, j, x) +=
 		
-		- 繼續接 dp(i - 1, j, x - (a[i] - a[i - 1]) * j)
-
+		- 將 i 加入其中一組 (j + 1) * dp(i - 1, j, x - (a[i] - a[i - 1]) * j)
+	
+			- i 自己開新的一組, 然後立刻結束
+	
+			- i 加入 j 組裡面的其中一組
+	
 		- 再開一組 dp(i - 1, j - 1, x - (a[i] - a[i - 1]) * (j - 1))
-
-		- 結束一組 dp(i - 1, j + 1, x - (a[i] - a[i - 1]) * (j + 1))
+	
+		- 結束一組 (j + 1) * dp(i - 1, j + 1, x - (a[i] - a[i - 1]) * (j + 1))
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <algorithm>
+	    #include <cstring>
+	    #include <iostream>
+	
+	    #define int long long
+	    using namespace std;
+	
+	    const int maxn = 1e2 + 5;
+	    const int maxm = 5e3 + 5;
+	    const int M = 1e9 + 7;
+	    int n, m;
+	    int a[maxn], dp[2][maxn][maxm];
+	
+	    signed main() {
+	        cin >> n >> m;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	        }
+	        sort(a + 1, a + n + 1);
+	
+	        dp[1][0][0] = 1;
+	        dp[1][1][0] = 1;
+	
+	        for (int i = 2; i <= n; i++) {
+	            int now = (i % 2), pre = ((i - 1) % 2);
+	            memset(dp[now], 0, sizeof(dp[now]));
+	
+	            int d = a[i] - a[i - 1];
+	
+	            for (int j = 0; j <= i; j++) {
+	                for (int k = 0; k <= m; k++) {
+	                    if (0 <= k - d * j && k - d * j <= m)
+	                        dp[now][j][k] += dp[pre][j][k - d * j] * (j + 1);
+	                    dp[now][j][k] %= M;
+	
+	                    if (j + 1 <= n && 0 <= k - d * (j + 1) && k - d * (j + 1) <= m)
+	                        dp[now][j][k] += dp[pre][j + 1][k - d * (j + 1)] * (j + 1);
+	                    dp[now][j][k] %= M;
+	
+	                    if (j >= 1 && 0 <= k - d * (j - 1) && k - d * (j - 1) <= m)
+	                        dp[now][j][k] += dp[pre][j - 1][k - d * (j - 1)];
+	                    dp[now][j][k] %= M;
+	                }
+	            }
+	        }
+	
+	        int sum = 0;
+	        for (int k = 0; k <= m; k++) {
+	            int now = (n % 2);
+	            sum += dp[now][0][k];
+	            sum %= M;
+	        }
+	
+	        cout << sum << "\n";
+	    }
+		```

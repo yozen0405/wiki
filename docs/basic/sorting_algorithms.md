@@ -20,6 +20,21 @@ void bubble_sort() {
 
 時間複雜度 : $O(n^2)$
 
+### 相關例題
+
+???+note "[CS Academy - Sorting Steps](https://csacademy.com/contest/archive/task/sorting-steps/statement/) / [USACO Open 2018 Out of Sort S](https://www.luogu.com.cn/problem/P4378)"
+	給一個長度為 $n$ 陣列 $a_1, \ldots ,a_n$，問 bubble sort 會循環幾次（詳見原題）
+	
+	$n\le 10^5, 1 < a_i < 10^9$
+	
+	??? note "思路"
+		觀察例如範例 `1 3 4 2`，我們是為了要將 2 swap 回原本的位置才需要花那麼久的時間
+		
+		若每個人左邊的數字都比他小的話，就完成排序了，不然就需要將左邊比他大的數字移到右邊去
+        
+        每個回合會把一個（若存在）自己左邊比自己大的數字移動到自己右邊，當每個人都把比自己大的數字移動到自己右邊，就完成排序了
+		
+
 ## Selection sort
 
 選擇排序法的原理是把要排序的序列分成兩堆，一堆是由原序列最小的前 k 個元素所組成並且已經照大小排列，另一堆則是原序列中剩餘的 n − k 個尚未排序的元素。算法每回合都會從未排序堆中選出最小的元素，然後將其移動到已排序堆中的最後面，類似根據大小一個一個叫號排隊，n − 1 回合後便把原序列給排列好了。

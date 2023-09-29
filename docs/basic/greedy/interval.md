@@ -1,9 +1,13 @@
 ## 技巧
+
 ### 掃描線角度思考
+
 ???+note "最大交集數量"
 	給 $n$ 個 interval，兩兩間若有 overlap 則建邊，問 max clique[^1] 大小
+	
 	??? note "hint"
 		找最大 interval 交集的數量，也就是 band width
+		
 	??? note "思路"
 		- 想成掃描線從左掃到右
 			- 遇到 $l_i$ 就 +1
@@ -16,9 +20,9 @@
 ### 刪除 overlap
 
 ???+note "刪除 overlap"
-	- Q1: 給 n 個 interval，若 A ⊆ B[^2] 則刪掉 B
+	Q1: 給 n 個 interval，若 A ⊆ B[^2] 則刪掉 B
 
-	- Q2: 給 n 個 interval，若 A ⊆ B 則刪掉 A
+	Q2: 給 n 個 interval，若 A ⊆ B 則刪掉 A
 	
 	??? note "Q1 思路"
 	    - 按照 $r_i$ 排序
@@ -80,11 +84,13 @@
 	        ```
 
 ## 例題
-### 區間選點
-???+note "區間選點"
-	- 給 $n$ 個 $[l_i,r_i]$ 問至少選幾個 point 使得每個 $[l_i, r_i]$ 都有被覆蓋到
 
-	- $n = 2×10^5, l < r \le 10^9$
+### 區間選點
+
+???+note "區間選點"
+	給 $n$ 個 $[l_i,r_i]$ 問至少選幾個 point 使得每個 $[l_i, r_i]$ 都有被覆蓋到
+
+	$n = 2×10^5, l < r \le 10^9$
 	
 	??? note "思路1"
 		- 我們觀察到**第一個**要選的 point 一定要至少在一個 $r_i$ 之前
@@ -102,6 +108,7 @@
 				- 也就是按照右界排序，第一個沒有 $[l_i, r_i]$ overlap 的
 	
 		- 再來就是子問題
+	
 	??? note "思路2"
 		- 先刪除一定不重要的
 	
@@ -126,14 +133,23 @@
 	    }
 	    ```
 
+???+note "全國賽模擬賽 2019 pC"
+	見<a href="/wiki/other/bitwise/#maximum-and" target="_blank">此處</a>
+	
+???+note "[TIOJ 1408. 我很忙](https://tioj.ck.tp.edu.tw/problems/1408)"
+	給 $n$ 個 interval，有 weight $w_i$，問至少選幾個 point 使得每個 interval 中至少有 $k$ 個點被選到
 
-
+	$n \le 10^5, 0\le l,r,w\le 10^5$
+	
+	??? note "思路"
+		先將 interval 用 $r_i$ 小到大 sort，線段樹 0/1 維護有選的點，這樣我們從前往後看時，若這個 interval 中間有選的點還沒有 $k$ 個的話就在線段樹上 walk 直到當前的 suffix 是 0 的個數 >= k - interval 內已經選的個數，然後將這個 suffix 上的數字通通改成 1，然後一直做下去就可以了。
+	
 ### 區間覆蓋
 
-???+note "APCSC 保母問題"
-	- 給 $n$ 個 $[l_i,r_i]$ 問至少選幾個 $[l_i, r_i]$ 使得每個 point 都有被覆蓋到，若不行輸出 $-1$
+???+note "區間覆蓋"
+	給 $n$ 個 $[l_i,r_i]$ 問至少選幾個 $[l_i, r_i]$ 使得每個 point 都有被覆蓋到，若不行輸出 $-1$
 
-	- $n = 2×10^5, l < r \le 10^9$
+	$n = 2×10^5, l < r \le 10^9$
 	
 	??? note "思路"
 		- 先刪掉不重要的
@@ -187,7 +203,7 @@
 ???+ note "區間分組"
 	給定 $n$ 個 interval，分組使得每組內部兩兩之間沒有交集，並使得組數盡可能小。
 	
-	- $n=2\times 10^5, l_i<r_i\le 10^9$
+	$n=2\times 10^5, l_i<r_i\le 10^9$
 	
 	??? quote "實際應用"
 		公司今天有 20 場會議，問最少用幾個會議室可以安排下
@@ -213,21 +229,21 @@
 		- 刪除跟第一個 overlap 的
 	
 		- 再挑刪完後的第一個 (子問題)
-
+	
 		---
 		
 		可證明按照 $r_i$ 小到大排序，greedy 的取是好的。因為對於後面來說要盡量挑最不會 overlap 的，也就是右界最小的，所以我們將 $r_i$ 最小的取掉之後，刪除與他 overlap 的 intervals，也就跟我們 greedy 在做的事情一樣了
 		
 		```cpp linenums="1"
 		sort (ALL(a), [](node x, node y) { return x.r < y.r;  });
-        int last = 0, ans = 0;
-        for (int i = 0; i < n; i++) {
-            if (a[i].l > last) {
-                ans++;
-                last = a[i].r;
-            }
-        }
-        ```
+	    int last = 0, ans = 0;
+	    for (int i = 0; i < n; i++) {
+	        if (a[i].l > last) {
+	            ans++;
+	            last = a[i].r;
+	        }
+	    }
+	    ```
 	
 	??? note "code"
 		```cpp linenums="1"
@@ -252,7 +268,7 @@
 	    } 
 	    ```
 		> full code : <http://codepad.org/Gcm2Azt6>
-
+	
 	??? note "延伸 (加上權重) : [job scheduling problem](/wiki/greedy/interval_scheduling/#job-scheduling-problem)"
 
 ???+note "[CF 1841 D. Pairs of Segments](https://codeforces.com/problemset/problem/1841/D)"
@@ -263,7 +279,7 @@
 	- 一個 pair 中的兩個 interval 必須 overlap
 	
 	- 任意不同 pair 中的 interval 不能 overlap
-
+	
 	$n\le 2000$
 	
 	??? note "思路"
@@ -272,8 +288,9 @@
 		---
 		
 		> 另解 : dp（見 [CF comment](https://codeforces.com/blog/entry/117262?#comment-1037114)）
-	
+
 ### 最小刪除
+
 ???+ note "例題"
 	刪除最少個 interval，使得 max band width 變小
 	
