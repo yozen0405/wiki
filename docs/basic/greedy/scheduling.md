@@ -148,11 +148,11 @@
 	給 $n$ 個 interval，有 weight $w_i$，選一些 interval 使每個 point 至多被 $k$ 個 interval 覆蓋，問最多可以領多少錢
 	
 	$n,k\le 200, 1\le a_i < b_i \le 10^5, 1\le w_i \le 10^5$
-	
-	
+
 ## machine scheduling
 
 ### 最多能完成幾個工作
+
 ???+note "[洛谷 P4053 [JSOI2007] 建筑抢修](https://www.luogu.com.cn/problem/P4053)"
 	有 $n$ 個工作，每個工作有需要執行的時間 $t_i$ 與截止時間 $d_i$，工作若在截止時間前完成就可以獲得報酬 $1$，否則報酬是 $0$。你可以自由安排工作的順序，目標是最大化報酬總和
 	

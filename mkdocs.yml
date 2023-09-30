@@ -116,10 +116,6 @@ nav:
           - 架設教學: 'main/setup.md'
         - codebook: 'main/codebook.md'
         - bug: 'main/bug.md'
-        - vscode 下載教學: 
-          - 影片: 'main/vscode_vid.md'
-          - 網址: 'main/vscode.md'
-          - 指令與常見問題: 'main/cmd.md'
     - 程式資源 :
       - APCS: 'cp/apcs.md'
       - 競程:
@@ -240,7 +236,7 @@ nav:
         - LIS: 'dp/LIS.md'
         - 背包問題: 'dp/knapsack.md'
       - 一般 dp 類型:
-        - 區間dp: 'dp/state.md'
+        - 區間dp: 'dp/range_dp.md'
         - 雜題整理: 'dp/problem.md'
         - 狀態DP: 'dp/state.md'
       - 優化:

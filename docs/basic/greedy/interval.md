@@ -142,8 +142,138 @@
 	$n \le 10^5, 0\le l,r,w\le 10^5$
 	
 	??? note "思路"
-		先將 interval 用 $r_i$ 小到大 sort，線段樹 0/1 維護有選的點，這樣我們從前往後看時，若這個 interval 中間有選的點還沒有 $k$ 個的話就在線段樹上 walk 直到當前的 suffix 是 0 的個數 >= k - interval 內已經選的個數，然後將這個 suffix 上的數字通通改成 1，然後一直做下去就可以了。
-	
+		先將 interval 用 $r_i$ 小到大 sort，線段樹 0/1 維護有選的點，這樣我們從前往後看時，若這個 interval 中間有選的點還沒有 $k$ 個的話就二分搜當前的 interval 的最短的 suffix 滿足是 0 的個數 >= k - interval 內是 1 的個數，然後將這個 suffix 上的數字通通改成 1，然後一直做下去就可以了，複雜度 $O(n \log^2 n)$。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+        using pii = pair<int, int>;
+
+        const int INF = 2e18;
+        const int MAXN = 1e5 + 5;
+
+        struct Node {
+            Node* lc = nullptr;
+            Node* rc = nullptr;
+            int l, r;
+            int chg, sum;
+
+            Node() {
+
+            }
+            Node(int l, int r) : l(l), r(r) {
+                chg = INF;
+                sum = 0;
+            }
+            void pull() {
+                sum = lc->sum + rc->sum;
+            }
+            void push() {
+                if (chg != INF) {
+                    lc->chg = chg;
+                    lc->sum = (lc->r - lc->l + 1) * chg;
+                    rc->chg = chg;
+                    rc->sum = (rc->r - rc->l + 1) * chg;
+                    chg = INF;
+                }
+            }
+        };
+
+        Node pool[50000000 / sizeof(Node)];
+        int pool_cnt = 0;
+
+        Node* build(int l, int r) {
+            Node* root = new (&pool[pool_cnt++]) Node(l, r);
+            if (l == r) {
+                return root;
+            }
+            int mid = (l + r) / 2;
+            root->lc = build(l, mid);
+            root->rc = build(mid + 1, r);
+            return root;
+        }
+
+        void update(Node* root, int ml, int mr, int val) {
+            if (mr < root->l || root->r < ml) {
+                return;
+            }
+            if (ml <= root->l && root->r <= mr) {
+                root->chg = val;
+                root->sum = (root->r - root->l + 1) * val;
+                return;
+            }
+            root->push();
+            update(root->lc, ml, mr, val);
+            update(root->rc, ml, mr, val);
+            root->pull();
+        }
+
+        int query(Node* root, int ql, int qr) {
+            if (qr < root->l || root->r < ql) {
+                return 0;
+            }
+            if (ql <= root->l && root->r <= qr) {
+                return root->sum;
+            }
+            root->push();
+            return query(root->lc, ql, qr) + query(root->rc, ql, qr);
+        }
+
+        struct Intervals {
+            int l, r, k;
+            bool operator<(const Intervals &rhs) const {
+                return r < rhs.r;
+            }
+        };
+
+        int n;
+
+        void solve() {
+            vector<Intervals> v;
+            for (int i = 0; i < n; i++) {
+                int l, r, k;
+                cin >> l >> r >> k;
+                r--;
+                v.push_back({l, r, k});
+            }
+            sort(v.begin(), v.end());
+            Node* root = build(0, MAXN - 1);
+            for (int i = 0; i < n; i++) {
+                int ret = query(root, v[i].l, v[i].r);
+                if (ret >= v[i].k) {
+                    continue;
+                } 
+                int l = v[i].l, r = v[i].r;
+                while (l != r) {
+                    int mid = (l + r) / 2;
+                    int cnt = (v[i].r - mid + 1) - query(root, mid, v[i].r);
+                    if (cnt > v[i].k - ret) {
+                        l = mid + 1;
+                    } else {
+                        r = mid;
+                    }
+                }
+                update(root, l, v[i].r, 1);
+            }
+            cout << query(root, 0, MAXN - 1) << '\n';
+        }
+
+        signed main() {
+            while (cin >> n) {
+                if (n == 0) break;
+                pool_cnt = 0;
+                solve();
+            }
+        }  
+		```
+
 ### 區間覆蓋
 
 ???+note "區間覆蓋"

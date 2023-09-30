@@ -1,14 +1,4 @@
-- [全國賽 2019 史蒂芬與獵人](https://sorahisa-rank.github.io/nhspc-fin/2019/problems.pdf#page=10)
-
-- [neoj 田忌賽馬](https://neoj.sprout.tw/problem/69/)
-
 - 2023 TOI mock double cnt
-
-- <https://tioj.ck.tp.edu.tw/problems/1669>
-
-- [JOI Kingdom](https://loj.ac/p/2334)
-
-- whale Atcoder 
 
 - 全國賽 2021 pG subtask 1, 2
 
@@ -418,7 +408,7 @@
 	
 	??? note "思路"
 		將 interval 按照長度小到大排序，這樣我們就可以使用 two pointer 對於每個 l，找出最少到哪個 r，選 l, ..., r 的這些 interval 是合法的，可以用線段樹檢查。
-	
+
 ???+note "[2021 全國賽 pH. 天竺鼠遊行](https://tioj.ck.tp.edu.tw/problems/2258)"
 	有 $n$ 隻天竺鼠，第 $i$ 隻的高度是 $h_i$。你要選 $p$ 組各 $k$ 隻，然後把每一組的天竺鼠排成一個環，使得兩兩相鄰的天竺鼠高度差的最大值盡量小。
 	
@@ -603,6 +593,180 @@
 	
 	??? note "思路"
 		二分搜權限，在 check 的時候只考慮權限 > t 所形成的圖是否有環（可以用拓樸排序檢查），因為其他邊一定可以按照拓樸順序比較小的指向比較大的。
+
+???+note "[全國賽 2019 史蒂芬與獵人](https://sorahisa-rank.github.io/nhspc-fin/2019/problems.pdf#page=10) / [LeetCode 363. Max Sum of Rectangle No Larger Than K](https://leetcode.com/problems/max-sum-of-rectangle-no-larger-than-k/)"
+	給你一個 $n\times m$ 的 Matrix，找出並傳回矩形區域的不超過 $k$ 的最大數值和
+	
+	$1\le n,m \le 100, -100\le a_{i,j}\le 100, -10^5 \le k\le 10^5$
+	
+	??? note "思路"
+		枚舉 row $l,r$，將他壓成一維的問題。這樣就可以用前綴和 + 二分搜（在 set 內 lower bound）解決
+
+???+note "[TIOJ  1669 . 征戰天龍國](https://tioj.ck.tp.edu.tw/problems/1669)"
+	給一個 $n\times m$ 的 grid，grid 上的數字只會是 $-1,0,1$，選一個矩形區域滿足區域內的數字總和 $\ge k$，問這個矩形區域的面積最少可以是多少
+	
+	$1\le n,m \le 500, 0\le k\le 2.5\times 10^5$
+	
+	??? note "思路"
+		一樣枚舉 row $l,r$，將他壓成一維的問題，我們當然可以去二分搜，但是會 TLE。其實就是[這題](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/)，具體做法可參考[這篇題解](https://blog.51cto.com/u_15003301/6330063)。觀察到若一個點 $i$ 的 prefix sum 若比 $i-1$ 的 prefix sum 還小，那對於後面的肯定選 $i$ 比較好。還有，對於一個 $i$ 若已經能跟 $j$ 配，那 $j$ 之後都不用考慮了，所以我們可以用單調隊列維護，將已經能配地給 pop 掉
+		
+	??? note "code"
+		```cpp 
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define F first
+	    #define S second
+	    using namespace std;
+	
+	    int a[505][505];
+	
+	    signed main() {
+	        int n, m, K;
+	        cin >> n >> m >> K;
+	        for (int i = 1; i <= n; i++) {
+	            for (int j = 1; j <= m; j++) {
+	                char c;
+	                cin >> c;
+	                if (c == '+') {
+	                    a[i][j] += 1;
+	                } else if (c == '-') {
+	                    a[i][j] -= 1;
+	                }
+	                a[i][j] += a[i - 1][j];
+	            }
+	        }
+	        int mn = 2e9;
+	        for (int lx = 1; lx <= n; lx++) {
+	            for (int rx = lx; rx <= n; rx++) {
+	                vector<int> s(m + 1);
+	                deque<pair<int, int>> dq;
+	                dq.push_back({0, 0});
+	                for (int i = 1; i <= m; i++) s[i] = s[i - 1] + (a[rx][i] - a[lx - 1][i]);
+	                for (int i = 1; i <= m; i++) {
+	                    while (!dq.empty() && s[i] - dq.front().F >= K) {
+	                        mn = min(mn, (i - dq.front().S) * (rx - lx + 1));
+	                        dq.pop_front();
+	                    }
+	                    while (!dq.empty() && dq.back().F >= s[i]) {
+	                        dq.pop_back();
+	                    }
+	                    dq.push_back({s[i], i});
+	                }
+	            }
+	        }
+	        if (mn == 2e9) {
+	            cout << -1 << "\n";
+	        } else {
+	            cout << mn << "\n";
+	        }
+	    }
+		```
+
+???+note "[JOI 2017 Final JOIOI 王国](https://loj.ac/p/2334)"
+	給一張 $n\times m$ 的 Grid，求讓 $a_{i,j}$ 用以下條件分兩組，同組內的最大差 max 起來最小是多少
+	
+	- 同一組必須連通
+	
+	- 單獨每個 row 或 col 看下去同組的是連在一起的
+	
+	$2\le n, m\le 2000, a_{i, j} \le 10^9$
+	
+	??? note "思路"
+		最小化最大值 $\rightarrow$ 二分搜答案
+		
+	    要讓 max 跟 min 盡量在不同組，所以我們可以先假設 max 跟 min 是在不同組，最後答案再跟 max - min 取 min 即可。
+	    
+	    <figure markdown>
+	      ![Image title](./images/3.png){ width="400" }
+	    </figure>
+	    
+	    發現如上圖同組一定是隨著 col 遞增，不是遞增把它旋轉到某個角度一定也是 col 遞增的，所以我們可以直接假設 max 在靠左的組，min 在靠右的組（如第 2 張圖的 case），然後就可以 Greedy 的選紅色的，剩下就是藍色的，至於怎麼 Greedy，同一個 row 只要不超過 threshold 能選多少就選多少，也要判斷不能選超過上一個 row 的選的長度，見代碼
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int MAXN = 2e3 + 5;
+	    int n, m, mx, mn;
+	    int a[MAXN][MAXN];
+	    int g[MAXN][MAXN];
+	
+	    void rotate() {
+	        for (int i = 1; i <= n; i++) {
+	            for (int j = 1; j <= m; j++) {
+	                g[j][n - i + 1] = a[i][j];
+	            }
+	        }
+	        swap(n, m);
+	        for (int i = 1; i <= n; i++) {
+	            for (int j = 1; j <= m; j++) {
+	                a[i][j] = g[i][j];
+	            }
+	        }
+	    }
+	
+	    bool check(int x) {
+	        int lim = m + 1;
+	        for (int i = 1; i <= n; i++) {
+	            int r = 0;
+	            for (int j = 1; j <= min(lim, m); j++) {
+	                if (mx - x <= a[i][j]) {
+	                    r = max(r, j);
+	                } else {
+	                    break;
+	                }
+	            }
+	            lim = r;
+	            for (int j = r + 1; j <= m; j++) {
+	                if (a[i][j] - x > mn) {
+	                    return false;
+	                }
+	            }
+	        }
+	        return true;
+	    }
+	
+	    int search() {
+	        int l = 0, r = 2e9 + 5;
+	        while (l < r) {
+	            int mid = (l + r) >> 1;
+	            if (check(mid)) {
+	                r = mid;
+	            } else {
+	                l = mid + 1;
+	            }
+	        }
+	        return r;
+	    }
+	
+	    signed main() {
+	        cin >> n >> m;
+	        mx = -INF, mn = INF;
+	        for (int i = 1; i <= n; i++) {
+	            for (int j = 1; j <= m; j++) {
+	                cin >> a[i][j];
+	                mx = max(mx, a[i][j]);
+	                mn = min(mn, a[i][j]);
+	            }
+	        }
+	
+	        int ans = INF;
+	        ans = min(ans, search());
+	        rotate();
+	        ans = min(ans, search());
+	        rotate();
+	        ans = min(ans, search());
+	        rotate();
+	        ans = min(ans, search());
+	
+	        ans = min(mx - mn, ans);
+	        cout << ans << "\n";
+	    }
+		```
 
 ---
 

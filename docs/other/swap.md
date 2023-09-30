@@ -147,4 +147,86 @@
 	    - 反之則會走到 $s_i,s_{p_i},s_{p_i^2},..,s_{p_i^{D-1}}$
 	        - 其中 $p_i^x$ 為 $\underbrace{p[p[p[p...}_{x次}[i]]]]$
 
+???+note "[USACO 2020 Open Exercise G](http://www.usaco.org/index.php?page=viewproblem2&cpid=1043)"
+	求所有 $k$ 的何和，滿足至少存在一個 $1\ldots n$ 的 permutation 需要 $k$ 部才能回到原本的 permutation
+	
+	$n\le 10^4$
+	
+	??? note "思路"
+		觀察會發會是一些環的總和要是 n，問題就變成求一些數字加起來要是 n，這些數字的 distinct lcm 總和就是答案。
+		
+		用 dp[i][j] 代表總合為 i，選第 1~j 個質數能湊出來的總合，轉移類似背包，不同的是需要枚舉第 j 個質數用了幾次。
+複雜度 O(n * pi(n) * log n) 
+
+	??? note "code(from 官解)"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+ 
+        using namespace std;
+
+        typedef long long LL;
+
+        const int MAXP = 1234;
+        const int MAXN = 10005;
+
+        LL res[MAXP][MAXN];  // result for permutations of length n restricted to using the first p primes
+
+        int n; LL m;
+
+        LL mul(LL x, LL y) {
+            return (x * y) % m;
+        }
+
+        LL add(LL x, LL y) {
+            x += y;
+            if (x >= m) x -= m;
+            return x;
+        }
+
+        LL sub(LL x, LL y) {
+            x -= y;
+            if (x < 0) x += m;
+            return x;
+        }
+
+        int main() {
+            freopen("exercise.in","r",stdin);
+            freopen("exercise.out","w",stdout);
+            cin >> n >> m;
+
+            vector<int> composite(n+1);
+            vector<int> primes;
+
+            for (int i = 2; i <= n; i++) {
+                if (!composite[i]) {
+                    primes.push_back(i);
+                    for (int j = 2*i; j <= n; j += i) {
+                        composite[j] = 1;
+                    }
+                }
+            }
+
+            if (primes.size() == 0) {
+                cout << "1\n";
+                return 0;
+            }
+
+            for (int j = 0; j <= n; j++) res[0][j] = 1;  // identities
+
+            for (int i = 1; i <= primes.size(); i++) {
+                for (int j = 0; j <= n; j++) {
+                    res[i][j] = res[i-1][j];
+
+                    int pp = primes[i-1];
+                    while (pp <= j) {
+                        res[i][j] = add(res[i][j], mul(pp, res[i-1][j-pp]));
+                        pp *= primes[i-1];
+                    }
+                }
+            }
+
+            cout << res[primes.size()][n] << "\n";
+        }
+		```
+
 https://drive.google.com/file/d/1WB9Hnx3itjsBQO0Qk06e1Iszt7jNzhVF/view

@@ -1012,6 +1012,8 @@
 	$n\le 10^5, 1\le w_i\le 10^9,$ point 數量 $\le 300$
 	
 	??? note "思路"
+		觀察到可以分成好幾段，每一段 point 都只會被一個 interval 覆蓋
+	
 		cost(l, r) : 用一個 interval 覆蓋 point[l ~ r] 的最小權重
 		
 		dp(i, k) = 在 point 1 ~ i 內恰好覆蓋 k 個 point 的 min cost
@@ -1231,3 +1233,49 @@
 	        cout << sum << "\n";
 	    }
 		```
+		
+???+note "[全國賽 2021 pI. 鐵路鋪設(rail)](https://tioj.ck.tp.edu.tw/problems/2259)"
+	給 $L$，現在有一個 $2\times L$ 的方格，問有幾種放法。以 $2\times 4$ 為例，有 $6$ 放法
+	
+	<figure markdown>
+      ![Image title](./images/25.png){ width="400" }
+    </figure>
+    
+    $1\le L \le 10^{10}$
+    
+    ??? note "思路"
+    	先考慮最後一個連續段[^1]放什麼，我們將最後一段長度為 2, 3, 4 的畫出來看看
+    	
+    	<figure markdown>
+          ![Image title](./images/26.png){ width="400" }
+        </figure>
+        
+        可以觀察到，若最後一段
+        
+        - 長度為 2 ⇒ 1 種可能
+        
+        - 長度為 3 ⇒ 3 種可能
+
+		- 長度為 4 ⇒ 5 種可能
+
+		- 長度為 5 ⇒ 7 種可能
+
+		所以我們可以列出 
+		
+		$$f(n)=f(n-2) + 3\times f(n-3) + 5\times f(n - 4)+\ldots + (2n-3)\times f(n-n)$$
+		
+		只是這個不好轉移，我們想要將後面係數為 3, 5, 7, ... 給弄掉
+		
+		<figure markdown>
+          ![Image title](./images/27.png){ width="600" }
+        </figure>
+        
+        <figure markdown>
+          ![Image title](./images/28.png){ width="400" }
+        </figure>
+        
+        最後使用矩陣快速冪加速即可
+    	
+[^1]: 為什麼要這樣考慮呢? 例如費式數列 f(n) 只要從 f(n - 1) 與 f(n - 2) 轉移就好，如 f(n - 3) 就可以用 1 + 2 來代替，所以我們只要考慮無法被替代的即可
+	
+	
