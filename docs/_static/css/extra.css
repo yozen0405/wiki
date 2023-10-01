@@ -44,6 +44,14 @@
   overflow: hidden;
 }
 
+.md-typeset .admonition, .md-typeset details {
+  color: #fff;
+}
+
+aside, body, input {
+  color: #ffffff;
+}
+
 :root {
   --md-admonition-icon--seacow: url('https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/octicons/broadcast-16.svg')
 }
