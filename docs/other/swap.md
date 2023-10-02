@@ -137,18 +137,112 @@
 	$2\le n\le 10^5, 1\le k\le 2\time 10^5, 1\le m\le 10^{18}$
 	
 	??? note "思路"
-		- 令 $s_i=i$ 在經過 $K$ 輪會走過幾個 unique index
-	    - $p_i$ 在 $K$ 輪最後會到哪個 index
-	    - 顯然每 $K$ 輪一個循環，所以我們先算好 $1...K$ 的
-	    - $\sum s_i$ 最多只會是 $2K+N$ 
-	        - $N$ 一開始的 index，$2K$ 每次 swap 會 update 兩個新的
-	    - 可以建圖，邊為 $(i\rightarrow p_i)$
-	        - 會形成多個 cycle 因為 in<sub>i</sub> 和 out<sub>i</sub> 都會是 1
-	    - $M=KD+R$
-	    - 設 $i$ 在的環長度為 $L$ (唯一)
-	    - 若 $D>L$ 那都會走到
-	    - 反之則會走到 $s_i,s_{p_i},s_{p_i^2},..,s_{p_i^{D-1}}$
-	        - 其中 $p_i^x$ 為 $\underbrace{p[p[p[p...}_{x次}[i]]]]$
+		令 $s_i$ 為 $i$ 在經過 $k$ 輪會走過的 unique index，$p_i$ 為 $k$ 輪後會到哪個 index。每 $k$ 輪一個循環，我們考慮建圖，邊為 $i\rightarrow p_i$，因為 in<sub>i</sub> 和 out<sub>i</sub> 都是 1，所以會形成多個 cycle。令 $m=k\times d+r$，假設某個環長度為 $L$，若 $L<d$ 則環上的每個點的答案就是環上所有 $s_i$ 的 union，反之對於某個點 $i$，只會走到以他前面的 $d$ 個，也就是 $s_i,s_{p_i},s_{p_i^2},..,s_{p_i^{d-1}}$ 的 union（其中 $p_i^x$ 為 $\underbrace{p[p[p[p...}_{x次}[i]]]]$）。因為 $\sum s_i$ 最多只會是 $2k+n$（$n$ 一開始所在的 index，$2k$ 每次 swap 會 update 兩個新的），所以對 $L<d$ 我們直接暴力的將環上的 $s_i$ 加入 ; 對於 $L \ge d$ 我們使用 sliding window 維護，這樣每個 $s_i$ 都只會加入一次和刪掉一次，總複雜度 $O(n+k)$
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        using namespace std;
+        typedef long long ll;
+
+        int N, K;
+        ll M;
+        int A[200001], B[200001];          // input
+        int P[100001];                     // as described in analysis
+        int from[100001];                  // from[i] = where the cow in position i originated from
+        vector<pair<int, int>> S[100001];  // as described in analysis, stores {pos, time}
+        int cnt[100001];                   // array to keep track of uniquePos
+        int uniquePos;                     // # of unique reachable positions
+
+        // adds in all reachable positions from S_node where time<=bar
+        void add(int node, int bar) {
+            for (auto x : S[node]) {
+                if (x.second > bar) return;
+                if (cnt[x.first] == 0)
+                    uniquePos++;
+                cnt[x.first]++;
+            }
+        }
+
+        // removes all reachable positions from S_node where time<=bar
+        void remove(int node, int bar) {
+            for (auto x : S[node]) {
+                if (x.second > bar) return;
+                if (cnt[x.first] == 1)
+                    uniquePos--;
+                cnt[x.first]--;
+            }
+        }
+
+        vector<int> nodes;  // stores nodes currently in cycle
+        bool vis[100001];
+
+        void dfs(int node) {
+            vis[node] = true;
+            nodes.push_back(node);
+            if (!vis[P[node]])
+                dfs(P[node]);
+        }
+
+        int main() {
+            cin >> N >> K >> M;
+            for (int i = 0; i < K; i++)
+                cin >> A[i] >> B[i];
+            // initialize from and S
+            for (int i = 1; i <= N; i++) {
+                from[i] = i;
+                S[i].push_back({i, 0});
+            }
+            // simulate the first K swaps, keeping track of where each position can reach
+            for (int i = 0; i < K; i++) {
+                S[from[A[i]]].push_back({B[i], i + 1});
+                S[from[B[i]]].push_back({A[i], i + 1});
+                swap(from[A[i]], from[B[i]]);
+            }
+            // compute array P after first K swaps
+            for (int i = 1; i <= N; i++)
+                P[from[i]] = i;
+            int ans[100001];
+            // run a DFS on each cycle
+            for (int i = 1; i <= N; i++)
+                if (!vis[i]) {
+                    dfs(i);
+                    ll D = M / K;   // as described in the analysis
+                    int R = M % K;  // as described in the analysis
+                    //"special case" if the whole cycle is included
+                    if (D >= (int)nodes.size()) {
+                        D = nodes.size();
+                        R = 0;
+                    }
+                    int j = D - 1;
+                    // initialize our sliding window [0,j]
+                    for (int k = 0; k <= j; k++)
+                        add(nodes[k], K);
+                    // we slide our window [i,j], adding and removing as we go
+                    for (int i = 0; i < nodes.size(); i++) {
+                        int newJ = (j + 1) % (int)nodes.size();
+                        // account for the extra R swaps
+                        add(nodes[newJ], R);
+                        // store answer for current sliding window
+                        ans[nodes[i]] = uniquePos;
+                        // undo the extra R swaps
+                        remove(nodes[newJ], R);
+                        // undo the left endpoint of sliding window
+                        remove(nodes[i], K);
+                        // add new right endpoint of sliding window
+                        add(nodes[newJ], K);
+                        j = newJ;
+                    }
+                    // reset everything from this cycle
+                    for (int k = 0; k <= D - 1; k++)
+                        remove(nodes[k], K);
+                    nodes.clear();
+                }
+            for (int i = 1; i <= N; i++)
+                cout << ans[i] << endl;
+            return 0;
+        }
+		```
 
 ???+note "[USACO 2020 Open Exercise G](http://www.usaco.org/index.php?page=viewproblem2&cpid=1043)"
 	求所有 $k$ 的何和，滿足至少存在一個 $1\ldots n$ 的 permutation 需要 $k$ 部才能回到原本的 permutation
