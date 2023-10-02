@@ -132,7 +132,10 @@
 ## USCAO Dance Mooves
 
 ???+note "[USACO 2021 January 3. Dance Mooves](http://www.usaco.org/index.php?page=viewproblem2&cpid=1091)" 
-
+	有一個長度為 $n$ 的序列 $a=[1, 2, \ldots ,n]$。給 $k$ 對指令，形式為 $(x_i,y_i)$，表示 swap$(a_{x_i},a_{y_i})$。第 $i$ 分鐘需要執行第 $i\pmod{k}$ 個動作，問 $m$ 分鐘後，每個數字分別經過幾個不同的 index。
+	
+	$2\le n\le 10^5, 1\le k\le 2\time 10^5, 1\le m\le 10^{18}$
+	
 	??? note "思路"
 		- 令 $s_i=i$ 在經過 $K$ 輪會走過幾個 unique index
 	    - $p_i$ 在 $K$ 輪最後會到哪個 index
@@ -156,7 +159,7 @@
 		觀察會發會是一些環的總和要是 n，問題就變成求一些數字加起來要是 n，這些數字的 distinct lcm 總和就是答案。
 		
 		用 dp[i][j] 代表總合為 i，選第 1~j 個質數能湊出來的總合，轉移類似背包，不同的是需要枚舉第 j 個質數用了幾次。複雜度 O(n * pi(n) * log n) 
-
+	
 	??? note "code(from 官解)"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>

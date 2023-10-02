@@ -44,14 +44,6 @@
   overflow: hidden;
 }
 
-.md-typeset .admonition, .md-typeset details {
-  color: #fff;
-}
-
-aside, body, input {
-  color: #ffffff;
-}
-
 :root {
   --md-admonition-icon--seacow: url('https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/octicons/broadcast-16.svg')
 }
@@ -76,6 +68,8 @@ aside, body, input {
   --md-code-bkg-color: #FFF;
   --md-qs-border-width: 1px;
   --md-selection-color: #0967D8;
+  --md-font-color: #E9EBFC;
+  --md-code-nice-color: #21222C;
 }
 
 :root, [data-md-color-scheme=default] {
@@ -93,6 +87,20 @@ aside, body, input {
   --md-code-bkg-color: #000000;
   --md-qs-border-width: 0;
   --md-selection-color: #3390FF;
+  --md-font-color: #000000;
+  --md-code-nice-color: #f5f5f5;
+}
+
+.md-typeset .admonition, .md-typeset details {
+  color: var(--md-font-color);
+}
+
+aside, body, input {
+  color: var(--md-font-color);
+}
+
+.md-typeset code {
+  background-color: var(--md-code-nice-color); 
 }
 
 ::selection {
