@@ -103,17 +103,37 @@
 ### 矩形覆蓋相關問題
 
 ???+note "不用離散化版 [CSES - Area of Rectangles](https://cses.fi/problemset/task/1741)"
+	給 $n$ 個矩形 $(x_1, x_2)$ 到 $(y_1, y_2)$，問他們的聯集面積
 	
-	
-???+note "離散化版 [TIOJ 1224](https://tioj.ck.tp.edu.tw/problems/1224)"
-	計算覆蓋的區域的聯集面積
-	
-???+note "[2021 全國賽 pF. 歡樂外送點)](https://tioj.ck.tp.edu.tw/problems/2228)" 
-	計算覆蓋最多次的地方
+	$n\le 10^5, -10^6\le x_1, x_2, y_1, y_2 \le 10^6$
 
-???+note "變化問題 [2015 ITSA 桂冠賽挑戰組 A11. Smart Patrol](https://e-tutor.itsa.org.tw/e-Tutor/mod/programming/view.php?id=23668)"
-	矩形 XOR 之後，剩下的區域面積總合
+將問題轉換成在一維上的操作，也就是好幾個 events，變成好幾個區間 +1, -1。
 
+<figure markdown>
+  ![Image title](./images/18.png){ width="400" }
+</figure>
+
+v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，答案就是 v[i] > 0 的數量，我們可以用線段樹維護區間最小值 minv，以及出現幾次 cntv。
+
+- 若 minv = 0 ⇒ ans = total - cntv
+
+- 若 minv > 0 ⇒ ans = total
+
+???+note "[2021 全國賽 pF. 歡樂外送點](https://tioj.ck.tp.edu.tw/problems/2228)" 
+	給 $n$ 個菱形，中心點為 $(x_i, y_i)$，半徑為 $r_i$，權值為 $w_i$。問所有格子點的上被覆蓋到的權值總和最大值
+	
+	$n\le 3\times 10^5, 0\le x_i, y_i, r_i\le 10^8, 1\le w_i \le 100$
+	
+	??? note "思路"
+		<figure markdown>
+          ![Image title](./images/17.png){ width="400" }
+        </figure>
+	
+???+note "矩形周長 [POJ 1177](https://vjudge.net/problem/POJ-1177)"
+	給 $n$ 個矩形 $(x_1, x_2)$ 到 $(y_1, y_2)$，問他們所形成的輪廓週長
+	
+	$n\le 10^5, -10^6\le x_1, x_2, y_1, y_2 \le 10^6$	
+	
 ???+note "[LOJ #6276.果树](https://loj.ac/p/6276)"
 	給出一棵 $n$ 個點的樹，每個點有一種顏色。問有多少條路徑滿足路徑上任意兩點的顏色都不同。 
 	
@@ -807,7 +827,7 @@
 	給一個長度為 $n$ 的序列 $a_1, \ldots, a_n$，給 $k$，有 $q$ 筆詢問 : 
 	
 	- $\text{query}(v,l,r,c):$ 問 $a_l, \ldots, a_r$ 有沒有長度為 $k$ 的區間中，恰有 $c$ 個 $\le v$ 的數
-
+	
 	$n,q,k\le 10^6$
 	
 	??? note "思路"
@@ -816,7 +836,7 @@
 		開頭在 $i$ 的區間和開頭在 $i+1$ 的區間，塗色的位置數量最多只會差 1，所以可以用類似介值定理的想法，$c$ 在最小值和最大值之間就表示有出現 $c$。
 		
 		> 參考自 : <https://www.wiwiho.me/2020/11/21/npsc2020pre/>
-	
+
 ## 參考
 
 - <https://drive.google.com/file/d/1-X36kSojmhmMofC6zMLmLAt88j87ZJsn/view>

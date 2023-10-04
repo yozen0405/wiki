@@ -1,5 +1,3 @@
-LOJ 題單
-
 雖然時間複雜度比線段樹還差，但分塊的強處在維護資訊上更加彈性，特別是修改時難以快速更新的類型，這部分是線段樹所不及的
 
 ## 序列分塊
@@ -502,29 +500,31 @@ LOJ 題單
 		
 		```cpp
 		f[] = 0
-        for x = 1 ~ N:
-            u = 1 +[N/x] * x
-            v = N
-            f[u] += 1, f[v+1] -= 1
-        ```
-        
-        我們發現對於 $\lfloor \frac{N}{x} \rfloor$ 是一樣的 $x$，$\lfloor \frac{N}{x} \rfloor\times x$ 會形成一個等差數列，這樣我們就得到了一個類似塞法的做法
-        
-        ```cpp
-        f[] = 0
-        for d = 1 ~ sqrt(N):
-            minx = ???
-            maxx = ???
-            u = 1 + d * x
-            v = N
-            for (i = minx; i<= maxx; i++) {
-                    if (1 + d*i <= L): f[L] += 1
-                    else: f[1 + d*i] += 1     // O( (R-L+1) / d )
-        			f[v+1] -= 1; 
-        	}
+	    for x = 1 ~ N:
+	        u = 1 +[N/x] * x
+	        v = N
+	        f[u] += 1, f[v+1] -= 1
+	    ```
+	    
+	    我們發現對於 $\lfloor \frac{N}{x} \rfloor$ 是一樣的 $x$，$\lfloor \frac{N}{x} \rfloor\times x$ 會形成一個等差數列，這樣我們就得到了一個類似塞法的做法
+	    
+	    ```cpp
+	    f[] = 0
+	    for d = 1 ~ sqrt(N):
+	        minx = ???
+	        maxx = ???
+	        u = 1 + d * x
+	        v = N
+	        for (i = minx; i<= maxx; i++) {
+	                if (1 + d*i <= L): f[L] += 1
+	                else: f[1 + d*i] += 1     // O( (R-L+1) / d )
+	    			f[v+1] -= 1; 
+	    	}
 		```
 		
 		其中，在 1 + d*i 在 L 以下的可以用數學算，所以我們其實只要枚舉 [N/x]*x 在 [L, R] 之間的即可，這樣對於 [N/x] 為 d 時複雜度是 O( (R-L+1) / d )，類似篩法，加起來就是 O((R - L + 1) * log(sqrt(N)))
+
+其他練習可上[LOJ 題單](https://loj.ac/p?tagIds=207%2C79)
 
 ---
 
