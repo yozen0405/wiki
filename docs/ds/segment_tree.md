@@ -125,15 +125,24 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
 	$n\le 3\times 10^5, 0\le x_i, y_i, r_i\le 10^8, 1\le w_i \le 100$
 	
 	??? note "思路"
-		<figure markdown>
-          ![Image title](./images/17.png){ width="400" }
-        </figure>
+		將菱形變成 $(x+y,x-y)$ 就可以變成一般的矩形覆蓋問題
 	
+		<figure markdown>
+	      ![Image title](./images/17.png){ width="400" }
+	    </figure>
+
 ???+note "矩形周長 [POJ 1177](https://vjudge.net/problem/POJ-1177)"
 	給 $n$ 個矩形 $(x_1, x_2)$ 到 $(y_1, y_2)$，問他們所形成的輪廓週長
 	
-	$n\le 10^5, -10^6\le x_1, x_2, y_1, y_2 \le 10^6$	
+	$n\le 5000, -10^4\le x_1, x_2, y_1, y_2 \le 10^4$	
 	
+	??? note "思路"
+		用掃描線，線段樹一樣維護當前有幾個非 0 的點
+	
+		目前線段貢獻的周長是，目前的總長度減去上一次的總長度的絕對值
+		
+		> 參考自 : <https://blog.csdn.net/weixin_43236122/article/details/105306765>
+
 ???+note "[LOJ #6276.果树](https://loj.ac/p/6276)"
 	給出一棵 $n$ 個點的樹，每個點有一種顏色。問有多少條路徑滿足路徑上任意兩點的顏色都不同。 
 	
@@ -141,14 +150,6 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
 	
 	??? note "思路"
 		將 path $(u,v)$ 的 $\texttt{dfn}[u],\texttt{dfn}[v]$ 打在二維平面上，同樣顏色的點會形成一些矩形，那些矩形就不能選的地方，答案就是沒被任何矩形覆蓋到的二維座標點。由於需要 $O(20^2)$ 枚舉同樣顏色的點，每次會生成 $4$ 個矩形，所以 worst case $O((C^{20}_2 \times 4 \times \frac{n}{C^{20}_2})\times \log n)\approx 7.6\times 10^7$
-
-變化問題：至少被 2 個矩形覆蓋的區域面積總合
-- min,sec
-
-變化問題：至少被 K 個矩形覆蓋的區域面積總合
-
-變化問題：輸入的矩形的的長或寬至少有一個是 1，求聯集
-
 
 ## 線段樹優化建圖
 

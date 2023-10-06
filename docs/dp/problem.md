@@ -1233,33 +1233,33 @@
 	        cout << sum << "\n";
 	    }
 		```
-		
+
 ???+note "[全國賽 2021 pI. 鐵路鋪設(rail)](https://tioj.ck.tp.edu.tw/problems/2259)"
 	給 $L$，現在有一個 $2\times L$ 的方格，問有幾種放法。以 $2\times 4$ 為例，有 $6$ 放法
 	
 	<figure markdown>
-      ![Image title](./images/25.png){ width="400" }
-    </figure>
-    
-    $1\le L \le 10^{10}$
-    
-    ??? note "思路"
-    	先考慮最後一個連續段[^1]放什麼，我們將最後一段長度為 2, 3, 4 的畫出來看看
-    	
-    	<figure markdown>
-          ![Image title](./images/26.png){ width="400" }
-        </figure>
-        
-        可以觀察到，若最後一段
-        
-        - 長度為 2 ⇒ 1 種可能
-        
-        - 長度為 3 ⇒ 3 種可能
-
+	  ![Image title](./images/25.png){ width="400" }
+	</figure>
+	
+	$1\le L \le 10^{10}$
+	
+	??? note "思路"
+		先考慮最後一個連續段[^1]放什麼，我們將最後一段長度為 2, 3, 4 的畫出來看看
+		
+		<figure markdown>
+	      ![Image title](./images/26.png){ width="400" }
+	    </figure>
+	    
+	    可以觀察到，若最後一段
+	    
+	    - 長度為 2 ⇒ 1 種可能
+	    
+	    - 長度為 3 ⇒ 3 種可能
+	
 		- 長度為 4 ⇒ 5 種可能
-
+	
 		- 長度為 5 ⇒ 7 種可能
-
+	
 		所以我們可以列出 
 		
 		$$f(n)=f(n-2) + 3\times f(n-3) + 5\times f(n - 4)+\ldots + (2n-3)\times f(n-n)$$
@@ -1267,15 +1267,49 @@
 		只是這個不好轉移，我們想要將後面係數為 3, 5, 7, ... 給弄掉
 		
 		<figure markdown>
-          ![Image title](./images/27.png){ width="600" }
-        </figure>
-        
-        <figure markdown>
-          ![Image title](./images/28.png){ width="400" }
-        </figure>
-        
-        最後使用矩陣快速冪加速即可
-    	
+	      ![Image title](./images/27.png){ width="600" }
+	    </figure>
+	    
+	    <figure markdown>
+	      ![Image title](./images/28.png){ width="400" }
+	    </figure>
+	    
+	    最後使用矩陣快速冪加速即可
+
 [^1]: 為什麼要這樣考慮呢? 例如費式數列 f(n) 只要從 f(n - 1) 與 f(n - 2) 轉移就好，如 f(n - 3) 就可以用 1 + 2 來代替，所以我們只要考慮無法被替代的即可
+
+???+note "[Hackerrank - Equal](https://www.hackerrank.com/challenges/equal/problem)"
+	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，每次可選一個 $i$，將「除了 $a_i$ 以外」都加上 $\{ 1, 2, 5\}$ 其中一個（只能選一個，然後都加同樣的），問最少操作次數使陣列的每一項都一樣
 	
+	有 $t$ 筆測資 $,t\le 100, n\le 10^4$
 	
+	??? note "思路"
+		其他人都 +x，可以想成自己被 -x。所以問題就變成要做幾次 -1, -2, -5，才能使每一項都相同，觀察到一樣至少要減少到最小的那一項，至多就是最小的那一項再 -5，所以我們可以枚舉這個範圍，然後先預處理 dp[x] 代表 x 至少需要減 -1, -2, -5 幾次才會變成 0，對於陣列的每一項直接查表即可
+		
+	??? note "code"
+		```cpp linenums="1"
+		const int MAXN = 1e3 + 5;
+        int dp[MAXN];
+
+        void table() {
+            for (int i = 1; i < MAXN; i++) {
+                dp[i] = dp[i - 1] + 1;
+                if (i >= 2) dp[i] = min(dp[i], dp[i - 2] + 1);
+                if (i >= 5) dp[i] = min(dp[i], dp[i - 5] + 1);
+            }
+        }
+
+        int equal(vector<int> arr) {
+            int n = arr.size();
+            int ans = 0x3f3f3f3f;
+            int mn = *min_element(arr.begin(), arr.end());
+            for (int val = mn - 5; val <= mn; val++) {
+                int cnt = 0;
+                for (int i = 0; i < n; i++) {
+                    cnt += dp[arr[i] - val];
+                }
+                ans = min(ans, cnt);
+            }
+            return ans;
+        }
+		```
