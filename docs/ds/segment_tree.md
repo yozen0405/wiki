@@ -1,4 +1,90 @@
-- <https://blog.nowcoder.net/n/27772b54fd3c4968b905303d83138dea?from=nowcoder_improve>
+???+note "[HDU 5726 GCD](https://vjudge.net/problem/HDU-5726)"
+	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，$q$ 次詢問 :
+	
+	- $\text{query}(l,r):$ 問 $[l,r]$ 之間的子區間 $[l',r']$，有幾個 $\gcd(a_{l'},\ldots ,a_{r'})=\gcd(a_l,\ldots ,a_r)$
+	
+	$n, q\le 10^5$
+	
+	??? note "思路"
+		
+		區間 gcd 的值利可以用 Sparse Table 或 Segment Tree 算出來，但要怎麼求有幾個子區間的 gcd = x 呢 ? 觀察到，對於一個左界，當右界遞增時 gcd 是單調遞減的，所以我們假設已用 map 存以 a[i - 1] 結尾的 distinct 區間 gcd，那我們就只要將這些 gcd 在去跟 a[i] 取 gcd 存入 map 即可
+		
+		詳見代碼，抄錄自以下博客
+		
+		> 參考 : <https://blog.nowcoder.net/n/27772b54fd3c4968b905303d83138dea?from=nowcoder_improve>
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    using namespace std;
+	    typedef long long ll;
+	    const int mod = 1000000007;
+	    const int maxn = 1e5 + 10;
+	    int g[maxn * 4], a[maxn];
+	    map<int, ll> ans;      // 存最终答案
+	    map<int, ll> p[maxn];  // p[i]表示以i结尾的gcd的区间集合,前者为gcd，后者为对应的区间个数
+	    int t, n, q, x, y;
+	    int Gcd(int a, int b) {
+	        return b == 0 ? a : Gcd(b, a % b);
+	    }
+	    void update(int id) {
+	        g[id] = Gcd(g[id << 1], g[id << 1 | 1]);
+	    }
+	    void build(int l, int r, int id) {
+	        if (l == r) {
+	            g[id] = a[l];
+	            return;
+	        }
+	        int mid = (l + r) >> 1;
+	        build(l, mid, id << 1);
+	        build(mid + 1, r, id << 1 | 1);
+	        update(id);
+	    }
+	    int query(int l, int r, int x, int y, int id) {
+	        if (x <= l && r <= y)
+	            return g[id];
+	        int mid = (l + r) >> 1;
+	        int le = 0, ri = 0;
+	        if (x <= mid)
+	            le = query(l, mid, x, y, id << 1);
+	        if (y > mid)
+	            ri = query(mid + 1, r, x, y, id << 1 | 1);
+	        if (!le) swap(le, ri);  // le为0， 不能求ri%0
+	        return Gcd(le, ri);     // Gcd(x, 0) = x
+	    }
+	    int main() {
+	        // freopen("/Users/zhangkanqi/Desktop/11.txt","r",stdin);
+	        scanf("%d", &t);
+	        int Case = 1;
+	        while (t--) {
+	            printf("Case #%d:\n", Case++);
+	            scanf("%d", &n);
+	            ans.clear();  // 清空!!
+	            for (int i = 1; i <= n; i++)
+	                p[i].clear();
+	            for (int i = 1; i <= n; i++)
+	                scanf("%d", &a[i]);
+	
+	            build(1, n, 1);
+	            ans[a[1]] = 1, p[1][a[1]] = 1;
+	            for (int i = 2; i <= n; i++) {
+	                ans[a[i]]++, p[i][a[i]] += 1;
+	                for (map<int, ll>::iterator it = p[i - 1].begin(); it != p[i - 1].end(); it++) {
+	                    int tmp = Gcd(a[i], it->first);  // 求a[i]和之前的数的gcd
+	                    p[i][tmp] += it->second;
+	                    ans[tmp] += it->second;
+	                }
+	            }
+	            scanf("%d", &q);
+	            while (q--) {
+	                scanf("%d %d", &x, &y);
+	                int k = query(1, n, x, y, 1);
+	                printf("%d %lld\n", k, ans[k]);
+	            }
+	        }
+	        return 0;
+	    }
+		```
 
 ## 線段樹基本
 
@@ -93,14 +179,7 @@
 	
 		> 參考 : <https://blog.csdn.net/weixin_45799835/article/details/120182104>
 
-???+note "[CF 1149 C](https://www.luogu.com.cn/blog/368107/solution-cf1149c)"
-
-## 掃描線
-
-- 曼哈頓轉雪茄夫距離
-- [class 10](https://drive.google.com/file/d/1-KGWKW8z2foucvcgeMJ0j2MABreT3sVF/view)
-
-### 矩形覆蓋相關問題
+## 矩形覆蓋相關問題
 
 ???+note "不用離散化版 [CSES - Area of Rectangles](https://cses.fi/problemset/task/1741)"
 	給 $n$ 個矩形 $(x_1, x_2)$ 到 $(y_1, y_2)$，問他們的聯集面積
@@ -153,13 +232,222 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
 
 ## 線段樹優化建圖
 
-- https://tioj.ck.tp.edu.tw/problems/1169
+
 
 ## 線段樹分治
 
-- https://zhuanlan.zhihu.com/p/557382505?utm_id=0
+考慮這樣一個問題： 
 
-- https://www.luogu.com.cn/blog/AlexWei/solution-p8097
+- 有一些操作，每個操作只在 $l\sim r$ 的時間內有效。 
+
+- 有一些詢問，每個詢問某一個時間點所有操作的貢獻。
+
+對於這樣的詢問，我們可以在離線後在**時間軸上建一棵線段樹**，這樣對於每個操作，相當於在線段樹上進行區間操作。遍歷整顆線段樹，到達每個節點時執行對應的操作，然後繼續向下遞歸，到達葉子節點時統計貢獻，回溯時撤銷操作即可。這樣的想法被稱為**線段樹分治**，可以在低時間複雜度內解決一類**在線演算法並不優秀**的問題。
+
+???+note "[洛谷 P5787 二分图 /【模板】线段树分治](https://www.luogu.com.cn/problem/P5787)"
+	給一張 $n$ 個點的圖，有 $m$ 條邊與 $k$ 個時間點，每條邊只存在於 $[l_i, r_i)$ 這些時間點，求每個時間點時這張圖是否為二分圖。
+	
+	$n\le 10^5, m,k\le 2\times 10^5$
+	
+	??? note "思路"
+		首先，圖是二分圖的充要條件是不存在奇環，這個可以用帶權並查集維護。依照上述思想建一棵線段樹，對於每條邊，將它依照線段樹區間操作的方式分成 $O(\log k)$ 段，用 vector 掛在線上段樹的節點上。遍歷時，從根節點出發，每到一個節點，將掛在該節點上的所有邊合併，然後遞歸處理左兒子和右兒子。如果發現有某邊合併會出現奇環，那麼目前線段樹節點所對應的時間區間都不會形成二分圖。當到達葉子節點時，如果合併了所有掛在當前節點上的邊，依舊滿足二分圖的性質，那麼可以直接輸出 Yes。回溯時，由於並查集不支援刪邊，我們可以使用可rollback dsu。
+		
+		每條邊會跑 $O(\log k)$ 次，共 $m$ 條，在乘上 rollback dsu 的複雜度是 $O(m \log n \log k)$
+		
+	??? note "code"
+		```cpp linenums="1"
+		const int N = 1e5 + 7, M = 2e5 + 7;
+        int n, m, k, u[M], v[M], f[N<<1], d[N<<1];
+        struct T {
+            int l, r;
+            vi e;
+        } t[N<<2];
+        stack< pi > s;
+
+        void build(int p, int l, int r) {
+            t[p].l = l, t[p].r = r;
+            if (l == r) return;
+            build(ls, l, md), build(rs, md + 1, r);
+        }
+
+        void ins(int p, int l, int r, int x) {
+            if (t[p].l >= l && t[p].r <= r) return t[p].e.pb(x), void();
+            if (l <= md) ins(ls, l, r, x);
+            if (r > md) ins(rs, l, r, x);
+        }
+
+        inline int get(int x) {
+            while (x ^ f[x]) x = f[x];
+            return x;
+        }
+
+        inline void merge(int x, int y) {
+            if (x == y) return;
+            if (d[x] > d[y]) swap(x, y);
+            s.push(mp(x, d[x] == d[y])), f[x] = y, d[y] += d[x] == d[y];
+        }
+
+        void dfs(int p, int l, int r) {
+            bool ok = 1;
+            ui o = s.size();
+            for (ui i = 0; i < t[p].e.size(); i++) {
+                int x = t[p].e[i], u = get(::u[x]), v = get(::v[x]);
+                if (u == v) {
+                    for (int j = l; j <= r; j++) prints("No");
+                    ok = 0;
+                    break;
+                }
+                merge(get(::u[x] + N), v), merge(get(::v[x] + N), u);
+            }
+            if (ok) {
+                if (l == r) prints("Yes");
+                else dfs(ls, l, md), dfs(rs, md + 1, r);
+            }
+            while (s.size() > o) d[f[s.top().fi]] -= s.top().se, f[s.top().fi] = s.top().fi, s.pop();
+        }
+
+        int main() {
+            rd(n), rd(m), rd(k), build(1, 1, k);
+            for (int i = 1, l, r; i <= m; i++) {
+                rd(u[i]), rd(v[i]), rd(l), rd(r);
+                if (l ^ r) ins(1, l + 1, r, i);
+            }
+            for (int i = 1; i <= n; i++) f[i] = i, f[i+N] = i + N;
+            dfs(1, 1, k);
+            return 0;
+        }
+        ```
+
+???+note "[CF 1681 F. Unique Occurrences](https://codeforces.com/contest/1681/problem/F)"
+	給一棵 $n$ 個點的樹，邊帶權。定義 $f(u,v)$ 為 $u$ 到 $v$ 的路徑上只出現一次的邊權數量，問對於所有 $u<v$，$f(u,v)$ 的加總
+	
+	$2\le n\le 5\times 10^5$
+	
+	??? note "思路"
+		考慮權重 $w$，當將權重為 $w$ 的邊都移除後，會剩下好幾個連通塊，將權重為 $w$ 的邊都移除後，每條權重為 $w$ 的邊對答案的貢獻就是 $(u,v)$ 所在的連通塊的大小的乘積，也就是 $sz(u)\times sz(v)$。所以我們考慮分治，以權重小到大當時間軸，對於一條權重為 $w$ 的邊即貢獻 $[1, w-1]$ 和 $[w+1, n]$，也就是到了葉節點必須加入除了權重為 $w$ 以外的所有 edges，我們可以使用類似 CF 1442 D. sum 的實作方式來做這題，也就是在遞迴的過程將不屬於 $w$ 的邊依序加入。
+		
+		> 參考自 : <https://www.luogu.com.cn/blog/257146/solution-cf1681f>
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        const int N = 5e5 + 5;
+
+        int n, ans;
+        vector<pair<int, int>> G[N];
+
+        struct Graph {
+            int n, cnt;
+            vector<int> sz;
+            vector<int> par;
+            stack<pair<int, int>> stk;
+
+            int find(int x) {
+                if (par[x] == x)
+                    return x;
+                else
+                    return find(par[x]);
+            }
+            void init(int _n) {
+                n = _n;
+                sz = vector<int>(n, 1);
+                par = vector<int>(n);
+                for (int i = 0; i < n; i++) {
+                    par[i] = i;
+                }
+            }
+            void merge(int u, int v) {
+                int x = find(u), y = find(v);
+                if (x == y) {
+                    stk.push({x, x});
+                    return;
+                }
+                if (sz[x] < sz[y]) swap(x, y);
+                sz[x] += sz[y];
+                par[y] = x;
+                stk.push({x, y});
+            }
+            void undo() {
+                auto [x, y] = stk.top();
+                stk.pop();
+                if (x == y) return;
+                sz[x] -= sz[y];
+                par[y] = y;
+            }
+        } dsu;
+
+        void divide(int l, int r) {
+            if (l == r) {
+                for (auto [a, b] : G[l]) {
+                    a = dsu.find(a), b = dsu.find(b);
+                    ans += dsu.sz[a] * dsu.sz[b];
+                }
+                return;
+            }
+            int mid = (l + r) / 2;
+            for (int i = l; i <= mid; i++) {
+                for (auto [u, v] : G[i]) {
+                    dsu.merge(u, v);
+                }
+            }
+            divide(mid + 1, r);
+            for (int i = l; i <= mid; i++) {
+                for (auto [u, v] : G[i]) {
+                    dsu.undo();
+                }
+            }
+            for (int i = mid + 1; i <= r; i++) {
+                for (auto [u, v] : G[i]) {
+                    dsu.merge(u, v);
+                }
+            }
+            divide(l, mid);
+            for (int i = mid + 1; i <= r; i++) {
+                for (auto [u, v] : G[i]) {
+                    dsu.undo();
+                }
+            }
+        }
+
+        signed main() {
+            cin >> n;
+            for (int i = 1; i < n; i++) {
+                int u, v, w;
+                cin >> u >> v >> w;
+                G[w].push_back({u, v});
+            }
+            dsu.init(n + 1);
+            divide(1, n);
+            cout << ans << '\n';
+        }
+        ```
+
+???+note "[CF 601 E. A Museum Robbery](https://codeforces.com/contest/601/problem/E)"
+	給 $n$ 個物品以及背包容量 $k$，有以下 $q$ 筆操作 :
+    
+    - $\text{add}(w, v):$ 加入一個重量為 $w$，價值為 $v$ 的物品
+
+	- $\text{del}(x):$ 刪除編號 $x$ 的物品
+
+	- $\text{query}:$ 令 $s(m)$ 表示容量為 $m$ 所能獲取的最大價值，求 $\sum \limits_{m=1}^k s(m) \times p^{m-1} \pmod{q}$
+
+	$n\le 5000, k\le 1000, q\le 3\times 10^4$
+	
+	??? note "思路"
+    	我們處理出每個物品會出現在哪些區間中。其它都和線段樹分治一樣，唯一的不同就是dfs 的時候，我們不去回溯，而是選擇直接把 $dp$ 數組傳下去（其實也跟 CF 1442 D. sum 的做法差不多）。
+    	
+    	> 參考自 : <https://zhuanlan.zhihu.com/p/557382505>
+    	
+> 參考 : 
+> 
+> - <https://www.xht37.com/线段树分治-学习笔记>
+> 
+> - <https://zhuanlan.zhihu.com/p/557382505?utm_id=0>
+> 
+> - <https://www.luogu.com.cn/blog/AlexWei/solution-p8097>
 
 ## 打架線段樹
 
@@ -629,7 +917,7 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
 	
 	$N,Q\le 2\times 10^5,1\le a_i,x\le 10^9$
 	
-	???+note "思路"
+	??? note "思路"
 		ceil 除法的話是把 floor 的除法改一下變區間最大值是 1 的時候不遞迴做下去
 
 ???+note "[2016 全國賽 直升機抓寶 (Helicopter)](https://tioj.ck.tp.edu.tw/problems/1941)"
