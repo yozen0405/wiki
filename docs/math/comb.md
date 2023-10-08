@@ -1,3 +1,309 @@
+## 組合數計算
+
+### 一覽
+
+- 答案不做 mod
+	- $10^6$ 次查詢 $n,k\le 64$ → <font color="#00A2E8">暴力建表</font>
+	- 單次查詢 $n,k\le 1000$ → <font color="#00A2E8">大數運算</font>
+
+- 答案 mod $P$ ， $P$ 是質數
+	- $10^6$ 次查詢 $n,k\le 10^6,P=10^9+7$ → <font color="#00A2E8">使用模逆元</font>
+	- $10^6$ 次查詢 $n\le 10^9, k\le 30,P=10^9+7$ → <font color="#00A2E8">使用模逆元</font>
+	- $10^5$ 次查詢 $n,k\le 10^{18},P\le 1000$ → <font color="#00A2E8">Lucas 定理</font>
+
+- 答案 mod $M$，$M$ 不是質數
+	- $10^6$ 次查詢 $n\times k\le 10^5,P\approx 10^9$ → <font color="#00A2E8">暴力建表</font>
+	- $10^6$ 次查詢 $n\le 10^9,k\le 30,P\approx 10^9$ → <font color="#00A2E8">中國剩餘定理 or gcd</font>
+
+### 暴力建表
+
+範圍 : 
+
+- 答案不做 mod，$10^6$ 查詢，$n,k\le 64$
+
+- 答案 mod 合數，$n \times k \le 10^5$
+
+第$ n$ 個東西拿 or 不拿，得 $C(n, k) = C(n-1, k-1) + C(n-1, k)$
+
+???+note "code"
+	```cpp linenums="1"
+    void build() {
+        C[0][0] = 1;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 0; j <= i; j++) {
+                if (j == 0) C[i][j] = 1;
+                else C[i][j] = C[i - 1][j] + C[i - 1][j - 1];
+            }
+        }
+    }
+    ```
+
+### 模逆元建表
+
+範圍 : 答案 mod 質數，$10^6$ 次查詢 $n,k\le 10^6,P=10^9+7$
+
+??? info "推導轉移式"
+	令 $m=k\times i + r$，其中 $k = \left\lfloor \frac{m}{i} \right\rfloor,r = m \bmod i$，則
+	
+	$$
+	\begin{align*}
+    & \implies & 0          & \equiv k \cdot i + r   & \mod m \\
+    & \iff & r              & \equiv -k \cdot i      & \mod m \\
+    & \iff & r \cdot i^{-1} & \equiv -k              & \mod m \\
+    & \iff & i^{-1}         & \equiv -k \cdot r^{-1} & \mod m
+    \end{align*}
+    $$
+	
+??? note "code"
+	```cpp linenums="1"
+    void build() {
+        prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
+        for (int i = 2; i < maxn; i++) {
+            pref[i] = pref[i - 1] * i % M;
+            pinv[i] = (M - (M/i) * pinv[M % i] % M) % M;
+            prei[i] = prei[i - 1] * pinv[i] % M;
+        }
+    } 
+
+    int C(int n, int k) {
+        return pref[n] * prei[k] % M * prei[n - k] % M;
+    }
+    ```
+
+### Lucas 定理
+
+範圍 : 
+
+- 答案 mod 質數，$10^5$ 次查詢 $n,k\le 10^{18},P\le 1000$
+
+- 答案 mod 合數，$n \le 10^9, k=30, M \approx 10^9$
+
+	- 中國剩餘定理分解出質數，然後套用 Lucas 定理
+
+C(n, k) % P = C(n / P, k / P) * C(n % P, k % P) % P
+
+???+note "code"
+	```cpp linenums="1"
+    const int M = 31;
+
+    int Lucas(int n, int k) {
+        if (k == 0) return 1;
+        return (Lucas(n / M, k / M) * C(n % M, k % M)) % M;
+    }
+    ```
+    
+> 證明詳見 : [這篇博客](https://blog.csdn.net/Qiuker_jl/article/details/109528164?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-109528164-blog-119976665.pc_relevant_3mothn_strategy_recovery&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-109528164-blog-119976665.pc_relevant_3mothn_strategy_recovery&utm_relevant_index=1)
+
+## n 球 m 箱問題
+
+### 球異箱異 - 有空箱
+
+- $m \times m \times ..=m^n$
+
+### 球異箱異 - 沒空箱
+
+- 排容原理
+- 全 $-$ 一箱空 $+$ 二箱空 $+...+$ $m$ 箱空
+- $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+..+C^{m}_{m} \times (m-m)^{n}$
+
+???+note "code"
+	```cpp linenums="1"
+    int F(int n, int m) {
+        int ret = 0;
+        for (int i = 0; i <= m; i++) {
+            ret += ((i & 1) ? -1 : 1) * fastpow(m - i, n, M) * C(m, i) % M;
+            ret = (ret % M + M) % M;
+        }
+        return ret;
+    }
+    ```
+
+### 球同箱異
+
+- 隔板法
+- $C^{n+m-1}_{m-1}$
+
+### 球異箱同
+
+- DP
+
+- $dp[i][j]:$ $i$ 球 $j$ 組
+
+- $dp[i][j]=dp[i-1][j-1]+j\times dp[i-1][j]$
+
+### 球同箱同
+
+- 等同於算有幾個長度為 $m$ 的非遞減數列
+
+- $\texttt{dp[i][j] = i}$ 項總合為 $\texttt{j}$ 的方法數
+
+- $dp[i][j]=dp[i-1][j-1]+dp[i][j-i]$ 
+
+<figure markdown>
+  ![Image title](./images/14.png){ width="400" }
+</figure>
+
+
+## 環上色
+
+???+note "問題"
+	將 $n$ 個點鏈塗上 $k$ 種顏色，相同顏色的兩個點至少要間隔 $m$ 個節點，求出方法數
+	
+### m=1
+
+- $\texttt{dp[i][0/1]}$ 跟第一個是不同顏色/相同
+- $dp[i][0]=dp[i-1][0] \times (k-2) + dp[i-1][1] \times (k-1)$
+- $dp[i][1]=dp[i-1][0]$
+- 初始化 dp[1][1]=k
+- ans = dp[n][0]
+
+### m=3
+
+- $\texttt{dp(i, s):}$  考慮前 $\texttt{i}$ 的東西，$\texttt{s}$ 最後三個分別有沒有跟第一個一樣顏色
+- $\texttt{s}$ 可能是 $\texttt{000, 001, 010, 100}$
+- $dp[i][000]=dp[i-1][100] \times (k-3) + dp[i-1][000] \times (k-4)$
+- $dp[i][001]=dp[i-1][000]$
+- $dp[i][010]=dp[i-1][001] \times (k-3)$
+- $dp[i][100]=dp[i-1][010] \times (k-3)$
+- 初始化 dp[3][100] = k * (k - 1) * (k - 2)
+- ans = dp[n][000]
+
+## 環排列
+
+- [Stirling number](https://zh.wikipedia.org/zh-tw/%E6%96%AF%E7%89%B9%E7%81%B5%E6%95%B0)
+- $s(n,k)=(n-1) \times s(n-1,k)+s(n-1,k-1)$
+- 全部都插入左邊或全部都插入 $n-1$ 個的右邊
+- 例如 $\texttt{(D),(A,B,C)}$
+- https://zerojudge.tw/ShowProblem?problemid=b685
+
+<figure markdown>
+  ![Image title](./images/15.png){ width="300" }
+</figure>
+
+## 卡特蘭數
+
+### 走格子
+
+<figure markdown>
+  ![Image title](./images/16.png){ width="400" }
+</figure>
+
+### 括號
+
+???+note "[CSES - Bracket Sequences I](https://cses.fi/problemset/task/2064)"
+	問長度是 $n$ 合法括號序列有幾個
+	
+	??? note "思路"
+		- 從 $\texttt{invaild}$ 之後切成兩部分
+        - $\texttt{swap invaild}$ 之後的那一段的 $\texttt{L,R}$ 
+        - 假設前面有 $\texttt{L}$ 有 $i$ 個 $\texttt{R}$ 有 $i + 1$ 個 ( $\texttt{R}$ 剛好多一個才能 $\texttt{invaild}$)
+        - 那後面 $\texttt{L}$ 有 $j$ 個 $\texttt{R}$ 有 $j - 1$ 其中 $i+j=\frac{n}{2}$
+        - $\texttt{swap(L,R)}$ (後面段) 那 $\texttt{L = j-1, R = j}$ 
+        - 這樣目前整段就是 $L=i+j-1,R=i+j+1$
+        - 令 $k=i+j$ 而這些正是 $C^n_{k+1}$ 的 $\texttt{R}$ 的排列
+        - 答案就是 $C^n_{k}-C^{n}_{k+1}=\frac{1}{n+1}C^n_k$
+
+        	<figure markdown>
+              ![Image title](./images/17.png){ width="300" }
+            </figure
+	
+???+note "[CSES - Bracket Sequences II](https://cses.fi/problemset/task/2187)"
+	給你一個未完成的括號序列，求以此延伸長度為 $n$ 個合法括號序列有幾個
+	
+	??? note "思路"
+			<figure markdown>
+              ![Image title](./images/18.png){ width="300" }
+            </figure>
+
+## 經典問題
+
+???+note "n 個 p 面骰子"
+	有 $n$ 個 $K$ 面骰（數字分別是 $1\sim K$），各丟一次，求 $n$ 個骰子中出現點數最大值的期望值，設計 DP 狀態並列出轉移求解此題。
+
+	??? note "法 1"
+    
+        - 思考 $\texttt{max}$ 已經固定的情況
+            - 骰到 $\texttt{max}$ 的機率 $\texttt{?}$ 
+        - 設目前骰到的 $\texttt{max}$ 的點數為 $i$
+            - 共有 $i^n-(i-1)^n$ 種方法數骰到的最大點數是 $i$
+            - 最多到 $i$ 的方法數 $-$ 最多只有到 $i-1$ 的方法數 $=i^n-(i-1)^n$
+            - 只要該方法數內沒有一個是 $i$ 就會被扣掉的概念
+            - 故骰到點數 $i$ 的機率為 $P_i=(\frac{i}{K}^n-\frac{i - 1}{K}^n)$
+            - $E[x]=\sum \limits_{i=1}^n P_i \times i$
+
+        ```cpp
+        void solve1 () {
+            double ans = 0, pre = 0;
+
+            vector<double> p (K + 1, 1);
+            for (int i = 1; i <= K; i++) {
+                for (int j = 1; j <= n; j++) {
+                    p[i] = (double) p[i] * i / K;
+                }
+            }
+
+            for (int i = 1; i <= K; i++) {
+                double now = p[i];
+                ans += (double) (now - pre) * i;
+                pre = now;
+            }
+            cout << fixed << setprecision(6) << ans;
+        }
+        ```
+
+    ??? note "法2"
+        - 令 $dp(n,k)$ 表示丟 $n$ 次骰子的情況下，最大值為 $k$ 的機率
+        - $dp(n,k)=P($已經有$k)+P($這局才骰到$k)$
+        - $\begin{align} dp(n, k)  \end{align}$
+        - 在配合前綴優化
+
+        $$\begin{align}dp(n,k) &= \frac{k}{K}dp(n-1, k) + \frac{1}{K} [ dp(n-1, k-1) + dp(n-1, k-2) + dp(n-1, k-3) + \dots + dp(n-1, 1) ] \\ &= \frac{k}{K}dp(n-1, k)+dp(n,k-1)-\frac{k-1}{K}dp(n-1, k-1)+\frac{1}{K}dp(n-1,k-1) \end{align}$$
+
+
+        ```cpp
+        void solve2 () {
+            for (int k = 1; k <= K; k++) dp[1][k] = (double) 1 / K;
+
+            // O (nk^2)
+            for (int i = 2; i <= n; i++) {
+                for (int k = 1; k <= K; k++) {
+                    double ret = 0;
+                    for (int j = 1; j <= k - 1; j++) {
+                        ret = (double) ret + dp[i - 1][j];
+                    }
+                    ret = (double) ret / K;
+                    dp[i][k] = (double) ret + ((double) k / K) * dp[i - 1][k]; 
+                }   
+            }
+
+            // O (nk)
+            for (int i = 2; i <= n; i++) {
+                for (int k = 1; k <= K; k++) {
+                    double ret = 0;
+
+                    dp[i][k] = ((double)k / K) * dp[i - 1][k] + dp[i][k - 1] 
+                               - ((double)(k - 1) / K) * dp[i - 1][k - 1] 
+                               + ((double)1 / K) * dp[i - 1][k - 1];
+                }
+            }
+
+            double res = 0;
+            for (int k = 1; k <= K; k++) {
+                res = (double) res + dp[n][k] * k;
+            }
+
+            cout << fixed << setprecision (6) << res << "\n";
+        } 
+        ```
+
+???+note "期望抽取次數"
+	有 $n$ 種物品，每種物品被抽到的機率都是 $1/n$。求在 $n$ 個物品中至少抽過 $i$ 種不同物品至少一次的期望所需抽取次數，設計 DP 狀態並列出轉移求解此題。
+	
+	??? note "思路"
+		- $dp[i]=dp[i-1]+\frac{n}{n-i-1}$
+        - $10$ 次有兩次會中
+        - 代表 $5$ 次中 $1$ 次
+
 ???+note "環排列類似題 [Hackerrank - Construct the Array](https://www.hackerrank.com/challenges/construct-the-array/problem)"
 	給 $n,k,x$，問有幾個長度為 $n$ 的陣列以 $1$ 為開頭，$x$ 為結尾，中間的數字皆在 $1\ldots k$，且相鄰的皆不同
 	
@@ -38,4 +344,5 @@
 ???+note "[EOJ 3029. 不重复正整数](https://acm.ecnu.edu.cn/problem/3029/)"
 	給 $n$，問將 $n$ 拆分為若干不重複的正整數之和，且數字皆不同，且每個數字皆在 $[1, m]$ 之間，有幾種方案 
 	
+
 	$n\le 50, m\le 20$

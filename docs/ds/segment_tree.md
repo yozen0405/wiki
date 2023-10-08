@@ -257,66 +257,66 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
 	??? note "code"
 		```cpp linenums="1"
 		const int N = 1e5 + 7, M = 2e5 + 7;
-        int n, m, k, u[M], v[M], f[N<<1], d[N<<1];
-        struct T {
-            int l, r;
-            vi e;
-        } t[N<<2];
-        stack< pi > s;
-
-        void build(int p, int l, int r) {
-            t[p].l = l, t[p].r = r;
-            if (l == r) return;
-            build(ls, l, md), build(rs, md + 1, r);
-        }
-
-        void ins(int p, int l, int r, int x) {
-            if (t[p].l >= l && t[p].r <= r) return t[p].e.pb(x), void();
-            if (l <= md) ins(ls, l, r, x);
-            if (r > md) ins(rs, l, r, x);
-        }
-
-        inline int get(int x) {
-            while (x ^ f[x]) x = f[x];
-            return x;
-        }
-
-        inline void merge(int x, int y) {
-            if (x == y) return;
-            if (d[x] > d[y]) swap(x, y);
-            s.push(mp(x, d[x] == d[y])), f[x] = y, d[y] += d[x] == d[y];
-        }
-
-        void dfs(int p, int l, int r) {
-            bool ok = 1;
-            ui o = s.size();
-            for (ui i = 0; i < t[p].e.size(); i++) {
-                int x = t[p].e[i], u = get(::u[x]), v = get(::v[x]);
-                if (u == v) {
-                    for (int j = l; j <= r; j++) prints("No");
-                    ok = 0;
-                    break;
-                }
-                merge(get(::u[x] + N), v), merge(get(::v[x] + N), u);
-            }
-            if (ok) {
-                if (l == r) prints("Yes");
-                else dfs(ls, l, md), dfs(rs, md + 1, r);
-            }
-            while (s.size() > o) d[f[s.top().fi]] -= s.top().se, f[s.top().fi] = s.top().fi, s.pop();
-        }
-
-        int main() {
-            rd(n), rd(m), rd(k), build(1, 1, k);
-            for (int i = 1, l, r; i <= m; i++) {
-                rd(u[i]), rd(v[i]), rd(l), rd(r);
-                if (l ^ r) ins(1, l + 1, r, i);
-            }
-            for (int i = 1; i <= n; i++) f[i] = i, f[i+N] = i + N;
-            dfs(1, 1, k);
-            return 0;
-        }
-        ```
+	    int n, m, k, u[M], v[M], f[N<<1], d[N<<1];
+	    struct T {
+	        int l, r;
+	        vi e;
+	    } t[N<<2];
+	    stack< pi > s;
+	
+	    void build(int p, int l, int r) {
+	        t[p].l = l, t[p].r = r;
+	        if (l == r) return;
+	        build(ls, l, md), build(rs, md + 1, r);
+	    }
+	
+	    void ins(int p, int l, int r, int x) {
+	        if (t[p].l >= l && t[p].r <= r) return t[p].e.pb(x), void();
+	        if (l <= md) ins(ls, l, r, x);
+	        if (r > md) ins(rs, l, r, x);
+	    }
+	
+	    inline int get(int x) {
+	        while (x ^ f[x]) x = f[x];
+	        return x;
+	    }
+	
+	    inline void merge(int x, int y) {
+	        if (x == y) return;
+	        if (d[x] > d[y]) swap(x, y);
+	        s.push(mp(x, d[x] == d[y])), f[x] = y, d[y] += d[x] == d[y];
+	    }
+	
+	    void dfs(int p, int l, int r) {
+	        bool ok = 1;
+	        ui o = s.size();
+	        for (ui i = 0; i < t[p].e.size(); i++) {
+	            int x = t[p].e[i], u = get(::u[x]), v = get(::v[x]);
+	            if (u == v) {
+	                for (int j = l; j <= r; j++) prints("No");
+	                ok = 0;
+	                break;
+	            }
+	            merge(get(::u[x] + N), v), merge(get(::v[x] + N), u);
+	        }
+	        if (ok) {
+	            if (l == r) prints("Yes");
+	            else dfs(ls, l, md), dfs(rs, md + 1, r);
+	        }
+	        while (s.size() > o) d[f[s.top().fi]] -= s.top().se, f[s.top().fi] = s.top().fi, s.pop();
+	    }
+	
+	    int main() {
+	        rd(n), rd(m), rd(k), build(1, 1, k);
+	        for (int i = 1, l, r; i <= m; i++) {
+	            rd(u[i]), rd(v[i]), rd(l), rd(r);
+	            if (l ^ r) ins(1, l + 1, r, i);
+	        }
+	        for (int i = 1; i <= n; i++) f[i] = i, f[i+N] = i + N;
+	        dfs(1, 1, k);
+	        return 0;
+	    }
+	    ```
 
 ???+note "[CF 1681 F. Unique Occurrences](https://codeforces.com/contest/1681/problem/F)"
 	給一棵 $n$ 個點的樹，邊帶權。定義 $f(u,v)$ 為 $u$ 到 $v$ 的路徑上只出現一次的邊權數量，問對於所有 $u<v$，$f(u,v)$ 的加總
@@ -331,116 +331,116 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int N = 5e5 + 5;
-
-        int n, ans;
-        vector<pair<int, int>> G[N];
-
-        struct Graph {
-            int n, cnt;
-            vector<int> sz;
-            vector<int> par;
-            stack<pair<int, int>> stk;
-
-            int find(int x) {
-                if (par[x] == x)
-                    return x;
-                else
-                    return find(par[x]);
-            }
-            void init(int _n) {
-                n = _n;
-                sz = vector<int>(n, 1);
-                par = vector<int>(n);
-                for (int i = 0; i < n; i++) {
-                    par[i] = i;
-                }
-            }
-            void merge(int u, int v) {
-                int x = find(u), y = find(v);
-                if (x == y) {
-                    stk.push({x, x});
-                    return;
-                }
-                if (sz[x] < sz[y]) swap(x, y);
-                sz[x] += sz[y];
-                par[y] = x;
-                stk.push({x, y});
-            }
-            void undo() {
-                auto [x, y] = stk.top();
-                stk.pop();
-                if (x == y) return;
-                sz[x] -= sz[y];
-                par[y] = y;
-            }
-        } dsu;
-
-        void divide(int l, int r) {
-            if (l == r) {
-                for (auto [a, b] : G[l]) {
-                    a = dsu.find(a), b = dsu.find(b);
-                    ans += dsu.sz[a] * dsu.sz[b];
-                }
-                return;
-            }
-            int mid = (l + r) / 2;
-            for (int i = l; i <= mid; i++) {
-                for (auto [u, v] : G[i]) {
-                    dsu.merge(u, v);
-                }
-            }
-            divide(mid + 1, r);
-            for (int i = l; i <= mid; i++) {
-                for (auto [u, v] : G[i]) {
-                    dsu.undo();
-                }
-            }
-            for (int i = mid + 1; i <= r; i++) {
-                for (auto [u, v] : G[i]) {
-                    dsu.merge(u, v);
-                }
-            }
-            divide(l, mid);
-            for (int i = mid + 1; i <= r; i++) {
-                for (auto [u, v] : G[i]) {
-                    dsu.undo();
-                }
-            }
-        }
-
-        signed main() {
-            cin >> n;
-            for (int i = 1; i < n; i++) {
-                int u, v, w;
-                cin >> u >> v >> w;
-                G[w].push_back({u, v});
-            }
-            dsu.init(n + 1);
-            divide(1, n);
-            cout << ans << '\n';
-        }
-        ```
+	    #define int long long
+	    using namespace std;
+	
+	    const int N = 5e5 + 5;
+	
+	    int n, ans;
+	    vector<pair<int, int>> G[N];
+	
+	    struct Graph {
+	        int n, cnt;
+	        vector<int> sz;
+	        vector<int> par;
+	        stack<pair<int, int>> stk;
+	
+	        int find(int x) {
+	            if (par[x] == x)
+	                return x;
+	            else
+	                return find(par[x]);
+	        }
+	        void init(int _n) {
+	            n = _n;
+	            sz = vector<int>(n, 1);
+	            par = vector<int>(n);
+	            for (int i = 0; i < n; i++) {
+	                par[i] = i;
+	            }
+	        }
+	        void merge(int u, int v) {
+	            int x = find(u), y = find(v);
+	            if (x == y) {
+	                stk.push({x, x});
+	                return;
+	            }
+	            if (sz[x] < sz[y]) swap(x, y);
+	            sz[x] += sz[y];
+	            par[y] = x;
+	            stk.push({x, y});
+	        }
+	        void undo() {
+	            auto [x, y] = stk.top();
+	            stk.pop();
+	            if (x == y) return;
+	            sz[x] -= sz[y];
+	            par[y] = y;
+	        }
+	    } dsu;
+	
+	    void divide(int l, int r) {
+	        if (l == r) {
+	            for (auto [a, b] : G[l]) {
+	                a = dsu.find(a), b = dsu.find(b);
+	                ans += dsu.sz[a] * dsu.sz[b];
+	            }
+	            return;
+	        }
+	        int mid = (l + r) / 2;
+	        for (int i = l; i <= mid; i++) {
+	            for (auto [u, v] : G[i]) {
+	                dsu.merge(u, v);
+	            }
+	        }
+	        divide(mid + 1, r);
+	        for (int i = l; i <= mid; i++) {
+	            for (auto [u, v] : G[i]) {
+	                dsu.undo();
+	            }
+	        }
+	        for (int i = mid + 1; i <= r; i++) {
+	            for (auto [u, v] : G[i]) {
+	                dsu.merge(u, v);
+	            }
+	        }
+	        divide(l, mid);
+	        for (int i = mid + 1; i <= r; i++) {
+	            for (auto [u, v] : G[i]) {
+	                dsu.undo();
+	            }
+	        }
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	        for (int i = 1; i < n; i++) {
+	            int u, v, w;
+	            cin >> u >> v >> w;
+	            G[w].push_back({u, v});
+	        }
+	        dsu.init(n + 1);
+	        divide(1, n);
+	        cout << ans << '\n';
+	    }
+	    ```
 
 ???+note "[CF 601 E. A Museum Robbery](https://codeforces.com/contest/601/problem/E)"
 	給 $n$ 個物品以及背包容量 $k$，有以下 $q$ 筆操作 :
     
     - $\text{add}(w, v):$ 加入一個重量為 $w$，價值為 $v$ 的物品
-
-	- $\text{del}(x):$ 刪除編號 $x$ 的物品
-
-	- $\text{query}:$ 令 $s(m)$ 表示容量為 $m$ 所能獲取的最大價值，求 $\sum \limits_{m=1}^k s(m) \times p^{m-1} \pmod{q}$
-
-	$n\le 5000, k\le 1000, q\le 3\times 10^4$
-	
-	??? note "思路"
+    
+    - $\text{del}(x):$ 刪除編號 $x$ 的物品
+    
+    - $\text{query}:$ 令 $s(m)$ 表示容量為 $m$ 所能獲取的最大價值，求 $\sum \limits_{m=1}^k s(m) \times p^{m-1} \pmod{q}$
+    
+    $n\le 5000, k\le 1000, q\le 3\times 10^4$
+    
+    ??? note "思路"
     	我們處理出每個物品會出現在哪些區間中。其它都和線段樹分治一樣，唯一的不同就是dfs 的時候，我們不去回溯，而是選擇直接把 $dp$ 數組傳下去（其實也跟 CF 1442 D. sum 的做法差不多）。
     	
     	> 參考自 : <https://zhuanlan.zhihu.com/p/557382505>
-    	
+
 > 參考 : 
 > 
 > - <https://www.xht37.com/线段树分治-学习笔记>
@@ -448,6 +448,63 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
 > - <https://zhuanlan.zhihu.com/p/557382505?utm_id=0>
 > 
 > - <https://www.luogu.com.cn/blog/AlexWei/solution-p8097>
+
+## 線段樹合併
+
+???+note "code"
+	```cpp
+    Node* merge(Node* a, Node* b) {
+        if (!a) return b;
+        if (!b) return a;
+        if (a->l == a->r) {
+            a->sum = a->sum + b->sum;
+            return a;
+        }
+
+        a->lc = merge(a->lc, b->lc);
+        a->rc = merge(a->rc, b->rc);
+        a->pull();
+        return a;
+    }
+    ```
+
+???+note "[洛谷 P3224 [HNOI2012] 永无乡](https://www.luogu.com.cn/problem/P3224)"
+
+    給一個 $n$ 點 $m$ 邊的無向圖，有 $q$ 筆操作 :
+
+    - $\text{AddEdge}(u,v):$ 在 $u,v$ 之間加一條邊
+    - $\text{Query}(u,k):$ 問 $u$ 所在的連通塊第 $k$ 小的編號是多少
+
+    $n,m\le 10^5, q\le 3\times 10^5$
+
+
+???+note "[Codeforces EDU-DSU Step1-C. Experience](https://codeforces.com/edu/course/2/lesson/7/1/practice/contest/289390/problem/C)"
+
+    有 $n$ 個數字初始皆自己一組，有 $q$ 筆操作如下 :
+
+    - $\text{join}(x,y):$ 將 $x$ 與 $y$ 所在的組別合併
+    - $\text{add}(x,v):$ 將 $x$ 所在的組別的數字皆 $+k$
+    - $\text{get}(x):$ 問 $x$ 的數字是多少
+
+    $n,q\le 2\times 10^5$
+
+
+
+???+note "[洛谷 P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)"
+
+    給一棵 $n$ 個點的樹，每個點上都有一個背包，有 $q$ 筆操作 :
+
+    - $\text{add}(u,v,x):$ 將 $u$ 到 $v$ 的 path 上的點的背包都放入 $x$
+
+    對於每個點輸出背包最多的數字
+
+    $n,q,x\le 10^5$
+
+> 參考自 :
+> 
+> - <https://www.luogu.com.cn/blog/styx-ferryman/xian-duan-shu-ge-bing-zong-ru-men-dao-fang-qi> 
+> 
+> - <https://zhuanlan.zhihu.com/p/575513452>
 
 ## 打架線段樹
 
