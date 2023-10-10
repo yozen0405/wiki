@@ -124,7 +124,7 @@
 	
 	??? note "思路"
 		兩個 $\texttt{x}$ 中一定要有 $\texttt{+}$，看哪兩個 $\texttt{x}$ 之間沒有 $\texttt{+}$，Greedy 的放即可
-		
+
 ???+note "[全國賽模擬賽 2022 pI. 子集合和 (SOS)](https://www.csie.ntu.edu.tw/~b11902109/PreNHSPC2022/IqwxCSqc_Pre_NHSPC_zh_TW.pdf#page=25)"
 	令函數 $f(S)=S\times \prod\limits_{x\in S}x$，問 $\sum\limits_{S\subseteq A} f(S)$
 	
@@ -133,27 +133,69 @@
 	??? note "思路"
 	
 		令 $G(S)=\prod \limits_{x\in S} x,\space F(S) =|S| \times \prod \limits_{x\in S} x$
-
-        則
-
-        $\begin{align}F(S \cup \{t \}) &= (|S|+1)\times \left(\prod \limits_{x\in S} x \right)\times t \\ &= F(S) \times t+G(S)\times t\end{align}$
-
-        $G(S \cup \{ t\})=G(S)\times t$
-
-        假設我們已知 $\sum \limits_{S \subseteq A}F(S)$ 和 $\sum \limits_{S \subseteq A}G(S)$，則我們可將新的 $F=$ 沒有 $t$ + 有 $t$ 
-
-        $\begin{align}\sum \limits_{S \subseteq (A + \{t \})}F(S) &= \sum \limits_{S \subseteq A}F(S)+\sum \limits_{S \subseteq A}F(S+\{ t \}) \\ &= \sum \limits_{S \subseteq A}F(S)+\left(\sum \limits_{S \subseteq A}F(S) \right)\times t +  \left(\sum \limits_{S \subseteq A}G(S) \right)\times t\end{align}$
-
-        $\sum \limits_{S \subseteq (A + \{t \})}G(S)=\sum \limits_{S \subseteq A}G(S)+\left(\sum \limits_{S \subseteq A}G(S) \right)\times t$
-        
-        ---
-        
-        > 參考自 : <https://hackmd.io/@victor26/Bkc_YXpdo>
-        
-        觀察到可能跟 $(a_1 + 1)(a_2 + 1)(a_3 + 1) \ldots (a_n + 1)$ 有關
+	
+	    則
+	
+	    $\begin{align}F(S \cup \{t \}) &= (|S|+1)\times \left(\prod \limits_{x\in S} x \right)\times t \\ &= F(S) \times t+G(S)\times t\end{align}$
+	
+	    $G(S \cup \{ t\})=G(S)\times t$
+	
+	    假設我們已知 $\sum \limits_{S \subseteq A}F(S)$ 和 $\sum \limits_{S \subseteq A}G(S)$，則我們可將新的 $F=$ 沒有 $t$ + 有 $t$ 
+	
+	    $\begin{align}\sum \limits_{S \subseteq (A + \{t \})}F(S) &= \sum \limits_{S \subseteq A}F(S)+\sum \limits_{S \subseteq A}F(S+\{ t \}) \\ &= \sum \limits_{S \subseteq A}F(S)+\left(\sum \limits_{S \subseteq A}F(S) \right)\times t +  \left(\sum \limits_{S \subseteq A}G(S) \right)\times t\end{align}$
+	
+	    $\sum \limits_{S \subseteq (A + \{t \})}G(S)=\sum \limits_{S \subseteq A}G(S)+\left(\sum \limits_{S \subseteq A}G(S) \right)\times t$
+	    
+	    ---
+	    
+	    > 參考自 : <https://hackmd.io/@victor26/Bkc_YXpdo>
+	    
+	    觀察到可能跟 $(a_1 + 1)(a_2 + 1)(a_3 + 1) \ldots (a_n + 1)$ 有關
 		
 		答案為 
 		
 		$$a_1(a_2 + 1)(a_3 + 1) \ldots (a_n + 1)+a_2(a_1 + 1)(a_3 + 1) \ldots (a_n + 1) + a_n(a_1 + 1)(a_2 + 1) \ldots (a_{n-1} + 1)$$
 		
 		預處理 $(a_1+1)(a_2+1)(a_3+1)...(a_n+1)$ 即可
+		
+???+note "[CF 1886 D. Monocarp and the Set](https://codeforces.com/contest/1886/problem/D)"
+	問符合條件的 $1\ldots n$ 的 permutation $p$ 有幾個。給一個長度為 $(n-1)$ 的序列 $s$，$s_i$ 的意義如下 :
+	
+	- 若 $s_i=$ `>`，則 $p_i$ 是前綴的 max
+
+	- 若 $s_i=$ `<`，則 $p_i$ 是前綴的 min
+
+	- 若 $s_i=$ `?`，則 $p_i$ 兩者皆不是
+
+	現在有 $q$ 筆對 $s$ 的單點修改，每次修改完輸出答案是多少
+	
+	$2\le n\le 3\times 10^5, 1\le m\le 3\times 10^5$
+	
+	??? note "思路"
+		考慮列出 $p_0,\ldots ,p_{n-1}$ 的大小關係，例如 $[2,1,5,3,4]$ 的大小關係為 $p_1<p_0<p_3<p_4<p_2$。
+
+        - 若當前加入一個 `>` ，他只能放在大小關係的最後面。
+
+        - 若當前加入一個 `<`，他只能放在大小關係的最前面。
+
+        - 若當前加入一個 `?`，他可以放在大小關係的中間。
+
+        所以實際上整體的變動是由 `?` 決定的，因此，總可能性是所有 $(i-1)$ 的乘積，其中 $s_i$ == `?`（1-based）
+
+        舉例來說，$s=$ `<?>?`
+
+        - $s_1=$ `<` 則 $p_1<p_0$
+
+        - $s_2=$ `?` 則 $p_2$ 只能插入在 $p_1,p_0$ 之間，所以 $p_1<p_2<p_0$
+
+        - $s_3=$ `>` 則 $p_1<p_2<p_0<p_3$
+
+        - $s_4=$ `?` 則 $p_4$ 可以插入在中間 $3$ 個空隙中
+
+        所以答案為 $(2-1)\times (4-1)=3$
+
+
+
+
+
+	
