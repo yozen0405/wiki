@@ -26,9 +26,8 @@ T 是 S 的子集（subset），反過來，集合 S 就是 T 的一個超集（
 	```cpp linenums="1"
 	for (int mask = 0; mask < (1 << n); mask++) {
 		// 給一個 mask，枚舉他的所有子集合
-		for (int S = mask; ; S = (S - 1) & mask) {
+		for (int S = mask; S; S = (S - 1) & mask) {
 			// TODO
-			if (S == 0) break;
         }
     }
     ```
@@ -218,65 +217,65 @@ y 只能在藍色的部分從 0 變 1，代表若 0, 1 顛倒後 y 就要是 x �
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 1e6 + 5;
-        const int M = 1e9 + 7;
-
-        int n;
-        int a[maxn];
-
-        vector<int> build() {
-            vector<int> f((1LL << 21) + 1);
-            for (int i = 0; i < n; i++) {
-                f[a[i]] = (f[a[i]] + 1) % M;
-            }
-            for (int i = 0; i < 21; i++) {
-                for (int mask = (1LL << 21) - 1; mask >= 0; mask--) {
-                    if (!(mask & (1 << i))) {
-                        f[mask] = (f[mask] + f[mask ^ (1 << i)]) % M;
-                    }
-                }
-            }
-            return f;
-        }
-
-        int fpow(int a, int b) {
-            int ret = 1;
-            while (b != 0) {
-                if (b & 1) ret = (ret * a) % M;
-                a = (a * a) % M;
-                b >>= 1;
-            }
-            return ret;
-        }
-
-        signed main() {
-            cin >> n;
-            for (int i = 0; i < n; i++) {
-                cin >> a[i];
-            }
-            vector<int> f = build();
-
-            int ans = 0;
-            for (int i = 0; i < (1 << 21); i++) {
-                if (__builtin_popcount(i) & 1) {
-                    ans = ((ans - (fpow(2, f[i]) - 1)) % M + M) % M;
-                } else {
-                    ans = ((ans + (fpow(2, f[i]) - 1)) % M + M) % M;
-                }
-            }
-            cout << ans << '\n';
-        } 
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 1e6 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n;
+	    int a[maxn];
+	
+	    vector<int> build() {
+	        vector<int> f((1LL << 21) + 1);
+	        for (int i = 0; i < n; i++) {
+	            f[a[i]] = (f[a[i]] + 1) % M;
+	        }
+	        for (int i = 0; i < 21; i++) {
+	            for (int mask = (1LL << 21) - 1; mask >= 0; mask--) {
+	                if (!(mask & (1 << i))) {
+	                    f[mask] = (f[mask] + f[mask ^ (1 << i)]) % M;
+	                }
+	            }
+	        }
+	        return f;
+	    }
+	
+	    int fpow(int a, int b) {
+	        int ret = 1;
+	        while (b != 0) {
+	            if (b & 1) ret = (ret * a) % M;
+	            a = (a * a) % M;
+	            b >>= 1;
+	        }
+	        return ret;
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	        }
+	        vector<int> f = build();
+	
+	        int ans = 0;
+	        for (int i = 0; i < (1 << 21); i++) {
+	            if (__builtin_popcount(i) & 1) {
+	                ans = ((ans - (fpow(2, f[i]) - 1)) % M + M) % M;
+	            } else {
+	                ans = ((ans + (fpow(2, f[i]) - 1)) % M + M) % M;
+	            }
+	        }
+	        cout << ans << '\n';
+	    } 
 	    ```
 
 ### CF Bits And Pieces

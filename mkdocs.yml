@@ -238,7 +238,7 @@ nav:
       - 一般 dp 類型:
         - 區間dp: 'dp/range_dp.md'
         - 雜題整理: 'dp/problem.md'
-        - 狀態DP: 'dp/state.md'
+        - 狀壓DP: 'dp/bitmask.md'
       - 優化:
         - 單調對列優化: 'dp/monotonous-queue.md'
         - 分治優化: 'dp/D&C.md'
