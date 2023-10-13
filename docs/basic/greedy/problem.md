@@ -106,58 +106,58 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
+	    #define int long long
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using pii = pair<int, int>;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int a[maxn], cnt[maxn];
+	
+	    signed main() {
+	        int n;
+	        cin >> n;
+	
+	        a[0] = 1;
+	        for (int i = 1; i < n; i++) {
+	            if (i & 1) {
+	                a[i] = a[i - 1] * 5;
+	            } else {
+	                a[i] = a[i - 1] * 2;
+	            }
+	        }
+	
+	        int cur = 0;
+	        for (int i = 0; i < n; i++) {
+	            cin >> cnt[i];
+	            if (i == 0) {
+	                continue;
+	            }
+	            if (a[cur] * cnt[cur] >= a[i]) {
+	                cnt[cur] += (a[i] / a[cur]) * cnt[i];
+	                cnt[i] = 0;
+	            } else {
+	                cur = i;
+	            }
+	        }
+	        int ans = 1;
+	        for (int i = 0; i < n; i++) {
+	            if (cnt[i]) {
+	                ans = (ans * ((cnt[i] + 1) % M)) % M;
+	            }
+	        }
+	        cout << (ans - 1 + M) % M << '\n';
+	    }  
+	    ```
 
-        using namespace std;
-        using pii = pair<int, int>;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        int a[maxn], cnt[maxn];
-
-        signed main() {
-            int n;
-            cin >> n;
-
-            a[0] = 1;
-            for (int i = 1; i < n; i++) {
-                if (i & 1) {
-                    a[i] = a[i - 1] * 5;
-                } else {
-                    a[i] = a[i - 1] * 2;
-                }
-            }
-
-            int cur = 0;
-            for (int i = 0; i < n; i++) {
-                cin >> cnt[i];
-                if (i == 0) {
-                    continue;
-                }
-                if (a[cur] * cnt[cur] >= a[i]) {
-                    cnt[cur] += (a[i] / a[cur]) * cnt[i];
-                    cnt[i] = 0;
-                } else {
-                    cur = i;
-                }
-            }
-            int ans = 1;
-            for (int i = 0; i < n; i++) {
-                if (cnt[i]) {
-                    ans = (ans * ((cnt[i] + 1) % M)) % M;
-                }
-            }
-            cout << (ans - 1 + M) % M << '\n';
-        }  
-        ```
-		
 ## 交換法
 
 ???+note "[APCS 物品堆疊](https://zerojudge.tw/ShowProblem?problemid=c471)"
@@ -172,14 +172,6 @@
  	??? note "思路"
  	    - 貪心的想法每次都合併最小的
  	    - 塞進 $\texttt{pq}$ 每次去最小的 $\texttt{a,b, pop}$ 掉再 $\texttt{push(a + b)}$ 
-
-???+note "[CSES - Programmers and Artists](https://cses.fi/problemset/task/2426)"
-	給你 $n$ 個 pair$(x_i,y_i)$，要你選這些 pair 裡面的 $a$ 個 $x$ 跟 $b$ 個 $y$，且同一個 pair 中的 $x$ 和 $y$ 不能同時挑
-	
-	$n\le 2\times 10^5$
-	
-	??? note "思路"	
-		<https://github.com/yozen0405/c-projects/blob/main/markdown/2426.md>
 
 ???+note "[CF 1882 C. Card Game](https://codeforces.com/contest/1882/problem/C)"
 	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，每次操作可以 :
@@ -214,3 +206,47 @@
 		}
 		printf("%lld\n", ans);
 		```
+		
+???+note "[CSES - Programmers and Artists](https://cses.fi/problemset/task/2426)"
+	給你 $n$ 個 pair$(x_i,y_i)$，要你選這些 pair 裡面的 $a$ 個 $x$ 跟 $b$ 個 $y$，且同一個 pair 中的 $x$ 和 $y$ 不能同時挑
+	
+	$n\le 2\times 10^5$
+	
+	??? note "思路"	
+		<https://github.com/yozen0405/c-projects/blob/main/markdown/2426.md>
+		
+???+note "[JOI Final 2022 選舉](https://loj.ac/p/3664)"
+	有 $n$ 個州，若在第 $i$ 個州演講 $a_i$ 小時可獲得一張選票，若演講 $b_i$ 小時可獲得一位協作者。多一個協作者就可讓時間加速兩倍，問要獲得 $k$ 張選票的最小耗時
+	
+	$k\le n\le 500, 1\le a_i\le 1000, a_i\le b_i\le 1000$ 或 $b_i=-1$
+	
+	??? note "思路"
+		容易想到一個錯誤的貪心: 
+		
+		- 按照 $b_i$ 小到大排序
+		
+		- 枚舉分界線
+			- 前面都選 $b_i$
+
+			- 後面選最小的幾個 $a_i$
+		
+		但會發現，可能一些選中的 $b_i$ 對應的 $a_i$ 很小，這時，我們挑選這些 $a_i$，可能會更好。舉例來說:
+		
+		```
+		a   b
+		------
+		1   99
+		99  100
+		100 101
+		```
+		
+		這時若我們以 b, b, a 的方式挑，耗時 $99+100/2+100/4=174$ 小時，但若我們以 a, b, a 的方式挑耗時 $1/2+100/2+100=150.5$，更優。
+		
+		所以就變成: 
+		
+		- 按 $b_i$ 小到大排序
+
+		- 枚舉分界線: 
+			- 分界線前，對於每一個要馬選 $a_i$，要馬選 $b_i$ → dp
+
+			- 對於後面，選 $a_i$ 最小的 $k-i$ 個 → 預處理
