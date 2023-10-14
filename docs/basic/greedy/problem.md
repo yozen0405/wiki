@@ -46,15 +46,7 @@
         這些的可以用來轉移的 $j$ 會是連續的一段，所以可以用套用資料結構快速計算出 $dp(i)$，計算 dp 的總時間是 $O(n) \times$ 查詢時間。資料結構的部分可以用單調隊列 $O(1)$ 查詢，或是用線段樹 $O(\log n)$ 查詢
         > ref : <https://hackmd.io/@algoseacow/rJw_DISe3>
 
-- <https://zerojudge.tw/ShowProblem?problemid=b231>
-
-- <https://tioj.ck.tp.edu.tw/problems/1072>
-
-- file:///C:/Users/yozen/Downloads/%E5%B1%B1%E5%A7%86Greedy.pdf
-
 - <https://slides.com/fhvirus/1/fullscreen#/3/7>
-
-- http://pisces.ck.tp.edu.tw/~peng/index.php?action=showfile&file=f92769faf90359fc0de317dfbe25d71873539c009
 
 ???+ note "[TIOJ 1072](https://tioj.ck.tp.edu.tw/problems/1072)"
 	有 $n$ 個人要吃飯，第 $i$ 個人想吃的食物需要 $C_i$ 時間才能煮好，而他吃掉食物所花的時間為 $E_i$ ，且廚師同一時間只能煮一個食物，最小化所有人都吃完飯的時間。
@@ -206,7 +198,7 @@
 		}
 		printf("%lld\n", ans);
 		```
-		
+
 ???+note "[CSES - Programmers and Artists](https://cses.fi/problemset/task/2426)"
 	給你 $n$ 個 pair$(x_i,y_i)$，要你選這些 pair 裡面的 $a$ 個 $x$ 跟 $b$ 個 $y$，且同一個 pair 中的 $x$ 和 $y$ 不能同時挑
 	
@@ -214,7 +206,7 @@
 	
 	??? note "思路"	
 		<https://github.com/yozen0405/c-projects/blob/main/markdown/2426.md>
-		
+
 ???+note "[JOI Final 2022 選舉](https://loj.ac/p/3664)"
 	有 $n$ 個州，若在第 $i$ 個州演講 $a_i$ 小時可獲得一張選票，若演講 $b_i$ 小時可獲得一位協作者。多一個協作者就可讓時間加速兩倍，問要獲得 $k$ 張選票的最小耗時
 	
@@ -227,7 +219,7 @@
 		
 		- 枚舉分界線
 			- 前面都選 $b_i$
-
+	
 			- 後面選最小的幾個 $a_i$
 		
 		但會發現，可能一些選中的 $b_i$ 對應的 $a_i$ 很小，這時，我們挑選這些 $a_i$，可能會更好。舉例來說:
@@ -245,8 +237,8 @@
 		所以就變成: 
 		
 		- 按 $b_i$ 小到大排序
-
+	
 		- 枚舉分界線: 
 			- 分界線前，對於每一個要馬選 $a_i$，要馬選 $b_i$ → dp
-
+	
 			- 對於後面，選 $a_i$ 最小的 $k-i$ 個 → 預處理
