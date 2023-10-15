@@ -1289,27 +1289,54 @@
 	??? note "code"
 		```cpp linenums="1"
 		const int MAXN = 1e3 + 5;
-        int dp[MAXN];
-
-        void table() {
-            for (int i = 1; i < MAXN; i++) {
-                dp[i] = dp[i - 1] + 1;
-                if (i >= 2) dp[i] = min(dp[i], dp[i - 2] + 1);
-                if (i >= 5) dp[i] = min(dp[i], dp[i - 5] + 1);
-            }
-        }
-
-        int equal(vector<int> arr) {
-            int n = arr.size();
-            int ans = 0x3f3f3f3f;
-            int mn = *min_element(arr.begin(), arr.end());
-            for (int val = mn - 5; val <= mn; val++) {
-                int cnt = 0;
-                for (int i = 0; i < n; i++) {
-                    cnt += dp[arr[i] - val];
-                }
-                ans = min(ans, cnt);
-            }
-            return ans;
-        }
+	    int dp[MAXN];
+	
+	    void table() {
+	        for (int i = 1; i < MAXN; i++) {
+	            dp[i] = dp[i - 1] + 1;
+	            if (i >= 2) dp[i] = min(dp[i], dp[i - 2] + 1);
+	            if (i >= 5) dp[i] = min(dp[i], dp[i - 5] + 1);
+	        }
+	    }
+	
+	    int equal(vector<int> arr) {
+	        int n = arr.size();
+	        int ans = 0x3f3f3f3f;
+	        int mn = *min_element(arr.begin(), arr.end());
+	        for (int val = mn - 5; val <= mn; val++) {
+	            int cnt = 0;
+	            for (int i = 0; i < n; i++) {
+	                cnt += dp[arr[i] - val];
+	            }
+	            ans = min(ans, cnt);
+	        }
+	        return ans;
+	    }
 		```
+		
+???+note "自創題 by Whale"
+	給一個 $n\times m$ 的 Grid，每隔需填入 $\{0, 1, 2\}$ 其中一個數字，滿足:
+
+    1. 不能有一個 row 全部都是 $0$
+    2. 不能有一個 col 同時存在 $1$ 和 $2$
+
+    求放法數
+
+    $1\le n,m \le 100$
+	
+	??? note "思路"
+		先思考 $1$ 或是 $2$ 是否重要 ? 可以發現其實我們可以先填 $0,1$，再將 $1$ 換成 $2$ 即可，所以我們可以令 
+		
+		<center>
+		$f(n, m, t)=n\times m$ 的 grid 恰有 $t$ 個 col 至少有 1 個 $1$ 的合法方法數
+		</center>
+		
+		那麼這 $t$ 個 col 裡面的 $1$ 就可以是 $1$ 或者是 $2$，所以答案為 $\sum \limits_{t=1}^m f(n, m, t) \times 2^t$ ，接下來我們就只需要想如何轉移 $f(n,m,t)$
+		
+        <figure markdown>
+          ![Image title](./images/19.png){ width="300" }
+        </figure>
+        
+        我們考慮從 $f(n-1,m,t)$ 與 $f(n,m,t)$ 的關係，因為沒有額外再選要放 $1$ 的 col，所以貢獻就是 $f(n-1,m,t)\times (2^t-1)$ 也就是每個有選 $1$ 的 col 可以決定要新增 $1$ 或 $0$，但不能全部放 $0$ 所以要減 $1$。那如果要額外再選要放 $1$ 的 col，貢獻會試 $f(n-1,m,t-1)\times 2^{t-1}\times \tbinom{m-(t-1)}{1}$，就是額外選一個 col 放 $1$，其他原本有放 $1$ 的 col 放 $0,1$ 都可。所以最後我們整理一下:
+        
+        $$f(n,m,t)=f(n-1,m,t)\times (2^t-1) + \sum\limits_{i=1\ldots t}f(n-1,m, t-i)\times 2^{t-i}\times \tbinom{m-(t-i)}{i}$$

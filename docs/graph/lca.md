@@ -1,6 +1,3 @@
-- https://hackmd.io/@LittlePants/SkuHoX2DO
-- IOIC LCA?
-
 ## 時間戳記
 - 2021 附中模競 I -pE
 - CSES... 樹上 prefix sum
@@ -305,18 +302,199 @@
 	給一顆 $n$ 個點的樹，給點 $A$，Alice 會想著一個點 $B$，Bob 的目標是找出 $B$。每次 Bob 可以詢問 :
 	
 	- 把 root 定為 $C$，$\text{lca}(A, B)$ 是多少
-
+	
 	兩者皆 play optimal 的情況下，問 Bob 至少需要詢問幾次
 	
 	??? note "思路"
 		等價於將根都定為 A，LCA(B, C) 是多少
 	
 		<figure markdown>
-          ![Image title](./images/81.png){ width="400" }
-        </figure>
+	      ![Image title](./images/81.png){ width="400" }
+	    </figure>
+	    
+	    每次詢問完都會確定答案是不是在這子樹，如果要確定在哪個子樹，最差要用「子樹數量 -1 次」，所以要花費最多次的子樹必定最先詢問，所以可以列出 :
+	     
+	    假設 $v_1, v_2, \ldots$ 是以 $dp[v_1] \ge dp[v_2] \ge \ldots$ 排序過的
+	    
+	    $$dp[u]=\max\{ dp[v_1]+0, dp[v_2] + 1, dp[v_3] + 2, \ldots \}$$
+	    
+???+note "[JOI 2022 Final 铁路旅行 2](https://www.luogu.com.cn/problem/P8163)"
+	給 $n$ 個點，$m$ 條線路，第 $i$ 條線起點為 $a_i$，終點為 $b_i$，上車的位置不能離起點超過 $k$ 個點，可在任何一站下車。有 $q$ 筆詢問:
+
+    - $\text{query}(s,t):$ 從 $s$ 開始到 $t$，最少搭乘幾條不同的線路，若無論如何都沒辦法則輸出 -1
+
+    $n\le 10^5,m\le 2\times 10^5,q\le 5\times 10^4$
+    
+    ??? note "思路"
+    	目前的經驗來看，凡是需要多次無序詢問或重複多次處理一張圖時，大機率是需要用到倍增的。
+
+        令 $le(i,j),ri(i,j)$ 以 $i$ 為起點，搭乘 $2^j$ 條不同的線路，最左/右能到哪裡
+        $$
+        le(i,j)=\min\limits_{k\in[le(i-1,j),ri(i-1,j)]}le(i-1,k) \\ri(i,j)=\max\limits_{k\in[le(i-1,j),ri(i-1,j)]} ri(i-1,k)
+        $$
+
+        初始值 $le(i,0),re(i,0)$ 可以利用單調隊列來維護，例如 $re(i,0)$，我們一開始先將 interval 用左界小到大 sort，然後 queue 中保留的會是 $l_i$ 遞增，$r_i$ 遞減
+
+        <figure markdown>
+	      ![Image title](./images/82.png){ width="300" }
+	    </figure>
+
+        那麼轉移的部分我可以對於每個 $le(*,j),re(*,j)$ 都開一顆線段樹，直接去區間查詢極值即可
+
+        最後 $\text{query}(s,t)$ 我們用類似 LCA 查詢的方式，從 $s$ 開始擴展，直到區間恰好差一點涵蓋 $[s,t]$
         
-        每次詢問完都會確定答案是不是在這子樹，如果要確定在哪個子樹，最差要用「子樹數量 -1 次」，所以要花費最多次的子樹必定最先詢問，所以可以列出 :
-         
-        假設 $v_1, v_2, \ldots$ 是以 $dp[v_1] \ge dp[v_2] \ge \ldots$ 排序過的
+        > 參考自: <https://www.luogu.com.cn/blog/jjsnam/solution-P8163>
         
-        $$dp[u]=\max\{ dp[v_1]+0, dp[v_2] + 1, dp[v_3] + 2, \ldots \}$$
+    ??? note "code"
+    	```cpp linenums="1"
+    	/* code by jjsnam 2022.4.29 */
+        /* Using Segment Tree */
+        #include <algorithm>
+        #include <cstring>
+        #include <iostream>
+
+        #define ls (id << 1)
+        #define rs (id << 1 | 1)
+        #define mid ((l + r) >> 1)
+        #define u first
+        #define v second
+
+        using namespace std;
+        typedef pair<int, int> pii;
+        const int maxn = 1e5 + 5;
+        const int maxm = 2e5 + 5;
+
+        int le[maxn][17], ri[maxn][17];
+        pii up[maxm], down[maxm];
+        int cnt_up, cnt_down;
+        int n, m, K, Q;
+        struct Segment_Tree {
+            struct Node {
+                int left, right;
+            } tr[maxn << 2];
+
+            void pushup(int id) {
+                tr[id].left = min(tr[ls].left, tr[rs].left);
+                tr[id].right = max(tr[ls].right, tr[rs].right);
+            }
+
+            void build(int id, int l, int r, int k) {
+                if (l == r) {
+                    tr[id].left = le[l][k];
+                    tr[id].right = ri[r][k];
+                    return;
+                }
+                build(ls, l, mid, k);
+                build(rs, mid + 1, r, k);
+                pushup(id);
+            }
+
+            int query_left(int id, int l, int r, int a, int b) {
+                if (a <= l && r <= b) {
+                    return tr[id].left;
+                }
+                int res = 1e9;
+                if (a <= mid) res = min(res, query_left(ls, l, mid, a, b));
+                if (b > mid) res = min(res, query_left(rs, mid + 1, r, a, b));
+                return res;
+            }
+
+            int query_right(int id, int l, int r, int a, int b) {
+                if (a <= l && r <= b) {
+                    return tr[id].right;
+                }
+                int res = -1e9;
+                if (a <= mid) res = max(res, query_right(ls, l, mid, a, b));
+                if (b > mid) res = max(res, query_right(rs, mid + 1, r, a, b));
+                return res;
+            }
+        } root[17];
+
+        void Get_start() {
+            for (int i = 1; i <= n; i++) le[i][0] = ri[i][0] = i;
+            sort(up + 1, up + cnt_up + 1);
+            sort(down + 1, down + cnt_down + 1, greater<pii>());
+            /* 单调队列 O(m) */
+            int q[maxm], hh = 1, tt = 0;
+
+            /* 处理右 */
+            for (int i = 1, j = 1; i <= n; i++) {
+                while (j <= cnt_up && up[j].u <= i) {
+                    int r = up[j].v;
+                    while (hh <= tt && up[q[tt]].v <= r) tt--;
+                    q[++tt] = j;
+                    j++;
+                }
+                while (hh <= tt && up[q[hh]].u <= i - K) hh++;
+                if (hh <= tt) ri[i][0] = max(ri[i][0], up[q[hh]].v);
+            }
+
+            /* init */
+            hh = 1, tt = 0;
+
+            /* 处理左 */
+            for (int i = n, j = 1; i > 0; i--) {
+                while (j <= cnt_down && down[j].u >= i) {
+                    int l = down[j].v;
+                    while (hh <= tt && down[q[tt]].v >= l) tt--;
+                    q[++tt] = j;
+                    j++;
+                }
+                while (hh <= tt && down[q[hh]].u >= i + K) hh++;
+                if (hh <= tt) le[i][0] = min(le[i][0], down[q[hh]].v);
+            }
+        }
+
+        void init() {
+            Get_start();
+            root[0].build(1, 1, n, 0);
+            for (int k = 1; k <= 16; k++) {
+                for (int i = 1; i <= n; i++) {
+                    le[i][k] = root[k - 1].query_left(1, 1, n, le[i][k - 1], ri[i][k - 1]);
+                    ri[i][k] = root[k - 1].query_right(1, 1, n, le[i][k - 1], ri[i][k - 1]);
+                }
+                root[k].build(1, 1, n, k);
+            }
+        }
+
+        int query(int S, int E) {
+            int res = 0;
+            int l = S, r = S;
+            for (int k = 16; k >= 0; k--) {
+                int L = root[k].query_left(1, 1, n, l, r);
+                int R = root[k].query_right(1, 1, n, l, r);
+                if (L <= E && E <= R) continue;
+                l = L, r = R;
+                res += (1 << k);
+            }
+            int L = root[0].query_left(1, 1, n, l, r);
+            int R = root[0].query_right(1, 1, n, l, r);
+            if (L <= E && E <= R)
+                return res + 1;
+            else
+                return -1;
+        }
+
+        int main() {
+            ios::sync_with_stdio(false);
+            cin.tie(0), cout.tie(0);
+
+            cin >> n >> K >> m;
+            for (int i = 1, a, b; i <= m; i++) {
+                cin >> a >> b;
+                if (a < b)
+                    up[++cnt_up] = make_pair(a, b);
+                else
+                    down[++cnt_down] = make_pair(a, b);
+            }
+            init();
+            cin >> Q;
+            int s, e;
+            while (Q--) {
+                cin >> s >> e;
+                cout << query(s, e) << endl;
+            }
+            return 0;
+        }
+    	```
+    	
