@@ -91,10 +91,10 @@ $$
     有 $n$ 個不同的花，要挑其中非 $0$ 個出來，但不能挑 $a$ 個或 $b$  個
 
     $n\le 10^9,a,b\le 10^5$
-	
-	??? note "思路"
-		答案為 $2^n-1-\binom{n}{a}-\binom{n}{b}$
-		
+    
+    ??? note "思路"
+    	答案為 $2^n-1-\binom{n}{a}-\binom{n}{b}$
+
 ### 四、Lucas 定理
 
 範圍 : 
@@ -121,19 +121,19 @@ $2=0\times 2^2+1\times 2^1 + 0\times 2^0$
 	假設我們是求 $C^n_m$，令 $n=sp+q,m=tp+r$
 
     考慮 $(1+x)^n$ ，其中 $C^n_m$ 會是 $x^m$ 的係數
-
+    
     $(1+x)^n=(1+x)^{sp+q}=((1+x)^p)^s\times (1+x)^q$
-
+    
     而又可以寫成 $(1+x^p)^s\times (1+x)^q$（最下面有證明）
-
+    
     $\Rightarrow (1+x^p)^s\times (1+x)^q$
-
+    
     $\Rightarrow (1+C^s_1 x^p+C^s_2 x^{2p}+\ldots)\times(1+C^q_1 x^1 + C^q_2 x_2 + \ldots)$
-
+    
     可以發現 $x^m$ 的係數就會 $=$ $x^{tp}$ 的係數 $\times$ $x^r$ 的係數，也就是 $C^n_m=C^s_t\times C^q_r$
-
+    
     跟 Lucas 定理的 $C^n_m=C^{n/p}_{m/p}\times C^{n\% p}_{m\% p}$ 是一樣的
-
+    
     > 證明: $(1+x)^p \equiv 1+x^p \pmod{p}$
     >
     > $C^p_i=\frac{p!}{i!\times (p-i)!}$ 在 $i=1\ldots (p-1)$ 時，mod $p$ 會是 $0$
@@ -145,7 +145,7 @@ $2=0\times 2^2+1\times 2^1 + 0\times 2^0$
     > &\equiv x^p \pmod{p}
     > \end{align}
     > $$
-	
+
 ???+note "code"
 	```cpp linenums="1"
     const int M = 31;
@@ -308,33 +308,35 @@ $$s(n,k)=(n-1) \times s(n-1,k)+s(n-1,k-1)$$
 
 ### 走格子
 
-???+note "問題"
-	給 $n\times n$ 的 Grid，從左下走至右上，有幾條路可以不經過紅色區域
+???+note "走格子問題"
+	給 $n\times n$ 的 Grid，從格子的左下角走到格子的右上角，只能向上或向右走，且不超過對稱軸（不經過紅色的線），有幾種走法
 	
     <figure markdown>
-      ![Image title](./images/25.png){ width="150" }
+      ![Image title](./images/29.png){ width="150" }
     </figure>
-        
-<figure markdown>
-  ![Image title](./images/24.png){ width="600" }
-</figure>
 
 <figure markdown>
-  ![Image title](./images/26.png){ width="600" }
+  ![Image title](./images/30.png){ width="200" }
 </figure>
 
-矩形分別對稱於圖中紅色藍色的線段，所以根據對稱性，中間會變 0
-	
+從 s 開始有走到有紅色線的格子，相當於從 s' 開始走到有紅色線的格子（從紅色線對稱過去）。走到有紅色線的格子後，接著走到 t，就是不合法的方法數
+
+<figure markdown>
+  ![Image title](./images/31.png){ width="450" }
+</figure>
+
+所以不合法的情況可以看成: 從 s' 為起點開始走到 t 的方法數。最後，答案就是 $C^{2n-2}_{n-1}-C^{2n-2}_{n-2}$
+
 ???+note "例題"
 	有一個 $n\times n$ 的棋盤格，從 $(1,1)$ 走到 $(n,n)$，每次只能將 $x$ 加上 1 或是將 $y$ 加上 1，過程中不能經過 $y = x - 1$ 的格子，有幾種走法
 	
 	??? note "思路"	
 		下面延伸出來一個寬為 $n-2$ 的矩形，所以答案就是 $C^{2n-2}_{n-1}-C^{2n-2}_{n-2}$
 		
-        <figure markdown>
-          ![Image title](./images/21.png){ width="300" }
-        </figure>
-        
+	    <figure markdown>
+	      ![Image title](./images/21.png){ width="300" }
+	    </figure>
+
 ???+note "[Atocder abc205 E - White and Black Balls](https://atcoder.jp/contests/abc205/tasks/abc205_e)"
 
 	有一個 $n\times m$ 的 Grid，只能往右或往上，問從 $(0, 0)$ 到達 $(n,m)$ 且 $y\le x+k$ 的方法數
@@ -343,80 +345,104 @@ $$s(n,k)=(n-1) \times s(n-1,k)+s(n-1,k-1)$$
 	
 	??? note "思路"
 		顯然一定得經過終點，所以需要符合 $n\le m+k$
-
+	
 		$y\le x+k\Rightarrow$ 不能經過 $y=x+k+1$
+	
+	    <figure markdown>
+	      ![Image title](./images/22.png){ width="300" }
+	    </figure>
+	
+	    代表我們用卡特蘭數想法所畫出來的矩形的高會是 $n-(k+1)+1$，代表要走 $n-(k+1)$ 步，所以答案就是 
+	    
+	    $$
+	    C^{n+m}_n-C^{n+m}_{n-(k+1)}
+	    $$
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    using namespace std;
+	
+	    const int MAXN = 2e6 + 10;
+	    const int M = 1e9 + 7;
+	    int prei[MAXN], pinv[MAXN], pref[MAXN];
+	
+	    void build() {
+	        prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
+	        for (int i = 2; i < MAXN; i++) {
+	            pref[i] = pref[i - 1] * i % M;
+	            pinv[i] = (M - (M/i) * pinv[M % i] % M) % M;
+	            prei[i] = prei[i - 1] * pinv[i] % M;
+	        }
+	    } 
+	
+	    int C(int n, int k) {
+	        return pref[n] * prei[k] % M * prei[n - k] % M;
+	    }
+	
+	    signed main() {
+	        int n, m, k;
+	        cin >> n >> m >> k;
+	        build();
+	        if (n > m + k) {
+	            cout << 0 << '\n';
+	        } else {
+	            cout << (C(n + m, n) - C(n + m, n - (k + 1)) + M) % M << '\n';
+	        }
+	    } 
+		```
 
-        <figure markdown>
-          ![Image title](./images/22.png){ width="300" }
-        </figure>
-
-        代表我們用卡特蘭數想法所畫出來的矩形的高會是 $n-(k+1)+1$，代表要走 $n-(k+1)$ 步，所以答案就是 
-        
-        $$
-        C^{n+m}_n-C^{n+m}_{n-(k+1)}
-        $$
-        
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int MAXN = 2e6 + 10;
-        const int M = 1e9 + 7;
-        int prei[MAXN], pinv[MAXN], pref[MAXN];
-
-        void build() {
-            prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
-            for (int i = 2; i < MAXN; i++) {
-                pref[i] = pref[i - 1] * i % M;
-                pinv[i] = (M - (M/i) * pinv[M % i] % M) % M;
-                prei[i] = prei[i - 1] * pinv[i] % M;
-            }
-        } 
-
-        int C(int n, int k) {
-            return pref[n] * prei[k] % M * prei[n - k] % M;
-        }
-
-        signed main() {
-            int n, m, k;
-            cin >> n >> m >> k;
-            build();
-            if (n > m + k) {
-                cout << 0 << '\n';
-            } else {
-                cout << (C(n + m, n) - C(n + m, n - (k + 1)) + M) % M << '\n';
-            }
-        } 
-    	```
-		
 ### 括號
 
 ???+note "[CSES - Bracket Sequences I](https://cses.fi/problemset/task/2064)"
 	問長度是 $n$ 合法括號序列有幾個
 	
-	??? note "思路"
-		- 從 $\texttt{invaild}$ 之後切成兩部分
-	    - $\texttt{swap invaild}$ 之後的那一段的 $\texttt{L,R}$ 
-	    - 假設前面有 $\texttt{L}$ 有 $i$ 個 $\texttt{R}$ 有 $i + 1$ 個 ( $\texttt{R}$ 剛好多一個才能 $\texttt{invaild}$)
-	    - 那後面 $\texttt{L}$ 有 $j$ 個 $\texttt{R}$ 有 $j - 1$ 其中 $i+j=\frac{n}{2}$
-	    - $\texttt{swap(L,R)}$ (後面段) 那 $\texttt{L = j-1, R = j}$ 
-	    - 這樣目前整段就是 $L=i+j-1,R=i+j+1$
-	    - 令 $k=i+j$ 而這些正是 $C^n_{k+1}$ 的 $\texttt{R}$ 的排列
-	    - 答案就是 $C^n_{k}-C^{n}_{k+1}=\frac{1}{n+1}C^n_k$
+	$n\le 10^6$
 	
-        <figure markdown>
-          ![Image title](./images/17.png){ width="300" }
+	??? note "思路"
+		看成走格子問題
+		
+		- opening ↔ 往右
+
+		- closing ↔ 往上
+
+		以 $n=6$ 來說，圖會長這樣:
+		
+		<figure markdown>
+          ![Image title](./images/29.png){ width="150" }
         </figure>
 
 ???+note "[CSES - Bracket Sequences II](https://cses.fi/problemset/task/2187)"
 	給你一個未完成的括號序列，求以此延伸長度為 $n$ 個合法括號序列有幾個
 	
+	$n\le 10^6$
+	
 	??? note "思路"
-        <figure markdown>
-          ![Image title](./images/18.png){ width="300" }
-        </figure>
+		跟上一題一樣，只是變成走了一些格子，把多餘的格子去掉一樣用卡特蘭數解決
+	
+	    <figure markdown>
+	      ![Image title](./images/32.png){ width="300" }
+	      <figcaption>s = ((), n = 6</figcaption>
+	    </figure>
+	    
+	??? note "code"
+		```cpp linenums="1"
+		int solve(int strlen, string s) {
+			int n = strlen / 2, m = strlen / 2;
+            int cnt = 0;
+            for (int i = 0; i < s.size(); i++) {
+                if (s[i] == '(') {
+                    m--;
+                    cnt++;
+                } else {
+                    n--;
+                    cnt--;
+                }
+            }
+            return (C(n + m, n) - C(n + m, m + cnt + 1) + M) % M;
+		} 
+		```
 
 ## 排容原理
 
@@ -606,12 +632,12 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 ???+note "[CSES - Xor Pyramid](https://cses.fi/problemset/task/2419)"
 
     給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，將這個序列放在金字塔的最底層，金字塔的每一項為左下 xor 右下，問金字塔的頂層數字
-	
-	$n\le 2\times 10^5, 1\le a_i\le 10^9$
-		
-	??? note "思路"
-		對於金字塔的一項，被算到的次數為「左上被算到的次數 + 右上被算到的次數」，那麼因為頂層被算到的次數會是 $1$，我們就可以嘗試將每一項被算到的次數寫出來，會發現恰好是帕斯卡三角形。所以對於 $a_i$，被算到的次數為 $C^{n-1}_{i-1}$，因為 xor 只在意奇偶性，所以若 mod 2 為 0 就不用算，否則就將答案 xor 一次就好。$C^n_k$ 可以用 Lucas 定理或線性蓋出來
-		
+    
+    $n\le 2\times 10^5, 1\le a_i\le 10^9$
+    	
+    ??? note "思路"
+    	對於金字塔的一項，被算到的次數為「左上被算到的次數 + 右上被算到的次數」，那麼因為頂層被算到的次數會是 $1$，我們就可以嘗試將每一項被算到的次數寫出來，會發現恰好是帕斯卡三角形。所以對於 $a_i$，被算到的次數為 $C^{n-1}_{i-1}$，因為 xor 只在意奇偶性，所以若 mod 2 為 0 就不用算，否則就將答案 xor 一次就好。$C^n_k$ 可以用 Lucas 定理或線性蓋出來
+
 
 [^1]: 例如 (D), (A, B, C)，<a href="/wiki/math/images/15.png" target="_blank">見此圖</a>
 
