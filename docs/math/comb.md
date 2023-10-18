@@ -4,12 +4,11 @@
 
 - 答案不做 mod
 	- $10^6$ 次查詢 $n,k\le 64$ → <font color="#00A2E8">暴力建表</font>
-	- 單次查詢 $n,k\le 1000$ → <font color="#00A2E8">大數運算</font>
 
 - 答案 mod $P$ ， $P$ 是質數
 	- $10^6$ 次查詢 $n,k\le 10^6,P=10^9+7$ → <font color="#00A2E8">模逆元建表</font>
 	- $10^6$ 次查詢 $n\le 10^9, k\le 30,P=10^9+7$ → <font color="#00A2E8">乘法 + 模逆元</font>
-	- $10^5$ 次查詢 $n,k\le 10^{18},P\le 1000$ → <font color="#00A2E8">Lucas 定理</font>
+	- $10^5$ 次查詢 $n,k\le 10^{18},P\le 10^6$ → <font color="#00A2E8">Lucas 定理</font>
 
 ### 一、暴力建表
 
@@ -17,9 +16,7 @@
 
 - 答案不做 mod，$10^6$ 查詢，$n,k\le 64$
 
-- 答案 mod 合數，$n \times k \le 10^5$
-
-第 $n$ 個東西拿 or 不拿，得 $C(n, k) = C(n-1, k-1) + C(n-1, k)$
+第 $n$ 個東西拿 or 不拿，得 $C^n_k=C^{n-1}_{k-1}+C^{n-1}_k$
 
 ???+note "code"
 	```cpp linenums="1"
@@ -52,17 +49,21 @@
 
 ??? note "code"
 	```cpp linenums="1"
-    void build() {
-        prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
-        for (int i = 2; i < maxn; i++) {
-            pref[i] = pref[i - 1] * i % M;
-            pinv[i] = (M - (M/i) * pinv[M % i] % M) % M;
-            prei[i] = prei[i - 1] * pinv[i] % M;
+    long long pre[maxn];   // i! % p
+    long long inv[maxn];   // i 對 p 模逆元
+    long long prei[maxn];  // i! 對 p 的模逆元
+
+    void build(int n) {
+        pre[1] = pre[0] = 1, inv[1] = inv[0] = 1, prei[1] = prei[0] = 1;
+        for (int i = 2; i <= n; i++) {
+            pre[i] = pre[i - 1] * i % M;
+            inv[i] = (M - M / i * inv[p % i] % M) % M;
+            prei[i] = prei[i - 1] * inv[i] % M;
         }
-    } 
+    }
 
     int C(int n, int k) {
-        return pref[n] * prei[k] % M * prei[n - k] % M;
+        return pre[n] * prei[k] % M * prei[n - k] % M;
     }
     ```
 
@@ -71,7 +72,7 @@
 範圍: $10^6$ 次查詢 $n\le 10^9, k\le 30,P=10^9+7$ 
 
 $$
-C(n, k) = \frac{n \times (n - 1) \times \ldots \times (n - k + 1)}{1 \times 2 \times \ldots \times k}
+C^n_k = \frac{n \times (n - 1) \times \ldots \times (n - k + 1)}{1 \times 2 \times \ldots \times k}
 $$
 
 一項一項乘即可，除法部分需使用模逆元
@@ -99,7 +100,7 @@ $$
 
 範圍 : 
 
-- 答案 mod 質數，$10^5$ 次查詢 $n,k\le 10^{18},P\le 1000$
+- 答案 mod 質數，$10^5$ 次查詢 $n,k\le 10^{18},P\le 10^6$
 
 - 答案 mod 合數，$n \le 10^9, k=30, M \approx 10^9$
 
@@ -173,7 +174,8 @@ $2=0\times 2^2+1\times 2^1 + 0\times 2^0$
 	- $\displaystyle (x+y)^n = \sum \binom{n}{i} \times x^i \times y^{(n-i)}$
 
 <figure markdown>
-    ![Image title](./images/23.png){ width="300" }
+  ![Image title](./images/23.png){ width="300" }
+  <figcaption>帕斯卡三角形figcaption>
 </figure>
 
 ## n 球 m 箱問題
@@ -322,7 +324,7 @@ $$s(n,k)=(n-1) \times s(n-1,k)+s(n-1,k-1)$$
 從 s 開始有走到有紅色線的格子，相當於從 s' 開始走到有紅色線的格子（從紅色線對稱過去）。走到有紅色線的格子後，接著走到 t，就是不合法的方法數
 
 <figure markdown>
-  ![Image title](./images/31.png){ width="450" }
+  ![Image title](./images/31.png){ width="250" }
 </figure>
 
 所以不合法的情況可以看成: 從 s' 為起點開始走到 t 的方法數。最後，答案就是 $C^{2n-2}_{n-1}-C^{2n-2}_{n-2}$
@@ -404,14 +406,14 @@ $$s(n,k)=(n-1) \times s(n-1,k)+s(n-1,k-1)$$
 		看成走格子問題
 		
 		- opening ↔ 往右
-
+	
 		- closing ↔ 往上
-
+	
 		以 $n=6$ 來說，圖會長這樣:
 		
 		<figure markdown>
-          ![Image title](./images/29.png){ width="150" }
-        </figure>
+	      ![Image title](./images/29.png){ width="150" }
+	    </figure>
 
 ???+note "[CSES - Bracket Sequences II](https://cses.fi/problemset/task/2187)"
 	給你一個未完成的括號序列，求以此延伸長度為 $n$ 個合法括號序列有幾個
@@ -430,17 +432,17 @@ $$s(n,k)=(n-1) \times s(n-1,k)+s(n-1,k-1)$$
 		```cpp linenums="1"
 		int solve(int strlen, string s) {
 			int n = strlen / 2, m = strlen / 2;
-            int cnt = 0;
-            for (int i = 0; i < s.size(); i++) {
-                if (s[i] == '(') {
-                    m--;
-                    cnt++;
-                } else {
-                    n--;
-                    cnt--;
-                }
-            }
-            return (C(n + m, n) - C(n + m, m + cnt + 1) + M) % M;
+	        int cnt = 0;
+	        for (int i = 0; i < s.size(); i++) {
+	            if (s[i] == '(') {
+	                m--;
+	                cnt++;
+	            } else {
+	                n--;
+	                cnt--;
+	            }
+	        }
+	        return (C(n + m, n) - C(n + m, m + cnt + 1) + M) % M;
 		} 
 		```
 
@@ -475,6 +477,14 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
     }
     ```
 
+### 錯排
+
+???+note "[CSES - Christmas Party](https://cses.fi/problemset/task/1717)"
+	有 $n$ 個人，每人各要送一個禮物。問有幾種方法，使每人收到一個禮物（自己送自己收）
+	
+	$n\le 10^6$
+	
+	
 ## 經典問題
 
 ???+note "n 個 p 面骰子"
