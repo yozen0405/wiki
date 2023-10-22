@@ -134,7 +134,7 @@
 ???+note "[USACO 2021 January 3. Dance Mooves](http://www.usaco.org/index.php?page=viewproblem2&cpid=1091)" 
 	有一個長度為 $n$ 的序列 $a=[1, 2, \ldots ,n]$。給 $k$ 對指令，形式為 $(x_i,y_i)$，表示 swap$(a_{x_i},a_{y_i})$。第 $i$ 分鐘需要執行第 $i\pmod{k}$ 個動作，問 $m$ 分鐘後，每個數字分別經過幾個不同的 index。
 	
-	$2\le n\le 10^5, 1\le k\le 2\time 10^5, 1\le m\le 10^{18}$
+	$2\le n\le 10^5, 1\le k\le 2\times 10^5, 1\le m\le 10^{18}$
 	
 	??? note "思路"
 		令 $s_i$ 為 $i$ 在經過 $k$ 輪會走過的 unique index，$p_i$ 為 $k$ 輪後會到哪個 index。每 $k$ 輪一個循環，我們考慮建圖，邊為 $i\rightarrow p_i$，因為 in<sub>i</sub> 和 out<sub>i</sub> 都是 1，所以會形成多個 cycle。令 $m=k\times d+r$，假設某個環長度為 $L$，若 $L<d$ 則環上的每個點的答案就是環上所有 $s_i$ 的 union，反之對於某個點 $i$，只會走到以他前面的 $d$ 個，也就是 $s_i,s_{p_i},s_{p_i^2},..,s_{p_i^{d-1}}$ 的 union（其中 $p_i^x$ 為 $\underbrace{p[p[p[p...}_{x次}[i]]]]$）。因為 $\sum s_i$ 最多只會是 $2k+n$（$n$ 一開始所在的 index，$2k$ 每次 swap 會 update 兩個新的），所以對 $L<d$ 我們直接暴力的將環上的 $s_i$ 加入 ; 對於 $L \ge d$ 我們使用 sliding window 維護，這樣每個 $s_i$ 都只會加入一次和刪掉一次，總複雜度 $O(n+k)$
@@ -329,22 +329,22 @@
 	給一個 $1\ldots n$ 的 permutation $a$，每次可以 swap 相鄰項，問最少幾次操作可滿足:
 
     - 對於任意 $i\in[i,n-1]$ 都有 $a_i<a_{i+1}+2$
-
+    
     $3\le n\le 5000$
     
     ??? note "思路"
     	可以發現最後的序列一定可以分成若干段連續遞減的子序列，而且前面的子序列與後面子序列是從小到大的，例如 $[3,2,1,6,5,4,9,8,7]$
-
+    
         所以我們可以令 $dp(i,\ell)=$ 由 $1\ldots i$ 組成的合法序列，**最後一段長度為 $\ell$** 的最小 swap 次數。序列大概就是這樣:
         $$
         1\ldots i-\ell,\space i,\space i-1\ldots i-\ell + 1
         $$
         考慮 $i$ 對序列給出的貢獻，我們先列出轉移式 $dp(i,\ell)=dp(i-1,\ell-1)+\text{cost}$，也就是將 $i$ 插入在中間，那麼 $i$ 的貢獻就是:
-
+    
         - 原序列 $i$ 後面有多少個 $\le i-\ell$
-
+    
         - 加上 $i$ 前面有多少個 $\in [i-\ell + 1, i-1]$
-
+    
         這可以將 $(i,a_i)$ 打在二維平面上，用二維前綴和預處理得到，複雜度 $O(n^2)$
 
 https://drive.google.com/file/d/1WB9Hnx3itjsBQO0Qk06e1Iszt7jNzhVF/view

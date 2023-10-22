@@ -19,56 +19,87 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        struct Item {
-            int t, c;
-        };
-
-        int n, W;
-        vector<Item> items; 
-
-        void init() {
-            cin >> n;
-            for (int i = 0; i < n; i++) {
-                int t, c;
-                cin >> t >> c;
-                W = max(W, t);
-                items.pb({t, c});
-            }
-            W += n;
-        }
-
-        void solve() {
-            vector<int> dp(W + 1, INF);
-            dp[0] = 0;
-            for (int i = 0; i < n; i++) {
-                int t = items[i].t, c = items[i].c;
-                for (int j = W; j >= (t + 1); j--) {
-                    dp[j] = min(dp[j], dp[j - (t + 1)] + c);
-                }
-            }
-            int mn = INF;
-            for (int j = n; j <= W; j++) {
-                mn = min(mn, dp[j]);
-            }
-            cout << mn << '\n';
-        }
-
-        signed main() {
-            init();
-            solve();
-        } 
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Item {
+	        int t, c;
+	    };
+	
+	    int n, W;
+	    vector<Item> items; 
+	
+	    void init() {
+	        cin >> n;
+	        for (int i = 0; i < n; i++) {
+	            int t, c;
+	            cin >> t >> c;
+	            W = max(W, t);
+	            items.pb({t, c});
+	        }
+	        W += n;
+	    }
+	
+	    void solve() {
+	        vector<int> dp(W + 1, INF);
+	        dp[0] = 0;
+	        for (int i = 0; i < n; i++) {
+	            int t = items[i].t, c = items[i].c;
+	            for (int j = W; j >= (t + 1); j--) {
+	                dp[j] = min(dp[j], dp[j - (t + 1)] + c);
+	            }
+	        }
+	        int mn = INF;
+	        for (int j = n; j <= W; j++) {
+	            mn = min(mn, dp[j]);
+	        }
+	        cout << mn << '\n';
+	    }
+	
+	    signed main() {
+	        init();
+	        solve();
+	    } 
 		```
+		
+!!! "貪心法錯誤"
+	$n=3,W=6$
+
+    - $v_1=4,w_1=5$
+
+    - $v_2=3,w_2=3$
+
+    - $v_3=3,w_3=3$
+
+    按照 Greedy，就只能放入第 1 個物品，總價值為 $5$，但是最優解，應該放入第 2, 3 個物品，總價值為 $6$
+
+    之所以貪心法會失效，原因在於背包的體積，優先選 CP 值高的物品，可能會導致一些空間被浪費，以前面的例子來說，就是浪費 2 單位的空間
+
+    反過來說，下面的物品就可以使用貪心法:
+	
+    物品可以切割
+
+    $n\le 100, m\le 10^5, v_i\le 10^5,w_i\le 10^7$
+
+    物品可以切割，換句話說就是可以取 0.5 個、0.7 個物品，這樣一來，就沒有浪費空間的問題，而可以使用攤新法了
+
+    $n=3,W=6$
+
+    - $v_1=4,w_1=5$
+
+    - $v_2=3,w_2=3$
+
+    - $v_3=3,w_3=3$
+
+    取 1 個第一件物品，2/3 個第二件物品，總價值為 7

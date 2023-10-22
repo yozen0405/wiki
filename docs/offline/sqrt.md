@@ -522,7 +522,7 @@
 	    	}
 		```
 		
-		其中，在 1 + d*i 在 L 以下的可以用數學算，所以我們其實只要枚舉 [N/x]*x 在 [L, R] 之間的即可，這樣對於 [N/x] 為 d 時複雜度是 O( (R-L+1) / d )，類似篩法，加起來就是 O((R - L + 1) * log(sqrt(N)))
+		其中，在 $1 + d\times i$ 在 $L$ 以下的可以用數學算，所以我們其實只要枚舉 $\lfloor \frac{N}{x} \rfloor\times x$ 在 $[L, R]$ 之間的即可，這樣對於 $\lfloor \frac{N}{x} \rfloor$ 為 $d$ 時複雜度是 $O( (R-L+1) / d )$，類似篩法，加起來就是 $O((R - L + 1) \times \log \sqrt{N})$
 
 其他練習可上[LOJ 題單](https://loj.ac/p?tagIds=207%2C79)
 

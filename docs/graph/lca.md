@@ -1,33 +1,30 @@
 ## 時間戳記
-- 2021 附中模競 I -pE
-- CSES... 樹上 prefix sum
+
 - toi 乘車時間
-- https://atcoder.jp/contests/abc267/tasks/abc267_f
-- CSES movie festival II
-- https://codeforces.com/gym/375522/problem/F
-- CSES cyclic array
-- 2021 附中模競 III pF
 - https://zerojudge.tw/ShowProblem?problemid=c313
-- CF Lynyrd Skynyrd
 
 ## 模板
+
+
+
+???+note "模板題 [CSES - Companies II](https://cses.fi/problemset/task/1688)"
 
 ???+note "code"
 	```cpp linenums="1"
 	vector<pii> G[maxn];
     int p[maxn][21], dp[maxn][21], dep[maxn];
 
-    void dfs (int u, int par) {
+    void dfs(int u, int par) {
         for (auto [v, w] : G[u]) {
             if (v == par) continue;
             p[v][0] = u;
             dp[v][0] = w;
             dep[v] = dep[u] + 1;
-            dfs (v, u);
+            dfs(v, u);
         }
     }
     
-    void build () {
+    void build() {
         for (int i = 1; i < 21; i++) {
             for (int j = 1; j <= n; j++) {
                 p[j][i] = p[p[j][i - 1]][i - 1];
@@ -36,8 +33,8 @@
         }
     }
     
-    int LCA (int a, int b) {
-        if (dep[a] < dep[b]) swap (a, b);
+    int LCA(int a, int b) {
+        if (dep[a] < dep[b]) swap(a, b);
         int dif = dep[a] - dep[b];
         for (int i = 20; i >= 0; i--) {
             if (dif & (1 << i)) {
@@ -317,30 +314,31 @@
 	    假設 $v_1, v_2, \ldots$ 是以 $dp[v_1] \ge dp[v_2] \ge \ldots$ 排序過的
 	    
 	    $$dp[u]=\max\{ dp[v_1]+0, dp[v_2] + 1, dp[v_3] + 2, \ldots \}$$
-	    
+
 ???+note "[JOI 2022 Final 铁路旅行 2](https://www.luogu.com.cn/problem/P8163)"
 	給 $n$ 個點，$m$ 條線路，第 $i$ 條線起點為 $a_i$，終點為 $b_i$，上車的位置不能離起點超過 $k$ 個點，可在任何一站下車。有 $q$ 筆詢問:
 
     - $\text{query}(s,t):$ 從 $s$ 開始到 $t$，最少搭乘幾條不同的線路，若無論如何都沒辦法則輸出 -1
-
+    
     $n\le 10^5,m\le 2\times 10^5,q\le 5\times 10^4$
     
     ??? note "思路"
     	目前的經驗來看，凡是需要多次無序詢問或重複多次處理一張圖時，大機率是需要用到倍增的。
-
+    
         令 $le(i,j),ri(i,j)$ 以 $i$ 為起點，搭乘 $2^j$ 條不同的線路，最左/右能到哪裡
+        
         $$
         le(i,j)=\min\limits_{k\in[le(i-1,j),ri(i-1,j)]}le(i-1,k) \\ri(i,j)=\max\limits_{k\in[le(i-1,j),ri(i-1,j)]} ri(i-1,k)
         $$
-
+    
         初始值 $le(i,0),re(i,0)$ 可以利用單調隊列來維護，例如 $re(i,0)$，我們一開始先將 interval 用左界小到大 sort，然後 queue 中保留的會是 $l_i$ 遞增，$r_i$ 遞減
-
+    
         <figure markdown>
-	      ![Image title](./images/82.png){ width="300" }
-	    </figure>
-
+          ![Image title](./images/82.png){ width="300" }
+        </figure>
+    
         那麼轉移的部分我可以對於每個 $le(*,j),re(*,j)$ 都開一顆線段樹，直接去區間查詢極值即可
-
+    
         最後 $\text{query}(s,t)$ 我們用類似 LCA 查詢的方式，從 $s$ 開始擴展，直到區間恰好差一點涵蓋 $[s,t]$
         
         > 參考自: <https://www.luogu.com.cn/blog/jjsnam/solution-P8163>
@@ -352,18 +350,18 @@
         #include <algorithm>
         #include <cstring>
         #include <iostream>
-
+    
         #define ls (id << 1)
         #define rs (id << 1 | 1)
         #define mid ((l + r) >> 1)
         #define u first
         #define v second
-
+    
         using namespace std;
         typedef pair<int, int> pii;
         const int maxn = 1e5 + 5;
         const int maxm = 2e5 + 5;
-
+    
         int le[maxn][17], ri[maxn][17];
         pii up[maxm], down[maxm];
         int cnt_up, cnt_down;
@@ -372,12 +370,12 @@
             struct Node {
                 int left, right;
             } tr[maxn << 2];
-
+    
             void pushup(int id) {
                 tr[id].left = min(tr[ls].left, tr[rs].left);
                 tr[id].right = max(tr[ls].right, tr[rs].right);
             }
-
+    
             void build(int id, int l, int r, int k) {
                 if (l == r) {
                     tr[id].left = le[l][k];
@@ -388,7 +386,7 @@
                 build(rs, mid + 1, r, k);
                 pushup(id);
             }
-
+    
             int query_left(int id, int l, int r, int a, int b) {
                 if (a <= l && r <= b) {
                     return tr[id].left;
@@ -398,7 +396,7 @@
                 if (b > mid) res = min(res, query_left(rs, mid + 1, r, a, b));
                 return res;
             }
-
+    
             int query_right(int id, int l, int r, int a, int b) {
                 if (a <= l && r <= b) {
                     return tr[id].right;
@@ -409,14 +407,14 @@
                 return res;
             }
         } root[17];
-
+    
         void Get_start() {
             for (int i = 1; i <= n; i++) le[i][0] = ri[i][0] = i;
             sort(up + 1, up + cnt_up + 1);
             sort(down + 1, down + cnt_down + 1, greater<pii>());
             /* 单调队列 O(m) */
             int q[maxm], hh = 1, tt = 0;
-
+    
             /* 处理右 */
             for (int i = 1, j = 1; i <= n; i++) {
                 while (j <= cnt_up && up[j].u <= i) {
@@ -428,10 +426,10 @@
                 while (hh <= tt && up[q[hh]].u <= i - K) hh++;
                 if (hh <= tt) ri[i][0] = max(ri[i][0], up[q[hh]].v);
             }
-
+    
             /* init */
             hh = 1, tt = 0;
-
+    
             /* 处理左 */
             for (int i = n, j = 1; i > 0; i--) {
                 while (j <= cnt_down && down[j].u >= i) {
@@ -444,7 +442,7 @@
                 if (hh <= tt) le[i][0] = min(le[i][0], down[q[hh]].v);
             }
         }
-
+    
         void init() {
             Get_start();
             root[0].build(1, 1, n, 0);
@@ -456,7 +454,7 @@
                 root[k].build(1, 1, n, k);
             }
         }
-
+    
         int query(int S, int E) {
             int res = 0;
             int l = S, r = S;
@@ -474,11 +472,11 @@
             else
                 return -1;
         }
-
+    
         int main() {
             ios::sync_with_stdio(false);
             cin.tie(0), cout.tie(0);
-
+    
             cin >> n >> K >> m;
             for (int i = 1, a, b; i <= m; i++) {
                 cin >> a >> b;
@@ -497,4 +495,80 @@
             return 0;
         }
     	```
-    	
+
+???+note "[CSES - Cyclic Array](https://cses.fi/problemset/task/1191)"
+	給一個長度為 $n$ 的環狀陣列 $a_1,\ldots ,a_n$，問至少分成幾段可使每段的總和都 $\le k$
+
+	$n\le 2\times 10^5, 1\le a_i\le 10^9,1\le k\le 10^{18}$
+	
+	??? note "思路"
+		倍增法，$dp(i,j)$ 為從 $i$ 開始，跳了 $2^j$ 段 subarray，最遠可跳到哪裡，轉移如下
+		
+	    $$
+	    dp(i,j)=\max \{dp(dp(i,j-1),j-1) \}
+	    $$
+	    
+	    初始化的話 $dp(i,0)$ 就是從 $i$ 開始最遠走到哪裡總和還是 $\le k$
+	
+	    所以我們就可以枚舉起點，利用二分搜 Jumping 寫法看至少需要幾段 subarray，也就是從高 bit 開始往下枚舉，若跳 $2^j$ 段不會超過終點的話就跳，然後最後再把所有起點的答案取 min 即可。複雜度 $O(n\log n)$
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h> 
+	    #define int long long
+	    using namespace std;
+	
+	    const int MAXN = 2e5 + 5;
+	    int n, k;
+	    int a[MAXN + MAXN];
+	    int dp[19][MAXN + MAXN];
+	
+	    void build() {
+	        long long sum = 0;
+	        int r = n + n;
+	        for (int i = n + n; i >= 1; i--) {
+	            sum += a[i];
+	            while (sum > k) {
+	                sum -= a[r--];
+	            }
+	            dp[0][i] = r;
+	        }
+	        for (int j = 1; (1 << j) <= n + n; j++) {
+	            for (int i = 1; i <= n + n; ++i) {
+	                if (dp[j - 1][i]) {
+	                    dp[j][i] = dp[j - 1][dp[j - 1][i] + 1];
+	                }
+	            }
+	        }
+	    }
+	
+	    int query(int i) {
+	        int l = i;
+	        int cnt = 0;
+	        for (int j = 18; j >= 0; j--) {
+	            if (dp[j][l] && dp[j][l] <= i + n - 1) {
+	                l = dp[j][l] + 1;
+	                cnt += (1 << j);
+	            }
+	        }
+	        if (l <= i + n - 1) {
+	            cnt++;
+	        }
+	        return cnt;
+	    }
+	
+	    signed main() {
+	        cin >> n >> k;
+	        for (int i = 1; i <= n; ++i) {
+	            cin >> a[i];
+	            a[i + n] = a[i];
+	        }
+	        build();
+	        int res = n;
+	        for (int i = 1; i <= n; ++i) {
+	            res = min(res, query(i));
+	        }
+	        cout << res;
+	        return 0;
+	    }
+	    ```

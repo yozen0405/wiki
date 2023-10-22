@@ -747,4 +747,21 @@
 	
 	??? note "思路"
 		跟上一題差不多，只是變成從 leaf 往 root 的方向做上去，子樹內的優先配對
-		
+
+???+note "[洛谷 P4556 [Vani有约会] 雨天的尾巴](http://www.luogu.com.cn/problem/P4556)"
+	給一顆 $n$ 個點的樹，每個點上都有一個背包，一開始是空的。有 $q$ 筆操作:
+
+    - $\text{add}(u, v, x)$: 將 $u$ 到 $v$ 的 path 上的點的背包都放入 $x$
+    
+    最後對於每個點輸出背包最多的數字（輸出最小可能的答案）
+    
+    $n,q\le 10^5,1\le x\le 10^5$
+    
+    ??? note "思路"
+    	先考慮 path 的 case，發現我們可將 add 操作想成好幾個從 $u$ 到 $v$ interval，我們就可以用 sweep line 從左到右掃過去，用 map 之類的 data structrue 維護，複雜度 $O(q\log n)$
+    	
+    	<figure markdown>
+          ![Image title](./images/83.png){ width="300" }
+        </figure>
+        
+        Tree 的 case 考慮樹鏈剖分，將一次 add 變成在 $\log n$ 條 path 的 case 即可，複雜度 $O(q\log ^2 n)$

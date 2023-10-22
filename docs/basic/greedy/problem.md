@@ -158,12 +158,101 @@
 
 ## 霍夫曼編碼
 
-???+note "例題"
-	給你一個陣列 $a$ , 合併 $a_x,a_y$ 要花 $a_x+a_y$，求把陣列整個合併完得最小花費
- 	
- 	??? note "思路"
- 	    - 貪心的想法每次都合併最小的
- 	    - 塞進 $\texttt{pq}$ 每次去最小的 $\texttt{a,b, pop}$ 掉再 $\texttt{push(a + b)}$ 
+???+note "問題"
+    給定每種字元的出現頻率 $freq_i$，目標是找到一種 Prefix Code 讓 
+    
+    $$WPL=\sum |s_i| \times freq_i$$
+    
+    最小化。Prefix Code: 每種字元用一個 0/1 字串 $s_i$ 表達，互相不是 prefix
+
+作法: 每次合併兩個頻率最小的字元
+
+例如說有 4 個點（字元）a、b、c、d，他們的 freq 分別為 7、5、2、4
+
+構樹過程: 
+
+<figure markdown>
+  ![Image title](./images/11.png){ width="300" }
+</figure>
+
+若需要構造的話，從 root 開始，往左分配 0 的編碼，往右分配 1 的編碼，每個 leaf 的編碼就是從 root 到自己的編碼串起來。
+		
+???+note "k 叉哈夫曼樹 [洛谷 P2168  [NOI2015]荷马史诗](https://www.luogu.com.cn/problem/P2168)"
+	有 $n$ 種字元，第 $i$ 種出現次數為 $w_i$。要用 $k$ 進制的字串 $s_i$ 來代替第 $i$ 種字元，使得:
+
+    - 對於任意的 $1 \le i, j \le n$，$i\neq j$，$s_i$ 都不是 $s_j$ 的前綴
+
+    問重新編碼後的字串最短長度，與最長的 $s_i$ 最短可以是多少
+
+    $n \le 10^5, k \le 9$
+    
+    ??? note "思路"
+		當 $k=2$ 時，就是 Huffman Code 裸題。$k>2$ 的 case，若直接 Greedy 的合併，在最後一次的循環時，Heap 的大小在 $2\ldots k-1$（不足以取出 $k$ 個），那麼整個 Huffman Tree 的 root 的節點個數就會小於 $k$，此時若將一些深度最大的 leaf 拔掉，接到 root 的下方，會使答案變小（若不取深度最大的，則將深度最大的拔起來接到空出來的位置更優）。所以最後的 Huffman Tree 就長成: 所有點的小孩都是滿的，除了最深的一個 internal node 會空出一些位置。具體做法有兩種
+
+        1. 我們可以先將 $2+(n-2)\% (k-1)$ 個節點合併（即形成最深的 internal node），剩下的每次合併 $k$ 個節點即可
+        2. 我們補一些額外 $w_i=0$ 的點，這樣這些點就會填滿空出的位置，而且又不影響答案。
+
+        那麼第二個答案其實就直接看樹的高度即可。如果有一個點可以移動到比較小的深度（也就是讓樹的高度變小），那麼字串長度總和也會跟著變小，跟最佳解條件矛盾。
+        
+    ??? note "code"
+    	```cpp linenums="1"
+    	// Code by KSkun, 2018/7
+        #include <cstdio>
+        #include <cctype>
+        #include <cstring>
+
+        #include <algorithm>
+        #include <vector>
+        #include <queue>
+
+        typedef long long LL;
+
+        inline char fgc() {
+            static char buf[100000], *p1 = buf, *p2 = buf;
+            return p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, 100000, stdin), p1 == p2)
+                ? EOF : *p1++;
+        }
+
+        inline LL readint() {
+            register LL res = 0, neg = 1; register char c = fgc();
+            for(; !isdigit(c); c = fgc()) if(c == '-') neg = -1;
+            for(; isdigit(c); c = fgc()) res = (res << 1) + (res << 3) + c - '0';
+            return res * neg;
+        }
+
+        const int MAXN = 100005;
+
+        int n, k;
+
+        typedef std::pair<LL, LL> PII64;
+        std::priority_queue<PII64, std::vector<PII64>, std::greater<PII64> > pq;
+
+        int main() {
+            n = readint(); k = readint();
+            for(int i = 1; i <= n; i++) {
+                LL w = readint();
+                pq.push(PII64(w, 0));
+            }
+            while(k > 2 && n % (k - 1) != 1) {
+                pq.push(PII64(0, 0)); n++;
+            }
+            LL ans1 = 0, ans2 = 0;
+            while(pq.size() > 1) {
+                PII64 res(0, 0);
+                for(int i = 1; i <= k; i++) {
+                    res.first += pq.top().first;
+                    res.second = std::max(res.second, pq.top().second + 1);
+                    pq.pop();
+                }
+                ans1 += res.first;
+                ans2 = std::max(ans2, res.second);
+                pq.push(res);
+            }
+            printf("%lld\n%lld", ans1, ans2);
+            return 0;
+        }
+    	```
+		
 
 ???+note "[CF 1882 C. Card Game](https://codeforces.com/contest/1882/problem/C)"
 	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，每次操作可以 :

@@ -61,7 +61,7 @@
             prei[i] = prei[i - 1] * inv[i] % M;
         }
     }
-
+    
     int C(int n, int k) {
         return pre[n] * prei[k] % M * prei[n - k] % M;
     }
@@ -321,13 +321,19 @@ $$s(n,k)=(n-1) \times s(n-1,k)+s(n-1,k-1)$$
   ![Image title](./images/30.png){ width="200" }
 </figure>
 
-從 s 開始有走到有紅色線的格子，相當於從 s' 開始走到有紅色線的格子（從紅色線對稱過去）。走到有紅色線的格子後，接著走到 t，就是不合法的方法數
+從 s 開始有走到有紅色線的格子，相當於從 s' 開始走到有紅色線的格子（從紅色線對稱過去）。
 
 <figure markdown>
   ![Image title](./images/31.png){ width="250" }
 </figure>
 
-所以不合法的情況可以看成: 從 s' 為起點開始走到 t 的方法數。最後，答案就是 $C^{2n-2}_{n-1}-C^{2n-2}_{n-2}$
+所以不合法方法數 
+
+= 從 s 經過紅色線，在到 t 的方法數 
+
+= 從 s’ 經過紅色線，在到 t 的方法數
+
+而從 s’ 到 t **必然**會經過紅色線，所以又相當於 s’ 到 t 的方法數，也就是 $C^{2n-2}_{n-2}$。所以答案就是 $C^{2n-2}_{n-1}-C^{2n-2}_{n-2}$
 
 ???+note "例題"
 	有一個 $n\times n$ 的棋盤格，從 $(1,1)$ 走到 $(n,n)$，每次只能將 $x$ 加上 1 或是將 $y$ 加上 1，過程中不能經過 $y = x - 1$ 的格子，有幾種走法
@@ -477,14 +483,21 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
     }
     ```
 
+???+note "[CSES - Counting Sequences](https://cses.fi/problemset/task/2228)"
+	問有幾種長度為 $n$ 的序列滿足每項都介於 $[1, k]$，且 $1\ldots k$ 皆至少出現一次
+
+	$k\le n\le 10^6$
+	
+	??? note "思路"
+		若考慮對於每一項要選什麼，會發現很難做。我們逆向思考，變成看 $1\ldots k$ 每個要選那些 index，更具體來說，有 $k$ 個不同箱子，要放入 $n$ 個不同的球，每箱至少放一個有多少種放法。這個就可以用我們上面講到的排容原理來實現。
+	
 ### 錯排
 
 ???+note "[CSES - Christmas Party](https://cses.fi/problemset/task/1717)"
 	有 $n$ 個人，每人各要送一個禮物。問有幾種方法，使每人收到一個禮物（自己送自己收）
 	
 	$n\le 10^6$
-	
-	
+
 ## 經典問題
 
 ???+note "n 個 p 面骰子"
@@ -636,8 +649,42 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 ???+note "[EOJ 3029. 不重复正整数](https://acm.ecnu.edu.cn/problem/3029/)"
 	給 $n$，問將 $n$ 拆分為若干不重複的正整數之和，且數字皆不同，且每個數字皆在 $[1, m]$ 之間，有幾種方案 
 	
-
 	$n\le 50, m\le 20$
+	
+	??? note "思路"
+		設 $dp(i,j)=$ 用  $1\ldots i$ 裡不重複的數字表示 $j$ 的方法數。轉移的化有兩種選法: 選 $i$，不選 $i$，所以列出
+		
+	    $$
+	    dp(i,j)=dp(i-1,j)+dp(i-1,j-i)
+	    $$
+	    
+	    類似背包問題，時間複雜度 $O(\sum \limits_{i=1}^t n_im_i)$
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include "bits/stdc++.h"
+	
+	    using namespace std;
+	    using u64 = uint64_t;
+	
+	    int main() {
+	        u64 t;
+	        cin >> t;
+	        for (u64 query = 0; query < t; ++query) {
+	            cout << "case #" << query << ":\n";
+	            u64 n, m;
+	            cin >> n >> m;
+	            vector<u64> dp(n + 1, 0);
+	            dp[0] = 1;
+	            for (u64 i = 1; i <= m; ++i) {
+	                for (u64 j = n; j >= i; --j) {
+	                    dp[j] += dp[j - i];
+	                }
+	            }
+	            cout << dp[n] << '\n';
+	        }
+	    }
+		```
 
 ???+note "[CSES - Xor Pyramid](https://cses.fi/problemset/task/2419)"
 
@@ -648,6 +695,15 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
     ??? note "思路"
     	對於金字塔的一項，被算到的次數為「左上被算到的次數 + 右上被算到的次數」，那麼因為頂層被算到的次數會是 $1$，我們就可以嘗試將每一項被算到的次數寫出來，會發現恰好是帕斯卡三角形。所以對於 $a_i$，被算到的次數為 $C^{n-1}_{i-1}$，因為 xor 只在意奇偶性，所以若 mod 2 為 0 就不用算，否則就將答案 xor 一次就好。$C^n_k$ 可以用 Lucas 定理或線性蓋出來
 
+???+note "[CF 1444 B. Divide and Sum](https://codeforces.com/problemset/problem/1444/B)"
+	給你一個長度為 $2n$ 的序列 $a$，將它們平均分成兩組，對第一組做遞增排序，得到序列 $x$，第二組做遞減排序，得到序列 $y$，求對於所有可能的 $x,y$，$\sum \limits_{i=1}^n |x_i-y_i|$ 的總和
+
+	$n\le 1.5\times 10^5, 1\le a_i \le 10^9$
+	
+	??? note "思路"
+		考慮 $x_i,y_i$ 的關係，將 $a$ 小到大排序後，會發現  $x_i,y_i$ 恰好是一個在前 $n$ 個，一個在後 $n$ 個，所以答案就是 
+		
+		$$\binom{2n}{n}\times (\sum \limits_{i=n+1}^{2n}a_i - \sum \limits_{i=1}^n a_i)$$
 
 [^1]: 例如 (D), (A, B, C)，<a href="/wiki/math/images/15.png" target="_blank">見此圖</a>
 

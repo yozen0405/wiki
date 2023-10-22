@@ -1345,20 +1345,57 @@
 ???+note "[CSES - Counting Towers](https://cses.fi/problemset/task/2413)"
 
     有無限多種邊長為整數的方塊，問填滿 $2\times n$ 的矩形有幾種方法
-
+    
     有 $t$ 筆輸入，$1\le t\le 100, 1\le n\le 10^6$
     
     ??? note "思路"
     	1. 考慮最後一段放什麼（nhspc）
         2. 考慮最後一格放什麼，與之前的關係（此題）
-
+    
         令 $dp(i, 0/1)$ 為 最後一個 column 是「不連通的/連通的」方法數
-
+    
         <figure markdown>
           ![Image title](./images/29.png){ width="300" }
         </figure>
-
+    
         - $dp(i, 0) = 4 \times dp(i - 1, 0) + dp(i - 1, 1)$
-
+    
         - $dp(i, 1) = 2 \times dp(i - 1, 1) + dp(i - 1, 0)$
+
+???+note "[CSES - Permutation II](https://cses.fi/problemset/task/1075)"
+	問有幾個 $1\ldots n$ 的 permutation 不存在相鄰項差 1
+
+	$n\le 1000$
 	
+	??? note "思路"
+		令 $dp(i, j, 0/1)=1\ldots i$ 的 permutation 內，相鄰項差 1 的有 $j$ 個，$i$ 跟 $i-1$ 不相鄰/相鄰
+	
+	    先考慮 $i$ 要插入 $1\ldots i-1$ 的 permutation 中，滿足 $i$ 跟 $i-1$ 不相鄰，$i$ 可以:
+	
+	    - 放在相鄰差 1 的元素之間（除了 $i-1$ 旁邊不能）
+	
+	    - 其他（除了 $i-1$ 旁邊不能）
+	
+	    所以可以列出轉移式
+	
+	    $dp(i,j,0)=\begin{cases}(j+1)\times dp(i-1,j+1,0)+j\times dp(i-1,j+1, 1) \\ (i-j-2)\times dp(i-1,j,0)+(i-j-1)\times dp(i-1,j,1)  \end{cases}$ 
+	
+	    考慮 $i$ 要插入 $1\ldots i-1$ 的 permutation 中，滿足 $i$ 跟 $i-1$ 相鄰，$i$ 可以:
+	
+	    - 放在 $i-1$ 旁邊
+	
+	    $dp(i,j,1)=2\times dp(i-1,j-1,0)+dp(i-1,j,1)+dp(i-1,j-1,1)$
+	    
+???+note "[Atcoder abc207 E - Mod i](https://atcoder.jp/contests/abc207/tasks/abc207_e)"
+	有一長度為 $n$ 的序列，問有多少種 partition 方式，使得對於第 $i$ 塊的元素和 $sum_i$ 都整除 $i$
+
+	$n\le 3000,1\le a_i\le 10^{15}$
+	
+	??? note "思路"
+		設 $dp(i,j)$ 為對於 $a_1,\ldots ,a_i$，分成 $j$ 塊的合法方法數
+		
+        $$
+        dp(i,j)=\sum \limits_{k=1\ldots i-1} dp(k,j-1) \mid (S_i-S_k)\% j = 0
+        $$
+        
+        觀察到我們在其實可以先枚舉 $j$，再枚舉 $i$，這樣我們就可以開一個陣列 $cnt$，$cnt_x$ 紀錄 $S_i\% j=x$ 的總和，轉移直接去查表即可，複雜度 $O(n^2)$

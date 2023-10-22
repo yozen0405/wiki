@@ -11,37 +11,61 @@
 	??? note "code(from usaco)"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        using namespace std;
-
-        int main() {
-            cin.tie(0)->sync_with_stdio(0);
-            int N, M;
-            cin >> N >> M;
-            vector<pair<int, int>> ivals(N);
-            for (auto &ival : ivals)
-                cin >> ival.first >> ival.second;
-            vector<int64_t> win_start(2 * M + 1), win_end(2 * M + 1);
-            {
-                vector<int64_t> a_freq(M + 1);
-                for (int i = 0; i < N; ++i)
-                    ++a_freq.at(ivals.at(i).first);
-                for (int i = 0; i <= M; ++i)
-                    for (int j = 0; j <= M; ++j)
-                        win_start.at(i + j) += a_freq.at(i) * a_freq.at(j);
-            }
-            {
-                vector<int64_t> b_freq(M + 1);
-                for (int i = 0; i < N; ++i)
-                    ++b_freq.at(ivals.at(i).second);
-                for (int i = 0; i <= M; ++i)
-                    for (int j = 0; j <= M; ++j)
-                        win_end.at(i + j) += b_freq.at(i) * b_freq.at(j);
-            }
-            int64_t win_count = 0;
-            for (int i = 0; i <= 2 * M; ++i) {
-                win_count += win_start.at(i);
-                cout << win_count << "\n";
-                win_count -= win_end.at(i);
-            }
-        }
+	    using namespace std;
+	
+	    int main() {
+	        cin.tie(0)->sync_with_stdio(0);
+	        int N, M;
+	        cin >> N >> M;
+	        vector<pair<int, int>> ivals(N);
+	        for (auto &ival : ivals)
+	            cin >> ival.first >> ival.second;
+	        vector<int64_t> win_start(2 * M + 1), win_end(2 * M + 1);
+	        {
+	            vector<int64_t> a_freq(M + 1);
+	            for (int i = 0; i < N; ++i)
+	                ++a_freq.at(ivals.at(i).first);
+	            for (int i = 0; i <= M; ++i)
+	                for (int j = 0; j <= M; ++j)
+	                    win_start.at(i + j) += a_freq.at(i) * a_freq.at(j);
+	        }
+	        {
+	            vector<int64_t> b_freq(M + 1);
+	            for (int i = 0; i < N; ++i)
+	                ++b_freq.at(ivals.at(i).second);
+	            for (int i = 0; i <= M; ++i)
+	                for (int j = 0; j <= M; ++j)
+	                    win_end.at(i + j) += b_freq.at(i) * b_freq.at(j);
+	        }
+	        int64_t win_count = 0;
+	        for (int i = 0; i <= 2 * M; ++i) {
+	            win_count += win_start.at(i);
+	            cout << win_count << "\n";
+	            win_count -= win_end.at(i);
+	        }
+	    }
 		```
+
+???+note "[CS Academy - Candles](https://csacademy.com/contest/archive/task/candles/statement/)"
+	給一個長度為 $n$ 的陣列 $a_1, ... ,a_n$ ，依序有 $m$ 天，第 $i$ 天要選 $c_i$ 個數字減一，問最多能做能持續幾天
+
+	$n, m \le 10^5$
+	
+	??? note "思路"
+		greedy 策略，拿最大的 $c_i$ 個出來減一。
+	
+	    先找到目前第 $c_i$ 大的數字 $x$ 
+	
+	    - 大於 $x$ 的所有數字都直接減一
+	
+	    - 假設數字 $x$ 要刪除的數量是 $t$，找到最左邊的 $t$ 個 $x$ 拿出來減一
+	
+		這可以用線段樹來解決
+
+???+note "[CSES - Food Division](https://cses.fi/problemset/task/1189)"
+	有 $n$ 個人圍成一圈，第 $i$ 個人目前的分數為 $a_i$，期望分數為 $b_i$。每次操作能讓一個人分一單位的分數給相鄰的人，問最少幾次操作，使每個人都答到自己的期望分數。
+
+	$n\le 2\times 10^5, 0\le a_i,b_i\le 10^6$
+	
+	??? note "思路"
+		我們可以先得到一個 difference 序列 $d$，使 $d_i=a_i-b_i$，這樣問題就變成: 給一個陣列，每次可移動一單位的分數，最少幾次使滿項都變 $0$ 。

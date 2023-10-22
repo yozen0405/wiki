@@ -1,6 +1,4 @@
-## Euler Tour Technique
-
-### DFS 序
+## DFS 序
 
 <figure markdown>
   ![Image title](./images/29.png){ width="200" }
@@ -10,7 +8,7 @@
 
 $$[1,2,3,3,2,5,6,6,5,4,4,1]$$
 
-#### DFS 序判定祖孫關係
+### DFS 序判定祖孫關係
 
 下面，我們以模板題祖孫詢問來說明歐拉序如何判斷位置關係。
 
@@ -50,7 +48,10 @@ i & 1 & 2 & 3 & 4 & 5 & 6 \\\\ \hline
 
 而且複雜度是 $O(n+m)$
 
-#### 找 LCA
+???+note "[LOJ 模板題](https://loj.ac/p/10135)"
+	
+	
+### 倍增法找 LCA
 
 祖孫判定 + 倍增也可以用來找 LCA
 
@@ -134,21 +135,21 @@ i & 1 & 2 & 3 & 4 & 5 & 6 \\\\ \hline
     }
     ```
 
-### 歐拉序
+## 歐拉序
 
 又稱 euler tour
 
 <figure markdown>
-  ![Image title](./images/29.png){ width="200" }
+  ![Image title](./images/84.png){ width="200" }
 </figure>
 
-上圖的歐拉序列為 
+此時，兩點 $(u,v)$ 之間的 LCA 就是序列中的區間 $[u,v]$ 深度最小的那個
 
-$$[1,2,3,2,1,5,6,5,1,4,1]$$
+<figure markdown>
+  ![Image title](./images/85.png){ width="300" }
+</figure>
 
-> 參考 :<br><https://www.cnblogs.com/fusiwei/p/13684547.html><br><https://usaco.guide/gold/tree-euler?lang=cpp>
-
-歐拉序中出現的次數等於這個點的度數，所以歐拉序的長度是 $2n-1$
+每條邊走過一次會恰貢獻一個點，而每條邊會走過兩次，所以相當於 $2n-2$ 個點，但還要加上起點，所以歐拉序的長度是 $2n-1$
 
 ??? question "換根後 euler tour 序列 order 不變"
     <figure markdown>
@@ -167,11 +168,11 @@ $$[1,2,3,2,1,5,6,5,1,4,1]$$
     
     $$[1,2,3,2,1,5,6,\underbrace{5,1,4,1,1,2,3,2,1,5,6,5},1,4,1]$$
 
-#### 找 LCA
+### 樹壓平找 LCA
 
 歐拉序 + Sparse Table 可以在 $O(1)$ query 找到 LCA
 
-### 例題
+## 例題
 
 ???+note "[CSES - path queries](https://cses.fi/problemset/task/1138)"
 	給定一個有根樹，點編號 $1,2,\ldots, n$，$1$ 是 root
