@@ -175,7 +175,7 @@ $2=0\times 2^2+1\times 2^1 + 0\times 2^0$
 
 <figure markdown>
   ![Image title](./images/23.png){ width="300" }
-  <figcaption>帕斯卡三角形figcaption>
+  <figcaption>帕斯卡三角形</figcaption>
 </figure>
 
 ## n 球 m 箱問題
@@ -490,7 +490,7 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	
 	??? note "思路"
 		若考慮對於每一項要選什麼，會發現很難做。我們逆向思考，變成看 $1\ldots k$ 每個要選那些 index，更具體來說，有 $k$ 個不同箱子，要放入 $n$ 個不同的球，每箱至少放一個有多少種放法。這個就可以用我們上面講到的排容原理來實現。
-	
+
 ### 錯排
 
 ???+note "[CSES - Christmas Party](https://cses.fi/problemset/task/1717)"

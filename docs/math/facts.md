@@ -1,3 +1,99 @@
+## 質數測試
+
+???+note "問題"
+	檢查一個數 $n$ 是否為質數
+	
+我們只需要去枚舉在 $[2, \sqrt{n}]$ 內的數是否能整除 $n$ 即可，複雜度 $O(\sqrt{n})$
+
+???+note "code"
+	```cpp linenums="1"
+	bool isPrime(int n) {    
+		if (n == 1) return false;
+        for (int i = 2; i * i <= n; i++) {
+        	if (n % i == 0) {
+        		return false;
+            }
+         }
+         return true;
+    }
+	```
+
+## 因數分解
+
+枚舉 $i = 2 \ldots \sqrt{n}$，若 $n/i$ 可以整除，則持續 $n$ /= $i$ 將 $n$ 中的質因數 $i$ 都消掉，最後只有 1 個質因數會大於等於 $\sqrt{n}$，在特判就好。複雜度 $O(\sqrt{n})$
+
+???+note "code"
+	```cpp linenums="1"
+	vector<int> prime_factors(int n) {
+        vector<int> ret;
+        for (int i = 2; i * i <= n; i++) {
+            if (n % i == 0) {
+                while (n % i == 0) {
+                    ret.push_back(i);
+                    n /= i;
+                }
+            }
+        }
+        if (n > 1) ret.push_back(n);
+        return ret;
+    }
+	```
+
+## 篩法
+
+???+note "問題"
+	給 $n$，問 $\le n$ 的數字內有那些數是質數呢 ?
+	
+### 埃式篩法
+
+從小到大考慮每個數，若他還沒被篩掉，代表他是質數，則我們將他的倍數都篩掉。複雜度是 $O(n \log \log n)$。
+
+???+note "code"
+	```cpp linenums="1"
+	bitset<MAXN> is_prime;
+	
+    void sieve() {
+        is_prime.set();
+        is_prime[0] = is_prime[1] = false;
+        for (int i = 2; i < MAXN; i++) {
+            if (!is_prime[i]) continue;
+            for (int j = i + i; j < MAXN; j += i) {
+                is_prime[j] = false;
+            }
+        }
+    }
+    ```
+	
+### 線性篩法
+
+可以發現有些數字會被重複篩掉很多次。我們讓每個數字都只會被最小的質數篩掉，複雜度 $O(n)$。例如說一個數字 n 可以表示成 n = p * k，其中 p 是 n 的最小質因數，k 為剩下來的數字，n 就只會被 p * k 這個組合給篩掉。假設目前跑到 i，那麼我們就枚舉 j，讓 i * prime[j] 都標記為合數（這邊 prime[j] 就是 i * prime[j] 的最小質數，i 的意義只是上面的 k 而已），當跑到 i % prime[j] == 0 的時候，代表 i * prime[j + 1], i * prime[j + 2], ... 的最小質數就不會是 prime[j + 1], prime[j + 2], ... 而是 prime[j]，也就代表我們繼續篩的話就不能保證每個數字都只被篩掉一次。而且這些數字可以表示成 (比 i 大的數字) * prime[j]，所以一定會在後面跑到。 
+
+我們將線性篩法每一輪會篩掉的數字列出來看看:
+
+<figure markdown>
+  ![Image title](./images/33.png){ width="500" }
+</figure>
+
+從圖上我們看到，第一列篩掉的是最小質因數是 2 的數，第二列篩掉的是最小質因數為 3 的數，依次類推，可以把所有的合數都篩掉。
+
+???+note "code"
+	```cpp linenums="1"
+	bitset<MAXN> is_prime;
+    vector<int> prime;
+
+    void linear_sieve() {
+        is_prime.set(); 
+        is_prime[0] = is_prime[1] = false;
+        for (int i = 2; i < MAXN; i++) {
+            if (is_prime[i]) prime.push_back(i);
+            for (int j = 0; i * prime[j] < MAXN; j++) {
+                is_prime[i * prime[j]] = false;
+                if (i % prime[j] == 0) break;
+            }
+        }
+    }
+    ```
+
 ## 歐拉函數性質
 
 - [歐拉函數證明 1](https://hackmd.io/@coffee5427/euler1)
@@ -64,14 +160,16 @@
     
         - $D=(b_1 +1)\times (b_2 + 1) \times (b_3 + 1)\times ..$
     
-        ```cpp=39
+        ```cpp
         cnt = (cnt * ((b + 1) % M)) % M;
         ```
     
         > 因數和
     
         - 例如 $12=2^2\times 3^1$
+
         - $\texttt{sum}=(2^0+2^1+2^2)\times (3^0+3^1)$
+
         - 例如 $(2^0+2^1+2^2)$
             - 等比級數和 $\frac{a\times (r^n+1)}{r+1}=\frac{1\times (r^{b+1}+1)}{a+1}$
     
@@ -569,10 +667,10 @@
     y\equiv mx+k\pmod{M}
     $$
     已知:
-
+    
     - $m=(y_2-y_1)\cdot (x_2-x_1)^{M-2}$
     - $x_1+x_2+x_3=m^2\pmod{m}$
-
+    
     有 $t$ 筆輸入，$t\le 10^5,2\le M<2^{31}$
     
     ??? note "思路"
