@@ -403,6 +403,17 @@ $$s(n,k)=(n-1) \times s(n-1,k)+s(n-1,k-1)$$
 
 ### 括號
 
+???+note "問題"
+	求 n 對括號形成的合法序列數量
+	
+第一個觀點是把問題轉換成「走格子問題」。第二種觀點就是假設目前已經選了一組括號，那剩下的可以選括號內，或括號外，設答案為 $f(n)$，我們列出轉移式
+
+$$
+\begin{align} f(n) = &f(0)\times f(n-1) \\ + &f(1) \times f(n-2) \\ + &f(2)\times f(n-3) \\ + & \ldots \end{align}
+$$
+
+那麼依照「走格子問題」問題的結論，我們可以得知 $f(n)=C^{2n}_{n}-C^{2n}_{n-1}$
+
 ???+note "[CSES - Bracket Sequences I](https://cses.fi/problemset/task/2064)"
 	問長度是 $n$ 合法括號序列有幾個
 	
@@ -452,6 +463,49 @@ $$s(n,k)=(n-1) \times s(n-1,k)+s(n-1,k-1)$$
 		} 
 		```
 
+???+note "棧的出棧順序"
+	給定 $n$ 個數，一個空棧（stack） $S$，每次棧指向入棧或出棧操作，他們的出棧順序有多少種 ?
+	
+	note "思路"
+		想成「求 n 對括號形成的合法序列數量」
+	
+### 凸多邊形劃分為三角形
+
+???+note "問題"
+	求 n + 2 邊形區域劃分成 n 個三角形區域的方法數
+	
+我們先固定底邊，然後枚舉底邊的 traingle，再看**底邊的 traingle 的左邊、右邊**還能放幾個
+
+<figure markdown>
+  ![Image title](./images/34.png){ width="300" }
+  <figcaption>以這個例子來說，左邊能放 n - 1 個，右邊能放 1 個</figcaption>
+</figure>
+
+令能構出 n 個 traingle 的解為 $f(n)$，我們可以列出:
+
+$$
+\begin{align} f(n) = &f(0)\times f(n-1) \\ + &f(1) \times f(n-2) \\ + &f(2)\times f(n-3) \\ + & \ldots \end{align}
+$$
+
+發現轉移式跟括號問題一模一樣，所以答案也就是 $f(n)=C^{2n}_{n}-C^{2n}_{n-1}$
+
+### 二元樹數量
+
+???+note "問題"
+	求 n 個節點的合法二元樹數量
+
+我們可以看成「n 對括號形成的合法序列數量」，將左括號想成往下走，將右括號想成往回走，以下面這棵 binary tree 來說
+
+<figure markdown>
+  ![Image title](./images/35.png){ width="250" }
+</figure>
+	
+這就是他所形成的括號序列:
+
+<figure markdown>
+  ![Image title](./images/36.png){ width="400" }
+</figure>
+	
 ## 排容原理
 
 ### 球異箱異 - 沒空箱
@@ -708,3 +762,9 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 [^1]: 例如 (D), (A, B, C)，<a href="/wiki/math/images/15.png" target="_blank">見此圖</a>
 
 [^2]: <a href="/wiki/math/images/20.png" target="_blank">見此圖</a> 參考自 [stackexchange 博客](https://math.stackexchange.com/questions/95491/n-choose-k-bmod-m-using-chinese-remainder-theorem)
+
+---
+
+## 參考資料
+
+- <https://zhuanlan.zhihu.com/p/609104268>
