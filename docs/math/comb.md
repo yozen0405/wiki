@@ -468,7 +468,7 @@ $$
 	
 	note "思路"
 		想成「求 n 對括號形成的合法序列數量」
-	
+
 ### 凸多邊形劃分為三角形
 
 ???+note "問題"
@@ -499,13 +499,13 @@ $$
 <figure markdown>
   ![Image title](./images/35.png){ width="250" }
 </figure>
-	
+
 這就是他所形成的括號序列:
 
 <figure markdown>
   ![Image title](./images/36.png){ width="400" }
 </figure>
-	
+
 ## 排容原理
 
 ### 球異箱異 - 沒空箱
@@ -758,6 +758,89 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 		考慮 $x_i,y_i$ 的關係，將 $a$ 小到大排序後，會發現  $x_i,y_i$ 恰好是一個在前 $n$ 個，一個在後 $n$ 個，所以答案就是 
 		
 		$$\binom{2n}{n}\times (\sum \limits_{i=n+1}^{2n}a_i - \sum \limits_{i=1}^n a_i)$$
+
+???+note "comb 8-10"
+	給定四個數字 $a,b,c,l$，問同時滿足以下條件的 tuple$(i,j,k)$ 有幾種
+
+    - $(i+a,j+b,k+c)$ 可構成面積大於 0 的三角形的三邊長
+
+    - $i+j+k\le l$
+
+	??? note "思路"
+		這題為排容原理的應用，主要難點在推式子，利用「所有的組合情況 - 不滿足條件的情況」計算答案。
+
+        1. 所有的組合情況
+
+           $l=i$ 時，為 $n$ 個同物分 3 個不同箱，方法數 $C^{i+2}_2$，枚舉 $i=0\ldots l$ 加總。
+
+        2. 不滿足條件的情況：
+
+        	三角形須滿足兩邊之和大於第三邊，不滿足時則第三邊**大於等於**其它兩邊之和。枚舉 $a, b, c$ 當第三邊的情況，計算不合法的情況。對於合法的情況，設 a + i, b + j, c + k 要形成三角形，若 a+i 是最大邊，則:
+        	
+        $$
+        \begin{cases}
+        (a+i) < (b+j) + (c+k) \\
+        i+j+k\le l
+        \end{cases}
+        $$
+        
+        不合法的情況就是
+        
+        $$
+        \begin{cases}
+        (a+i) \ge (b+j) + (c+k) \\
+        i+j+k\le l
+        \end{cases}
+        $$
+        
+        當我們固定 a+i 後，j, k 的範圍就是
+        
+        $$
+        \begin{cases}
+        j+k\le a-b-c+i  \\
+        j+k\le i+l
+        \end{cases}
+        $$
+        
+        令 $j+k\le x$，那麼 
+
+        - $j=0$ 時，$k=0\ldots x$，共 $x+1$ 種可能
+
+        - $j=1$ 時，$k=0\ldots (x-1)$，共 $x$ 種可能
+
+        - ...
+
+        - $j=x$ 時，$k=0$，共 $1$ 種可能
+
+        所以總共 $1+\ldots +(x+1)=\frac{(x+2)\times (x+1)}{2}$
+	
+	??? note "code"
+        ```cpp linenums="1"
+        #include <algorithm>
+        #include <iostream>
+
+        using namespace std;
+
+        long long cal(long long a, long long b, long long c, long long l) {
+            long long ans = 0;
+            for (long long i = max(b + c - a, 0LL); i <= l; i++) {
+                long long x = min(l - i, a + i - b - c);
+                ans += (1 + x) * (2 + x) / 2;
+            }
+            return ans;
+        }
+
+        int main() {
+            long long a, b, c, l;
+            cin >> a >> b >> c >> l;
+            long long ans = 0;
+            for (long long i = 0; i <= l; i++) ans += (i + 1) * (i + 2) / 2;
+            ans -= cal(a, b, c, l);
+            ans -= cal(b, a, c, l);
+            ans -= cal(c, a, b, l);
+            cout << ans << '\n';
+        }
+        ```
 
 [^1]: 例如 (D), (A, B, C)，<a href="/wiki/math/images/15.png" target="_blank">見此圖</a>
 

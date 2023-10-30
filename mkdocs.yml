@@ -108,18 +108,20 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
   - _static/javascripts/open_new_tab.js
 
+extra:
+  analytics:
+    provider: google
+    property: G-3D8H9K81B3
+
 nav:
     - 首頁: 
         - 總覽: 'index.md'
         - 網站架設 : 
           - 語法教學: 'main/syntax.md'
           - 架設教學: 'main/setup.md'
-        - codebook: 'main/codebook.md'
-        - bug: 'main/bug.md'
     - 程式資源 :
       - APCS: 'cp/apcs.md'
       - 競程:
-        - 資源: 'cp/resources.md'
         - 所有資源(未整理):
           - 學習資源: 'cp/learning1.md'
           - 網站資源: 'cp/learning2.md'
@@ -155,8 +157,6 @@ nav:
       - 二分搜: 'search/binary_search.md'
       - 三分搜: 'search/tenary_search.md'
       - 雙指針: 'search/two_pointer.md'
-      - 隨機演算法:
-        - 隨機: 'search/randomize_algo.md'
     - 資料結構:
       - 概述: 'ds/index.md'
       - 基礎資料結構:
@@ -183,7 +183,6 @@ nav:
         - 樹壓平: 'graph/euler_tour.md'
         - 倍增法與 LCA: 'graph/lca.md'
         - prufer 序列: 'graph/prufer.md'
-        - 樹同構: 'graph/tree_isomorphism.md'
         - 題目:
           - 類 topo sort: 'graph/tree_topo_sort.md'
           - greedy: 'graph/tree_greedy.md'
@@ -192,22 +191,16 @@ nav:
       - 特殊圖:
         - 二分圖: 'graph/bipartite.md'
         - 水母圖: 'graph/functional_graph.md'
-        - 仙人掌圖: 'graph/cactus.md'
       - 迴路:
         - 歐拉迴路: 'graph/euler_path.md'
         - 漢米頓迴路: 'graph/hamiltonian.md'
       - 啟發式合併: 'graph/union_by_rank.md'
-      - 並查集 DSU: 'graph/dsu.md'
-      - BFS: 'graph/bfs.md'
-      - Cycle: 'graph/cycle.md'
-      - topo sort: 'graph/topo_sort.md'
+      - 並查集: 'graph/dsu.md'
       - MST: 'graph/mst.md'
       - 最短路: 'graph/sp.md'
       - 進階圖論:
         - 連通元件圖論: 'graph/connected_component.md'
-        - 網路流: 'graph/flow.md'
     - 數學:
-        - 線性基: 'math/XOR.md'
         - 矩陣: 'math/matrix.md'
         - 組合: 'math/comb.md'
         - 賽局: 'math/game_theory.md'

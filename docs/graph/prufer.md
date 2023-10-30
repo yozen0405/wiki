@@ -39,38 +39,38 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 	    using namespace std;
 	
 	    const int INF = 2e18;
-	    const int maxn = 3e5 + 5;
+	    const int MAXN = 3e5 + 5;
 	    const int M = 1e9 + 7;
 	    
 	    set<int> st;
 	    int n;
-	    int a[maxn];
-	    int cnt[maxn];
+	    int a[MAXN];
+	    int cnt[MAXN];
 	
-	    void init () {
+	    void init() {
 	        cin >> n;
-	        for (int i = 1; i <= n; i++) st.insert (i);
+	        for (int i = 1; i <= n; i++) st.insert(i);
 	
 	        int x;
 	        for (int i = 1; i <= n - 2; i++) {
 	            cin >> a[i];
 	            cnt[a[i]]++;
-	            if (st.find(a[i]) != st.end()) st.erase (st.find(a[i]));
+	            if (st.find(a[i]) != st.end()) st.erase(st.find(a[i]));
 	        }
 	    }
 	
-	    void solve () {
+	    void solve() {
 	        for (int i = 1; i <= n - 2; i++) {
 	            int x = *st.begin();
-	            st.erase (st.begin());
-	            cout << x << " " << a[i] << "\n";
+	            st.erase(st.begin());
+	            cout << x << " " << a[i] << '\n';
 	            cnt[a[i]]--;
-	            if (cnt[a[i]] == 0) st.insert (a[i]);
+	            if (cnt[a[i]] == 0) st.insert(a[i]);
 	        }
 	        int x = *st.begin();
-	        st.erase (st.begin());
+	        st.erase(st.begin());
 	        int y = *st.begin();
-	        cout << x << " " << y << "\n";
+	        cout << x << " " << y << '\n';
 	    } 
 	
 	    signed main() {

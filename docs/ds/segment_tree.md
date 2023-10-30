@@ -441,71 +441,6 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
     	
     	> 參考自 : <https://zhuanlan.zhihu.com/p/557382505>
 
-> 參考 : 
-> 
-> - <https://www.xht37.com/线段树分治-学习笔记>
-> 
-> - <https://zhuanlan.zhihu.com/p/557382505?utm_id=0>
-> 
-> - <https://www.luogu.com.cn/blog/AlexWei/solution-p8097>
-
-## 線段樹合併
-
-???+note "code"
-	```cpp
-    Node* merge(Node* a, Node* b) {
-        if (!a) return b;
-        if (!b) return a;
-        if (a->l == a->r) {
-            a->sum = a->sum + b->sum;
-            return a;
-        }
-
-        a->lc = merge(a->lc, b->lc);
-        a->rc = merge(a->rc, b->rc);
-        a->pull();
-        return a;
-    }
-    ```
-
-???+note "[洛谷 P3224 [HNOI2012] 永无乡](https://www.luogu.com.cn/problem/P3224)"
-
-    給一個 $n$ 點 $m$ 邊的無向圖，有 $q$ 筆操作 :
-
-    - $\text{AddEdge}(u,v):$ 在 $u,v$ 之間加一條邊
-    - $\text{Query}(u,k):$ 問 $u$ 所在的連通塊第 $k$ 小的編號是多少
-
-    $n,m\le 10^5, q\le 3\times 10^5$
-
-
-???+note "[Codeforces EDU-DSU Step1-C. Experience](https://codeforces.com/edu/course/2/lesson/7/1/practice/contest/289390/problem/C)"
-
-    有 $n$ 個數字初始皆自己一組，有 $q$ 筆操作如下 :
-
-    - $\text{join}(x,y):$ 將 $x$ 與 $y$ 所在的組別合併
-    - $\text{add}(x,v):$ 將 $x$ 所在的組別的數字皆 $+k$
-    - $\text{get}(x):$ 問 $x$ 的數字是多少
-
-    $n,q\le 2\times 10^5$
-
-
-
-???+note "[洛谷 P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)"
-
-    給一棵 $n$ 個點的樹，每個點上都有一個背包，有 $q$ 筆操作 :
-
-    - $\text{add}(u,v,x):$ 將 $u$ 到 $v$ 的 path 上的點的背包都放入 $x$
-
-    對於每個點輸出背包最多的數字
-
-    $n,q,x\le 10^5$
-
-> 參考自 :
-> 
-> - <https://www.luogu.com.cn/blog/styx-ferryman/xian-duan-shu-ge-bing-zong-ru-men-dao-fang-qi> 
-> 
-> - <https://zhuanlan.zhihu.com/p/575513452>
-
 ## 打架線段樹
 
 ???+note "區間數字個數"
@@ -910,7 +845,7 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
             cin >> n >> q;
             for (int i = 0; i < n; i++) {
                 cin >> a[i];
-                T.insert ({a[i], i});
+                T.insert({a[i], i});
             }
         }
     
@@ -1188,3 +1123,9 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
 - <https://drive.google.com/file/d/1-X36kSojmhmMofC6zMLmLAt88j87ZJsn/view>
 
 - <https://hackmd.io/@ouE8-gp2T7WkFQPps-mglA/HJNs5ohmN?print-pdf>
+
+- <https://www.xht37.com/线段树分治-学习笔记>
+
+- <https://zhuanlan.zhihu.com/p/557382505?utm_id=0>
+
+- <https://www.luogu.com.cn/blog/AlexWei/solution-p8097>

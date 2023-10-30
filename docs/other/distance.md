@@ -17,13 +17,13 @@
 
 - 曼哈頓 ⇒ 切比雪夫
 
-	- $$(x,y)\Rightarrow (x+y,x-y)$$
+	- $(x,y)\Rightarrow (x+y,x-y)$
 
 	- 原本座標的曼哈頓距離 = 新座標中的切比雪夫距離
 
 - 切比雪夫 ⇒ 曼哈頓
 
-	- $$(x,y)\Rightarrow (\frac{x+y}{2},\frac{x-y}{2})$$
+	- $(x,y)\Rightarrow (\frac{x+y}{2},\frac{x-y}{2})$
 
 	- 原本座標的切比雪夫距離 = 新座標中的曼哈頓距離 
 
@@ -56,15 +56,31 @@
 		想成在二維座標平面上的點 $(x_i, e_i)$，會發現要選的區域恰好是
 		
 		<figure markdown>
-          ![Image title](./images/4.png){ width="400" }
-        </figure>
-        
-        轉 45 度後，問題就變成，有選的點會覆蓋左下，至少要選幾個點才能使全部被覆蓋。會發現答案就是從 x 左往右看過去 y 座標遞減的一些點，可用單調 stack 維護
-        
-        <figure markdown>
-          ![Image title](./images/3.png){ width="400" }
-        </figure>
+	      ![Image title](./images/4.png){ width="400" }
+	    </figure>
+	    
+	    轉 45 度後，問題就變成，有選的點會覆蓋左下，至少要選幾個點才能使全部被覆蓋。會發現答案就是從 x 左往右看過去 y 座標遞減的一些點，可用單調 stack 維護
+	    
+	    <figure markdown>
+	      ![Image title](./images/3.png){ width="400" }
+	    </figure>
+
+???+note "[2023 YTP 13_結束樂團出遊！(Kessoku_Band_at_Enoshima)](https://yozen0405.github.io/wiki/basic/brute_force/images/YTP2023FinalContest_S2_TW.pdf#page=33)"
+	給 $n$ 個二維座標點，點跟點之間的距離為曼哈頓距離，有 $q$ 筆操作:
 	
+	- $\text{query}(x,y):$ 問離 $(x,y)$ 最近的點的距離
+	
+	- $\text{insert}(x,y):$ 在 $(x,y)$ 上加入一個新的點
+	
+	$n,q\le 3\times 10^5, |x|,|y| \le 5\times 10^4$
+	
+	??? note "思路"
+		> 沒有 insert 的 subtask:
+		
+		假如目前的點是 $j$，答案在 $i$，考慮 $|x_i-x_j|+|y_i-y_j|$，假如 $x_i \ge x_j$ 且 $y_i \ge y_j$，那麼其實可以看成 $(x_i+y_i)-(x_j+y_j)$，所以可以用掃描線，每個點的權值設為 $(x_i+y_i)$ 即可。
+
+		> 題解: <https://hackmd.io/IiUWbMv1TNq07XBxTuXibA?view#Kessoku-Band-at-Enoshima>
+
 ---
 
 - <https://hackmd.io/@FHVirus/SJ0kzMGM_#/9/5>

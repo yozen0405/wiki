@@ -2,6 +2,39 @@
 
 啟發式合併的英文叫 small to large method，樹上啟發式合併的話是 dsu on tree
 
+## Disjoint set
+
+??? info "並查集中節點數為 $n$ 的樹，高度為 $O(\log n)$"
+	
+	因為合併的時候是啟發式合併，子樹大小比較小的放在比較大的下面。這樣合併出來的樹，每次往上走一層，子樹大小都會變至少兩倍，所以高度最多 $O(\log n)$
+
+因為樹的高度至多 $O(\log n)$，所以每個東西至多會被搬運 $O(\log n)$ 次。
+
+???+note "[洛谷 P3224 [HNOI2012] 永无乡](https://www.luogu.com.cn/problem/P3224)"
+
+    給一個 $n$ 點 $m$ 邊的無向圖，有 $q$ 筆操作 :
+    
+    - $\text{AddEdge}(u,v):$ 在 $u,v$ 之間加一條邊
+    - $\text{Query}(u,k):$ 問 $u$ 所在的連通塊第 $k$ 小的編號是多少
+    
+    $n,m\le 10^5, q\le 3\times 10^5$
+	
+	??? note "思路"
+		在啟發式合併時順便維護 Set 即可
+
+???+note "[Codeforces EDU-DSU Step1-C. Experience](https://codeforces.com/edu/course/2/lesson/7/1/practice/contest/289390/problem/C)"
+
+    有 $n$ 個數字初始皆自己一組，有 $q$ 筆操作如下 :
+    
+    - $\text{join}(x,y):$ 將 $x$ 與 $y$ 所在的組別合併
+    - $\text{add}(x,v):$ 將 $x$ 所在的組別的數字皆 $+k$
+    - $\text{get}(x):$ 問 $x$ 的數字是多少
+    
+    $n,q\le 2\times 10^5$
+	
+	??? note "思路"
+		每個集合都維護一個懶標。使用啟發式合併的想法，每次 merge 的時候暴力的將比較小的集合的每一樣都加上該集合的懶標，問 get(x) 的時候，直接輸出懶標 + x 上面的數字即可
+
 ## 樹上啟發式合併
 
 對於每個節點 $u$，找出最大 size 的 $v_\max$ 稱作重兒子， 剩下 $v$ 稱作輕兒子，將輕兒子維護的東西一個個併入 $v_\max$
@@ -281,7 +314,7 @@
 	
 	??? note "思路"
 		選 $w_i$ 越小的點越好。每個點維護一個 Min Heap，當 Min Heap 裡面的 $\sum w_i$ 超過 $W$，就 pop 直到 $\le W$，Min Heap 合併時採用啟發式合併。
-		
+
 ???+note "[CF 1805 E. There Should Be a Lot of Maximums](https://codeforces.com/contest/1805/problem/E)"
 	給一棵 $n$ 個點的樹，定義一棵樹的 MAD 值為「出現兩次以上的點權最大值」。對於每條邊，輸出若刪除該邊，形成的兩棵子樹的 MAD 值取 max。
 	

@@ -90,7 +90,7 @@
 ???+note "區間選點"
 	給 $n$ 個 $[l_i,r_i]$ 問至少選幾個 point 使得每個 $[l_i, r_i]$ 都有被覆蓋到
 
-	$n = 2×10^5, l < r \le 10^9$
+	$n \le 2×10^5, l < r \le 10^9$
 	
 	??? note "思路1"
 		- 我們觀察到**第一個**要選的 point 一定要至少在一個 $r_i$ 之前
@@ -120,11 +120,11 @@
 		
 	??? note "code"
 	    ```cpp linenums="1"
-	    int solve () {
-	        sort (ALL(a), [](node x, node y) { return x.r < y.r;  });
+	    int solve() {
+	        sort(ALL(a), [](node x, node y) { return x.r < y.r; });
 	        int last = 0, ans = 0;
 	        for (int i = 0; i < n; i++) {
-	            if (a[i].l > last) { // 沒有 overlap
+	            if (a[i].l > last) {  // 沒有 overlap
 	                ans++, last = a[i].r;
 	            }
 	        }
@@ -147,131 +147,131 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-        using pii = pair<int, int>;
-
-        const int INF = 2e18;
-        const int MAXN = 1e5 + 5;
-
-        struct Node {
-            Node* lc = nullptr;
-            Node* rc = nullptr;
-            int l, r;
-            int chg, sum;
-
-            Node() {
-
-            }
-            Node(int l, int r) : l(l), r(r) {
-                chg = INF;
-                sum = 0;
-            }
-            void pull() {
-                sum = lc->sum + rc->sum;
-            }
-            void push() {
-                if (chg != INF) {
-                    lc->chg = chg;
-                    lc->sum = (lc->r - lc->l + 1) * chg;
-                    rc->chg = chg;
-                    rc->sum = (rc->r - rc->l + 1) * chg;
-                    chg = INF;
-                }
-            }
-        };
-
-        Node pool[50000000 / sizeof(Node)];
-        int pool_cnt = 0;
-
-        Node* build(int l, int r) {
-            Node* root = new (&pool[pool_cnt++]) Node(l, r);
-            if (l == r) {
-                return root;
-            }
-            int mid = (l + r) / 2;
-            root->lc = build(l, mid);
-            root->rc = build(mid + 1, r);
-            return root;
-        }
-
-        void update(Node* root, int ml, int mr, int val) {
-            if (mr < root->l || root->r < ml) {
-                return;
-            }
-            if (ml <= root->l && root->r <= mr) {
-                root->chg = val;
-                root->sum = (root->r - root->l + 1) * val;
-                return;
-            }
-            root->push();
-            update(root->lc, ml, mr, val);
-            update(root->rc, ml, mr, val);
-            root->pull();
-        }
-
-        int query(Node* root, int ql, int qr) {
-            if (qr < root->l || root->r < ql) {
-                return 0;
-            }
-            if (ql <= root->l && root->r <= qr) {
-                return root->sum;
-            }
-            root->push();
-            return query(root->lc, ql, qr) + query(root->rc, ql, qr);
-        }
-
-        struct Intervals {
-            int l, r, k;
-            bool operator<(const Intervals &rhs) const {
-                return r < rhs.r;
-            }
-        };
-
-        int n;
-
-        void solve() {
-            vector<Intervals> v;
-            for (int i = 0; i < n; i++) {
-                int l, r, k;
-                cin >> l >> r >> k;
-                r--;
-                v.push_back({l, r, k});
-            }
-            sort(v.begin(), v.end());
-            Node* root = build(0, MAXN - 1);
-            for (int i = 0; i < n; i++) {
-                int ret = query(root, v[i].l, v[i].r);
-                if (ret >= v[i].k) {
-                    continue;
-                } 
-                int l = v[i].l, r = v[i].r;
-                while (l != r) {
-                    int mid = (l + r) / 2;
-                    int cnt = (v[i].r - mid + 1) - query(root, mid, v[i].r);
-                    if (cnt > v[i].k - ret) {
-                        l = mid + 1;
-                    } else {
-                        r = mid;
-                    }
-                }
-                update(root, l, v[i].r, 1);
-            }
-            cout << query(root, 0, MAXN - 1) << '\n';
-        }
-
-        signed main() {
-            while (cin >> n) {
-                if (n == 0) break;
-                pool_cnt = 0;
-                solve();
-            }
-        }  
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using pii = pair<int, int>;
+	
+	    const int INF = 2e18;
+	    const int MAXN = 1e5 + 5;
+	
+	    struct Node {
+	        Node* lc = nullptr;
+	        Node* rc = nullptr;
+	        int l, r;
+	        int chg, sum;
+	
+	        Node() {
+	
+	        }
+	        Node(int l, int r) : l(l), r(r) {
+	            chg = INF;
+	            sum = 0;
+	        }
+	        void pull() {
+	            sum = lc->sum + rc->sum;
+	        }
+	        void push() {
+	            if (chg != INF) {
+	                lc->chg = chg;
+	                lc->sum = (lc->r - lc->l + 1) * chg;
+	                rc->chg = chg;
+	                rc->sum = (rc->r - rc->l + 1) * chg;
+	                chg = INF;
+	            }
+	        }
+	    };
+	
+	    Node pool[50000000 / sizeof(Node)];
+	    int pool_cnt = 0;
+	
+	    Node* build(int l, int r) {
+	        Node* root = new (&pool[pool_cnt++]) Node(l, r);
+	        if (l == r) {
+	            return root;
+	        }
+	        int mid = (l + r) / 2;
+	        root->lc = build(l, mid);
+	        root->rc = build(mid + 1, r);
+	        return root;
+	    }
+	
+	    void update(Node* root, int ml, int mr, int val) {
+	        if (mr < root->l || root->r < ml) {
+	            return;
+	        }
+	        if (ml <= root->l && root->r <= mr) {
+	            root->chg = val;
+	            root->sum = (root->r - root->l + 1) * val;
+	            return;
+	        }
+	        root->push();
+	        update(root->lc, ml, mr, val);
+	        update(root->rc, ml, mr, val);
+	        root->pull();
+	    }
+	
+	    int query(Node* root, int ql, int qr) {
+	        if (qr < root->l || root->r < ql) {
+	            return 0;
+	        }
+	        if (ql <= root->l && root->r <= qr) {
+	            return root->sum;
+	        }
+	        root->push();
+	        return query(root->lc, ql, qr) + query(root->rc, ql, qr);
+	    }
+	
+	    struct Intervals {
+	        int l, r, k;
+	        bool operator<(const Intervals &rhs) const {
+	            return r < rhs.r;
+	        }
+	    };
+	
+	    int n;
+	
+	    void solve() {
+	        vector<Intervals> v;
+	        for (int i = 0; i < n; i++) {
+	            int l, r, k;
+	            cin >> l >> r >> k;
+	            r--;
+	            v.push_back({l, r, k});
+	        }
+	        sort(v.begin(), v.end());
+	        Node* root = build(0, MAXN - 1);
+	        for (int i = 0; i < n; i++) {
+	            int ret = query(root, v[i].l, v[i].r);
+	            if (ret >= v[i].k) {
+	                continue;
+	            } 
+	            int l = v[i].l, r = v[i].r;
+	            while (l != r) {
+	                int mid = (l + r) / 2;
+	                int cnt = (v[i].r - mid + 1) - query(root, mid, v[i].r);
+	                if (cnt > v[i].k - ret) {
+	                    l = mid + 1;
+	                } else {
+	                    r = mid;
+	                }
+	            }
+	            update(root, l, v[i].r, 1);
+	        }
+	        cout << query(root, 0, MAXN - 1) << '\n';
+	    }
+	
+	    signed main() {
+	        while (cin >> n) {
+	            if (n == 0) break;
+	            pool_cnt = 0;
+	            solve();
+	        }
+	    }  
 		```
 
 ### 區間覆蓋
@@ -279,7 +279,7 @@
 ???+note "區間覆蓋"
 	給 $n$ 個 $[l_i,r_i]$ 問至少選幾個 $[l_i, r_i]$ 使得每個 point 都有被覆蓋到，若不行輸出 $-1$
 
-	$n = 2×10^5, l < r \le 10^9$
+	$n \le 2×10^5, l < r \le 10^9$
 	
 	??? note "思路"
 		- 先刪掉不重要的
@@ -290,28 +290,32 @@
 	
 		- 直到跑到左界跟第一個沒交集，把選到右界最大的當成第一個，子問題
 	
-		- $\texttt{IMPOSSIBLE}$ 的話就是跟第一個沒交集且跟目前右界最大的也沒交集
+		- IMPOSSIBLE 的話就是跟第一個沒交集且跟目前右界最大的也沒交集
 	
 		<figure markdown>
 	        ![Image title](./images/5.png){ width="600" }
 	    </figure>
+	    
+	    ---
+	    
+	    或是先考慮第一個要挑什麼，我們一定是挑選 $l_i$ 最小，若還是有很多則挑選 $r_i$ 最大的，所以可以把前面刪除 overlap 改成用這種方法 sort。 
 	
 	??? note "code"
 	    ```cpp linenums="1"
-	    void solve () {
-	        vector<pii> a = del (); // 刪除不重要的
-	        int n = a.size ();
+	    void solve() {
+	        vector<pii> a = del();  // 刪除不重要的
+	        int n = a.size();
 	        int ans = 1, fg = 0, R = a[0].r, newR = a[0].r;
 	
-	        auto overlap = [&] (int r, pii it) {
+	        auto overlap = [&](int r, pii it) {
 	            if (it.l > r + 1) return false;
 	            return true;
 	        };
 	
 	        for (int i = 1; i < n; i++) {
-	            if (overlap (R, a[i]) == 0) {
-	                if (overlap (newR, a[i]) == 0) {
-	                    cout << "-1\n", exit (0);
+	            if (overlap(R, a[i]) == 0) {
+	                if (overlap(newR, a[i]) == 0) {
+	                    cout << "-1\n", exit(0);
 	                }
 	                R = newR;
 	                fg = 0;
@@ -320,11 +324,11 @@
 	                ans++;
 	                fg = 1;
 	            }
-	            newR = max (a[i].r, newR);
+	            newR = max(a[i].r, newR);
 	        }
 	
 	        cout << ans << "\n";
-	    } 
+	    }
 	    ```
 	    > full code : <http://codepad.org/BnyJUIwV>
 
@@ -333,7 +337,7 @@
 ???+ note "區間分組"
 	給定 $n$ 個 interval，分組使得每組內部兩兩之間沒有交集，並使得組數盡可能小。
 	
-	$n=2\times 10^5, l_i<r_i\le 10^9$
+	$n\le 2\times 10^5, l_i<r_i\le 10^9$
 	
 	??? quote "實際應用"
 		公司今天有 20 場會議，問最少用幾個會議室可以安排下
@@ -365,7 +369,7 @@
 		可證明按照 $r_i$ 小到大排序，greedy 的取是好的。因為對於後面來說要盡量挑最不會 overlap 的，也就是右界最小的，所以我們將 $r_i$ 最小的取掉之後，刪除與他 overlap 的 intervals，也就跟我們 greedy 在做的事情一樣了
 		
 		```cpp linenums="1"
-		sort (ALL(a), [](node x, node y) { return x.r < y.r;  });
+		sort(ALL(a), [](node x, node y) { return x.r < y.r;  });
 	    int last = 0, ans = 0;
 	    for (int i = 0; i < n; i++) {
 	        if (a[i].l > last) {
@@ -377,29 +381,30 @@
 	
 	??? note "code"
 		```cpp linenums="1"
-		void solve () {
-	        vector<pii> a = del (); // 刪除不重要的
-	        int n = a.size ();
+		void solve() {
+	        vector<pii> a = del();  // 刪除不重要的
+	        int n = a.size();
 	
-	        auto overlap = [&] (int r, pii it) {
+	        auto overlap = [&](int r, pii it) {
 	            if (it.l < r) return true;
 	            return false;
 	        };
 	
 	        int R = a[0].r, ans = 1;
 	        for (int i = 1; i < n; i++) {
-	            if (overlap (R, a[i]) == 0) {
+	            if (overlap(R, a[i]) == 0) {
 	                ans++;
 	                R = a[i].r;
 	            }
 	        }
 	
 	        cout << ans << "\n";
-	    } 
+	    }
 	    ```
+	    
 		> full code : <http://codepad.org/Gcm2Azt6>
 	
-	??? note "延伸 (加上權重) : [job scheduling problem](/wiki/greedy/interval_scheduling/#job-scheduling-problem)"
+	??? note "延伸 (加上權重) : [job scheduling problem](/wiki/greedy/scheduling/#job-scheduling-problem)"
 
 ???+note "[CF 1841 D. Pairs of Segments](https://codeforces.com/problemset/problem/1841/D)"
 	給 n 個 interval，問最少刪掉幾個 interval 可以滿足
