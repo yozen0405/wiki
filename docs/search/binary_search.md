@@ -1,24 +1,23 @@
-- 2023 TOI mock double cnt
+## Jumping 寫法
 
-- 全國賽 2021 pG subtask 1, 2
+紀錄目前位置 pos 與跳躍距離 jump，只要不滿足條件就往前跳，jump 每次減半
 
-## Jump 寫法
-
-
-
-## 細節
-
-- check(x) 的 x 太大的時候，有些情況會造成 cnt overflow
-
-- 記得需要開 double 的時候，l, r, mid, check(x) 都要用 double，不能有一些是 int 有一些又是 double
-
-- 注意 l, r 一開始的有沒有還蓋答案的左界右界
-
-- while(l < r) 還是 while(r - l > 1)
-
-- TLE 有可能是二分搜壞掉導致, 可能一開始推導時有誤
-
-	- 當 (l + r) / 2 是負的時候，可能會出問題[^1]
+??? note "code"
+	```cpp linenums="1"
+	// 找到第一個比 key 大的元素的 index 
+    void find(int key) {
+        if (a[0] >= key) {
+            return 0;
+        }
+        int pos = 0;
+        for (int jump = n / 2; jump; jump >>= 1) {
+            while (pos + jump < n && a[pos + jump] < key) {
+                pos += jump;
+            }
+        }
+        return pos + 1;
+    }
+    ```
 
 ## 第 k 小
 
@@ -206,7 +205,81 @@
 	    ```
 
 ???+note "[2023 TOI 初選 pB. 裁員風暴 (storm)](https://zerojudge.tw/ShowProblem?problemid=k185)"
-
+	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，有以下兩種團隊:
+	
+	- 有 $n$ 個團隊，第 $i$ 個團隊權重為 $a_i$
+	
+	- 有 $\binom{n}{2}$ 個團隊，挑選 $i,j$ 的團隊權重為 $\frac{a_i+a_j}{2}$
+	
+	合起來共有 $\frac{n(n+1)}{2}$ 個團隊，問權重第 $k$ 大的是多少，輸出分數
+	
+	$n\le 2\times 10^5,k\le \frac{n(n+1)}{2},|a_i|\le 10^9$
+	
+	??? note "思路"
+		先將所有 $a_i$ 變成 $2a_i$，我們二分搜最大的 $x$ 使 $\ge x$ 的團隊數量恰為 $k$，這樣選兩個的就能用雙指針解決，最後輸出答案再看 x 除 2 是否可整除即可
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <algorithm>
+	    #include <iostream>
+	    #include <vector>
+	
+	    #define int long long
+	
+	    using namespace std;
+	
+	    int n, k;
+	    vector<int> a;
+	
+	    int cal(int val) {
+	        int ans = 0;
+	        for (int i = 0, j = n; i < n; i++) {
+	            if (2 * a[i] > val) break;
+	            while (j > i && a[j - 1] + a[i] > val) j--;
+	            ans += j - i;
+	        }
+	        return ans;
+	    }
+	
+	    // 找第 k 小的 a[i] + a[j], 其中 i <= j
+	    // 若第 k 小的答案是 m, 會滿足 cal(m-1) < k && cal(m) >= k
+	    int solve() {
+	        sort(a.begin(), a.end());
+	
+	        int l = 2 * a[0], r = 2 * a[n - 1];
+	        while (l != r) {
+	            int mid = l + (r - l) / 2;
+	            if (cal(mid) >= k) {
+	                r = mid;
+	            } else {
+	                l = mid + 1;
+	            }
+	        }
+	        return r;
+	    }
+	
+	    signed main() {
+	        cin.tie(0);
+	        cin.sync_with_stdio(0);
+	
+	        cin >> n >> k;
+	        k = n * (n + 1) / 2 - k + 1;  // 改成找第 k 小
+	
+	        a = vector<int>(n);
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	        }
+	
+	        int ans = solve();
+	
+	        if (ans % 2 == 0) {
+	            cout << ans / 2 << '\n' << 1 << '\n';
+	        } else {
+	            cout << ans << '\n' << 2 << '\n';
+	        }
+	        return 0;
+	    }
+	    ```
 
 ???+note "法里西數列 [CS Academy - Farey Sequence](https://csacademy.com/contest/archive/task/farey_sequence/statement/)"
     給 $n$，序列 $F_n$ 舉例來說如下 :
@@ -225,6 +298,9 @@
 ## 雙層二分搜
 
 ???+note "[Google Code Jam 2020 Round2 P1. Incremental House of Pancakes](https://www.acmicpc.net/problem/27811)"
+	有兩堆鬆餅，其中分別有 $L$ 和 $R$ 片，第 $i$ 個人想從較多的那堆拿走 $i$ 片鬆餅，若兩堆鬆餅數量皆不足 $i$ 片，則鬆餅店會結束營業。問有幾個人能拿到鬆餅
+	
+	$1\le L, R\le 10^{18}$
 
 ???+note "[JOI 2014 Final 年轮蛋糕](https://loj.ac/p/2758)"
 	
@@ -405,6 +481,8 @@
 
 ???+note "[LOJ #2086. 「NOI2016」区间](https://loj.ac/p/2086)"
 	給 $n$ 個 interval $[l_i,r_i]$，選 $m$ 個 interval，使得至少有一個 point 被這 $m$ 個 interval 都覆蓋到。問選出來的最大 interval 長度 - 最小 interval 長度最小可以是多少，或無解。
+	
+	$n\le 5\times 10^5, m\le 2\times 10^5, 0\le l_i\le r_i\le 10^9$
 	
 	??? note "思路"
 		將 interval 按照長度小到大排序，這樣我們就可以使用 two pointer 對於每個 l，找出最少到哪個 r，選 l, ..., r 的這些 interval 是合法的，可以用線段樹檢查。
@@ -767,6 +845,25 @@
 	        cout << ans << "\n";
 	    }
 		```
+
+???+note "[2020 全國賽 pG. 矩陣相乘](https://tioj.ck.tp.edu.tw/pmisc/nhspc109.pdf#page=25)"
+	給兩個 $n\times n$ 的矩陣 $A$ 與 $B$，已知 $C=A\times B$ 最多只有 $2n$ 個非零項，求 $C$
+	
+	$n\le 2800$
+
+## 細節
+
+- check(x) 的 x 太大的時候，有些情況會造成 cnt overflow
+
+- 記得需要開 double 的時候，l, r, mid, check(x) 都要用 double，不能有一些是 int 有一些又是 double
+
+- 注意 l, r 一開始的有沒有還蓋答案的左界右界
+
+- while(l < r) 還是 while(r - l > 1)
+
+- TLE 有可能是二分搜壞掉導致, 可能一開始推導時有誤
+
+	- 當 (l + r) / 2 是負的時候，可能會出問題[^1]
 
 ---
 

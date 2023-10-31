@@ -352,7 +352,7 @@
 
 ### 區間最大獨立集
 
-???+ note "最大不相交区间数量"
+???+ note "max independent set on interval graph / activity selection problem"
 	給 $n$ 個 intervals，選一些 intervals，兩兩不 overlap，求最大化選的數量
 
 	??? note "思路"

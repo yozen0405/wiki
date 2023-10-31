@@ -1516,18 +1516,27 @@ Kruskal 複雜度的瓶頸在於 sort，在某些題目我們可以使用 Radix 
 	$n \le 300, h_{i,j} \le 10^6$
 	
 	??? note "思路"
-		用 Kruskal 長生成樹直到 $(1,1)$ 與 $(n,n)$ 連通
-		
-		這邊我們有線性時間的做法。Kruskal 的瓶頸在於 $n\log n$ sort，我們可以使用 Radix sort 做到 $O(n)$。具體來說，將數字以 $1024$ 區分，將所有 edges 以 $1024$ 以下的 bit 的大小加入 `vector`，這時候邊權為 $1024$ 以下的邊已排序完成。以這個前提下，再將大家以 1024 以上的 bit 的大小加入 `vector`，這時不會影響 $1024$ 以下的邊，$1024$ 以上的邊就會完成排序。
-		
-		為什麼是 $1024$ 呢 ? 因為 $\log_2 10^6\approx 19.\cdots$，切一半的話就 $10,10$，$2^{10}=1024$。說明講的不太清楚，詳見代碼
-		
-		<figure markdown>
-	      ![Image title](./images/41.png){ width="400" }
-	      <figcaption>Radix sort 範例</figcaption>
-	    </figure>
-		
 		「最少可以只經過幾個點」就直接在權重 <= threshold 的邊 BFS 找最短路即可 
+		
+		「最小化最大高度差」有三種方法:
+		
+		- 二分搜 + BFS $O(n\log C)$
+	
+		- Kruskal + Radix sort $O(n)$
+	
+		- Prim + 線性 DS $O(n)$
+	
+		---
+		
+		> Kruskal + Radix sort
+	
+		用 Kruskal 長生成樹直到 $(1,1)$ 與 $(n,n)$ 連通，這邊我們有線性時間的做法。Kruskal 的瓶頸在於 $n\log n$ sort，我們可以使用 Radix sort 做到 $O(n)$。具體來說，將數字以 $1024$ 區分，將所有 edges 以 $1024$ 以下的 bit 的大小加入 `vector`，這時候邊權為 $1024$ 以下的邊已排序完成。以這個前提下，再將大家以 1024 以上的 bit 的大小加入 `vector`，這時不會影響 $1024$ 以下的邊，$1024$ 以上的邊就會完成排序。
+		
+		---
+		
+		> Prim + 線性 DS
+		
+		用下面 Prim 的方法一步步的建立 mini-max spanning tree 直到選到終點為止
 		
 	??? note "code"
 		```cpp linenums="1"
@@ -1728,39 +1737,41 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
         vector<vector<node>> pq;
         int max_val = 0, threshold = 0;
 
-        void init (int _max_val) {
+        void init(int _max_val) {
             max_val = _max_val;
-            pq = vector<vector<node>> (max_val + 1);
+            pq = vector<vector<node>>(max_val + 1);
         }
-    
-        void push (pii x) { // pair<dis, u>
-            pq[max (threshold, x.first)].pb (x);
+
+        void push(pii x) {  // pair<dis, u>
+            pq[max(threshold, x.first)].pb(x);
         }
-    
-        pii get_value () {
-            while (threshold <= max_val && pq[threshold].size () == 0) threshold++;
-    
-            if (threshold <= max_val && pq[threshold].size () > 0) {
-                pii ret = pq[threshold].back ();
-                pq[threshold].pop_back ();
+
+        pii get_value() {
+            while (threshold <= max_val && pq[threshold].size() == 0) threshold++;
+
+            if (threshold <= max_val && pq[threshold].size() > 0) {
+                pii ret = pq[threshold].back();
+                pq[threshold].pop_back();
                 return ret;
+            } else {
+            	return {-1, -1};
             }
-            else return {-1, -1};
+                
         }
     } pq;
-    
-    int Prim (int s, int t) {
+
+    int Prim(int s, int t) {
         vector<int> vis(n);
         pq.init(max_edge);
         pq.push({0, s});
-        
+
         while (pq.size()) {
             auto [d, u] = pq.get_value();
-            
-            if (u == t) break; 
+
+            if (u == t) break;
             if (vis[u]) continue;
             vis[u] = true;
-    
+
             for (auto [v, w] : G[u]) {
                 pq.push({w, v});
             }
@@ -1891,16 +1902,16 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
 	    struct DSU {
 	        vector<int> par, sz;
 	
-	        DSU (int n) : par(n + 1), sz(n + 1, 1) {
+	        DSU(int n) : par(n + 1), sz(n + 1, 1) {
 	            for (int i = 1; i <= n; i++) {
 	                par[i] = i;
 	            }
 	        }
-	        int find (int x) {
+	        int find(int x) {
 	            if (par[x] == x) return x;
 	            return par[x] = find(par[x]);
 	        }
-	        bool merge (int u, int v) {
+	        bool merge(int u, int v) {
 	            u = find(u), v = find(v);
 	            if (u == v) return false;
 	            if (sz[u] < sz[v]) swap(u, v);
@@ -1955,8 +1966,8 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
 	
 	??? note "code"
 		```cpp linenums="1"
-		void solve () {
-	        sort (A.begin(), A.end());
+		void solve() {
+	        sort(A.begin(), A.end());
 	        int sum = 0, cnt = 0;
 	        for (int i = 0; i < n; i++) {
 	            int x = A[i].first, y = A[i].second;
@@ -2033,7 +2044,9 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
     
         int main() {
             cin >> n >> m;
-            for (int i = 1; i <= m; i++) cin >> arr[i].a >> arr[i].c;
+            for (int i = 1; i <= m; i++) {
+            	cin >> arr[i].a >> arr[i].c;
+            }
     
             sort(arr + 1, arr + m + 1);
             long long ans = 0;

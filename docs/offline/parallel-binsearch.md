@@ -44,134 +44,122 @@ $$
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	    #define lowbit(x) (x & (-x))
-	
-	    using namespace std;
-	
-	    const int INF = 2e18;
-	    const int maxn = 3e5 + 5;
-	    const int M = 1e9 + 7;
-	
-	    struct BIT {
-	        int n;
-	        vector<int> bit;
-	
-	        void init (int _n) {
-	            n = _n;
-	            bit.resize (n + 1);
-	        }
-	
-	        void add (int x, int d) {
-	            while (x <= n) {
-	                bit[x] += d;
-	                x += lowbit (x);
-	            }
-	        }
-	
-	        int query (int x) {
-	            int ret = 0;
-	            while (x > 0) {
-	                ret += bit[x];
-	                x -= lowbit (x);
-	            }
-	            return ret;
-	        }
-	    } bit;
-	
-	    struct qry {
-	        int l, r, k, id;
-	    };
-	
-	    int n, q;
-	    int arr[maxn], a[maxn], ans[maxn];
-	
-	    void solve (int l, int r, vector<int> &idx, vector<qry> &q) {
-	        if (l == r) {
-	            for (auto [ql, qr, k, id] : q) {
-	                ans[id] = l;
-	            }
-	            return;
-	        }
-	
-	        int mid = (l + r) / 2;
-	
-	        vector<int> iLeft, iRight;
-	        for (auto id : idx) {
-	            if (a[id] <= mid) {
-	                bit.add (id, 1);
-	                iLeft.pb (id);
-	            }
-	            else iRight.pb (id);
-	        }
-	
-	        vector<qry> qLeft, qRight;
-	        for (auto [ql, qr, k, id] : q) {
-	            int t = bit.query (qr) - bit.query (ql - 1);
-	            if (k <= t) {
-	                qLeft.pb ({ql, qr, k, id});
-	            }
-	            else {
-	                qRight.pb ({ql, qr, k - t, id});
-	            }
-	        }
-	
-	        for (auto id : idx) {
-	            if (a[id] <= mid) bit.add (id, -1);
-	        }
-	        vector<int>().swap (idx);
-	        vector<qry>().swap (q);
-	
-	        solve (l, mid, iLeft, qLeft);
-	        solve (mid + 1, r, iRight, qRight);
-	    }
-	
-	    void work () {
-	        cin >> n >> q;
-	        vector<int> d;
-	        for (int i = 1; i <= n; i++) {
-	            cin >> arr[i];
-	            d.pb (arr[i]);
-	        }
-	        sort (ALL (d));
-	        d.resize (unique (ALL (d)) - d.begin ());
-	
-	        vector<int> idx;
-	        for (int i = 1; i <= n; i++) {
-	            a[i] = lower_bound (ALL (d), arr[i]) - d.begin () + 1;
-	        }
-	        for (int i = 1; i <= n; i++) {
-	            idx.pb (i);
-	        }
-	        vector<qry> qry;
-	        for (int i = 1; i <= q; i++) {
-	            int l, r, k;
-	            cin >> l >> r >> k;
-	            qry.pb ({l, r, k, i});
-	        }
-	        bit.init (n);
-	
-	        solve (1, d.size (), idx, qry);
-	        for (int i = 1; i <= q; i++) {
-	            cout << d[ans[i] - 1] << "\n";
-	        }
-	    } 
-	
-	    signed main() {
-	        // ios::sync_with_stdio(0);
-	        // cin.tie(0);
-	        int t = 1;
-	        //cin >> t;
-	        while (t--) {
-	            work();
-	        }
-	    } 
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+        #define lowbit(x) (x & (-x))
+
+        using namespace std;
+
+        const int MAXN = 3e5 + 5;
+
+        struct BIT {
+            int n;
+            vector<int> bit;
+
+            void init(int _n) {
+                n = _n;
+                bit.resize(n + 1);
+            }
+
+            void add(int x, int d) {
+                while (x <= n) {
+                    bit[x] += d;
+                    x += lowbit(x);
+                }
+            }
+
+            int query(int x) {
+                int ret = 0;
+                while (x > 0) {
+                    ret += bit[x];
+                    x -= lowbit(x);
+                }
+                return ret;
+            }
+        } bit;
+
+        struct qry {
+            int l, r, k, id;
+        };
+
+        int n, q;
+        int arr[MAXN], a[MAXN], ans[MAXN];
+
+        void solve(int l, int r, vector<int> &idx, vector<qry> &q) {
+            if (l == r) {
+                for (auto [ql, qr, k, id] : q) {
+                    ans[id] = l;
+                }
+                return;
+            }
+
+            int mid = (l + r) / 2;
+
+            vector<int> iLeft, iRight;
+            for (auto id : idx) {
+                if (a[id] <= mid) {
+                    bit.add(id, 1);
+                    iLeft.pb(id);
+                } else {
+                    iRight.pb(id);
+                }
+            }
+
+            vector<qry> qLeft, qRight;
+            for (auto [ql, qr, k, id] : q) {
+                int t = bit.query(qr) - bit.query(ql - 1);
+                if (k <= t) {
+                    qLeft.pb({ql, qr, k, id});
+                } else {
+                    qRight.pb({ql, qr, k - t, id});
+                }
+            }
+
+            for (auto id : idx) {
+                if (a[id] <= mid) bit.add(id, -1);
+            }
+            vector<int>().swap(idx);
+            vector<qry>().swap(q);
+
+            solve(l, mid, iLeft, qLeft);
+            solve(mid + 1, r, iRight, qRight);
+        }
+
+        signed main() {
+            cin >> n >> q;
+            vector<int> d;
+            for (int i = 1; i <= n; i++) {
+                cin >> arr[i];
+                d.pb(arr[i]);
+            }
+            sort(ALL(d));
+            d.resize(unique(ALL(d)) - d.begin());
+
+            vector<int> idx;
+            for (int i = 1; i <= n; i++) {
+                a[i] = lower_bound(ALL(d), arr[i]) - d.begin() + 1;
+            }
+            for (int i = 1; i <= n; i++) {
+                idx.pb(i);
+            }
+            vector<qry> qry;
+            for (int i = 1; i <= q; i++) {
+                int l, r, k;
+                cin >> l >> r >> k;
+                qry.pb({l, r, k, i});
+            }
+            bit.init(n);
+
+            solve(1, d.size(), idx, qry);
+            for (int i = 1; i <= q; i++) {
+                cout << d[ans[i] - 1] << "\n";
+            }
+        }
 	    ```
 
 
@@ -192,140 +180,133 @@ $$
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define lowbit(x) (x & (-x))
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	
-	    using namespace std;
-	    using PQ = priority_queue<int, vector<int>, greater<int>>;
-	
-	    const int INF = 2e18;
-	    const int maxn = 3e5 + 5;
-	    const int M = 1e9 + 7;
-	
-	    int n, m, cnt = 0, tot = 0;;
-	    int a[maxn], ans[maxn];
-	
-	    struct query {
-	        int type, x, y, k, id;
-	        // 0, l, r, k, qry id
-	        // 1, index, number, 1/-1 add or del, qry id
-	    };
-	
-	    query q1[2 * maxn], q2[2 * maxn], q[2 * maxn];
-	    query qry[maxn];
-	
-	    struct BIT {
-	        vector<int> bit;
-	
-	        void init () {
-	            bit.resize (n + 1);
-	        }
-	
-	        void add (int x, int d) {
-	            while (x <= n) {
-	                bit[x] += d;
-	                x += lowbit (x);
-	            }
-	        }
-	
-	        int query (int x) {
-	            int ret = 0;
-	            while (x > 0) {
-	                ret += bit[x];
-	                x -= lowbit (x);
-	            }
-	            return ret;
-	        }
-	    } bit;
-	
-	    void divide (int l, int r, int qL, int qR) {
-	        if (l > r || qL > qR) return;
-	        if (l == r) {
-	            for (int i = qL; i <= qR; i++) {
-	                if (q[i].type == 0) {
-	                    ans[q[i].id] = l;
-	                } 
-	            }
-	            return;
-	        }
-	
-	        int mid = (l + r) / 2;
-	
-	        int cnt1 = 0, cnt2 = 0;
-	        for (int i = qL; i <= qR; i++) {
-	            if (q[i].type == 0) {
-	                int t = bit.query (q[i].y) - bit.query (q[i].x - 1);
-	                if (q[i].k <= t) q1[++cnt1] = q[i];
-	                else q[i].k -= t, q2[++cnt2] = q[i];
-	            } 
-	            else {
-	                if (q[i].y <= mid) {
-	                    bit.add (q[i].x, q[i].k); // q[i].x
-	                    q1[++cnt1] = q[i];
-	                }
-	                else q2[++cnt2] = q[i];
-	            }
-	        }
-	
-	        // undo
-	        for (int i = 1; i <= cnt1; i++) 
-	            if (q1[i].type == 1) bit.add (q1[i].x, -q1[i].k);
-	        for (int i = 1; i <= cnt1; i++) q[qL + i - 1] = q1[i];
-	        for (int i = 1; i <= cnt2; i++) q[qL + cnt1 + i - 1] = q2[i];
-	
-	        divide (l, mid, qL, qL + cnt1 - 1);
-	        divide (mid + 1, r, qL + cnt1, qR);
-	    }
-	
-	    void solve () {
-	        cin >> n >> m;
-	
-	        int x;
-	        for (int i = 1; i <= n; i++) {
-	            cin >> x;
-	            a[i] = x;
-	            q[++cnt] = {1, i, a[i], 1, -1};
-	        }
-	
-	        for (int i = 1; i <= m; i++) {
-	            int x, y, k;
-	            char type;
-	            cin >> type;
-	            if(type == 'Q') {
-	                cin >> x >> y >> k;
-	                q[++cnt] = 0, x, y, k, ++tot};
-	            }
-	            else {
-	                cin >> x >> y;
-	                q[++cnt] = {1, x, a[x], -1, 0};
-	                q[++cnt] = {1, x, a[x] = y, 1, 0};
-	            }
-	        }
-	
-	        bit.init ();
-	
-	        divide (-2e9, 2e9, 1, cnt);
-	
-	        for (int i = 1; i <= tot; i++) {
-	            cout << ans[i] << "\n";
-	        }
-	    } 
-	
-	    signed main() {
-	        // ios::sync_with_stdio(0);
-	        // cin.tie(0);
-	        int t = 1;
-	        //cin >> t;
-	        while (t--) {
-	            solve();
-	        }
-	    } 
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define lowbit(x) (x & (-x))
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+        using PQ = priority_queue<int, vector<int>, greater<int>>;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        int n, m, cnt = 0, tot = 0;
+        int a[maxn], ans[maxn];
+
+        struct query {
+            int type, x, y, k, id;
+            // 0, l, r, k, qry id
+            // 1, index, number, 1/-1 add or del, qry id
+        };
+
+        query q1[2 * maxn], q2[2 * maxn], q[2 * maxn];
+        query qry[maxn];
+
+        struct BIT {
+            vector<int> bit;
+
+            void init() {
+                bit.resize(n + 1);
+            }
+
+            void add(int x, int d) {
+                while (x <= n) {
+                    bit[x] += d;
+                    x += lowbit(x);
+                }
+            }
+
+            int query(int x) {
+                int ret = 0;
+                while (x > 0) {
+                    ret += bit[x];
+                    x -= lowbit(x);
+                }
+                return ret;
+            }
+        } bit;
+
+        void divide(int l, int r, int qL, int qR) {
+            if (l > r || qL > qR) return;
+            if (l == r) {
+                for (int i = qL; i <= qR; i++) {
+                    if (q[i].type == 0) {
+                        ans[q[i].id] = l;
+                    }
+                }
+                return;
+            }
+
+            int mid = (l + r) / 2;
+
+            int cnt1 = 0, cnt2 = 0;
+            for (int i = qL; i <= qR; i++) {
+                if (q[i].type == 0) {
+                    int t = bit.query(q[i].y) - bit.query(q[i].x - 1);
+                    if (q[i].k <= t) {
+                        q1[++cnt1] = q[i];
+                    } else {
+                        q[i].k -= t, q2[++cnt2] = q[i];
+                    }
+                } else {
+                    if (q[i].y <= mid) {
+                        bit.add(q[i].x, q[i].k);  // q[i].x
+                        q1[++cnt1] = q[i];
+                    } else {
+                        q2[++cnt2] = q[i];
+                    }
+                }
+            }
+
+            // undo
+            for (int i = 1; i <= cnt1; i++)
+                if (q1[i].type == 1) bit.add(q1[i].x, -q1[i].k);
+            for (int i = 1; i <= cnt1; i++) q[qL + i - 1] = q1[i];
+            for (int i = 1; i <= cnt2; i++) q[qL + cnt1 + i - 1] = q2[i];
+
+            divide(l, mid, qL, qL + cnt1 - 1);
+            divide(mid + 1, r, qL + cnt1, qR);
+        }
+
+        signed main() {
+            cin >> n >> m;
+
+            int x;
+            for (int i = 1; i <= n; i++) {
+                cin >> x;
+                a[i] = x;
+                q[++cnt] = {1, i, a[i], 1, -1};
+            }
+
+            for (int i = 1; i <= m; i++) {
+                int x, y, k;
+                char type;
+                cin >> type;
+                if (type == 'Q') {
+                    cin >> x >> y >> k;
+                    q[++cnt] = {0, x, y, k, ++tot};
+                } else {
+                    cin >> x >> y;
+                    q[++cnt] = {1, x, a[x], -1, 0};
+                    q[++cnt] = {1, x, a[x] = y, 1, 0};
+                }
+            }
+
+            bit.init();
+
+            divide(-2e9, 2e9, 1, cnt);
+
+            for (int i = 1; i <= tot; i++) {
+                cout << ans[i] << "\n";
+            }
+        }
+
 	    ```
 
 ## 例題
@@ -603,158 +584,155 @@ $$
 	    ??? note "code"
 	        ```cpp linenums="1"
 	        #include <bits/stdc++.h>
-	        #define int long long
-	        #define pii pair<int, int>
-	        #define pb push_back
-	        #define mk make_pair
-	        #define F first
-	        #define S second
-	        #define ALL(x) x.begin(), x.end()
-	
-	        using namespace std;
-	
-	        const int INF = 2e18;
-	        const int maxn = 3e5 + 5;
-	        const int M = 1e9 + 7;
-	
-	        struct Edge {
-	            int u, v, w;
-	        };
-	
-	        struct qry {
-	            int x, y, z, id;
-	        };
-	
-	        int n, m, q;
-	
-	        struct Graph {
-	            Graph () {
-	                par = vector<int>(n + 1);
-	                sz = vector<int>(n + 1);
-	                for (int i = 1; i <= n; i++) {
-	                    par[i] = i;
-	                    sz[i] = 1;
-	                }   
-	            }
-	            void add_edge(const Edge& e) {
-	                int u = find(e.u), v = find(e.v);
-	                if (u == v) return;
-	                par[u] = v;
-	                sz[v] += sz[u];
-	                sz[u] = 0;
-	            }
-	            bool check (const qry& q) {
-	                int u = find (q.x), v = find (q.y);
-	                if (u != v) {
-	                    return sz[u] + sz[v] >= q.z;
-	                }
-	                return sz[u] >= q.z;
-	            }
-	
-	           private:
-	            vector<int> par;
-	            vector<int> sz;
-	
-	            int find(int x) {
-	                if (par[x] == x) return x;
-	                return par[x] = find(par[x]);
-	            }
-	        };
+            #define int long long
+            #define pii pair<int, int>
+            #define pb push_back
+            #define mk make_pair
+            #define F first
+            #define S second
+            #define ALL(x) x.begin(), x.end()
 
+            using namespace std;
+
+            const int INF = 2e18;
+            const int maxn = 3e5 + 5;
+            const int M = 1e9 + 7;
+
+            struct Edge {
+                int u, v, w;
+            };
+
+            struct qry {
+                int x, y, z, id;
+            };
+
+            int n, m, q;
+
+            struct Graph {
+                Graph() {
+                    par = vector<int>(n + 1);
+                    sz = vector<int>(n + 1);
+                    for (int i = 1; i <= n; i++) {
+                        par[i] = i;
+                        sz[i] = 1;
+                    }
+                }
+                void add_edge(const Edge& e) {
+                    int u = find(e.u), v = find(e.v);
+                    if (u == v) return;
+                    par[u] = v;
+                    sz[v] += sz[u];
+                    sz[u] = 0;
+                }
+                bool check(const qry& q) {
+                    int u = find(q.x), v = find(q.y);
+                    if (u != v) {
+                        return sz[u] + sz[v] >= q.z;
+                    }
+                    return sz[u] >= q.z;
+                }
+
+               private:
+                vector<int> par;
+                vector<int> sz;
+
+                int find(int x) {
+                    if (par[x] == x) return x;
+                    return par[x] = find(par[x]);
+                }
+            };
 
             int ans[maxn];
             vector<Edge> edges;
             vector<qry> queries;
             vector<Graph> g;
-    
-            void solve (int depth, int el, int er, vector<Edge> &edge,vector<qry>& q) {
+
+            void solve(int depth, int el, int er, vector<Edge>& edge, vector<qry>& q) {
                 int emid = (el + er) / 2;
-                Graph &G = g[depth];
-    
+                Graph& G = g[depth];
+
                 if (el == er) {
                     for (auto [x, y, z, id] : q) {
                         ans[id] = el;
                     }
-    
+
                     for (auto [u, v, w] : edge) {
                         if (w <= emid) {
                             G.add_edge({u, v, w});
-                        } 
+                        }
                     }
-    
-                    vector<qry>().swap (q);
-                    vector<Edge>().swap (edge);
+
+                    vector<qry>().swap(q);
+                    vector<Edge>().swap(edge);
                     return;
                 }
-    
+
                 vector<Edge> eLeft, eRight;
                 for (auto [u, v, w] : edge) {
                     if (w <= emid) {
                         G.add_edge({u, v, w});
-                        eLeft.pb ({u, v, w});
-                    } 
-                    else {
-                        eRight.pb ({u, v, w});
+                        eLeft.pb({u, v, w});
+                    } else {
+                        eRight.pb({u, v, w});
                     }
                 }
                 vector<qry> qLeft, qRight;
                 for (auto query : q) {
-                    if (G.check (query)) {
-                        qLeft.pb (query);
-                    }
-                    else {
-                        qRight.pb (query);
+                    if (G.check(query)) {
+                        qLeft.pb(query);
+                    } else {
+                        qRight.pb(query);
                     }
                 }
-    
+
                 for (auto [u, v, w] : edge) {
                     if (w > emid) {
                         G.add_edge({u, v, w});
                     }
                 }
-                vector<qry>().swap (q);
-                vector<Edge>().swap (edge);
-    
-                solve (depth + 1, el, emid, eLeft, qLeft);
-                solve (depth + 1, emid + 1, er, eRight, qRight);
-            } 
-    
-            void init () {
+                vector<qry>().swap(q);
+                vector<Edge>().swap(edge);
+
+                solve(depth + 1, el, emid, eLeft, qLeft);
+                solve(depth + 1, emid + 1, er, eRight, qRight);
+            }
+
+            void init() {
                 cin >> n >> m;
-    
+
                 int u, v;
                 for (int i = 1; i <= m; i++) {
                     cin >> u >> v;
-                    edges.pb ({u, v, i});
+                    edges.pb({u, v, i});
                 }
                 cin >> q;
-    
+
                 int x, y, z;
                 for (int i = 1; i <= q; i++) {
                     cin >> x >> y >> z;
-                    queries.pb ({x, y, z, i});
+                    queries.pb({x, y, z, i});
                 }
             }
-    
-            void work () {
-                g.resize (21);
-                solve (0, 1, m, edges, queries);
-    
+
+            void work() {
+                g.resize(21);
+                solve(0, 1, m, edges, queries);
+
                 for (int i = 1; i <= q; i++) {
                     cout << ans[i] << "\n";
                 }
-            } 
-    
+            }
+
             signed main() {
                 // ios::sync_with_stdio(0);
                 // cin.tie(0);
                 int t = 1;
-                //cin >> t;
+                // cin >> t;
                 while (t--) {
                     init();
                     work();
                 }
-            } 
+            }
             ```
 
 ### 區間 gcd
@@ -803,11 +781,11 @@ $$
 			init r[i] = i - 1, g[i] = 0;
 			
 			for (d = n, n / 2, n / 4, ...)
-				build v[i] = gcd (a[i],..., a[i + d - 1])
+				build v[i] = gcd(a[i],..., a[i + d - 1])
 				
 				for i = 1 ~ Q :
-					if gcd (g[i], v[r[i] + 1]) != 1 :
-						g[i] = gcd (g[i], v[r[i] + 1])
+					if gcd(g[i], v[r[i] + 1]) != 1 :
+						g[i] = gcd(g[i], v[r[i] + 1])
 						r_i = r_i + d
 			```
 
@@ -1257,189 +1235,196 @@ $$
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	
-	    using namespace std;
-	
-	    const int INF = 2e18;
-	    const int maxn = 3e5 + 5;
-	    const int M = 1e9 + 7;
-	
-	    struct Edge {
-	        int u, v;
-	    };
-	
-	    struct Graph {
-	        Graph (int n) : n(n) {
-	            sz = vector<int>(n, 1);
-	            par = vector<int>(n);
-	            dis = vector<int>(n);
-	            cnt = 0;
-	            for (int i = 0; i < n; i++) {
-	                par[i] = i;
-	            }
-	        }
-	        void add_edge (const Edge &e) {
-	            auto [x, disx] = find (e.u);
-	            auto [y, disy] = find (e.v);
-	            if (x == y) {
-	                // if (disx == disy) => odd cycle
-	                cnt += (disx == disy);
-	                stk.push ({-1, (disx == disy)});
-	                return;
-	            }
-	
-	            if (sz[x] < sz[y]) swap (x, y);
-	            sz[x] += sz[y]; par[y] = x; dis[y] = disx ^ disy ^ 1;
-	            stk.push ({x, y});
-	        }
-	        void undo () {
-	            auto [x, y] = stk.top ();
-	            stk.pop ();
-	            if (x == -1) {
-	                cnt -= y;
-	                return;
-	            }
-	            sz[x] -= sz[y]; par[y] = y; dis[y] = 0;
-	        }
-	        bool check () {
-	            // return : 有沒有 odd cycle
-	            return (cnt > 0);
-	        }
-	
-	        private :
-	            int n, cnt;
-	            vector<int> sz;
-	            vector<int> par;
-	            vector<int> dis;
-	            stack<pii> stk;
-	
-	            pii find (int x) {
-	                if (par[x] == x) return {x, 0};
-	                else {
-	                    auto [fa, d] = find (par[x]);
-	                    return {fa, d ^ dis[x]};
-	                } 
-	            }
-	    };
-	
-	    int n, m, q;
-	    int ans[maxn];
-	    vector<Edge> edges;
-	
-	    void solve (Graph &g, int el, int er, int ql, int qr) {
-	        // [0, ql - 1] and [er + 1, m - 1] 都已加入 g 
-	        if (ql > qr) return;
-	        if (el == er) {
-	            for (int i = ql; i <= qr; i++) {
-	                ans[i] = el;
-	            }
-	            return;
-	        }
-	        int emid = (el + er) / 2, qmid = min (emid, qr);
-	
-	        for (int i = emid + 1; i <= er; i++) {
-	            g.add_edge (edges[i]);
-	        }
-	        int cnt = 0;
-	        for (int i = ql; i <= min (emid, qr); i++) {
-	            if (i > ql) g.add_edge (edges[i - 1]), cnt++;
-	            if (g.check ()) {
-	                // 移除 [i, emid] 有 odd cycle
-	                // 移除 [i - 1, emid] 沒 odd cycle
-	                qmid = i - 1;
-	                break;
-	            }
-	        }
-	
-	        while (cnt--) {
-	            g.undo ();
-	        }
-	
-	        solve (g, el, emid, ql, qmid); // [0, ql - 1] [emid + 1, m - 1]
-	
-	        for (int i = emid + 1; i <= er; i++) {
-	            g.undo ();
-	        }
-	
-	        for (int i = ql; i <= qmid; i++) {
-	            g.add_edge (edges[i]);
-	        }
-	
-	        solve (g, emid + 1, er, qmid + 1, qr); // [0, qmid] [er + 1, m - 1]
-	        for (int i = ql; i <= qmid; i++) {
-	            g.undo ();
-	        }
-	    }
-	
-	    void init () {
-	        cin >> n >> m >> q;
-	        int u, v;
-	        for (int i = 0; i < m; i++) {
-	            cin >> u >> v;
-	            u--, v--;
-	            edges.pb ({u, v});
-	        }
-	    }
-	
-	    // 找到最小的 ans[i], 使移除 [i, ans[i]] 沒 odd cycle
-	    // 移除 [i, ans[i] - 1] 有 odd cycle
-	    // 移除 [i, ans[i]] 沒 odd cycle
-	
-	    void build () {
-	        // 使得 ans[i] 有上界
-	        // TODO : 找到第一個 i 使得 用 [0, i] 的 edge 有 odd cycle
-	        Graph tmp(n);
-	        int ql = 0, qr = m;
-	        for (int i = 0; i < m; i++) {
-	            tmp.add_edge (edges[i]);
-	            if (tmp.check ()) {
-	                qr = i;
-	                break;
-	            } 
-	        }
-	        if (qr == m) {
-	            for (int i = 0; i < m; i++) {
-	                ans[i] = i;
-	            }
-	            return;
-	        }
-	        for (int i = qr + 1; i < m; i++) {
-	            ans[i] = m;
-	        }
-	
-	        Graph g(n);
-	        solve (g, 0, m - 1, ql, qr);
-	    }
-	
-	    void work () {
-	        build ();
-	
-	        while (q--) {
-	            int l, r;
-	            cin >> l >> r;
-	            l--, r--;
-	            if (ans[l] <= r) cout << "NO\n";
-	            else cout << "YES\n";
-	        }
-	    } 
-	
-	    signed main() {
-	        // ios::sync_with_stdio(0);
-	        // cin.tie(0);
-	        int t = 1;
-	        //cin >> t;
-	        while (t--) {
-	            init ();
-	            work();
-	        }
-	    }
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Edge {
+            int u, v;
+        };
+
+        struct Graph {
+            Graph(int n) : n(n) {
+                sz = vector<int>(n, 1);
+                par = vector<int>(n);
+                dis = vector<int>(n);
+                cnt = 0;
+                for (int i = 0; i < n; i++) {
+                    par[i] = i;
+                }
+            }
+            void add_edge(const Edge &e) {
+                auto [x, disx] = find(e.u);
+                auto [y, disy] = find(e.v);
+                if (x == y) {
+                    // if (disx == disy) => odd cycle
+                    cnt += (disx == disy);
+                    stk.push({-1, (disx == disy)});
+                    return;
+                }
+
+                if (sz[x] < sz[y]) swap(x, y);
+                sz[x] += sz[y];
+                par[y] = x;
+                dis[y] = disx ^ disy ^ 1;
+                stk.push({x, y});
+            }
+            void undo() {
+                auto [x, y] = stk.top();
+                stk.pop();
+                if (x == -1) {
+                    cnt -= y;
+                    return;
+                }
+                sz[x] -= sz[y];
+                par[y] = y;
+                dis[y] = 0;
+            }
+            bool check() {
+                // return : 有沒有 odd cycle
+                return (cnt > 0);
+            }
+
+           private:
+            int n, cnt;
+            vector<int> sz;
+            vector<int> par;
+            vector<int> dis;
+            stack<pii> stk;
+
+            pii find(int x) {
+                if (par[x] == x)
+                    return {x, 0};
+                else {
+                    auto [fa, d] = find(par[x]);
+                    return {fa, d ^ dis[x]};
+                }
+            }
+        };
+
+        int n, m, q;
+        int ans[maxn];
+        vector<Edge> edges;
+
+        void solve(Graph &g, int el, int er, int ql, int qr) {
+            // [0, ql - 1] and [er + 1, m - 1] 都已加入 g
+            if (ql > qr) return;
+            if (el == er) {
+                for (int i = ql; i <= qr; i++) {
+                    ans[i] = el;
+                }
+                return;
+            }
+            int emid = (el + er) / 2, qmid = min(emid, qr);
+
+            for (int i = emid + 1; i <= er; i++) {
+                g.add_edge(edges[i]);
+            }
+            int cnt = 0;
+            for (int i = ql; i <= min(emid, qr); i++) {
+                if (i > ql) g.add_edge(edges[i - 1]), cnt++;
+                if (g.check()) {
+                    // 移除 [i, emid] 有 odd cycle
+                    // 移除 [i - 1, emid] 沒 odd cycle
+                    qmid = i - 1;
+                    break;
+                }
+            }
+
+            while (cnt--) {
+                g.undo();
+            }
+
+            solve(g, el, emid, ql, qmid);  // [0, ql - 1] [emid + 1, m - 1]
+
+            for (int i = emid + 1; i <= er; i++) {
+                g.undo();
+            }
+
+            for (int i = ql; i <= qmid; i++) {
+                g.add_edge(edges[i]);
+            }
+
+            solve(g, emid + 1, er, qmid + 1, qr);  // [0, qmid] [er + 1, m - 1]
+            for (int i = ql; i <= qmid; i++) {
+                g.undo();
+            }
+        }
+
+        void init() {
+            cin >> n >> m >> q;
+            int u, v;
+            for (int i = 0; i < m; i++) {
+                cin >> u >> v;
+                u--, v--;
+                edges.pb({u, v});
+            }
+        }
+
+        // 找到最小的 ans[i], 使移除 [i, ans[i]] 沒 odd cycle
+        // 移除 [i, ans[i] - 1] 有 odd cycle
+        // 移除 [i, ans[i]] 沒 odd cycle
+
+        void build() {
+            // 使得 ans[i] 有上界
+            // TODO : 找到第一個 i 使得 用 [0, i] 的 edge 有 odd cycle
+            Graph tmp(n);
+            int ql = 0, qr = m;
+            for (int i = 0; i < m; i++) {
+                tmp.add_edge(edges[i]);
+                if (tmp.check()) {
+                    qr = i;
+                    break;
+                }
+            }
+            if (qr == m) {
+                for (int i = 0; i < m; i++) {
+                    ans[i] = i;
+                }
+                return;
+            }
+            for (int i = qr + 1; i < m; i++) {
+                ans[i] = m;
+            }
+
+            Graph g(n);
+            solve(g, 0, m - 1, ql, qr);
+        }
+
+        void work() {
+            build();
+
+            while (q--) {
+                int l, r;
+                cin >> l >> r;
+                l--, r--;
+                if (ans[l] <= r)
+                    cout << "NO\n";
+                else
+                    cout << "YES\n";
+            }
+        }
+
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            // cin >> t;
+            while (t--) {
+                init();
+                work();
+            }
+        }
 	    ```
 
 ### POI 2011 Meteors
@@ -1492,186 +1477,186 @@ $$
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	    #define lowbit(x) (x & (-x))
-	
-	    using namespace std;
-	
-	    const int INF = 2e18;
-	    const int maxn = 3e5 + 5;
-	    const int M = 1e9 + 7;
-	
-	    struct opr {
-	        int l, r, c;
-	
-	        bool operator<(const opr &other) {
-	            return l < other.l;
-	        }
-	    };
-	
-	    struct qry {
-	        // farmer id, need how much
-	        int id, goal;
-	    };
-	
-	    struct BIT {
-	        BIT (int n) : n(n) {
-	            bit.resize (n + 1);
-	        }
-	
-	        void add (int x, int d) {
-	            while (x <= n) {
-	                bit[x] += d;
-	                x += lowbit (x);
-	            }
-	        }
-	
-	        int query (int x) {
-	            int ret = 0;
-	            while (x > 0) {
-	                ret += bit[x];
-	                x -= lowbit (x);
-	            }
-	            return ret;
-	        }
-	
-	        bool clean () {
-	            for (int i = 1; i <= n; i++) {
-	                if (bit[i]) return false;
-	            }
-	            return true;
-	        }
-	
-	        private :
-	            int n;
-	            vector<int> bit;
-	    };
-	
-	    int n, m, q;
-	    vector<int> G[maxn];
-	    vector<opr> operation;
-	    vector<qry> queries;
-	    int nxt[maxn], a[maxn], ans[maxn];
-	
-	    void solve (BIT &bit, int el, int er, vector<qry> &q) {
-	        // 在 [el, er] 的這些操作中，我在哪個操作可以達到目標
-	        if (el == er) {
-	            for (auto [id, goal] : q) {
-	                ans[id] = el;
-	            }
-	            return;
-	        }
-	
-	        int emid = (el + er) / 2;
-	        vector<opr> op(operation.begin () + el - 1, operation.begin () + emid);
-	
-	        sort (ALL (op));
-	        vector<pii> query;
-	        vector<int> cost;
-	
-	        int cnt = 0;
-	        for (auto &[id, goal] : q) {
-	            for (auto i : G[id]) {
-	                query.pb ({i, cnt});
-	            }
-	            cnt++;
-	        }
-	        cost.resize (cnt);
-	        sort (ALL (query));
-	        int ptr = 0;
-	
-	        for (auto [i, idx] : query) {
-	            int j = nxt[i];
-	            while (ptr < op.size () && op[ptr].l <= i) {
-	                bit.add (op[ptr].r, op[ptr].c);
-	                ptr++;
-	            } 
-	
-	            if (j == 0) {
-	                int t = bit.query (m) - bit.query (i - 1);
-	                cost[idx] += t;
-	            }
-	            else {
-	                int t = bit.query (j - 1) - bit.query (i - 1);
-	                cost[idx] += t;
-	            }
-	        }
-	
-	        cnt = 0;
-	        vector<qry> qLeft, qRight;
-	        for (auto &[id, goal] : q) {
-	            if (goal <= cost[cnt]) {
-	                qLeft.pb ({id, goal});
-	            } 
-	            else {
-	                qRight.pb ({id, goal - cost[cnt]});
-	            } 
-	            cnt++;
-	        }
-	
-	        for (int i = 0; i < ptr; i++) {
-	            bit.add (op[i].r, -op[i].c);
-	        }
-	
-	        vector<pii>().swap (query);
-	        vector<int>().swap (cost);
-	        vector<opr>().swap (op);
-	        vector<qry>().swap (q);
-	
-	        solve (bit, el, emid, qLeft);
-	        solve (bit, emid + 1, er, qRight);
-	    }
-	
-	    void init () {
-	        cin >> n >> m >> q;
-	
-	        for (int i = 1; i <= m; i++) {
-	            cin >> a[i];
-	            if (G[a[i]].size()) nxt[G[a[i]].back ()] = i;
-	            G[a[i]].pb (i);
-	        }
-	
-	        for (int i = 1; i <= n; i++) {
-	            int x;
-	            cin >> x;
-	            queries.pb ({i, x});
-	        }
-	
-	        for (int i = 1; i <= q; i++) {
-	            int l, r, c;
-	            cin >> l >> r >> c;
-	            operation.pb ({l, r, c});
-	        }
-	    }
-	
-	    void work () {
-	        q++;
-	        operation.pb ({1, m, (int)2e9});
-	        BIT bit(m);
-	        solve (bit, 1, q, queries);
-	
-	        for (int i = 1; i <= n; i++) {
-	            if (ans[i] == q) cout << -1 << "\n";
-	            else cout << ans[i] << "\n";
-	        }
-	    } 
-	
-	    signed main() {
-	        // ios::sync_with_stdio(0);
-	        // cin.tie(0);
-	        int t = 1;
-	        //cin >> t;
-	        while (t--) {
-	            init();
-	            work();
-	        }
-	    } 
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+        #define lowbit(x) (x & (-x))
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct opr {
+            int l, r, c;
+
+            bool operator<(const opr &other) {
+                return l < other.l;
+            }
+        };
+
+        struct qry {
+            // farmer id, need how much
+            int id, goal;
+        };
+
+        struct BIT {
+            BIT(int n) : n(n) {
+                bit.resize(n + 1);
+            }
+
+            void add(int x, int d) {
+                while (x <= n) {
+                    bit[x] += d;
+                    x += lowbit(x);
+                }
+            }
+
+            int query(int x) {
+                int ret = 0;
+                while (x > 0) {
+                    ret += bit[x];
+                    x -= lowbit(x);
+                }
+                return ret;
+            }
+
+            bool clean() {
+                for (int i = 1; i <= n; i++) {
+                    if (bit[i]) return false;
+                }
+                return true;
+            }
+
+           private:
+            int n;
+            vector<int> bit;
+        };
+
+        int n, m, q;
+        vector<int> G[maxn];
+        vector<opr> operation;
+        vector<qry> queries;
+        int nxt[maxn], a[maxn], ans[maxn];
+
+        void solve(BIT &bit, int el, int er, vector<qry> &q) {
+            // 在 [el, er] 的這些操作中，我在哪個操作可以達到目標
+            if (el == er) {
+                for (auto [id, goal] : q) {
+                    ans[id] = el;
+                }
+                return;
+            }
+
+            int emid = (el + er) / 2;
+            vector<opr> op(operation.begin() + el - 1, operation.begin() + emid);
+
+            sort(ALL(op));
+            vector<pii> query;
+            vector<int> cost;
+
+            int cnt = 0;
+            for (auto &[id, goal] : q) {
+                for (auto i : G[id]) {
+                    query.pb({i, cnt});
+                }
+                cnt++;
+            }
+            cost.resize(cnt);
+            sort(ALL(query));
+            int ptr = 0;
+
+            for (auto [i, idx] : query) {
+                int j = nxt[i];
+                while (ptr < op.size() && op[ptr].l <= i) {
+                    bit.add(op[ptr].r, op[ptr].c);
+                    ptr++;
+                }
+
+                if (j == 0) {
+                    int t = bit.query(m) - bit.query(i - 1);
+                    cost[idx] += t;
+                } else {
+                    int t = bit.query(j - 1) - bit.query(i - 1);
+                    cost[idx] += t;
+                }
+            }
+
+            cnt = 0;
+            vector<qry> qLeft, qRight;
+            for (auto &[id, goal] : q) {
+                if (goal <= cost[cnt]) {
+                    qLeft.pb({id, goal});
+                } else {
+                    qRight.pb({id, goal - cost[cnt]});
+                }
+                cnt++;
+            }
+
+            for (int i = 0; i < ptr; i++) {
+                bit.add(op[i].r, -op[i].c);
+            }
+
+            vector<pii>().swap(query);
+            vector<int>().swap(cost);
+            vector<opr>().swap(op);
+            vector<qry>().swap(q);
+
+            solve(bit, el, emid, qLeft);
+            solve(bit, emid + 1, er, qRight);
+        }
+
+        void init() {
+            cin >> n >> m >> q;
+
+            for (int i = 1; i <= m; i++) {
+                cin >> a[i];
+                if (G[a[i]].size()) nxt[G[a[i]].back()] = i;
+                G[a[i]].pb(i);
+            }
+
+            for (int i = 1; i <= n; i++) {
+                int x;
+                cin >> x;
+                queries.pb({i, x});
+            }
+
+            for (int i = 1; i <= q; i++) {
+                int l, r, c;
+                cin >> l >> r >> c;
+                operation.pb({l, r, c});
+            }
+        }
+
+        void work() {
+            q++;
+            operation.pb({1, m, (int)2e9});
+            BIT bit(m);
+            solve(bit, 1, q, queries);
+
+            for (int i = 1; i <= n; i++) {
+                if (ans[i] == q)
+                    cout << -1 << "\n";
+                else
+                    cout << ans[i] << "\n";
+            }
+        }
+
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            // cin >> t;
+            while (t--) {
+                init();
+                work();
+            }
+        }
 	    ```
 
 ### NPSC 上司的薪水

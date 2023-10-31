@@ -326,28 +326,28 @@
     例如 $12$ 的因數有 $\{1,2,3,4,6,12\}$ ，我們可以把 $1..12$ 的數分成幾類
 
     -  $x$ 跟 $12$ 的 $\gcd$ 是 $12$，$x$ 可能是 $\{12\}$
-
+    
     -  $x$ 跟 $12$ 的 $\gcd$ 是 $6$，$x$ 可能是 $\{6\}$
-
+    
     -  $x$ 跟 $12$ 的 $\gcd$ 是 $4$，$x$ 可能是 $\{4,8\}$
-
+    
     -  $x$ 跟 $12$ 的 $\gcd$ 是 $3$，$x$ 可能是 $\{3,9\}$
-
+    
     -  $x$ 跟 $12$ 的 $\gcd$ 是 $2$，$x$ 可能是 $\{2,10\}$
-
+    
     -  $x$ 跟 $12$ 的 $\gcd$ 是 $1$，$x$ 可能是 $\{1,5,7,11\}$
-
+    
     那麼要使 $x$ 跟 $n$ 的 gcd 是 $d$，只能是 $x=d\times$(跟 $\frac{n}{d}$ 互質的數字)，其實就是 $\phi(d)$ 裡面所包含的數
-
+    
     - $x$ 跟 $12$ 的 $\gcd$ 是 $12$，$\phi(1)=1$，$x$ 可能是 $\{1\times 12\}$
     - $x$ 跟 $12$ 的 $\gcd$ 是 $6$，$\phi(2)=1$，$x$ 可能是 $\{1\times 6\}$
-
+    
     - $x$ 跟 $12$ 的 $\gcd$ 是 $4$，$\phi(3)=2$，$x$ 可能是 $\{1\times 4, 2\times 4\}$
-
+    
     - $x$ 跟 $12$ 的 $\gcd$ 是 $3$，$\phi(4)=2$，$x$ 可能是 $\{1\times 3,3\times 3\}$
-
+    
     - $x$ 跟 $12$ 的 $\gcd$ 是 $2$，$\phi(6)=2$，$x$ 可能是 $\{1\times 2, 5\times 2\}$
-
+    
     - $x$ 跟 $12$ 的 $\gcd$ 是 $1$，$\phi(12)=4$，$x$ 可能是 $\{1\times 1,1\times 5,1\times 7,1\times 11\}$
 
 ???+note "類題"
@@ -440,29 +440,27 @@
         #define F first
         #define S second
         using namespace std;
-    
-        const int INF = 2e18;
-        const int maxn = 2e5 + 5;
+
         const int M = 1e9 + 7;
-    
-        int n , k;
-    
-        int fastpow (int a, int b, int m) {
+
+        int n, k;
+
+        int fastpow(int a, int b, int m) {
             int ret = 1;
             while (b != 0) {
                 if (b & 1) ret = (ret * a) % m;
                 a = (a * a) % m;
                 b >>= 1;
             }
-    
+
             return ret;
         }
-    
-        int inv (int x) {
-            return fastpow (x, M - 2, M);
+
+        int inv(int x) {
+            return fastpow(x, M - 2, M);
         }
-    
-        void solve() {
+
+        signed main() {
             int sum = 1, cnt = 1, num = 1, sqt = 1;
             cin >> n;
             int a, b;
@@ -471,181 +469,39 @@
                 cin >> a >> b;
                 cnt = (cnt * ((b + 1) % M)) % M;
                 num = (num * (fastpow(a, b, M) % M)) % M;
-                sqt = (sqt * (fastpow (a, b / 2, M) % M)) % M;
-                sum = (sum * ((fastpow (a, b + 1, M) - 1LL) * inv(a - 1LL) % M)) % M;
+                sqt = (sqt * (fastpow(a, b / 2, M) % M)) % M;
+                sum = (sum * ((fastpow(a, b + 1, M) - 1LL) * inv(a - 1LL) % M)) % M;
                 if ((b + 1) % 2 == 0) {
                     if (fg) {
                         D = (D * (b + 1)) % (M - 1);
                         continue;
                     }
-                    D = (D * ((b + 1)/2)) % (M - 1);
+                    D = (D * ((b + 1) / 2)) % (M - 1);
                     fg = 1;
-                }
-                else {
+                } else {
                     D = (D * (b + 1)) % (M - 1);
                 }
             }
-    
-            int res = (fg ? fastpow (num, D, M) : fastpow (sqt, D, M));
+
+            int res = (fg ? fastpow(num, D, M) : fastpow(sqt, D, M));
             cout << cnt << " " << sum << " " << res << "\n";
-        }
-    
-        signed main() {
-            // ios::sync_with_stdio(0);
-            // cin.tie(0);
-            int t = 1;
-            //cin >> t;
-            while (t--) {
-                //init();
-                solve();
-            }
         }
         ```
 
-## 排容原理
-
-莫比烏斯函數 $\mu (i)=\pm1 \lor 0$，代表目前這塊要是加的還是減的。$\sum_d=cnt[d]\times \mu(d)$ 其中 $d$ 是 $x$ 的因數, $cnt[d]$ 代表 $d$ 的倍數在目前集合內的數量
-
-<figure markdown>
-  ![Image title](./images/3.png){ width="300" }
-  <figcaption>例如以 30 來說，3這塊要是 +，5這塊要是 +，3 * 5 會重複算到，所以要扣掉</figcaption>
-</figure>
-
-??? note "code"
-    ```cpp linenums="1"
-    // mobius[i] 代表 μ(i)
-    mobius[1] = 1;
-    for (int i = 2; i <= maxn; i++) {
-        mobius[i] = 1;
-        for (auto it : fact[i]) {
-            if ((i / it) % it == 0) { 
-                // 每種質因數只能有 1 個
-                // ex: 12 不行因為 12 = 2^2 * 3 ，可以被 2 * 3 = 6 取代
-                //我們想取類似 2, 3, 5, 2 * 3, 3 * 5, 2 * 3 * 5 這種數
-                mobius[i] = 0;
-            }
-            mobius[i] *= -1;
-        }
-    }
-    ```
-
 ### 類題
-
-???+note "[CF 1285 F](https://codeforces.com/contest/1285/problem/F)"
-	
-	??? note "思路"
-		- $lcm(a,b)=\frac{a\times b}{\gcd(a,b)}$
-
-	    - 所以我們根據 gcd 將 $a$ 陣列來分類，$\text{mul}_\text{k}$ 代表 $a[i]$ 能被 $k$ 整除的集合，我們把符合這個條件的 $a[i]$ 通通塞進這個 $\text{mul}_\text{k}$ 集合，在塞進去時要把 $a[i]\div k$ ，如果我們只看這個集合那問題就變成從這個集合內挑出兩個數字 **且** 兩個數字要互質(gcd=1)，相乘起來要最大
-
-	    - 單調 stack 維護上面這個動作如果我挑兩個數字，我們先將 $\text{mul}_\text{k}$ 由大到小 sort， $\text{mul}_\text{k}[i],\text{mul}_\text{k}[j]$ 那如果對於 $\text{mul}_\text{k}[i]$ 有一個 $\text{mul}_\text{k}[j']$ 乘起來會比較大，那麼 $j'$ 一定小於 $j$ (越小越大)
-		
-	??? note "code"
-	    ```cpp linenums="1"
-	    #include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        using namespace std;
-
-        const int maxn = 1e5;
-        int a[maxn + 5], mobius[maxn + 5], in[maxn + 5];
-        bool prime[maxn + 5];
-        vector<int> facts[maxn + 5], fact[maxn + 5];
-        int cnt[maxn + 5];
-        int n;
-
-        void add(int x) {
-            for (auto it : facts[x]) {
-                cnt[it]++;
-            }
-        }
-
-        void del(int x) {
-            for (auto it : facts[x]) {
-                cnt[it]--;
-            }
-        }
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cin >> n;
-            int ans = 0;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i], in[a[i]]++;
-                ans = max(ans, a[i]);  // lcm 最小一定也是自己
-            }
-            for (int i = 2; i <= maxn; i++) {
-                if (!prime[i]) {
-                    fact[i].pb(i);  // 紀錄質因數
-                    for (int j = 2 * i; j <= maxn; j += i) {
-                        fact[j].pb(i);
-                        prime[j] = 1;
-                    }
-                }
-            }
-            for (int i = 1; i <= maxn; i++) {
-                for (int j = i; j <= maxn; j += i) {
-                    facts[j].pb(i);  // 紀錄因數
-                }
-            }
-            mobius[1] = 1;
-            for (int i = 2; i <= maxn; i++) {
-                mobius[i] = 1;
-                for (auto it : fact[i]) {
-                    if ((i / it) % it == 0) {
-                        // 每種質因數只能有 1 個
-                        // ex: 12 不行因為 12 = 2^2 * 3 ，可以被 2 * 3 = 6 取代
-                        // 我們想取類似 2, 3, 5, 2 * 3, 3 * 5, 2 * 3 * 5 這種數
-                        mobius[i] = 0;
-                    }
-                    mobius[i] *= -1;
-                }
-            }
-            for (int i = 1; i <= maxn; i++) {  // 枚舉 gcd
-                stack<int> stk;
-                int res = 0;
-                // 目前集合 mul[i]
-                for (int it = maxn / i; it >= 1; it--) {  // 列舉 a/gcd, b/gcd
-                    if (!in[it * i]) continue;            // 不在陣列內不跑
-                    int coprime = 0;                      // 計算目前有幾個數與 it 互質
-                    for (auto it2 : facts[it]) {
-                        coprime += cnt[it2] * mobius[it2];  // 排容
-                    }
-                    if (coprime) {
-                        while (stk.size()) {  // 單調 stack
-                            if (__gcd(stk.top(), it) == 1) {
-                                if (coprime == 1) break;
-                                coprime--;
-                            }
-                            del(stk.top());
-                            stk.pop();
-                        }
-                        res = max(res, 1LL * i * stk.top() * it);  // a/gcd * b/gcd 要再乘 gcd 才是答案
-                    }
-                    add(it);
-                    stk.push(it);
-                }
-                while (stk.size()) {
-                    del(stk.top());
-                    stk.pop();
-                }
-                ans = max(ans, res);
-            }
-            cout << ans << "\n";
-        }
-	    ```
 
 ???+note "[2020 TOI pC. 銀河捷運](https://tioj.ck.tp.edu.tw/problems/2190)"
 
     給數對 $(x_1,y_1),(x_2,y_2)$，與模數 $M$，問 $(x_3, y_3)$。$(x_1,y_1),(x_2,y_2),(x_3,y_3)$ 都符合:
+    
     $$
     y\equiv mx+k\pmod{M}
     $$
+    
     已知:
     
     - $m=(y_2-y_1)\cdot (x_2-x_1)^{M-2}$
+
     - $x_1+x_2+x_3=m^2\pmod{m}$
     
     有 $t$ 筆輸入，$t\le 10^5,2\le M<2^{31}$
