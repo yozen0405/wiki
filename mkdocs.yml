@@ -208,7 +208,6 @@ nav:
         - Sirpinski Triangle: 'math/sirpinski_triangle.md'
         - 數論: 
           - 因數: 'math/facts.md'
-          - 歐拉函數: 'math/phi.md'
           - 模運算: 'math/mod.md'
           - 中國剩餘定理: 'math/crt.md'
         - 特定數:

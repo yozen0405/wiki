@@ -5,6 +5,8 @@
 	
 我們只需要去枚舉在 $[2, \sqrt{n}]$ 內的數是否能整除 $n$ 即可，複雜度 $O(\sqrt{n})$
 
+!!! info "若 $n=p\times q$，則 $\min(p,q)\le \sqrt{n}$"
+
 ???+note "code"
 	```cpp linenums="1"
 	bool isPrime(int n) {    
@@ -18,7 +20,18 @@
     }
 	```
 
+???+note "找出所有因數"
+	找出 $n$ 的所有因數
+	
+    ??? note "code"
+        ```cpp linenums="1"
+        
+        ```
+
 ## 因數分解
+
+???+note "質因數分解"
+	將 $n$ 做質因數分解
 
 枚舉 $i = 2 \ldots \sqrt{n}$，若 $n/i$ 可以整除，則持續 $n$ /= $i$ 將 $n$ 中的質因數 $i$ 都消掉，最後只有 1 個質因數會大於等於 $\sqrt{n}$，在特判就好。複雜度 $O(\sqrt{n})$
 
@@ -39,6 +52,7 @@
     }
 	```
 
+
 ## 篩法
 
 ???+note "問題"
@@ -46,7 +60,8 @@
 	
 ### 埃式篩法
 
-從小到大考慮每個數，若他還沒被篩掉，代表他是質數，則我們將他的倍數都篩掉。複雜度是 $O(n \log \log n)$。
+從小到大考慮每個數，若他還沒被篩掉，代表他是質數，則我們將他的倍數都篩掉。
+如果用粗估，根據調和級數，內迴圈次數顯然不會多過 $O(n \log n)$。實上，因為質數很稀疏，有人算出來它是 $O(n \log \log n)$。
 
 ???+note "code"
 	```cpp linenums="1"
@@ -97,32 +112,6 @@
 ### 應用
 
 埃式篩法雖然複雜度較差，但能用來計數，實用性較高，很多問題能搭配篩法加上其他資料結構來處理，而線性篩就只能用來找質數
-
-???+note "例題"
-	給你一個陣列問你 $\gcd(a[i], a[j])$ 最大多少 
-	
-	??? note "思路"
-	    - 紀錄每個數字出現的數字 ++
-	    - 篩法過程去看 $i$ 的倍數可以碰到的是不是 >= 2
-	
-	??? note "code"
-	    ```cpp linenums="1"
-	    for (int i = 0; i < n; i++) {
-	        cin >> a[i];
-	        is[a[i]]++;
-	    }
-	    int mx = 1;
-	    for (int i = 1e6; i >= 2; i--) {
-	        int ans = 0;
-	        for (int j = i; j <= 1e6; j += i) {
-	            ans += is[j];
-	        }
-	        if (ans >= 2) {
-	            mx = max(i, mx);
-	        }
-	    }
-	    cout << mx;
-	    ```
 
 ???+note "[CSES - Counting Coprime Pairs](https://cses.fi/problemset/task/2417)"
 	給一個長度為 $n$ 的陣列，問互質的 pair$(a_i, a_j)$ 有幾對
@@ -204,7 +193,7 @@
 	    ```cpp linenums="1"
 	    long long cnt[maxn];
 	    long long dp[maxn];
-	    int main () {
+	    int main() {
 	        int n;
 	        cin >> n;
 	        for (int i = 1 ; i <= n ; i++) {
@@ -239,17 +228,27 @@
 		
 	??? note "code"
 	    ```cpp linenums="1"
-	    // CSES 2185
+	    #include <bits/stdc++.h>
+	    #define int long long
+	    using namespace std;
 	
-	    void solve() {
+	    const int MAXN = 2e5 + 5;
+	    int n, k;
+	    int a[MAXN];
+	
+	    signed main() {
+	        cin >> n >> k;
+	        for (int i = 0; i < k; i++) {
+	            cin >> a[i];
+	        }
+	
 	        int ans = 0;
 	        for (int mask = 1; mask < (1 << k); mask++) {
 	            int x = 1;
 	            int sz = __builtin_popcountll(mask);
 	            for (int i = 0; i < k; i++) {
 	                if (mask & (1 << i)) {
-	                    if (x > n/a[i]) { 
-	                        // x*a[i] > n
+	                    if (x * a[i] > n) {
 	                        // 超過範圍了不用算
 	                        x = n + 1;
 	                        break;
@@ -257,16 +256,20 @@
 	                    x *= a[i];
 	                }
 	            }
-	            // Mobius: +1, -1
-	            // n/x 倍數個數
-	            if (sz & 1) ans += n / x;
-	            else ans -= n / x;
+	            // n/x 為 x 的倍數個數
+	            if (sz & 1) {
+	                ans += n / x;
+	            } else {
+	                ans -= n / x;
+	            }
 	        }
 	        cout << ans << "\n";
 	    }
 	    ```
 
 ### 紀錄出現的質因數
+
+fact[i] 紀錄 i 最小的質因數，在做質因數分解的時候就可以做 $O(\log n)$ 次 $O(1)$ 查表的質因數分解
 
 ??? note "紀錄出現的質因數 code"
 	```cpp linenums="1"
@@ -315,48 +318,15 @@
                 cout << "\n";	
             }
         }
-        ```
-
-## 歐拉函數性質
-
-- [歐拉函數證明 1](https://hackmd.io/@coffee5427/euler1)
-- [歐拉函數證明 2](https://hackmd.io/@coffee5427/euler2)
-
-??? info "$n=\sum \phi(d)$，其中 $d$ 是 $n$ 的因數"
-    例如 $12$ 的因數有 $\{1,2,3,4,6,12\}$ ，我們可以把 $1..12$ 的數分成幾類
-
-    -  $x$ 跟 $12$ 的 $\gcd$ 是 $12$，$x$ 可能是 $\{12\}$
-    
-    -  $x$ 跟 $12$ 的 $\gcd$ 是 $6$，$x$ 可能是 $\{6\}$
-    
-    -  $x$ 跟 $12$ 的 $\gcd$ 是 $4$，$x$ 可能是 $\{4,8\}$
-    
-    -  $x$ 跟 $12$ 的 $\gcd$ 是 $3$，$x$ 可能是 $\{3,9\}$
-    
-    -  $x$ 跟 $12$ 的 $\gcd$ 是 $2$，$x$ 可能是 $\{2,10\}$
-    
-    -  $x$ 跟 $12$ 的 $\gcd$ 是 $1$，$x$ 可能是 $\{1,5,7,11\}$
-    
-    那麼要使 $x$ 跟 $n$ 的 gcd 是 $d$，只能是 $x=d\times$(跟 $\frac{n}{d}$ 互質的數字)，其實就是 $\phi(d)$ 裡面所包含的數
-    
-    - $x$ 跟 $12$ 的 $\gcd$ 是 $12$，$\phi(1)=1$，$x$ 可能是 $\{1\times 12\}$
-    - $x$ 跟 $12$ 的 $\gcd$ 是 $6$，$\phi(2)=1$，$x$ 可能是 $\{1\times 6\}$
-    
-    - $x$ 跟 $12$ 的 $\gcd$ 是 $4$，$\phi(3)=2$，$x$ 可能是 $\{1\times 4, 2\times 4\}$
-    
-    - $x$ 跟 $12$ 的 $\gcd$ 是 $3$，$\phi(4)=2$，$x$ 可能是 $\{1\times 3,3\times 3\}$
-    
-    - $x$ 跟 $12$ 的 $\gcd$ 是 $2$，$\phi(6)=2$，$x$ 可能是 $\{1\times 2, 5\times 2\}$
-    
-    - $x$ 跟 $12$ 的 $\gcd$ 是 $1$，$\phi(12)=4$，$x$ 可能是 $\{1\times 1,1\times 5,1\times 7,1\times 11\}$
-
-???+note "類題"
-	求 $\gcd(1,n) + \gcd(2,n) + \ldots + \gcd(n,n)$
-	
-	??? note "思路"
-		$\gcd=\frac{n}{d}$ 的有 $\phi(d)$ 個，答案就是 $\sum \phi(d) \times \frac{n}{d}$ 其中 $d$ 是 $n$ 的因數
+        ```	
 
 ## 因數
+
+??? info "n 的質因數個數至多 O(log n) 個"
+	根據篩法，1~n 的因數個數總和為 O(n log n)，也就是平均有 O(log n) 個因數
+
+??? info "$n$ 的質數數量上限可以用 $O(n^{1/3})$ 來估計"
+	見 [CF Blog](https://codeforces.com/blog/entry/14463)
 
 ### 因數個數,和,乘積
 
@@ -440,11 +410,11 @@
         #define F first
         #define S second
         using namespace std;
-
+    
         const int M = 1e9 + 7;
-
+    
         int n, k;
-
+    
         int fastpow(int a, int b, int m) {
             int ret = 1;
             while (b != 0) {
@@ -452,14 +422,14 @@
                 a = (a * a) % m;
                 b >>= 1;
             }
-
+    
             return ret;
         }
-
+    
         int inv(int x) {
             return fastpow(x, M - 2, M);
         }
-
+    
         signed main() {
             int sum = 1, cnt = 1, num = 1, sqt = 1;
             cin >> n;
@@ -482,13 +452,121 @@
                     D = (D * (b + 1)) % (M - 1);
                 }
             }
-
+    
             int res = (fg ? fastpow(num, D, M) : fastpow(sqt, D, M));
             cout << cnt << " " << sum << " " << res << "\n";
         }
         ```
 
-### 類題
+## 歐拉函數性質
+
+### 性質一
+
+歐拉函數（Euler's totient function），即 $\varphi(n)$，表示的是小於等於 $n$ 和 $n$ 互質的數的個數，$\varphi(1)=1$。
+
+其中 
+
+$$\displaystyle \varphi(n)=n \left ( 1-\frac{1}{p_1} \right )\left( 1-\frac{1}{p_2} \right)\ldots \left( 1-\frac{1}{p_r} \right)$$
+
+??? info "證明"
+	令 $n=6$
+	
+
+    $$\begin{align}\phi(n) &= n- n\times \frac{1}{2}-n\times \frac{1}{3}+n\times (\frac{1}{2}\times \frac{1}{3}) \\ &=n\times (1-\frac{1}{2}-\frac{1}{3}+\frac{1}{2}\times \frac{1}{3}) \\ &= n\times (1-\frac{1}{2})\times (1-\frac{1}{3}) \end{align}$$
+    
+    其中第二到第三部是因式分解。可以看得出來我們是先將 n 裡面 2 的倍數先刪掉，3 的倍數刪掉，再將 6 的倍數加回來。
+
+???+note "問題"
+	給定正整數 $n$，輸出 $\varphi (n)$
+	
+	$n\le 10^{12}$
+	
+	??? note "思路"
+	
+	    $O(\sqrt{n})$ 找出所有質因數
+	
+	??? note "code"
+	    ```cpp linenums="1"
+	    int euler_phi(int n) {
+	        int ans = n;
+	        for (int i = 2; i * i <= n; i++) {
+	            if (n % i == 0) {
+	                ans = ans / i * (i - 1);
+	                while (n % i == 0) {
+	                    n /= i;
+	                }
+	            }
+	        }
+	        if (n > 1) ans = ans / n * (n - 1);
+	        return ans;
+	    }
+	    ```
+
+???+note "問題"
+	給定正整數 $n$，輸出 $\varphi(1), \varphi(2), \ldots ,\varphi(n)$
+	
+	$n\le 2\times 10^5$
+	
+	??? note "思路"
+		在篩法過程順便計算
+	
+	??? note "build phi"
+	    ```cpp linenums="1"
+	    vector<int> build_phi(int n) {    
+	        vector<int> phi(n, 0);
+	        for (int i = 1; i <= n; i++) {
+	            phi[i] = i;
+	        }
+	        for (int i = 2; i <= n; i++){
+	            if (phi[i] == i) {            
+	                for (int j = i; j <= n; j += i) {
+	                    phi[j] = phi[j] / i * (i - 1);
+	                }             		
+	            }    
+	        } 
+	        return phi;
+	    }
+	    ```
+
+### 性質二
+
+??? info "$n=\sum \varphi(d)$，其中 $d$ 是 $n$ 的因數"
+    例如 $12$ 的因數有 $\{1,2,3,4,6,12\}$ ，我們可以把 $1..12$ 的數分成幾類
+
+    -  $x$ 跟 $12$ 的 $\gcd$ 是 $12$，$x$ 可能是 $\{12\}$
+    
+    -  $x$ 跟 $12$ 的 $\gcd$ 是 $6$，$x$ 可能是 $\{6\}$
+    
+    -  $x$ 跟 $12$ 的 $\gcd$ 是 $4$，$x$ 可能是 $\{4,8\}$
+    
+    -  $x$ 跟 $12$ 的 $\gcd$ 是 $3$，$x$ 可能是 $\{3,9\}$
+    
+    -  $x$ 跟 $12$ 的 $\gcd$ 是 $2$，$x$ 可能是 $\{2,10\}$
+    
+    -  $x$ 跟 $12$ 的 $\gcd$ 是 $1$，$x$ 可能是 $\{1,5,7,11\}$
+    
+    那麼要使 $x$ 跟 $n$ 的 gcd 是 $d$，只能是 $x=d\times$(跟 $\frac{n}{d}$ 互質的數字)，其實就是 $\varphi(d)$ 裡面所包含的數
+    
+    - $x$ 跟 $12$ 的 $\gcd$ 是 $12$，$\varphi(1)=1$，$x$ 可能是 $\{1\times 12\}$
+    - $x$ 跟 $12$ 的 $\gcd$ 是 $6$，$\varphi(2)=1$，$x$ 可能是 $\{1\times 6\}$
+    
+    - $x$ 跟 $12$ 的 $\gcd$ 是 $4$，$\varphi(3)=2$，$x$ 可能是 $\{1\times 4, 2\times 4\}$
+    
+    - $x$ 跟 $12$ 的 $\gcd$ 是 $3$，$\varphi(4)=2$，$x$ 可能是 $\{1\times 3,3\times 3\}$
+    
+    - $x$ 跟 $12$ 的 $\gcd$ 是 $2$，$\varphi(6)=2$，$x$ 可能是 $\{1\times 2, 5\times 2\}$
+    
+    - $x$ 跟 $12$ 的 $\gcd$ 是 $1$，$\varphi(12)=4$，$x$ 可能是 $\{1\times 1,1\times 5,1\times 7,1\times 11\}$
+
+???+note "類題"
+	求 $\gcd(1,n) + \gcd(2,n) + \ldots + \gcd(n,n)$
+	
+	??? note "思路"
+		$\gcd=\frac{n}{d}$ 的有 $\phi(d)$ 個，答案就是 $\sum \phi(d) \times \frac{n}{d}$ 其中 $d$ 是 $n$ 的因數
+
+???+note "[TOI 2019 四模 pC. 歐拉與TOT](https://codeforces.com/contest/1114/problem/F)"
+
+## 題目
 
 ???+note "[2020 TOI pC. 銀河捷運](https://tioj.ck.tp.edu.tw/problems/2190)"
 
@@ -501,7 +579,7 @@
     已知:
     
     - $m=(y_2-y_1)\cdot (x_2-x_1)^{M-2}$
-
+    
     - $x_1+x_2+x_3=m^2\pmod{m}$
     
     有 $t$ 筆輸入，$t\le 10^5,2\le M<2^{31}$

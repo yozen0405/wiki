@@ -238,19 +238,19 @@
 ## 數論分塊
 
 ???+note "[Zerojudge d193. 11526 - H(n)](https://zerojudge.tw/ShowProblem?problemid=d193)"
-	給定 $1\le n,k\le 10^9$，求
+	給定 $1\le n\le 10^9$，求
 	
 	$$
-	\sum \limits_{x=1}^k \lfloor\frac{k}{x}\rfloor
+	\sum \limits_{i=1}^n \lfloor\frac{n}{i}\rfloor
 	$$
 
 <figure markdown>
   ![Image title](./images/16.png){ width="500" }
 </figure>
 
-對於 $x\le \sqrt{n}$，最多只有 $\sqrt{n}$ 種不同的值
+對於 $i\le \sqrt{n}$，最多只有 $\sqrt{n}$ 種不同的值
 
-對於 $x > \sqrt{n}$，$\frac{n}{x}$ 最多只有 $\sqrt{n}$ 種不同的值
+對於 $i > \sqrt{n}$，$\frac{n}{i}$ 最多只有 $\sqrt{n}$ 種不同的值
 
 ??? note "code"
     ```cpp linenums="1"
