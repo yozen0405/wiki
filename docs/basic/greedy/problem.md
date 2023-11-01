@@ -181,17 +181,17 @@
 	有 $n$ 種字元，第 $i$ 種出現次數為 $w_i$。要用 $k$ 進制的字串 $s_i$ 來代替第 $i$ 種字元，使得:
 
     - 對於任意的 $1 \le i, j \le n$，$i\neq j$，$s_i$ 都不是 $s_j$ 的前綴
-
+    
     問重新編碼後的字串最短長度，與最長的 $s_i$ 最短可以是多少
-
+    
     $n \le 10^5, k \le 9$
     
     ??? note "思路"
-		當 $k=2$ 時，就是 Huffman Code 裸題。$k>2$ 的 case，若直接 Greedy 的合併，在最後一次的循環時，Heap 的大小在 $2\ldots k-1$（不足以取出 $k$ 個），那麼整個 Huffman Tree 的 root 的節點個數就會小於 $k$，此時若將一些深度最大的 leaf 拔掉，接到 root 的下方，會使答案變小（若不取深度最大的，則將深度最大的拔起來接到空出來的位置更優）。所以最後的 Huffman Tree 就長成: 所有點的小孩都是滿的，除了最深的一個 internal node 會空出一些位置。具體做法有兩種
-
+    	當 $k=2$ 時，就是 Huffman Code 裸題。$k>2$ 的 case，若直接 Greedy 的合併，在最後一次的循環時，Heap 的大小在 $2\ldots k-1$（不足以取出 $k$ 個），那麼整個 Huffman Tree 的 root 的節點個數就會小於 $k$，此時若將一些深度最大的 leaf 拔掉，接到 root 的下方，會使答案變小（若不取深度最大的，則將深度最大的拔起來接到空出來的位置更優）。所以最後的 Huffman Tree 就長成: 所有點的小孩都是滿的，除了最深的一個 internal node 會空出一些位置。具體做法有兩種
+    
         1. 我們可以先將 $2+(n-2)\% (k-1)$ 個節點合併（即形成最深的 internal node），剩下的每次合併 $k$ 個節點即可
         2. 我們補一些額外 $w_i=0$ 的點，這樣這些點就會填滿空出的位置，而且又不影響答案。
-
+    
         那麼第二個答案其實就直接看樹的高度即可。如果有一個點可以移動到比較小的深度（也就是讓樹的高度變小），那麼字串長度總和也會跟著變小，跟最佳解條件矛盾。
         
     ??? note "code"
@@ -200,33 +200,33 @@
         #include <cstdio>
         #include <cctype>
         #include <cstring>
-
+    
         #include <algorithm>
         #include <vector>
         #include <queue>
-
+    
         typedef long long LL;
-
+    
         inline char fgc() {
             static char buf[100000], *p1 = buf, *p2 = buf;
             return p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, 100000, stdin), p1 == p2)
                 ? EOF : *p1++;
         }
-
+    
         inline LL readint() {
             register LL res = 0, neg = 1; register char c = fgc();
             for(; !isdigit(c); c = fgc()) if(c == '-') neg = -1;
             for(; isdigit(c); c = fgc()) res = (res << 1) + (res << 3) + c - '0';
             return res * neg;
         }
-
+    
         const int MAXN = 100005;
-
+    
         int n, k;
-
+    
         typedef std::pair<LL, LL> PII64;
         std::priority_queue<PII64, std::vector<PII64>, std::greater<PII64> > pq;
-
+    
         int main() {
             n = readint(); k = readint();
             for(int i = 1; i <= n; i++) {
@@ -252,7 +252,7 @@
             return 0;
         }
     	```
-		
+
 
 ???+note "[CF 1882 C. Card Game](https://codeforces.com/contest/1882/problem/C)"
 	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，每次操作可以 :
@@ -331,3 +331,67 @@
 			- 分界線前，對於每一個要馬選 $a_i$，要馬選 $b_i$ → dp
 	
 			- 對於後面，選 $a_i$ 最小的 $k-i$ 個 → 預處理
+
+???+note "[CF 1303 D. Fill The Bag](https://codeforces.com/contest/1303/problem/D)"
+	給一個長度為 $m$ 的序列 $a_1, \ldots ,a_m$，$a_i$ 都是 2 的冪次。每次操作可將一個 $a_i$ 拆兩半，問最少幾次操作才能挑一些 $a$ 裡面的元素來組成 $n$
+	
+	$m\le 10^5, 1\le n\le 10^{18}, 1\le a_i \le 10^9$
+	
+	??? note "思路"
+		以二進制的角度來考慮此題，將 $m$ 以二進制表示，我們的目標就是要讓 $m$ 的二進制裡的每一個 1 都有被貢獻，有兩個觀察:
+		
+		- 可將高位分解成低位（在 $a_i$）
+	
+		- 高位能由低位組成
+	
+		從大到小考慮的話，若高位不夠借，那我就必須從低位借，這樣又要處理左邊又要處理右邊很麻煩。不如我們從小到大考慮，若低位不夠用則需要跟最近的高位借，將高位分解成低位使用，在過程中將低位換成高位，這樣實作起來就很順了
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <iostream>
+	    #include <map>
+	    #include <cstring>
+	    using namespace std;
+	
+	    int t, m, cnt[65];
+	    long long n, a, total, ans;
+	    map <int, int> mp;
+	
+	    int main() {
+	        cin >> t;
+	        for (int i = 0; i < 60; i++) {
+	            mp[(1LL << i)] = i;
+	        }
+	        while (t--) {
+	            cin >> n >> m;
+	            total = 0;
+	            memset(cnt, 0, sizeof(cnt));
+	            for (int i = 0; i < m; i++) {
+	                cin >> a;
+	                total += a;
+	                cnt[mp[a]]++;
+	            }
+	            if (total < n){
+	                cout << -1 << "\n";
+	                continue;
+	            }
+	            ans = 0;
+	            for (int i = 0; i < 61; i++) {
+	                if (n & (1LL<<i)) {
+	                    for (int j = i; j <= 60; j++) {
+	                        if (cnt[j]) {
+	                            ans += j-i;
+	                            cnt[j]--;
+	                            for (int k = j-1; k >= i; k--) {
+	                                cnt[k]++;
+	                            }
+	                            break;
+	                        }
+	                    }
+	                }
+	                cnt[i+1] += cnt[i]/2;
+	            }
+	            cout << ans << "\n";
+	        }
+	    }
+	    ```

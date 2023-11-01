@@ -20,14 +20,6 @@
     }
 	```
 
-???+note "找出所有因數"
-	找出 $n$ 的所有因數
-	
-    ??? note "code"
-        ```cpp linenums="1"
-        
-        ```
-
 ## 因數分解
 
 ???+note "質因數分解"
@@ -267,65 +259,12 @@
 	    }
 	    ```
 
-### 紀錄出現的質因數
-
-fact[i] 紀錄 i 最小的質因數，在做質因數分解的時候就可以做 $O(\log n)$ 次 $O(1)$ 查表的質因數分解
-
-??? note "紀錄出現的質因數 code"
-	```cpp linenums="1"
-    for (int i = 2; i <= maxn; i++) {
-        if (!prime[i]) {
-            fact[i].pb(i); // 紀錄質因數
-            for (int j = 2 * i; j <= maxn; j += i) {
-                fact[j].pb(i);
-                prime[j] = 1;
-            }
-        }
-    }
-    ```
-
-???+note "例題"
-	給 $q$ 個範圍在 $[1, M]$ 正整數，需輸出這 $q$ 個數字質因數分解的結果，例：$720$ 要輸出 $720=2^4 \times 3^2 \times 5$。請設計一個演算法解決上述問題，需要滿足 :
-
-    - 時間複雜度至多 $O(M \log M + q \log M)$
-    
-    - 空間複雜度至多 $O(M)$
-    
-    ??? note "code"
-        ```cpp linenums="1"
-        void solve () {
-            for (int i = 2; i <= maxn; i++) {
-                if (!prime[i]) {
-                    fact[i].pb(i);
-                    for (int j = 2 * i; j <= maxn; j += i) {
-                        if(fact[j].empty())	fact[j].pb(i);
-                        prime[j] = 1;
-                    }
-                }
-            }
-            int q;
-            cin >> q;
-            while (q--) {
-                cin >> n;
-                while (n != 1) {
-                    int fct = fact[n][0], cnt = 0;
-                    while (n % fct == 0) {
-                        n /= fct;
-                        cnt++;
-                    }
-                    cout << fct << "^" << cnt << (n != 1 ? " x " : "");
-                }
-                cout << "\n";	
-            }
-        }
-        ```	
-
 ## 因數
 
-??? info "n 的質因數個數至多 O(log n) 個"
+??? info "n 的因數數量平均有 O(log n) 個"
 	根據篩法，1~n 的因數個數總和為 O(n log n)，也就是平均有 O(log n) 個因數
 
-??? info "$n$ 的質數數量上限可以用 $O(n^{1/3})$ 來估計"
+??? info "$n$ 的因數數量上限可以用 $O(n^{1/3})$ 來估計"
 	見 [CF Blog](https://codeforces.com/blog/entry/14463)
 
 ### 因數個數,和,乘積
@@ -457,6 +396,67 @@ fact[i] 紀錄 i 最小的質因數，在做質因數分解的時候就可以做
             cout << cnt << " " << sum << " " << res << "\n";
         }
         ```
+
+### 紀錄出現的質因數
+
+fact[i] 紀錄 i 最小的質因數，在做質因數分解的時候就可以做 $O(\log n)$ 次 $O(1)$ 查表的質因數分解
+
+??? note "紀錄出現的質因數 code"
+	```cpp linenums="1"
+    for (int i = 2; i <= maxn; i++) {
+        if (!prime[i]) {
+            fact[i].pb(i); // 紀錄質因數
+            for (int j = 2 * i; j <= maxn; j += i) {
+                fact[j].pb(i);
+                prime[j] = 1;
+            }
+        }
+    }
+    ```
+
+???+note "n 的質因數分解"
+	給 $q$ 個範圍在 $[1, M]$ 正整數，需輸出這 $q$ 個數字質因數分解的結果，例：$720$ 要輸出 $720=2^4 \times 3^2 \times 5$。請設計一個演算法解決上述問題，需要滿足 :
+
+    - 時間複雜度至多 $O(M \log M + q \log M)$
+    
+    - 空間複雜度至多 $O(M)$
+    
+    ??? note "code"
+        ```cpp linenums="1"
+        void solve () {
+            for (int i = 2; i <= maxn; i++) {
+                if (!prime[i]) {
+                    fact[i].pb(i);
+                    for (int j = 2 * i; j <= maxn; j += i) {
+                        if(fact[j].empty())	fact[j].pb(i);
+                        prime[j] = 1;
+                    }
+                }
+            }
+            int q;
+            cin >> q;
+            while (q--) {
+                cin >> n;
+                while (n != 1) {
+                    int fct = fact[n][0], cnt = 0;
+                    while (n % fct == 0) {
+                        n /= fct;
+                        cnt++;
+                    }
+                    cout << fct << "^" << cnt << (n != 1 ? " x " : "");
+                }
+                cout << "\n";	
+            }
+        }
+        ```	
+
+???+note "多次詢問 n 的因數"
+	給 $q$ 筆查詢，每筆詢問需要列出 $n$ 的所有因數
+	
+	??? note "思路"
+		[CF Blog](https://codeforces.com/blog/entry/84036)
+	
+		使用上面的技巧在 $O(n)$ 預處理，$O(\log n)$ 得到 $n={p_1}^{a_1}{p_2}^{a_2}{p_3}^{a_3}\ldots$，我們就可以枚舉 $0 \leq b_i \leq a_i$ 來得到因數 ${p_1}^{b_1}{p_2}^{b_2}{p_3}^{b_3}\ldots$，根據因數數量的估計，這個會花 $O(n^{1/3})$，所以整體的複雜度是 $O(n^{1/3})$
 
 ## 歐拉函數性質
 

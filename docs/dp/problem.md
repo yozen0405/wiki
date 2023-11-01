@@ -1339,7 +1339,9 @@
         
         我們考慮從 $f(n-1,m,t)$ 與 $f(n,m,t)$ 的關係，因為沒有額外再選要放 $1$ 的 col，所以貢獻就是 $f(n-1,m,t)\times (2^t-1)$ 也就是每個有選 $1$ 的 col 可以決定要新增 $1$ 或 $0$，但不能全部放 $0$ 所以要減 $1$。那如果要額外再選要放 $1$ 的 col，貢獻會試 $f(n-1,m,t-1)\times 2^{t-1}\times \tbinom{m-(t-1)}{1}$，就是額外選一個 col 放 $1$，其他原本有放 $1$ 的 col 放 $0,1$ 都可。所以最後我們整理一下:
         
-        $$f(n,m,t)=f(n-1,m,t)\times (2^t-1) + \sum\limits_{i=1\ldots t}f(n-1,m, t-i)\times 2^{t-i}\times \tbinom{m-(t-i)}{i}$$
+        $$\begin{align} f(n,m,t) &= f(n-1,m,t)\times (2^t-1) \\ &+ \sum\limits_{i=1\ldots t}f(n-1,m, t-i)\times 2^{t-i}\times \tbinom{m-(t-i)}{i}\end{align}$$
+        
+        狀態只有 $n,t$ 有用，所以是 $O(n^2)$，轉移 $O(n)$，總時間複雜度 $O(n^3)$
 
 
 ???+note "[CSES - Counting Towers](https://cses.fi/problemset/task/2413)"
@@ -1385,7 +1387,7 @@
 	    - 放在 $i-1$ 旁邊
 	
 	    $dp(i,j,1)=2\times dp(i-1,j-1,0)+dp(i-1,j,1)+dp(i-1,j-1,1)$
-	    
+
 ???+note "[Atcoder abc207 E - Mod i](https://atcoder.jp/contests/abc207/tasks/abc207_e)"
 	有一長度為 $n$ 的序列，問有多少種 partition 方式，使得對於第 $i$ 塊的元素和 $sum_i$ 都整除 $i$
 
@@ -1394,8 +1396,8 @@
 	??? note "思路"
 		設 $dp(i,j)$ 為對於 $a_1,\ldots ,a_i$，分成 $j$ 塊的合法方法數
 		
-        $$
-        dp(i,j)=\sum \limits_{k=1\ldots i-1} dp(k,j-1) \mid (S_i-S_k)\% j = 0
-        $$
-        
-        觀察到我們在其實可以先枚舉 $j$，再枚舉 $i$，這樣我們就可以開一個陣列 $cnt$，$cnt_x$ 紀錄 $S_i\% j=x$ 的總和，轉移直接去查表即可，複雜度 $O(n^2)$
+	    $$
+	    dp(i,j)=\sum \limits_{k=1\ldots i-1} dp(k,j-1) \mid (S_i-S_k)\% j = 0
+	    $$
+	    
+	    觀察到我們在其實可以先枚舉 $j$，再枚舉 $i$，這樣我們就可以開一個陣列 $cnt$，$cnt_x$ 紀錄 $S_i\% j=x$ 的總和，轉移直接去查表即可，複雜度 $O(n^2)$

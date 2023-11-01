@@ -98,10 +98,13 @@
     ??? note "思路"
     	
         > subtask: only R, G
+        
         - 觀察到 $\texttt{R}$ 跟 $\texttt{R}$ 不會去交換，$\texttt{G}$ 也不會跟自己交換
+
         - 代表最終陣列一定長成 
             - $\texttt{RGRGRGRG}$...
             - $\texttt{GRGRGRGR}$...
+
         - 代表我們只要對於一個 $\texttt{R}$ 有多少個 $\texttt{G}$ 從我左邊變到右邊
         - 逆敘數對
             - 把最終陣列從左到右以 $1\sim n$ 編號
@@ -245,14 +248,14 @@
 		```
 
 ???+note "[USACO 2020 Open Exercise G](http://www.usaco.org/index.php?page=viewproblem2&cpid=1043)"
-	求所有 $k$ 的何和，滿足至少存在一個 $1\ldots n$ 的 permutation 需要 $k$ 部才能回到原本的 permutation
+	求所有 $k$ 的和，滿足至少存在一個 $1\ldots n$ 的 permutation 需要 $k$ 部才能回到原本的 permutation
 	
 	$n\le 10^4$
 	
 	??? note "思路"
 		觀察會發會是一些環的總和要是 n，問題就變成求一些數字加起來要是 n，這些數字的 distinct lcm 總和就是答案。
 		
-		用 dp[i][j] 代表總合為 i，選第 1~j 個質數能湊出來的總合，轉移類似背包，不同的是需要枚舉第 j 個質數用了幾次。複雜度 O(n * pi(n) * log n) 
+		用 dp[i][j] 代表總合為 i，選第 1~j 個質數能湊出來的乘積總和，轉移類似背包，不同的是需要枚舉第 j 個質數用了幾次。複雜度 O(n * pi(n) * log n) 
 	
 	??? note "code(from 官解)"
 		```cpp linenums="1"
