@@ -3,9 +3,7 @@
 ???+note "問題"
 	檢查一個數 $n$ 是否為質數
 	
-我們只需要去枚舉在 $[2, \sqrt{n}]$ 內的數是否能整除 $n$ 即可，複雜度 $O(\sqrt{n})$
-
-!!! info "若 $n=p\times q$，則 $\min(p,q)\le \sqrt{n}$"
+我們只需要去枚舉在 $[2, \sqrt{n}]$[^1] 內的數是否能整除 $n$ 即可，複雜度 $O(\sqrt{n})$
 
 ???+note "code"
 	```cpp linenums="1"
@@ -590,3 +588,68 @@ $$\displaystyle \varphi(n)=n \left ( 1-\frac{1}{p_1} \right )\left( 1-\frac{1}{p
         3. $x_3=(m^2-x_1-x_2)$ % $M$
         4. $y_3=(mx_3+k)$ % $M$
 
+???+note "[CF 1445 C. Division](https://codeforces.com/contest/1445/problem/C)"
+	t 筆查詢，每筆給定 p, q，求滿足以下條件的最大 x
+	
+	- p % x == 0
+
+	- x % q != 0
+
+	$t\le 50, 1\le p\le 10^{18}, 1\le q\le 10^9$
+	
+	??? note "思路"
+		可以觀察到若 p % q != 0 則 x = p。若 p % q == 0 的時候，考慮標準因式，我們只要將 p 與 q 共同的某一項降到 q 的次方底下即可
+		
+		例如:
+		
+		- p = 2<sup>1</sup> * 3<sup>3</sup> * 5<sup>2</sup>
+
+		- q = 3<sup>2</sup> * 5<sup>1</sup>
+
+		x 只能是 p 削掉與 q 共同的項才合法，所以我們只考慮 3, 5。
+		
+		- 削掉 3: x = 2<sup>1</sup> * 3<sup>1</sup> * 5<sup>2</sup>
+
+		- 削掉 5: x = 2<sup>1</sup> * 3<sup>3</sup> * 5<sup>0</sup>
+
+		顯然削掉 3 可以讓 x 更大
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        const int MAXN = 10001;
+        int t, p, q;
+
+        int f(int i) {
+            if (i == 1) return 1;
+            int k = p;
+            while (k % q == 0) {
+                k /= i;
+            }
+            return k;
+        }
+
+        signed main() {
+            cin >> t;
+            while (t--) {
+                cin >> p >> q;
+                int ans = -1e18;
+                if (p % q != 0) {
+                    cout << p << "\n";
+                } else {
+                    for (int i = 1; i * i <= q; i++) {
+                        if (q % i == 0) {
+                            ans = max(ans, f(i));
+                            ans = max(ans, f(q / i)); // 可能會有質數 > sqrt(n)
+                        }
+                    }
+                    cout << ans << "\n";
+                }
+            }
+        }
+		```
+	
+[^1]: 若 $n=p\times q$，則 $\min(p,q)\le \sqrt{n}$

@@ -466,7 +466,7 @@ $$
 ???+note "棧的出棧順序"
 	給定 $n$ 個數，一個空棧（stack） $S$，每次棧指向入棧或出棧操作，他們的出棧順序有多少種 ?
 	
-	note "思路"
+	??? note "思路"
 		想成「求 n 對括號形成的合法序列數量」
 
 ### 凸多邊形劃分為三角形
@@ -561,6 +561,7 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	
 	    - 思考 $\texttt{max}$ 已經固定的情況
 	        - 骰到 $\texttt{max}$ 的機率 $\texttt{?}$ 
+
 	    - 設目前骰到的 $\texttt{max}$ 的點數為 $i$
 	        - 共有 $i^n-(i-1)^n$ 種方法數骰到的最大點數是 $i$
 	        - 最多到 $i$ 的方法數 $-$ 最多只有到 $i-1$ 的方法數 $=i^n-(i-1)^n$
@@ -590,12 +591,14 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	
 	??? note "法2"
 	    - 令 $dp(n,k)$ 表示丟 $n$ 次骰子的情況下，最大值為 $k$ 的機率
+
 	    - $dp(n,k)=P($已經有$k)+P($這局才骰到$k)$
+
 	    - $\begin{align} dp(n, k)  \end{align}$
+
 	    - 在配合前綴優化
 	
 	    $$\begin{align}dp(n,k) &= \frac{k}{K}dp(n-1, k) + \frac{1}{K} [ dp(n-1, k-1) + dp(n-1, k-2) + dp(n-1, k-3) + \dots + dp(n-1, 1) ] \\ &= \frac{k}{K}dp(n-1, k)+dp(n,k-1)-\frac{k-1}{K}dp(n-1, k-1)+\frac{1}{K}dp(n-1,k-1) \end{align}$$
-
 
         ```cpp
         void solve2 () {
@@ -638,7 +641,9 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	
 	??? note "思路"
 		- $dp[i]=dp[i-1]+\frac{n}{n-i-1}$
+
 	    - $10$ 次有兩次會中
+
 	    - 代表 $5$ 次中 $1$ 次
 
 ???+note "環排列類似題 [Hackerrank - Construct the Array](https://www.hackerrank.com/challenges/construct-the-array/problem)"
@@ -763,18 +768,18 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	給定四個數字 $a,b,c,l$，問同時滿足以下條件的 tuple$(i,j,k)$ 有幾種
 
     - $(i+a,j+b,k+c)$ 可構成面積大於 0 的三角形的三邊長
-
+    
     - $i+j+k\le l$
-
-	??? note "思路"
-		這題為排容原理的應用，主要難點在推式子，利用「所有的組合情況 - 不滿足條件的情況」計算答案。
-
+    
+    ??? note "思路"
+    	這題為排容原理的應用，主要難點在推式子，利用「所有的組合情況 - 不滿足條件的情況」計算答案。
+    
         1. 所有的組合情況
-
+    
            $l=i$ 時，為 $n$ 個同物分 3 個不同箱，方法數 $C^{i+2}_2$，枚舉 $i=0\ldots l$ 加總。
-
+    
         2. 不滿足條件的情況：
-
+    
         	三角形須滿足兩邊之和大於第三邊，不滿足時則第三邊**大於等於**其它兩邊之和。枚舉 $a, b, c$ 當第三邊的情況，計算不合法的情況。對於合法的情況，設 a + i, b + j, c + k 要形成三角形，若 a+i 是最大邊，則:
         	
         $$
@@ -803,24 +808,24 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
         $$
         
         令 $j+k\le x$，那麼 
-
+    
         - $j=0$ 時，$k=0\ldots x$，共 $x+1$ 種可能
-
+    
         - $j=1$ 時，$k=0\ldots (x-1)$，共 $x$ 種可能
-
+    
         - ...
-
+    
         - $j=x$ 時，$k=0$，共 $1$ 種可能
-
+    
         所以總共 $1+\ldots +(x+1)=\frac{(x+2)\times (x+1)}{2}$
-	
-	??? note "code"
+    
+    ??? note "code"
         ```cpp linenums="1"
         #include <algorithm>
         #include <iostream>
-
+    
         using namespace std;
-
+    
         long long cal(long long a, long long b, long long c, long long l) {
             long long ans = 0;
             for (long long i = max(b + c - a, 0LL); i <= l; i++) {
@@ -829,7 +834,7 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
             }
             return ans;
         }
-
+    
         int main() {
             long long a, b, c, l;
             cin >> a >> b >> c >> l;
@@ -841,6 +846,20 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
             cout << ans << '\n';
         }
         ```
+
+???+note "[CSES - Grid Paths](https://cses.fi/problemset/task/1078)"
+	給一個 $n\times n$ 的 Grid，一開始在 $(1, 1)$，目標走到 $(n,n)$。給 $m$ 個放置障礙物的位置，只能往左或往右，問在不經過障礙物的前提下有幾種走法
+	
+	$n\le 10^6, m\le 1000$
+	
+	??? note "思路"
+		dp(i) = 走到 i 合法的路徑數
+		
+		轉移式的話，就是「全 - 走到 j 之後才不合法的路徑數量」
+		
+		$$dp(i)=\binom{x+y-2}{x-1}-\sum\limits_{x_j \leq x_i, y_j \leq y_i}{dp_j \times \binom{x_i - x_j + y_i - y_j}{x_i - x_j}}$$
+		
+		最後的算答案可以在終點放一個障礙物，答案就是 dp(m + 1)
 
 [^1]: 例如 (D), (A, B, C)，<a href="/wiki/math/images/15.png" target="_blank">見此圖</a>
 
