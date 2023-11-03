@@ -1,12 +1,13 @@
 ### 2023 TOI 1模 pB
-???+note "最佳劇照 (stills)"
+
+???+note "2023 TOI 1模 pB. 最佳劇照 (stills)"
     在一維數線上有 $n$ 個 interval $[l_i, r_i]$，要求選擇最少的 point，使得每個 interval 都至少包含一個 point，且所選點的 cost 總和最小。
     
     其中點的 cost 計算方式為：
     
     $$\text{cost}(t) = 有包含 \texttt{ point } t \text{ } 的 \text{ } \texttt{interval} \text{ } 的\text{ } |(r_i - t) - (t - l_i)| \text{ }的總和$$
     
-    ??? note "[algoseacow](https://www.facebook.com/algo.seacow/)'s 題解"
+    ??? note "題解"
         > 步驟一，離散化:
         
         利用線段的開頭 $l_i$ 和結尾 $r_i$ 可以把數線切出 $2n-1$ 個 blocks。
@@ -44,19 +45,21 @@
         $dp(i) = \max dp(j) + w[i]$, $j$ 可以選的條件是沒有 interval 開頭結尾都在 block ($j+1$) ~ block ($i - 1$)
         
         這些的可以用來轉移的 $j$ 會是連續的一段，所以可以用套用資料結構快速計算出 $dp(i)$，計算 dp 的總時間是 $O(n) \times$ 查詢時間。資料結構的部分可以用單調隊列 $O(1)$ 查詢，或是用線段樹 $O(\log n)$ 查詢
+        
         > ref : <https://hackmd.io/@algoseacow/rJw_DISe3>
 
-- <https://slides.com/fhvirus/1/fullscreen#/3/7>
-
-???+ note "[TIOJ 1072](https://tioj.ck.tp.edu.tw/problems/1072)"
+???+ note "Parallel Scheduling Problem [TIOJ 1072. 誰先晚餐](https://tioj.ck.tp.edu.tw/problems/1072)"
 	有 $n$ 個人要吃飯，第 $i$ 個人想吃的食物需要 $C_i$ 時間才能煮好，而他吃掉食物所花的時間為 $E_i$ ，且廚師同一時間只能煮一個食物，最小化所有人都吃完飯的時間。
-
+	
+	$n\le 10^4, 1\le C_i, E_i\le 1000$
+	
 	??? note "思路"
 		不管哪道食物先煮，總共需要煮的時間都一樣。想要縮短總工時，最好先煮吃飯時間較長的食物。
 		<figure markdown>
 	    	![Image title](./images/8.png){ width="500"}
 	    	  <figcaption><font color="#4472C4">藍色</font>代表煮的時間，<font color="#ED7D31">橘色</font>代表吃的時間</figcaption>
 	    </figure>
+	    
 		??? note "證明"
 			假設由演算法得到的吃飯的順序為 $a_1, a_2,\ldots, a_n$ ，則此序列一定滿足特性 $E_{a_i} \ge E_{a_{i+1}}$ 。假設有另外一組吃飯順序為 $b_1, b_2, · · · , b_n$，且不滿足該特性，則一定存在兩個相鄰的人 $b_i , b_i+1$ 滿足 $E_{b_i} < E_{b_{i+1}}$ 。如果將這兩個人的吃飯順序對調， 則考慮第 $j$ 個人吃飯結束的時間 (對調前為 $t_1(j)$ ，對調後為 $t_2(j)$ )，可以以下四種人的情況： 
 	
@@ -153,8 +156,20 @@
 ## 交換法
 
 ???+note "[APCS 物品堆疊](https://zerojudge.tw/ShowProblem?problemid=c471)"
+	給 $n$ 個物品，第 $i$ 個物品有權重 $w_i$ 與頻率 $f_i$。問可以任意決定擺放順序，最小的 cost 為何 ?
+	
+	假設目前的順序是 {p1, p2, p3}，那麼 cost = w[p1] * f[p2] + (w[p1] + w[p2]) * f[p3]
+	
+	$n\le 10^5, 1\le w_i, f_i \le 1000$
 
-???+note "[CF 559B](https://codeforces.com/problemset/problem/559/B)"
+???+note "[CF 559 B. Equivalent Strings](https://codeforces.com/problemset/problem/559/B)"
+	給兩個長度相同的字串 a, b，兩個次串「相等」若且唯若符合以下條件之一
+	
+	- a 與 b 相同
+	
+	- 將 a, b 各自分成兩半，兩半對應「相等」
+	
+	$|a|=|b|\le 2\times 10^5$
 
 ## 霍夫曼編碼
 
@@ -172,7 +187,7 @@
 構樹過程: 
 
 <figure markdown>
-  ![Image title](./images/11.png){ width="300" }
+  ![Image title](./images/11.png){ width="400" }
 </figure>
 
 若需要構造的話，從 root 開始，往左分配 0 的編碼，往右分配 1 的編碼，每個 leaf 的編碼就是從 root 到自己的編碼串起來。
@@ -395,3 +410,9 @@
 	        }
 	    }
 	    ```
+
+---
+
+## 參考資料
+
+- <https://slides.com/fhvirus/1/fullscreen#/3/7>

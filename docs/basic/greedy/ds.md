@@ -252,44 +252,44 @@
 		
 	??? note "code"
 		```cpp linenums="1"
-		void init () {
-			cin >> n >> m >> k;
-			for (int i = 1; i <= m; i++) {
-				cin >> a[i] >> b[i] >> c[i];
-				last[i] = i;
-			}
-			for (int i = 1; i <= m; i++) {
-				cin >> u >> v;
-				last[v] = max (last[v], u);
-			}
-			for (int i = 1; i <= n; i++) {
-				add_edge (last[i], i); 
-				// edge (last[i] -> i)
-			}
-		}
-		void solve () {
-			priority_queue<int, vector<int>, greater<int>> pq;
-			int ans = 0;
-			for (int i = 1; i <= n; i++) {
-				while (k < a[i] && !pq.empty ()) k++, pq.pop ();
-				if (k < a[i]) {
-					cout << "-1\n";
-					return;
-				}
-				k += b[i];
-				for (auto v : G[u]) {
-					pq.push (c[v]);
-					k--;
-				}
-			}
-			while (k < 0 && !pq.empty ()) pq.pop ();
-			if (k < 0) {
-	            cout << "-1\n";
-	            return;
-	        }
-	        while (!pq.empty ()) ans += pq.top (), pq.pop ();
-	        cout << ans << "\n";
-		}
+		void init() {
+            cin >> n >> m >> k;
+            for (int i = 1; i <= m; i++) {
+                cin >> a[i] >> b[i] >> c[i];
+                last[i] = i;
+            }
+            for (int i = 1; i <= m; i++) {
+                cin >> u >> v;
+                last[v] = max(last[v], u);
+            }
+            for (int i = 1; i <= n; i++) {
+                add_edge(last[i], i);
+                // edge (last[i] -> i)
+            }
+        }
+        void solve() {
+            priority_queue<int, vector<int>, greater<int>> pq;
+            int ans = 0;
+            for (int i = 1; i <= n; i++) {
+                while (k < a[i] && !pq.empty()) k++, pq.pop();
+                if (k < a[i]) {
+                    cout << "-1\n";
+                    return;
+                }
+                k += b[i];
+                for (auto v : G[u]) {
+                    pq.push(c[v]);
+                    k--;
+                }
+            }
+            while (k < 0 && !pq.empty()) pq.pop();
+            if (k < 0) {
+                cout << "-1\n";
+                return;
+            }
+            while (!pq.empty()) ans += pq.top(), pq.pop();
+            cout << ans << "\n";
+        }
 		```
 
 ## 其他
@@ -321,89 +321,84 @@
 	
 	??? note "code"
 		```cpp linenums="1"
-		int solve (vector<int> a, vector<int> b) {
-			int n = a.size ();
-			priority_queue<int> pq;
-			int rest = 0;
-			for (int i = n - 1; i >= 0; i--) {
-				pq.push (b[i]);
-				rest += a[i];
-				while (pq.size () && rest > 0) {
-					int x = pq.top ();
-					pq.pop ();
-					rest -= x;
-				}
-				if (rest > 0) return -1;
-			}
-			return n - (int)pq.size ();
-		}
+		int solve(vector<int> a, vector<int> b) {
+            int n = a.size();
+            priority_queue<int> pq;
+            int rest = 0;
+            for (int i = n - 1; i >= 0; i--) {
+                pq.push(b[i]);
+                rest += a[i];
+                while (pq.size() && rest > 0) {
+                    int x = pq.top();
+                    pq.pop();
+                    rest -= x;
+                }
+                if (rest > 0) return -1;
+            }
+            return n - (int)pq.size();
+        }
 		```
 	??? note "[rahlin](https://codeforces.com/profile/rahlin1004)'s code"
 	    ```cpp linenums="1"
 	    #include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    using namespace std;
-	
-	    const int INF=2e18,MAXN=1e6+5,M=1e9+7;
-	    int n,k,a[MAXN],b[MAXN],t[MAXN],ans=0;
-	
-	    signed main() {
-	        ios::sync_with_stdio(0);
-	        cin.tie(0);
-	        cin>>n>>k;
-	        for(int i=0;i<n;i++) cin>>a[i];
-	        for(int i=0;i<n;i++) cin>>b[i];
-	        for(int i=0;i<k;i++) cin>>t[i];
-	        sort(t,t+k);
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        using namespace std;
 
+        const int INF = 2e18, MAXN = 1e6 + 5, M = 1e9 + 7;
+        int n, k, a[MAXN], b[MAXN], t[MAXN], ans = 0;
 
-            int lb=-1;
-            for(int i=0;i<k;i++){
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            cin >> n >> k;
+            for (int i = 0; i < n; i++) cin >> a[i];
+            for (int i = 0; i < n; i++) cin >> b[i];
+            for (int i = 0; i < k; i++) cin >> t[i];
+            sort(t, t + k);
+
+            int lb = -1;
+            for (int i = 0; i < k; i++) {
                 priority_queue<int> pq;
-                int rb=t[i]-1, l=t[i]-1;
-                //cout<<"lb"<<lb<<" rb "<<rb<<"\n";
+                int rb = t[i] - 1, l = t[i] - 1;
                 pq.push(b[rb]);
-                while(l>lb&&pq.size()){
-                    int f=pq.top();
+                while (l > lb && pq.size()) {
+                    int f = pq.top();
                     pq.pop();
-                    //cout<<"f "<<f<<"\n";
                     ans++;
-                    while(l>lb&&f>=0){
-                        if(f>=a[l]){
-                            f-=a[l];
-                            a[l]=0;
+                    while (l > lb && f >= 0) {
+                        if (f >= a[l]) {
+                            f -= a[l];
+                            a[l] = 0;
                             l--;
-                            if(l>lb) pq.push(b[l]);
-                        }
-                        else{
-                            a[l]-=f;
-                            f=0;
+                            if (l > lb) pq.push(b[l]);
+                        } else {
+                            a[l] -= f;
+                            f = 0;
                             break;
                         }
                     }
-                    //cout<<"l "<<l<<"\n";
                 }
-                if(l!=lb) {
-                    cout<<-1<<"\n";
+                if (l != lb) {
+                    cout << -1 << "\n";
                     exit(0);
                 }
-                lb=rb;
+                lb = rb;
             }
-            cout<<ans<<"\n";
-        } 
-    
+            cout << ans << "\n";
+        }
+
         /*
         5 2
         1 2 3 4 5
         1 1 1 1 1
-        2 
+        2
         4
-    
+
         5 3
         5 4 3 2 1
         4 8 7 6 3
@@ -575,7 +570,7 @@
 
 ### 2018 高雄市賽 p6
 
-???+ note "[ZJ 背包問題](https://zerojudge.tw/ShowProblem?problemid=c835)"
+???+ note "[Zerojudge c835. 背包問題](https://zerojudge.tw/ShowProblem?problemid=c835)"
 	給你 $n$ 個物品，背包重量限制為 $2^W$，每個物品的重量是 $2^{w_i}$，價值是 $v_i$，求能放到背包內的最大價值和
 	
 	??? note "思路"
@@ -584,15 +579,16 @@
 	
 	??? note "code"
 	    ```cpp linenums="1"
-	    void solve () {
+	    void solve() {
 	    	cin >> n >> m;
-	        for(int i = 0; i < n; ++i) {
-	            int a, b;
-	            cin >> a >> b;
-	            if(a <= m)
-	                pq[a].push(b);
+	        for (int i = 0; i < n; ++i) {
+	            int w, v;
+	            cin >> w >> v;
+	            if (w <= m) {
+	            	pq[w].push(v);
+	            }
 	        }
-	        for(int i = 0; i < m; ++i) {
+	        for (int i = 0; i < m; ++i) {
 	            while(!pq[i].empty()) {
 	                if(pq[i].size() == 1) {
 	                    pq[i + 1].push(pq[i].top());
