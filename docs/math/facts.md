@@ -268,68 +268,40 @@
 ### 因數個數,和,乘積
 
 ???+note "[CSES - Divisor Analysis](https://cses.fi/problemset/task/2182)"
-	給 $N=(a_1)^{b_1}\times (a_2)^{b_2}\times (a_3)^{b_3}\times \ldots$，求 :
+	給 $p_1, \ldots ,p_n$，與 $k_1, \ldots ,k_n$，代表 $x=p_1^{k_1}\times p_n^{k_n}$，求 $x$ 的:
 	
     - 因數個數
     
     - 因數和
     
     - 因數乘積
+
+	$n\le 10^5, 2\le p_i\le 10^6, 1\le k_i\le 10^9$
     
     ??? note "思路"
     
         > 因數個數
     
-        - $D=(b_1 +1)\times (b_2 + 1) \times (b_3 + 1)\times ..$
-    
-        ```cpp
-        cnt = (cnt * ((b + 1) % M)) % M;
-        ```
+        根據公式，因數個數 $(k_1 +1)\times (k_2 + 1) \times (k_3 + 1)\times ..$
     
         > 因數和
-    
-        - 例如 $12=2^2\times 3^1$
-    
-        - $\texttt{sum}=(2^0+2^1+2^2)\times (3^0+3^1)$
-    
-        - 例如 $(2^0+2^1+2^2)$
-            - 等比級數和 $\frac{a\times (r^n+1)}{r+1}=\frac{1\times (r^{b+1}+1)}{a+1}$
-    
-        ```cpp 
-        sum = (sum * ((fastpow (a, b + 1, M) - 1LL) * inv(a - 1LL) % M)) % M;
-        ```
-    
+    	
+    	對於每個質因數我們都可以用等比級數和公式將他加起來，例如 $12=2^2\times 3^1$，$\texttt{sum}=(2^0+2^1+2^2)\times (3^0+3^1)$，$(2^0+2^1+2^2)$ 就可以用 $\displaystyle \frac{a\times (r^n - 1)}{r - 1}$ 將他加起來
+    	
         > 因數乘積
     
-        - $N^{D \div 2}$
-            - $D=(b_1 +1)\times (b_2 + 1) \times (b_3 + 1)\times ..$
-            - 倆倆組成一個為 $N$ 的 pair
-        - $D$ 是奇數
-            - 代表 $b_1..b_n$ 都是偶數
-            - 可以把 $N^{D \div 2}$ 拆成 $\sqrt{N}^{D}$
-        - $D$ 是偶數
-            - 直接把某個 $b_i+1$ 除 $2$ 就好
-    
-        ```cpp 
-        sqt = (sqt * (fastpow (a, b / 2, M) % M)) % M;
+        也就是要計算 $x^{d \div 2}$，其中 $d=(k_1 +1)\times \ldots \times (k_n + 1)$，因為可以觀察到就是因數乘積好幾個乘起來是 $x$ 的 pair。我們以下分 case 討論:
+        
+        - 當 $d$ 是奇數
+            - 代表 $k_1, \ldots ,k_n$ 都是偶數
+            - 可以把 $x^{d \div 2}$ 拆成 $\sqrt{x}^{d}$
 
-
-        if ((b + 1) % 2 == 0) {
-            if (fg) {
-                D = (D * (b + 1)) % (M - 1);
-                continue;
-            }
-            D = (D * ((b + 1)/2)) % (M - 1);
-            fg = 1;
-        }
-        else {
-            D = (D * (b + 1)) % (M - 1);
-        }
-        ```
+        - $d$ 是偶數
+            - 直接把某個為偶數的 $k_i+1$ 除 $2$ 就好
     
         > bug
     
-        - $D$ 在計算的時候(因數乘積)，因為他是 $D$ 次方是次方，所以必須 $\pmod{M-1}$ 
+        $d$ 在計算的時候(因數乘積)，因為 $d$ 是次方，為 $M-1$ 一循環，所以必須 $\pmod{M-1}$ 
     
         > $\texttt{Fermat's little theorem}$
         > 
@@ -340,18 +312,11 @@
     	```cpp linenums="1"
         #include <bits/stdc++.h>
         #define int long long
-        #define lowbit(x) (x & (-x))
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
         using namespace std;
-    
+
         const int M = 1e9 + 7;
-    
         int n, k;
-    
+
         int fastpow(int a, int b, int m) {
             int ret = 1;
             while (b != 0) {
@@ -359,39 +324,41 @@
                 a = (a * a) % m;
                 b >>= 1;
             }
-    
+
             return ret;
         }
-    
+
         int inv(int x) {
             return fastpow(x, M - 2, M);
         }
-    
+
         signed main() {
-            int sum = 1, cnt = 1, num = 1, sqt = 1;
+            int ans2 = 1, ans1 = 1, num = 1, sqt = 1;
             cin >> n;
-            int a, b;
-            int fg = 0, D = 1;
+            int fg = 0, d = 1;
             for (int i = 1; i <= n; i++) {
-                cin >> a >> b;
-                cnt = (cnt * ((b + 1) % M)) % M;
-                num = (num * (fastpow(a, b, M) % M)) % M;
-                sqt = (sqt * (fastpow(a, b / 2, M) % M)) % M;
-                sum = (sum * ((fastpow(a, b + 1, M) - 1LL) * inv(a - 1LL) % M)) % M;
-                if ((b + 1) % 2 == 0) {
+                int p, k;
+                cin >> p >> k;
+                ans1 = (ans1 * ((k + 1) % M)) % M;
+                ans2 = (ans2 * ((fastpow(p, k + 1, M) - 1) * inv(p - 1) % M)) % M;
+
+                // calculate ans3
+                num = (num * (fastpow(p, k, M) % M)) % M;
+                sqt = (sqt * (fastpow(p, k / 2, M) % M)) % M;
+                if ((k + 1) % 2 == 0) {
                     if (fg) {
-                        D = (D * (b + 1)) % (M - 1);
+                        d = (d * (k + 1)) % (M - 1);
                         continue;
                     }
-                    D = (D * ((b + 1) / 2)) % (M - 1);
+                    d = (d * ((k + 1) / 2)) % (M - 1);
                     fg = 1;
                 } else {
-                    D = (D * (b + 1)) % (M - 1);
+                    d = (d * (k + 1)) % (M - 1);
                 }
             }
-    
-            int res = (fg ? fastpow(num, D, M) : fastpow(sqt, D, M));
-            cout << cnt << " " << sum << " " << res << "\n";
+
+            int ans3 = (fg ? fastpow(num, d, M) : fastpow(sqt, d, M));
+            cout << ans1 << " " << ans2 << " " << ans3 << "\n";
         }
         ```
 
@@ -592,9 +559,9 @@ $$\displaystyle \varphi(n)=n \left ( 1-\frac{1}{p_1} \right )\left( 1-\frac{1}{p
 	t 筆查詢，每筆給定 p, q，求滿足以下條件的最大 x
 	
 	- p % x == 0
-
+	
 	- x % q != 0
-
+	
 	$t\le 50, 1\le p\le 10^{18}, 1\le q\le 10^9$
 	
 	??? note "思路"
@@ -603,53 +570,53 @@ $$\displaystyle \varphi(n)=n \left ( 1-\frac{1}{p_1} \right )\left( 1-\frac{1}{p
 		例如:
 		
 		- p = 2<sup>1</sup> * 3<sup>3</sup> * 5<sup>2</sup>
-
+	
 		- q = 3<sup>2</sup> * 5<sup>1</sup>
-
+	
 		x 只能是 p 削掉與 q 共同的項才合法，所以我們只考慮 3, 5。
 		
 		- 削掉 3: x = 2<sup>1</sup> * 3<sup>1</sup> * 5<sup>2</sup>
-
+	
 		- 削掉 5: x = 2<sup>1</sup> * 3<sup>3</sup> * 5<sup>0</sup>
-
+	
 		顯然削掉 3 可以讓 x 更大
 		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int MAXN = 10001;
-        int t, p, q;
-
-        int f(int i) {
-            if (i == 1) return 1;
-            int k = p;
-            while (k % q == 0) {
-                k /= i;
-            }
-            return k;
-        }
-
-        signed main() {
-            cin >> t;
-            while (t--) {
-                cin >> p >> q;
-                int ans = -1e18;
-                if (p % q != 0) {
-                    cout << p << "\n";
-                } else {
-                    for (int i = 1; i * i <= q; i++) {
-                        if (q % i == 0) {
-                            ans = max(ans, f(i));
-                            ans = max(ans, f(q / i)); // 可能會有質數 > sqrt(n)
-                        }
-                    }
-                    cout << ans << "\n";
-                }
-            }
-        }
-		```
+	    #define int long long
+	    using namespace std;
 	
+	    const int MAXN = 10001;
+	    int t, p, q;
+	
+	    int f(int i) {
+	        if (i == 1) return 1;
+	        int k = p;
+	        while (k % q == 0) {
+	            k /= i;
+	        }
+	        return k;
+	    }
+	
+	    signed main() {
+	        cin >> t;
+	        while (t--) {
+	            cin >> p >> q;
+	            int ans = -1e18;
+	            if (p % q != 0) {
+	                cout << p << "\n";
+	            } else {
+	                for (int i = 1; i * i <= q; i++) {
+	                    if (q % i == 0) {
+	                        ans = max(ans, f(i));
+	                        ans = max(ans, f(q / i)); // 可能會有質數 > sqrt(n)
+	                    }
+	                }
+	                cout << ans << "\n";
+	            }
+	        }
+	    }
+		```
+
 [^1]: 若 $n=p\times q$，則 $\min(p,q)\le \sqrt{n}$
