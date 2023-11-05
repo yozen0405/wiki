@@ -33,7 +33,7 @@
     
     ??? note "code"
         ```cpp linenums="1"
-        void solve () {
+        void solve() {
             priority_queue<int, vector<int>, greater<int>> pq;
             cin >> n;
     
@@ -66,7 +66,7 @@
 	??? note "code"
 		```cpp linenums="1"
 		priority_queue<pii> pq;
-	    void init () {
+	    void init() {
 	        cin >> n >> m;
 	        if (m * 2 > n) { 
 	            cout << "Error\n"; 
@@ -76,19 +76,19 @@
 	        for (int i = 1; i <= n; i++) {
 	            next[i] = i + 1;
 	            pre[i] = i - 1;
-	            pq.push (make_pair(a[i], i));
+	            pq.push(make_pair(a[i], i));
 	        }
 	        pre[1] = n;
 	        next[n] = 1;
 	    }
 	    
-	    void del (int x) {
+	    void del(int x) {
 	        next[pre[x]] = next[x];
 	        pre[next[x]] = pre[x];
 	        deleted[x] = true;
 	    }
 	    
-	    void greed () {
+	    void greed() {
 	        while (deleted[pq.top().id]) pq.pop();
 	        int x = pq.top().id; pq.pop();
 	        ans += a[x];
@@ -98,7 +98,7 @@
 	        pq.push(make_pair (a[x], x));
 	    }
 	    
-	    void work () {
+	    void work() {
 	        for (int i = 1; i <= m; i++) greed();
 	        cout << ans << "\n";
 	    }
@@ -201,27 +201,26 @@
 由於堆的性質，使得堆的首數據一定是最優的，這就可以實現快速更新最優解。
 
 #### USACO Work Scheduling 
-???+note "[[USACO09OPEN] Work Scheduling G](https://www.luogu.com.cn/problem/P2949)"
+???+note "區間調度問題 - 最大總權重 [[USACO09OPEN] Work Scheduling G](https://www.luogu.com.cn/problem/P2949)"
     有 $n$ 項工作，每項工作有一個截止時間 $t_i$，完成每項工作可以得到利潤 $w_i$，求最大可以得到多少利潤。
     
     ??? note "code"
     	```cpp linenums="1"
-    	void solve () {
+    	void solve() {
             cin >> n;
             for (int i = 1; i <= n; i++) cin >> a[i].time >> a[i].w;
-            sort (a + 1, a + 1 + n);
+            sort(a + 1, a + 1 + n);
     
             for (int i = 1; i <= n; i++) {
                 if (a[i].time <= pq.size()) {
                     if (a[i].w > pq.top()) {
-                        ans += a[i].w - pq.top ();
-                        pq.pop ();
-                        pq.push (a[i].w);
+                        ans += a[i].w - pq.top();
+                        pq.pop();
+                        pq.push(a[i].w);
                     }
-                }
-                else {
+                } else {
                     ans += a[i].w;
-                    pq.push (a[i].w);
+                    pq.push(a[i].w);
                 }
             }
     
@@ -253,43 +252,43 @@
 	??? note "code"
 		```cpp linenums="1"
 		void init() {
-            cin >> n >> m >> k;
-            for (int i = 1; i <= m; i++) {
-                cin >> a[i] >> b[i] >> c[i];
-                last[i] = i;
-            }
-            for (int i = 1; i <= m; i++) {
-                cin >> u >> v;
-                last[v] = max(last[v], u);
-            }
-            for (int i = 1; i <= n; i++) {
-                add_edge(last[i], i);
-                // edge (last[i] -> i)
-            }
-        }
-        void solve() {
-            priority_queue<int, vector<int>, greater<int>> pq;
-            int ans = 0;
-            for (int i = 1; i <= n; i++) {
-                while (k < a[i] && !pq.empty()) k++, pq.pop();
-                if (k < a[i]) {
-                    cout << "-1\n";
-                    return;
-                }
-                k += b[i];
-                for (auto v : G[u]) {
-                    pq.push(c[v]);
-                    k--;
-                }
-            }
-            while (k < 0 && !pq.empty()) pq.pop();
-            if (k < 0) {
-                cout << "-1\n";
-                return;
-            }
-            while (!pq.empty()) ans += pq.top(), pq.pop();
-            cout << ans << "\n";
-        }
+	        cin >> n >> m >> k;
+	        for (int i = 1; i <= m; i++) {
+	            cin >> a[i] >> b[i] >> c[i];
+	            last[i] = i;
+	        }
+	        for (int i = 1; i <= m; i++) {
+	            cin >> u >> v;
+	            last[v] = max(last[v], u);
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            add_edge(last[i], i);
+	            // edge (last[i] -> i)
+	        }
+	    }
+	    void solve() {
+	        priority_queue<int, vector<int>, greater<int>> pq;
+	        int ans = 0;
+	        for (int i = 1; i <= n; i++) {
+	            while (k < a[i] && !pq.empty()) k++, pq.pop();
+	            if (k < a[i]) {
+	                cout << "-1\n";
+	                return;
+	            }
+	            k += b[i];
+	            for (auto v : G[u]) {
+	                pq.push(c[v]);
+	                k--;
+	            }
+	        }
+	        while (k < 0 && !pq.empty()) pq.pop();
+	        if (k < 0) {
+	            cout << "-1\n";
+	            return;
+	        }
+	        while (!pq.empty()) ans += pq.top(), pq.pop();
+	        cout << ans << "\n";
+	    }
 		```
 
 ## 其他
@@ -322,91 +321,91 @@
 	??? note "code"
 		```cpp linenums="1"
 		int solve(vector<int> a, vector<int> b) {
-            int n = a.size();
-            priority_queue<int> pq;
-            int rest = 0;
-            for (int i = n - 1; i >= 0; i--) {
-                pq.push(b[i]);
-                rest += a[i];
-                while (pq.size() && rest > 0) {
-                    int x = pq.top();
-                    pq.pop();
-                    rest -= x;
-                }
-                if (rest > 0) return -1;
-            }
-            return n - (int)pq.size();
-        }
+	        int n = a.size();
+	        priority_queue<int> pq;
+	        int rest = 0;
+	        for (int i = n - 1; i >= 0; i--) {
+	            pq.push(b[i]);
+	            rest += a[i];
+	            while (pq.size() && rest > 0) {
+	                int x = pq.top();
+	                pq.pop();
+	                rest -= x;
+	            }
+	            if (rest > 0) return -1;
+	        }
+	        return n - (int)pq.size();
+	    }
 		```
 	??? note "[rahlin](https://codeforces.com/profile/rahlin1004)'s code"
 	    ```cpp linenums="1"
 	    #include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        using namespace std;
-
-        const int INF = 2e18, MAXN = 1e6 + 5, M = 1e9 + 7;
-        int n, k, a[MAXN], b[MAXN], t[MAXN], ans = 0;
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cin >> n >> k;
-            for (int i = 0; i < n; i++) cin >> a[i];
-            for (int i = 0; i < n; i++) cin >> b[i];
-            for (int i = 0; i < k; i++) cin >> t[i];
-            sort(t, t + k);
-
-            int lb = -1;
-            for (int i = 0; i < k; i++) {
-                priority_queue<int> pq;
-                int rb = t[i] - 1, l = t[i] - 1;
-                pq.push(b[rb]);
-                while (l > lb && pq.size()) {
-                    int f = pq.top();
-                    pq.pop();
-                    ans++;
-                    while (l > lb && f >= 0) {
-                        if (f >= a[l]) {
-                            f -= a[l];
-                            a[l] = 0;
-                            l--;
-                            if (l > lb) pq.push(b[l]);
-                        } else {
-                            a[l] -= f;
-                            f = 0;
-                            break;
-                        }
-                    }
-                }
-                if (l != lb) {
-                    cout << -1 << "\n";
-                    exit(0);
-                }
-                lb = rb;
-            }
-            cout << ans << "\n";
-        }
-
-        /*
-        5 2
-        1 2 3 4 5
-        1 1 1 1 1
-        2
-        4
-
-        5 3
-        5 4 3 2 1
-        4 8 7 6 3
-        1
-        3
-        5
-        */
-        ```
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    using namespace std;
+	
+	    const int INF = 2e18, MAXN = 1e6 + 5, M = 1e9 + 7;
+	    int n, k, a[MAXN], b[MAXN], t[MAXN], ans = 0;
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> n >> k;
+	        for (int i = 0; i < n; i++) cin >> a[i];
+	        for (int i = 0; i < n; i++) cin >> b[i];
+	        for (int i = 0; i < k; i++) cin >> t[i];
+	        sort(t, t + k);
+	
+	        int lb = -1;
+	        for (int i = 0; i < k; i++) {
+	            priority_queue<int> pq;
+	            int rb = t[i] - 1, l = t[i] - 1;
+	            pq.push(b[rb]);
+	            while (l > lb && pq.size()) {
+	                int f = pq.top();
+	                pq.pop();
+	                ans++;
+	                while (l > lb && f >= 0) {
+	                    if (f >= a[l]) {
+	                        f -= a[l];
+	                        a[l] = 0;
+	                        l--;
+	                        if (l > lb) pq.push(b[l]);
+	                    } else {
+	                        a[l] -= f;
+	                        f = 0;
+	                        break;
+	                    }
+	                }
+	            }
+	            if (l != lb) {
+	                cout << -1 << "\n";
+	                exit(0);
+	            }
+	            lb = rb;
+	        }
+	        cout << ans << "\n";
+	    }
+	
+	    /*
+	    5 2
+	    1 2 3 4 5
+	    1 1 1 1 1
+	    2
+	    4
+	
+	    5 3
+	    5 4 3 2 1
+	    4 8 7 6 3
+	    1
+	    3
+	    5
+	    */
+	    ```
 
 ### 先到先服務
 
@@ -547,24 +546,24 @@
             ```cpp linenums="1"
             // 扣掉移動時間後，有 k 分鐘打掃前 e 個教室最大蒐集灰塵量
             long long collect_dust(int e, int k) {
-              priority_queue<pair<int,int>> pq; // 維護 (目前蒐集得到的灰塵量, 教室id)
-              long long result = 0;
-    
-              for (int i=1; i<=e; i++) {
-                pq.emplace(s[i], i);
-              }
-              for (int t=1; t<=k; t++) {
-                if (pq.empty()) break; // 所有 >= 0 的灰塵都被掃完了
-    
-                auto [dust, classroom] = pq.top();
-                pq.pop();
-    
-                result += dust;
-                if (dust - d[classroom] > 0) { // 下一次掃除的灰塵量 > 0 的話
-                  pq.emplace(dust - d[classroom], classroom);
+                priority_queue<pair<int, int>> pq;  // 維護 (目前蒐集得到的灰塵量, 教室id)
+                long long result = 0;
+
+                for (int i = 1; i <= e; i++) {
+                    pq.emplace(s[i], i);
                 }
-              }
-              return result;
+                for (int t = 1; t <= k; t++) {
+                    if (pq.empty()) break;  // 所有 >= 0 的灰塵都被掃完了
+
+                    auto [dust, classroom] = pq.top();
+                    pq.pop();
+
+                    result += dust;
+                    if (dust - d[classroom] > 0) {  // 下一次掃除的灰塵量 > 0 的話
+                        pq.emplace(dust - d[classroom], classroom);
+                    }
+                }
+                return result;
             }
             ```
 

@@ -1,17 +1,66 @@
-## 時間戳記
+## 時間標記
 
-- toi 乘車時間
-- https://zerojudge.tw/ShowProblem?problemid=c313
+對於每個點，我們開兩個陣列 in 與 out 來記錄每個點進入 dfs 時和結束 dfs 時的時間點。當 u 是 v 的祖先，代表我們會先進入 u，進入 v，再從 v 出去，再從 u 出去，即 in[u] ≤ in[v] ≤ out[v] ≤ out[u]
 
-## 模板
+<figure markdown>
+  ![Image title](./images/89.png){ width="300" }
+</figure>
 
+例如說 (A, F) 因為 1 ≤ 7 ≤ 8 ≤ 14，所以是祖先關係，而 (B, E) 因為 2 ≤ 5 ≤ 6 ≤ 3，所以不是祖先關係
 
-
-???+note "模板題 [CSES - Companies II](https://cses.fi/problemset/task/1688)"
-
-???+note "code"
+???+note "判斷是否為祖先"
 	```cpp linenums="1"
-	vector<pii> G[maxn];
+	void dfs(int u) {
+        in[u] = ++stamp; 
+        for(auto v : G[u]) {
+            if (v == par) continue;
+            if (!in[v]) dfs(v);
+        }
+        out[u] = ++stamp;  
+    }
+
+    bool is_ancestor(int x,int y) {
+        return (in[x] <= in[y] && out[x] >= out[y]);
+    }
+	```
+
+## LCA 介紹
+
+<figure markdown>
+  ![Image title](./images/92.png){ width="300" }
+</figure>
+
+在有根樹中，給兩個點 u, v，高度最低的共同祖先即為 LCA
+
+- LCA(E, F) = C
+
+- LCA(E, G) = A
+
+- LCA(F, C) = C
+
+## LCA 性質
+
+1. 兩點集 union 起來的 LCA 為兩點集分別的 LCA 的 LCA，舉例來說 $\text{lca}(a, b, c)$ 等於 $\text{lca}(\text{lca}(a, b), c)$
+2. $dis(u,v)=\text{depth}(u)+\text{depth}(v)-2\times \text{depth}(\text{lca}(u,v))$
+
+## 使用倍增法查詢 LCA
+
+???+note "[CSES - Companies II](https://cses.fi/problemset/task/1688)"
+	給一顆 $n$ 個點的樹，$q$ 次詢問兩個點的 LCA
+	
+	$n,q\le 2\times 10^4$
+
+先看 u, v 哪個點比較深，從深的那個點看 dep(u) - dep(v) 的二進制，利用倍增法往上跳，跳到直到 dep(u) = dep(v) 時，若原本 u, v 就是祖孫關係，那麼就結束了，否則，我們就可以用倍增法枚舉高位到低位:
+
+- 若 pa(u, k) = pa(v, k) 代表跳太多了，不能跳
+
+- 否則就跳 k 格
+ 
+最後，u, v 會跳到 lca 的 children 上
+
+??? note "code"
+	```cpp linenums="1"
+	vector<pair<int, int>> G[maxn];
     int p[maxn][21], dp[maxn][21], dep[maxn];
 
     void dfs(int u, int par) {
@@ -33,7 +82,7 @@
         }
     }
     
-    int LCA(int a, int b) {
+    int lca(int a, int b) {
         if (dep[a] < dep[b]) swap(a, b);
         int dif = dep[a] - dep[b];
         for (int i = 20; i >= 0; i--) {
@@ -55,19 +104,34 @@
     }
     ```
 
-## 性質
+## 樹壓平找 LCA
 
-1. 兩點集 union 起來的 LCA 為兩點集分別的 LCA 的 LCA，舉例來說 $\text{lca}(a, b, c)$ 等於 $\text{lca}(\text{lca}(a, b), c)$
-2. $dis(u,v)=\text{depth}(u)+\text{depth}(v)-2\times \text{depth}(\text{lca}(u,v))$
+<figure markdown>
+  ![Image title](./images/84.png){ width="300" }
+</figure>
 
+當我們把樹的 euler tour 列出來後，兩點 $(u,v)$ 之間的 LCA 就是區間 $[u,v]$ 內深度最小的那個
+
+<figure markdown>
+  ![Image title](./images/85.png){ width="300" }
+</figure>
 
 ## 例題
-### TIOJ 1687
+
+???+note "[Zerojudge c313. PF:終末之塔](https://zerojudge.tw/ShowProblem?problemid=c313)"
+	給一顆 $n$ 個點的樹，邊有權重，$q$ 次詢問兩點之間所有邊權的最大值
+	
+	$n, q\le 10^4$
+	
+	??? note "思路"
+		可以用倍增法 + dp 來做到，令 dp(i, j) = 從 i 開始到往 2^j 格間的最大邊權，在 find lca 的過程中，就可以順便去查表 dp(i, j) 
 
 ???+note "[TIOJ 1687 . 樹上詢問 Query on a Tree II](https://tioj.ck.tp.edu.tw/problems/1687)"
-    給 $u,v,k$ 問 $u$ 往 $v$ 走 $k$ 步走到的點
+    給一顆 $n$ 個點的樹，有 $q$ 筆以下查詢: 
     
-    $\texttt{IMPOSSIBLE}$ 輸出 $-1$
+    - $\text{query}(u,v,k):$ 問 $u$ 往 $v$ 走 $k$ 步走到的點
+
+	$n\le 10^5, q\le 2\times 10^5$
     
     ??? note "code"
     	```cpp linenums="1"
@@ -572,3 +636,30 @@
 	        return 0;
 	    }
 	    ```
+	    
+???+note "[洛谷 P4281 [AHOI2008] 紧急集合 / 聚会](https://www.luogu.com.cn/problem/P4281) / [CS Academy - Triplet Min Sum](https://csacademy.com/contest/archive/task/triplet-min-sum/statement/)"
+	給一個 $n$ 個點的樹，有 $q$ 筆查詢:
+	
+	- $\text{query}(a,b,c):$ 輸出與 $a,b,c$ 三點距離和最小的點 $x$，並輸出 $x$ 與三點的距離和
+	
+	$3\le n\le 10^5, 1\le q\le 10^5$
+	
+	??? note "思路"
+		【觀察、結論題】
+	
+		<figure markdown>
+          ![Image title](./images/90.png){ width="300" }
+        </figure>
+        
+        我們先將他們兩兩之間的 path 畫出來看看，我們先猜答案是 a, b, c 深度最低的兩個點的 lca
+        
+        <figure markdown>
+          ![Image title](./images/91.png){ width="300" }
+        </figure>
+        
+        但如上圖，答案就會是錯的。那我們再猜答案是 lca(a, b), lca(b, c), lca(c, a) 之中深度最小的那個
+        
+        來驗證一下正確性，假設是 lca(a, b) 深度最小，那麼我們可將 a, b 視為在同一個子樹裡面，root 為 lca(a, b)，若選的點在 lca(a, b) 更下面則離 3 個點的距離都更遠，若選的點在 lca(a, b) 更上面則會對 a, b 兩個點各產生 +1 的貢獻，也就是 + (往上移的距離) * 2，而對 c 產生 -1 的貢獻，也就是 - (往上移的距離) * 1，顯然離 a, b 越近越好才能使 * 2 的貢獻盡量小
+        
+        對於 $x$ 與三點的距離和，我們可以採用 dep(u) + dep(v) - 2 * dep(lca(u, v)) 的公式來計算
+     

@@ -1,3 +1,9 @@
+## 概念
+
+區間類動態規劃是線性動態規劃的擴展，它在分階段地劃分問題時，與階段中元素出現的順序和前一階段的哪些元素合併而來有很大的關係。 設狀態 $dp(l, r)$ 表示將 $a_l,\ldots ,a_r$ 的所有元素合併所能得到的最大價值，則 $dp(l, r)=\max\{dp(l, k) + dp(k+1, r)+\text{cost}(l, r)\}$，$cost(l, r)$ 為將這兩組元素合併起來的代價。
+
+## 題目
+
 ???+note "[CF 1025 D. Recovering BST](https://codeforces.com/problemset/problem/1025/D)"
 	給一個長度為 $n$ 的中序陣列 $a_1,\ldots ,a_n$，問是否能組出一顆 BST 滿足相鄰兩點的 $\gcd (a_i, a_j)=1$
 	
@@ -106,134 +112,134 @@
 	
 	??? note "思路"
 		因為最佳解一定可以透過多個 $c_i$ 構成，所以我們可以先將 $c_i$ 離散化
-
-        $dp(l,r,k)=$ 所有區間 $[l,r]$ 內的消費者當區間最小值 $\ge k$ 時的總消費最小值
-        
-        $$
-        dp(i,j,k)=\min \limits_{i\le pos\le j} \{dp(i,pos-1,k)+dp(pos+1,j,k)+k\cdot g(pos,k) \}
-        $$
-
-        然後因為是 $\ge k$，所以也必須考慮從 $dp(i,j,k+1)$ 轉移過來的情況
-
-        其中 $g(pos,k)$ 表示: 在當前 $[l,r]$ 內的消費者中，經過了 $pos$ 且 $c_i\le k$ 的數量。這一部分消費者的貢獻就是 $k$
-
-        構造一組解的話，我們紀錄:
-
-        - $k$ 要往上跳到哪裡
-
-        - 斷點 $pos$ 的位置
-
-        最後用遞迴回溯答案
-        
-        > 參考自: <https://blog.csdn.net/qq_41996523/article/details/112477860>
-        
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        #define int long long
-
-        using namespace std;
-
-        const int MAXN = 55, MAXM = 4005;
-        int n, m, a[MAXM], b[MAXM], c[MAXM], lsh[MAXM], tot;
-        int g[MAXN][MAXM], f[MAXN][MAXN][MAXM], pos[MAXN][MAXN][MAXM];
-        int lstk[MAXN][MAXN][MAXM], ans[MAXN];
-
-        void getans(int l, int r, int k) {
-            if (k > tot) {
-                return;
-            }
-            if (l > r) {
-                return;
-            }
-            k = lstk[l][r][k];
-            ans[pos[l][r][k]] = lsh[k];
-            getans(l, pos[l][r][k] - 1, k);
-            getans(pos[l][r][k] + 1, r, k);
-        }
-
-        signed main() {
-            cin >> n >> m;
-            for (int i = 1; i <= m; i++) {
-                cin >> a[i] >> b[i] >> c[i];
-                lsh[++tot] = c[i];
-            }
-
-            sort(lsh + 1, lsh + 1 + tot);
-            tot = unique(lsh + 1, lsh + 1 + tot) - lsh - 1;
-            for (int i = 1; i <= m; i++) {
-                c[i] = lower_bound(lsh + 1, lsh + 1 + tot, c[i]) - lsh;
-            }
-
-            for (int len = 1; len <= n; len++) {
-                for (int l = 1; l + len - 1 <= n; l++) {
-                    int r = l + len - 1;
-                    for (int i = 1; i <= n; i++) {
-                        for (int j = 1; j <= tot; j++) {
-                            g[i][j] = 0;
-                        }
-                    }
-                    for (int i = 1; i <= m; i++) {
-                        if (l <= a[i] && b[i] <= r) {
-                            g[a[i]][c[i]]++;
-                            g[b[i] + 1][c[i]]--;
-                        }
-                    }
-                    for (int i = 1; i <= n; i++) {
-                        for (int j = 1; j <= tot; j++) {
-                            g[i][j] += g[i - 1][j];
-                        }
-                    }
-                    for (int i = 1; i <= n; i++) {
-                        for (int j = tot; j >= 1; j--) {
-                            g[i][j] += g[i][j + 1];
-                        }
-                    }
-                    for (int k = tot; k >= 1; k--) {
-                        for (int p = l; p <= r; p++) {
-                            int val = (p > l ? f[l][p - 1][k] : 0) + (p < r ? f[p + 1][r][k] : 0) + lsh[k] * g[p][k];
-                            if (f[l][r][k] <= val) {
-                                f[l][r][k] = val;
-                                pos[l][r][k] = p;
-                            }
-                        }
-                        if (f[l][r][k] >= f[l][r][k + 1]) {
-                            lstk[l][r][k] = k;
-                        } else {
-                            f[l][r][k] = f[l][r][k + 1];
-                            lstk[l][r][k] = lstk[l][r][k + 1];
-                        }
-                    }
-                }
-            }
-            cout << f[1][n][1] << '\n';
-            getans(1, n, 1);
-            for (int i = 1; i <= n; i++) {
-                cout << ans[i] << ' ';
-            }
-        }
-    	```
+	
+	    $dp(l,r,k)=$ 所有區間 $[l,r]$ 內的消費者當區間最小值 $\ge k$ 時的總消費最小值
+	    
+	    $$
+	    dp(i,j,k)=\min \limits_{i\le pos\le j} \{dp(i,pos-1,k)+dp(pos+1,j,k)+k\cdot g(pos,k) \}
+	    $$
+	
+	    然後因為是 $\ge k$，所以也必須考慮從 $dp(i,j,k+1)$ 轉移過來的情況
+	
+	    其中 $g(pos,k)$ 表示: 在當前 $[l,r]$ 內的消費者中，經過了 $pos$ 且 $c_i\le k$ 的數量。這一部分消費者的貢獻就是 $k$
+	
+	    構造一組解的話，我們紀錄:
+	
+	    - $k$ 要往上跳到哪裡
+	
+	    - 斷點 $pos$ 的位置
+	
+	    最後用遞迴回溯答案
+	    
+	    > 參考自: <https://blog.csdn.net/qq_41996523/article/details/112477860>
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	
+	    using namespace std;
+	
+	    const int MAXN = 55, MAXM = 4005;
+	    int n, m, a[MAXM], b[MAXM], c[MAXM], lsh[MAXM], tot;
+	    int g[MAXN][MAXM], f[MAXN][MAXN][MAXM], pos[MAXN][MAXN][MAXM];
+	    int lstk[MAXN][MAXN][MAXM], ans[MAXN];
+	
+	    void getans(int l, int r, int k) {
+	        if (k > tot) {
+	            return;
+	        }
+	        if (l > r) {
+	            return;
+	        }
+	        k = lstk[l][r][k];
+	        ans[pos[l][r][k]] = lsh[k];
+	        getans(l, pos[l][r][k] - 1, k);
+	        getans(pos[l][r][k] + 1, r, k);
+	    }
+	
+	    signed main() {
+	        cin >> n >> m;
+	        for (int i = 1; i <= m; i++) {
+	            cin >> a[i] >> b[i] >> c[i];
+	            lsh[++tot] = c[i];
+	        }
+	
+	        sort(lsh + 1, lsh + 1 + tot);
+	        tot = unique(lsh + 1, lsh + 1 + tot) - lsh - 1;
+	        for (int i = 1; i <= m; i++) {
+	            c[i] = lower_bound(lsh + 1, lsh + 1 + tot, c[i]) - lsh;
+	        }
+	
+	        for (int len = 1; len <= n; len++) {
+	            for (int l = 1; l + len - 1 <= n; l++) {
+	                int r = l + len - 1;
+	                for (int i = 1; i <= n; i++) {
+	                    for (int j = 1; j <= tot; j++) {
+	                        g[i][j] = 0;
+	                    }
+	                }
+	                for (int i = 1; i <= m; i++) {
+	                    if (l <= a[i] && b[i] <= r) {
+	                        g[a[i]][c[i]]++;
+	                        g[b[i] + 1][c[i]]--;
+	                    }
+	                }
+	                for (int i = 1; i <= n; i++) {
+	                    for (int j = 1; j <= tot; j++) {
+	                        g[i][j] += g[i - 1][j];
+	                    }
+	                }
+	                for (int i = 1; i <= n; i++) {
+	                    for (int j = tot; j >= 1; j--) {
+	                        g[i][j] += g[i][j + 1];
+	                    }
+	                }
+	                for (int k = tot; k >= 1; k--) {
+	                    for (int p = l; p <= r; p++) {
+	                        int val = (p > l ? f[l][p - 1][k] : 0) + (p < r ? f[p + 1][r][k] : 0) + lsh[k] * g[p][k];
+	                        if (f[l][r][k] <= val) {
+	                            f[l][r][k] = val;
+	                            pos[l][r][k] = p;
+	                        }
+	                    }
+	                    if (f[l][r][k] >= f[l][r][k + 1]) {
+	                        lstk[l][r][k] = k;
+	                    } else {
+	                        f[l][r][k] = f[l][r][k + 1];
+	                        lstk[l][r][k] = lstk[l][r][k + 1];
+	                    }
+	                }
+	            }
+	        }
+	        cout << f[1][n][1] << '\n';
+	        getans(1, n, 1);
+	        for (int i = 1; i <= n; i++) {
+	            cout << ans[i] << ' ';
+	        }
+	    }
+		```
 
 ???+note "[CF 1312 E. Array Shrinking](https://codeforces.com/problemset/problem/1312/E) "
 	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，相鄰的兩個 $a_i$ 若相等可以合併成一個元素 $a_i+1$，問最後最少可以剩下多少個元素。
 
 	$n\le 500, 1\le a_i\le 1000$
-
+	
 	??? note "思路"
 		這裡需要用到一個結論: 對於一個區間，如果它可以被合成一個數，那麼它被合成的數是唯一的。
+	
+	    > 證明:
+	    >
+	    > 若將一個數 $a_i$ 定義成 $2^{a_i}$，那麼不管怎麼合併總和都是一樣的
+	
+	    令 $dp(l,r)$ 為 $a_l,\ldots ,a_r$ 最後最多可以剩多少元素，$f(l,r)$ 為 $a_l,\ldots ,a_r$ 若可以最後會合併成什麼數字。轉移式
+	    
+	    $$
+	    dp(l,r)=\min\{dp(l,k)+dp(k+1,r) \}
+	    $$
+	    
+	    若 $dp(l,k)=1$ 且 $dp(k+1,r)=1$ 且 $a_{l,k}=a_{k+1,r}=1$，才可讓 $dp(l,r)=1,a_{l,r}=a_{l,k}+1$
 
-        > 證明:
-        >
-        > 若將一個數 $a_i$ 定義成 $2^{a_i}$，那麼不管怎麼合併總和都是一樣的
-
-        令 $dp(l,r)$ 為 $a_l,\ldots ,a_r$ 最後最多可以剩多少元素，$f(l,r)$ 為 $a_l,\ldots ,a_r$ 若可以最後會合併成什麼數字。轉移式
-        
-        $$
-        dp(l,r)=\min\{dp(l,k)+dp(k+1,r) \}
-        $$
-        
-        若 $dp(l,k)=1$ 且 $dp(k+1,r)=1$ 且 $a_{l,k}=a_{k+1,r}=1$，才可讓 $dp(l,r)=1,a_{l,r}=a_{l,k}+1$
-        
 ???+note "[2023 TOI 二模 pB. 圓周拉弦（chord）](https://drive.google.com/file/d/15bXJ8w5d_W4iY9dGOi7gotmnUURG8Rm8/view)"
 	有一個圓，上面有 $n$ 個等分點，連起兩個點 $i,j$ 所得到的 cost 是 $w_i + w_j \pmod k$，在連線只能交在端點的情況下，求最大分數。
 
@@ -241,21 +247,130 @@
 	
 	??? note "思路"
 		$dp(l,r)=$ 只能在 $l,\ldots ,r$ 之間連線的最大 cost
+	
+	    轉移式則枚舉中間的斷點，兩邊變成子問題，記得要加上 $l$ 與 $r$ 連接的 cost
+	    
+	    $$
+	    dp(l,r)=\max \limits_{l<k<r}\{dp(l,k)+dp(k,r) \}+(w_l+w_r)\% k
+	    $$
+	    
+	    <figure markdown>
+	      ![Image title](./images/30.png){ width="300" }
+	    </figure>
+	    
+	    最後，答案就是枚舉起點與斷點 $s,t$，答案就是 $\max \{dp(s,t)+dp(t,s)-(w_s+w_t)\% k \}$
+	    
+	    <figure markdown>
+	      ![Image title](./images/31.png){ width="300" }
+	    </figure>
 
-        轉移式則枚舉中間的斷點，兩邊變成子問題，記得要加上 $l$ 與 $r$ 連接的 cost
-        
-        $$
-        dp(l,r)=\max \limits_{l<k<r}\{dp(l,k)+dp(k,r) \}+(w_l+w_r)\% k
-        $$
-        
-        <figure markdown>
-          ![Image title](./images/30.png){ width="300" }
-        </figure>
-        
-        最後，答案就是枚舉起點與斷點 $s,t$，答案就是 $\max \{dp(s,t)+dp(t,s)-(w_s+w_t)\% k \}$
-        
-        <figure markdown>
-          ![Image title](./images/31.png){ width="300" }
-        </figure>
+???+note "[UVA 1626. Brackets Sequence](https://vjudge.net/problem/UVA-1626)"
+	給一個長度 n 的括號序列 s，可任意增加括號，問最少增加幾次才能使 s 成為合法括號序列 ? 
+	
+	$n\le 100$
+	
+	??? note "思路"
+		dp(l, r) = s[l..r] 最少要加入幾個括號可以變成合法的
 		
-atcoder dp contest slimes
+		轉移的話我們分成看看能不能拆成前後兩段，不能的話代表一定是前後配對
+		
+		dp(l, r) = min{
+		
+		- dp(l, k) + dp(k + 1, r) // 可以分成前後兩段
+
+		- dp(l + 1, r - 1) if ok(s[l], s[r]) // 前後兩個剛好可以配對
+
+		- dp(l, r - 1) + 1 // 例如說 ( [ ( ] <font color="#00A2E8">)</font>
+
+		- dp(l + 1, r) + 1 // 例如說 <font color="#00A2E8">[</font> ( [ ( ] 
+
+???+note "[LeetCode 516. Longest Palindromic Subsequence](https://leetcode.com/problems/longest-palindromic-subsequence/)"
+	給一個長度 n 的字串 s，問 s 的最長迴文子序列長度
+	
+	$n\le 1000$
+	
+	??? note "思路"
+		令 dp(l, r) = s[l..r] 的最長迴文子序列長度
+		
+		考慮前後能不能配對在一起，若 s[l] == s[r] 就可以配對再一起，否則兩個不可能在同一組答案裡面，必須刪掉其中一個。注意到當 s[l] == s[r] 不用再考慮 dp(l+1, r), dp(l, r-1)，因為當 (l, r) 可以配對一定比 (l, r' < r) 來的更好
+		
+		dp(l, r) =
+		
+		- dp(l+1, r-1) + 2 if s[l] == s[r]
+
+		- max(dp(l+1, r), dp(l, r-1)) else
+		
+		
+	??? note "code"
+		```cpp linenums="1"
+		class Solution {
+           public:
+            int longestPalindromeSubseq(string str) {
+                int n = str.size();
+                vector<vector<int>> dp(n, vector<int>(n));
+                for (int i = 0; i < n; i++) dp[i][i] = 1;
+                for (int len = 2; len <= n; len++) {
+                    for (int l = 0; l + len - 1 < n; l++) {
+                        int r = l + len - 1;
+                        if (str[l] == str[r]) {
+                            if (len == 2) {
+                                dp[l][r] = 2;
+                                continue;
+                            }
+                            dp[l][r] = dp[l + 1][r - 1] + 2;
+                        } else {
+                            dp[l][r] = max(dp[l + 1][r], dp[l][r - 1]);
+                        }
+                    }
+                }
+                return dp[0][n - 1];
+            }
+        };
+        ```
+	
+???+note "[Atcoder DP Contest N - Slimes](https://atcoder.jp/contests/dp/tasks/dp_n)"
+	有 $n$ 堆石子，分別有 $a_1, \ldots ,a_n$ 個，每次可以合併相鄰的石子，花費為兩堆石子數目之和，問最後剩下一堆的最少花費
+	
+	$2\le n\le 400, 1\le a_i \le 10^9$
+	
+	??? note "思路"
+		dp(l, r) = 將 a[l..r] 合併成一堆石子的最小花費
+		
+		dp(l, r) = dp(l, k) + dp(k + 1, r) + cost(l, r)
+		
+		其中 cost(l, r) 就是將 a[l..k] 和 a[k+1..r] 合併的花費，也就是 a[l..r]
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        const int INF = (1LL << 60);
+        const int M = 1e9 + 7;
+        const int MAXN = 405;
+        int n;
+        int a[MAXN], psum[MAXN];
+
+        signed main() {
+            cin >> n;
+            vector<vector<int>> dp(n + 1, vector<int>(n + 1, INF));
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+                psum[i] =  psum[i - 1] + a[i];
+            }
+            for (int i = 1; i <= n; i++) {
+                dp[i][i] = 0;
+            }
+            for (int len = 2; len <= n; len++) {
+                for (int l = 1; l + len - 1 <= n; l++) { 
+                    int r = l + len - 1;                  
+                    for (int k = l; k < r; k++) {    
+                        dp[l][r] = min({dp[l][r], dp[l][k] + dp[k + 1][r]});
+                    }
+                    dp[l][r] += psum[r] - psum[l - 1];
+                }
+            }
+            cout << dp[1][n];
+        }
+		```
