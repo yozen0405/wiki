@@ -1,4 +1,200 @@
-- [LOJ 網路流 24 題](https://loj.ac/problems/tag/30)
+## Flow 問題介紹
+
+???+note "s-t Flow Network"
+	給一個有向圖，每條邊 (u, v) 都有一個邊權 c(u, v) 代表容量上限。有兩個特殊的點，源點和匯點，在所有種流量中最大的稱為最大流
+
+- 網路(Network)：圖 G = (V, A) 為一有向圖，稱為網路。
+
+- 源點與匯點(Source and Sink)：令一點 s 為源點、一點 t 為匯點，其餘點則為中間點。
+
+- 容量(Capacity)：每條邊上定義一個非負數 c(u, v) 為該邊的容量
+
+- 流量(Flow)：每條邊上定義一個非負數 f(u, v) 為流量
+
+- 網路的流量(Flow of Network)：由源點發出，匯點匯集的總流量 ，匯點匯集的總流量，若其為該網路能產生的最大流量，則稱其為最大流(Maximum Flow)。
+
+<figure markdown>
+  ![Image title](./images/94.png){ width="400" }
+</figure>
+
+## Flow 性質
+
+- 容量限制(Capacity Constraints): 每條邊 (u, v) 所經過的流量 f(u, v) <= c(u, v)
+- 流量守恆(Flow Conservation): 除了源點和匯點，每個點 u 所流入的流量 = 流出的流量
+
+- 斜對稱(Skew Symmetry): 對於所有的 f(u, v) + f(v, u) = 0，由 u 到 v 淨流量加上由 v 到 u 的淨流量必須為零
+
+- 可行流(Positive Flow)：若一個流符合上述三點限制，則稱其為可行流
+
+## 一些定義
+
+### 剩餘網路 (Residual Network)
+
+將每條邊的最大容量扣掉已經流過的流量，即得到剩餘網路。也就是剩餘容量 $c_f(u, v)=c(u, v)-f(u, v)$ 
+
+<figure markdown>
+  ![Image title](./images/95.png){ width="400" }
+</figure>
+
+### 增廣路徑(Augmenting Path)
+
+一條從起點，到終點的路徑，其中每條邊的剩餘容量都 > 0
+
+<figure markdown>
+  ![Image title](./images/96.png){ width="400" }
+  <figcaption>紅色的路徑即為一條增廣路徑</figcaption>
+</figure>
+
+### 割(Cut)
+
+定義一個 s-t cut $C = (S \text{-component}, T\text{-component})$ 是將點分成與 s 同一塊或與 t 同一塊。定義 $C$ 的 cut-set 為 $\{(u, v) \in E \mid u \in S\text{-component}, v \in T\text{-component}\}$，使得在 cut-set 的邊都被刪掉後，s 到 t 的 Max Flow 是 0（i.e. s 和 t 不連通）
+
+## Maximum s-t flow 演算法
+
+### Ford–Fulkerson
+
+
+
+### 複雜度比較
+
+|                   | Flow                       | Matching       |
+| ----------------- | -------------------------- | -------------- |
+| Ford-Fulkerson    |         O(EF)                   | O(VE)          |
+| Edmond-Karp       | O(min(VE<sup>2</sup>, FE)) |                |
+| Dinic（常數級小） | O(min(V<sup>2</sup>E, FE)) | O(E * sqrt(V)) |
+
+
+## 最小割(Min Cut)
+
+定義 s-t cut 的 cost 為 cut-set 內的邊的 capacity 總和，min cut 就是要最小化這個 cost。簡單來說就 Min Cut 是選一些邊，使 s, t 不連通，並且 capacity 最小
+
+<figure markdown>
+  ![Image title](./images/97.png){ width="300" }
+</figure>
+
+??? info "【Min Flow Max Cut Theorm】: max flow = min cut"
+	max flow <= cut
+
+	Max Flow 可以想成很多個 disjoint path，任何的 cut 一定都會切到這些 path，所以任何 cut 不會比任何 flow 小。
+	
+	---
+	
+	感性的理解，s-t 若想要流出最大流量，必定會有瓶頸處形成 s-t 最小割
+
+### 如何輸出一個 mincut
+
+min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做完 max-flow 後做一次 bfs / dfs，並只走還沒流滿的邊，可以走到的點即為 s 半邊，不能走到的點即為 t 半邊的點，掃過所有的邊檢查兩端點的狀況，輸出符合條件的即為所求。
+
+感性的理解，為什麼可以這樣做，其實可以把 s 開始走還沒流滿的邊視為無關緊要的邊，若碰到一個會流滿的地方就會是瓶頸處
+
+???+note "code"
+	```cpp linenums="1"
+	bool side[MAXN];
+    void cut(int u) {
+        side[u] = 1;
+        for (int i : G[u]) {
+            if (!side[edges[i].v] && edges[i].cap) {
+                cut(edges[i].v);
+            }
+        }
+    }
+    ```
+
+## 二分圖系列
+
+### 二分圖最大匹配
+
+???+note "問題"
+	給一個二分圖，選一些邊使任意兩條邊都沒有公共的頂點，且數量越大越好，也就是最大匹配，並輸出一組答案
+
+創兩個超級源點和超級匯點，所有邊權都是 1，求 max flow 就是答案。輸出答案即看位於兩排中央流滿的邊，極為所求。
+
+<figure markdown>
+  ![Image title](./images/98.png){ width="300" }
+</figure>
+
+### DAG 最小路徑覆蓋
+
+???+note "問題"
+	給一張 n 點 m 邊的 DAG，最少要選幾條路徑可以蓋住所有的點，且任意兩條路徑不能有共同的點
+	
+	<figure markdown>
+      ![Image title](./images/99.png){ width="300" }
+    </figure>
+
+### 二分圖最小點覆蓋
+
+???+note "問題"
+	給一個二分圖，選擇最少的點來覆蓋所有的邊，且數量越小越好，也就是最小點覆蓋，並輸出一組答案
+	
+??? info "【Kőnig's theorem】: 在二分圖中，|最小點覆蓋| = |最大匹配|"
+	- 最大匹配 <= 最小點覆蓋
+		- k 條匹配邊，至少 k 個點覆蓋
+	
+    - 最小點覆蓋 <= 最大匹配
+		- 最小點覆蓋 k 個點，每個點旁邊都有一個沒選到的點
+
+		- 最大匹配至少為 k
+
+	---
+	
+	這邊給出 Kőnig's theorem 的構造法證明，也就是「為何一定找的到一組最小點覆蓋，其數量恰為 max flow」。
+	
+	最小點覆蓋顧名思義就是要找到一些重要的點，並且這些點要越少越好，考慮 min cut，min cut 可以找到重要的邊，使 s 跟 t 的 max flow = 0，而且數量最小化，我們使用找一組 min cut 的方法，從 s 開始走還沒流滿的邊，找出 S-component, T-component
+
+    <figure markdown>
+      ![Image title](./images/100.png){ width="400" }
+      <figcaption>綠色即為 S-component, 紫色即為 T-component</figcaption>
+    </figure>
+
+    因為依照 min cut 的定義，將這些邊刪除後 s 到 t 的 max flow = 0，代表這些邊在中間的點足以支配中間的每一條邊，而又 min cut = max flow，所以最小點覆蓋數量 = min cut = max flow。具體要選哪些中間的點，如下:
+
+    - 左邊且在 T-component 中
+
+    - 右邊且在 S-component 中
+
+    <figure markdown>
+      ![Image title](./images/101.png){ width="400" }
+      <figcaption>粗框的點就是最小點覆蓋</figcaption>
+    </figure>
+    
+根據 Kőnig's theorem，我們得知最小點覆蓋數量跟最大匹配的數量是一樣的，也就是 max flow。若要輸出答案，那我們就選以下這些點即可
+
+- 左邊跟 mincut 同 t 側的的點
+
+- 右邊跟 mincut 同 s 側的的點
+
+具體為什麼可以這樣做在上面 Kőnig's theorem 的構造法證明中有提到
+
+???+note "[CSES - Coin Grid](https://cses.fi/problemset/task/1709)"
+    給一個 $n\times n$ 的 Grid，有些格子上有錢幣。每次可以移除一個 row 或一個 col 的所有錢幣，問最少要幾次操作
+	
+
+### 二分圖最大獨立集
+
+???+note "問題"
+	給一個二分圖，選一些點使選的點兩兩不相鄰，且數量越大越好，也就是最大獨立集，並輸出一組答案
+	
+!!! info "定理: 在一般圖上，|最小點覆蓋| + |最大獨集| = n"
+	
+所以答案就是 n - max flow。輸出答案的話，就把最小點覆蓋沒選到的點都選起來
+
+<figure markdown>
+  ![Image title](./images/102.png){ width="300" }
+  <figcaption>藍色為最小點覆蓋, 紅色為最大獨集</figcaption>
+</figure>
+
+### 比較
+
+- 在二分圖下
+	- 最大匹配 (MM) = 最小點覆蓋 (MVC)
+	- 最大獨立集 (MIS) + 最小點覆蓋 (MVC) = n
+	- 都可以用 max flow 在多項式時間解出
+
+- 在一般圖下
+	- 最大獨立集 (MIS) + 最小點覆蓋 (MVC) = n
+	- 最大獨立集,最小點覆蓋 : NP-hard 問題 (目前已知的演算法只能指數時間解出)
+	- 最大匹配 : P 問題
 
 ## 模板
 ### dinic
@@ -547,3 +743,17 @@ signed main() {
 
 - 無向圖，對於一般 $\texttt{flow}$ 正反互相底消
     - ![](https://i.imgur.com/vODTOzt.png)
+
+- [LOJ 網路流 24 題](https://loj.ac/problems/tag/30)
+
+## 參考資料
+
+- <https://www.cnblogs.com/dijkstra2003/p/7598931.html>
+
+- <https://www.mropengate.com/2015/01/algorithm-ch4-network-flow.html?m=1>
+
+- <http://pisces.ck.tp.edu.tw/~peng/index.php?action=showfile&file=f3cec71910d4a0106624e839f2891b17198ef58be>
+
+- <https://github.com/NCTU-PCCA/NCTU_Fox/tree/master/codebook/Graph/Flow>
+
+- <https://web.ntnu.edu.tw/~algo/Matching.html>
