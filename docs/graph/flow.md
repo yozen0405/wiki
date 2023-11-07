@@ -20,6 +20,7 @@
 ## Flow 性質
 
 - 容量限制(Capacity Constraints): 每條邊 (u, v) 所經過的流量 f(u, v) <= c(u, v)
+
 - 流量守恆(Flow Conservation): 除了源點和匯點，每個點 u 所流入的流量 = 流出的流量
 
 - 斜對稱(Skew Symmetry): 對於所有的 f(u, v) + f(v, u) = 0，由 u 到 v 淨流量加上由 v 到 u 的淨流量必須為零
@@ -45,15 +46,306 @@
   <figcaption>紅色的路徑即為一條增廣路徑</figcaption>
 </figure>
 
-### 割(Cut)
-
-定義一個 s-t cut $C = (S \text{-component}, T\text{-component})$ 是將點分成與 s 同一塊或與 t 同一塊。定義 $C$ 的 cut-set 為 $\{(u, v) \in E \mid u \in S\text{-component}, v \in T\text{-component}\}$，使得在 cut-set 的邊都被刪掉後，s 到 t 的 Max Flow 是 0（i.e. s 和 t 不連通）
-
 ## Maximum s-t flow 演算法
 
 ### Ford–Fulkerson
 
+???+note "算法概要"
+	1. 每次從 s 開始 dfs 找到一條增廣路徑
+	2. 找到路徑中流量最小的邊，並更新剩餘網路（亦對逆向邊做更新）
+	3. 做 1. 2. 直到找不到增廣路徑為止
 
+Ford–Fulkerson 雖然複雜度不佳，但他的經神在後續提到的演算法中都會用到。
+
+每次從 s 開始 dfs 找到一條增廣路徑，找到路徑中流量最小的邊，並將整條路徑填滿，直到找不到 s 到 t 的增廣路徑即結束。
+
+但這樣是否就找到了最大流 ? 我們觀察以下的剩餘網路：
+
+<figure markdown>
+  ![Image title](./images/105.png){ width="250" }
+</figure>
+
+若我們第一次選擇流 A → B → C → D 後，就會再也找不到任何增廣路徑
+
+<figure markdown>
+  ![Image title](./images/104.png){ width="400" }
+</figure>
+
+但最大流明顯是 A → B → D,  A → C → D 這兩條。
+
+因為我們沒有給予返回的機會，也就是相當於第一次找到的不是最優解，那怎麼辦 ?
+
+所以，我們要有一個反向邊，來給程式反悔的機會，每條邊都創造一條反向邊，反向邊的初始容量是 0。
+
+<figure markdown>
+  ![Image title](./images/103.png){ width="450" }
+</figure>
+
+當有 f 的流量從 (u, v) 流過時，反向邊 (v, u) 的剩餘流量就加 f
+
+<figure markdown>
+  ![Image title](./images/111.png){ width="400" }
+</figure>
+
+可以發現我們就會流過 A → B → C → D 後，還能再流 A → C → B → D，中間被流過去一次，又流回來一次，剛好抵銷掉。第一次我們流了 1 的流量，第二次我們也是流了 1 的流量，所以求出最大流就是 1 + 1 = 2
+
+最差會需要跑 O(F) 回合，每回合做一次 DFS O(E)。
+
+worst case 的圖，待補
+
+??? note "code"
+	```cpp linenums="1"
+	struct FordFulkson {
+        struct Edge {
+            int u, v;
+            long long cap;
+        };
+
+        int n, m, s, t;
+        vector<vector<int>> G;
+        vector<Edge> edges;
+        vector<bool> vis;
+        void init() {
+            n = 0;
+            m = 0;
+            G.clear();
+            edges.clear();
+        }
+        int add_node() {
+            n++;
+            G.push_back({});
+            return n - 1;
+        }
+        void add_edge(int u, int v, long long cap) {
+            edges.push_back({u, v, cap});
+            G[u].push_back(m++);
+            edges.push_back({v, u, 0ll});
+            G[v].push_back(m++);
+        }
+        long long dfs(int u, long long f) {
+            if (vis[u] || f == 0) return 0;
+            vis[u] = true;
+            if (u == t) return f;
+            for (int ei : G[u]) {
+                Edge& e = edges[ei];
+                Edge& rev = edges[ei ^ 1];
+                long long a = dfs(e.v, min(f, e.cap));
+                if (a > 0) {
+                    e.cap -= a;
+                    rev.cap += a;
+                    return a;
+                }
+            }
+            return 0;
+        }
+        long long max_flow(int _s, int _t) {
+            s = _s, t = _t;
+            long long res = 0;
+            while (true) {
+                vis = vector<bool>(n, false);
+                long long f = dfs(s, LLONG_MAX);
+                if (f == 0) break;
+                res += f;
+            }
+            return res;
+        }
+    } flow;
+    ```
+
+??? question "如果是無向圖怎麼處理 ?"
+	跟 dijkstra 一樣，將無向邊看成兩條獨立的有向邊。因為最後只會使用來、回其中一側（若兩側都使用可以互相消掉），如圖
+	
+	<figure markdown>
+      ![Image title](./images/107.png){ width="400" }
+    </figure>
+	
+	那要怎麼實作 ? 我們對於來、回這兩個有向邊，依照 Ford–Fulkerson，除了原本的方向外，都各自建立一條逆向邊，逆向邊的流量都會是 0，也就是 u 與 v 之間就會產生 4 條邊。輸出答案就看哪一側流過去的比較多，就輸出那個方向，也就是看來、回分別的「逆向邊」的剩餘流量。如下圖
+	
+	<figure markdown>
+      ![Image title](./images/106.png){ width="200" }
+    </figure>
+	
+	(v, u) 的逆向邊剩餘流量為 2，(u, v) 的逆向邊剩餘流量為 1，因為 2 - 1 = 1，所以最後就是輸出從 (v, u) 流過去 1 單位
+
+### Edmond-Karp
+
+???+note "算法概要"
+	1. 每次從 s 開始 bfs 找到一條最短的增廣路徑
+	2. 找到路徑中流量最小的邊，並更新剩餘網路（亦對逆向邊做更新）
+	3. 做 1. 2. 直到找不到增廣路徑為止
+	
+Edmonds-Karp 跟 Ford–Fulkerson 只差在每次找的是**最短的一條**增廣路徑。
+
+一個網路最多只有 O(VE) 條增廣路徑，而找一條增廣路徑需要 O(E) bfs，所以總複雜度為 O(min(VE<sup>2</sup>, FE))
+
+??? info "複雜度證明"
+	數學證明 待補
+
+	感性證明 待補
+	
+??? note "code"
+	```cpp linenums="1"
+	struct EdmondsKarp {
+        struct Edge {
+            int u, v;
+            long long cap;
+        };
+
+        int n, m, s, t;
+        vector<vector<int>> G;
+        vector<Edge> edges;
+        void init() {
+            n = 0;
+            m = 0;
+            G.clear();
+            edges.clear();
+        }
+        int add_node() {
+            n++;
+            G.push_back({});
+            return n - 1;
+        }
+        void add_edge(int u, int v, long long cap) {
+            edges.push_back({u, v, cap});
+            G[u].push_back(m++);
+            edges.push_back({v, u, 0ll});
+            G[v].push_back(m++);
+        }
+        long long bfs() {
+            vector<pair<int, long long>> pre(n, {-1, 0});
+            queue<int> que;
+            que.push(s);
+            pre[s] = {0, LLONG_MAX};
+            while (que.size()) {
+                int u = que.front();
+                que.pop();
+                for (int ei : G[u]) {
+                    Edge& e = edges[ei];
+                    if (e.cap > 0 && pre[e.v].first == -1) {
+                        pre[e.v] = {ei, min(pre[u].second, e.cap)};
+                        que.push(e.v);
+                    }
+                }
+            }
+            if (pre[t].first == -1) return 0;
+            long long f = pre[t].second;
+            int w = t;
+            while (w != s) {
+                int ei = pre[w].first;
+                edges[ei].cap -= f;
+                edges[ei ^ 1].cap += f;
+                w = edges[ei].u;
+            }
+            return f;
+        }
+        long long max_flow(int _s, int _t) {
+            s = _s, t = _t;
+            long long res = 0;
+            while (true) {
+                long long f = bfs();
+                if (f == 0) break;
+                res += f;
+            }
+            return res;
+        }
+    } flow;
+    ```
+    
+### Dinic
+
+???+note "算法概要"
+	1. 每次從 s 開始 bfs 建立最短路徑圖
+	2. 在這個「最短路徑圖」上 dfs 找增廣路徑，直到找不到為止
+	3. 重複 1. 2. 直到找不到增廣路徑
+
+Dinic 演算法跟 Edmond-Karp 不同的是，每次把所有長度為 k 的增廣路找出來後，一直進行增廣。從 s 到 t 距離為 k 的點會形成最短路徑 DAG，網路上也有人稱這個叫層次圖(level graph)。Dinic 算法每次會先用 bfs 建立最短路徑 DAG，再用 dfs 在 DAG 上不斷的找增廣路，直到找不到，然後再用 bfs 再建立一張最短路徑 DAG，然後再用 dfs 在 DAG 上面不斷的找增廣路，一直做下去。
+
+在最短路徑 DAG 上的增廣路長度最多 O(V)，每次做完一條邊就會從最短路徑 DAG 消失，最多消失 m 條邊，所以找到 blocking flow 會花費 O(VE)。每次 BFS s-t 距離至少增加 1，至多做 V 次 BFS，總時間為 O(min(V<sup>2</sup>E, FE))
+
+dinic Matching 複雜度 待補
+
+??? note "code"
+	```cpp linenums="1"
+	struct Dinic {
+        struct Edge {
+            int u, v;
+            long long cap;
+        };
+        int n, m, s, t;
+        vector<vector<int>> G;
+        vector<Edge> edges;
+        vector<int> lv;
+        vector<int> cur;
+        void init() {
+            n = 0;
+            m = 0;
+            G.clear();
+            edges.clear();
+        }
+        int add_node() {
+            n++;
+            G.push_back({});
+            return n - 1;
+        }
+        void add_edge(int u, int v, long long cap) {
+            edges.push_back({u, v, cap});
+            G[u].push_back(m++);
+            edges.push_back({v, u, 0});
+            G[v].push_back(m++);
+        }
+        bool bfs() {
+            lv = vector<int>(n, -1);
+            queue<int> que;
+            que.push(s);
+            lv[s] = 0;
+            while (!que.empty()) {
+                int u = que.front();
+                que.pop();
+                for (int ei : G[u]) {
+                    Edge &e = edges[ei];
+                    if (lv[e.v] < 0 && e.cap > 0) {
+                        lv[e.v] = lv[u] + 1;
+                        que.push(e.v);
+                    }
+                }
+            }
+            return lv[t] >= 0;
+        }
+        long long dfs(int u, long long f) {
+            if (u == t || f == 0) return f;
+            long long res = 0;
+            for (int &i = cur[u]; i < (int)G[u].size(); i++) {
+                int ei = G[u][i];
+                Edge &e = edges[ei];
+                Edge &rev = edges[ei ^ 1];
+                if (e.cap > 0 && lv[e.v] == lv[u] + 1) {
+                    long long a = dfs(e.v, min(f, e.cap));
+                    if (a > 0) {
+                        e.cap -= a;
+                        rev.cap += a;
+                        res += a;
+                        f -= a;
+                        if (f == 0) break;
+                    }
+                }
+            }
+            return res;
+        }
+        long long max_flow(int _s, int _t) {
+            s = _s, t = _t;
+            long long res = 0;
+            while (bfs()) {
+                cur = vector<int>(n, 0);
+                while (true) {
+                    long long f = dfs(s, LLONG_MAX);
+                    if (f == 0) break;
+                    res += f;
+                }
+            }
+            return res;
+        }
+    } flow;
+	```
 
 ### 複雜度比較
 
@@ -66,11 +358,15 @@
 
 ## 最小割(Min Cut)
 
-定義 s-t cut 的 cost 為 cut-set 內的邊的 capacity 總和，min cut 就是要最小化這個 cost。簡單來說就 Min Cut 是選一些邊，使 s, t 不連通，並且 capacity 最小
+定義一個 s-t cut $C = (S \text{-component}, T\text{-component})$ 是將點分成與 s 同一塊或與 t 同一塊。定義 $C$ 的 cut-set 為 $\{(u, v) \in E \mid u \in S\text{-component}, v \in T\text{-component}\}$，使得在 cut-set 的邊都被刪掉後，s 到 t 的 Max Flow 是 0（i.e. s 和 t 不連通）。
+
+s-t cut 的 cost 為 cut-set 內的邊的 capacity 總和，min cut 就是要最小化這個 cost。簡單來說就 Min Cut 是選一些邊，使得刪掉後 s, t 不連通，並且 capacity 最小
 
 <figure markdown>
   ![Image title](./images/97.png){ width="300" }
 </figure>
+
+以這個例子來說，min cut 就是 2 + 2 = 4（從 t 到 s 的邊雖有被切到，但不計算在 s-t 割，因為對 s 能不能走到 t 的連通性沒有影響）
 
 ??? info "【Min Flow Max Cut Theorm】: max flow = min cut"
 	max flow <= cut
@@ -80,6 +376,18 @@
 	---
 	
 	感性的理解，s-t 若想要流出最大流量，必定會有瓶頸處形成 s-t 最小割
+	
+	---
+	
+	> 對偶性 Duality(from IOIC 2016)
+	
+	問題常常是一體兩面，某個求最大值的問題常常等價於另一個求最小值的問題，例如說:
+	
+	- 「你會的問題裡最難的一個」差不多就是 「你不會的問題裡最簡單的一個」
+
+	- 「給你 1000 元你最多可以活多久」跟 「你要活一個月至少需要多少錢？」差不多
+
+	那最大流的對偶是什麼呢 ? 一個網路的最大流，就是那些被「堵住」的水管的淨流量，這些堵住的水管會把點分成兩群。
 
 ### 如何輸出一個 mincut
 
@@ -99,7 +407,12 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
         }
     }
     ```
+    
+??? question "求 S-component 點數最少/最多的 mincut"
+	最少: 從 s 開始走沒有流滿的 edges，走到的點就是答案
 
+	最多: 從 t 開始走沒有流滿的 edges，沒走到的點就是答案
+	
 ## 二分圖系列
 
 ### 二分圖最大匹配
@@ -116,11 +429,30 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 ### DAG 最小路徑覆蓋
 
 ???+note "問題"
-	給一張 n 點 m 邊的 DAG，最少要選幾條路徑可以蓋住所有的點，且任意兩條路徑不能有共同的點
+	給一張 n 點 m 邊的 DAG，最少選幾條路徑才可以蓋住所有的點，且任兩條路徑不能有共通的點，也就是問 disjoint path 數量
 	
 	<figure markdown>
-      ![Image title](./images/99.png){ width="300" }
+	  ![Image title](./images/99.png){ width="300" }
+	</figure>
+
+??? info "不重疊路徑數  + 路徑長總和 = n"
+	對於每個點，有被覆蓋到 iff 
+	
+	- 前面有一條邊連接
+	
+	- 為 disjoint path 的開頭
+
+	因此每個點都貢獻都可以分成上述兩種 case，而點的數量為 n，不重疊路徑數 + 路徑長總和自然就是 n
+	
+	<figure markdown>
+      ![Image title](./images/110.png){ width="300" }
     </figure>
+	
+路徑上會滿足每個點的 in-degree 和 out-degree 至多都是 1，所以我們可以將每個點拆成入點跟出點，進行二分圖最大匹配
+
+<figure markdown>
+  ![Image title](./images/109.png){ width="300" }
+</figure>
 
 ### 二分圖最小點覆蓋
 
@@ -128,36 +460,35 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 	給一個二分圖，選擇最少的點來覆蓋所有的邊，且數量越小越好，也就是最小點覆蓋，並輸出一組答案
 	
 ??? info "【Kőnig's theorem】: 在二分圖中，|最小點覆蓋| = |最大匹配|"
-	- 最大匹配 <= 最小點覆蓋
-		- k 條匹配邊，至少 k 個點覆蓋
-	
-    - 最小點覆蓋 <= 最大匹配
-		- 最小點覆蓋 k 個點，每個點旁邊都有一個沒選到的點
-
-		- 最大匹配至少為 k
-
-	---
-	
-	這邊給出 Kőnig's theorem 的構造法證明，也就是「為何一定找的到一組最小點覆蓋，其數量恰為 max flow」。
-	
-	最小點覆蓋顧名思義就是要找到一些重要的點，並且這些點要越少越好，考慮 min cut，min cut 可以找到重要的邊，使 s 跟 t 的 max flow = 0，而且數量最小化，我們使用找一組 min cut 的方法，從 s 開始走還沒流滿的邊，找出 S-component, T-component
-
+    
+    這邊給出 Kőnig's theorem 的構造法證明，也就是「為何一定找的到一組最小點覆蓋，其數量恰為 max flow」。
+    
+    最小點覆蓋顧名思義就是要找到一些重要的點，並且這些點要越少越好，考慮 min cut，min cut 可以找到重要的邊，使 s 跟 t 的 max flow = 0，而且數量最小化，我們使用找一組 min cut 的方法，從 s 開始走還沒流滿的邊，找出 S-component, T-component
+    
     <figure markdown>
       ![Image title](./images/100.png){ width="400" }
       <figcaption>綠色即為 S-component, 紫色即為 T-component</figcaption>
     </figure>
-
-    因為依照 min cut 的定義，將這些邊刪除後 s 到 t 的 max flow = 0，代表這些邊在中間的點足以支配中間的每一條邊，而又 min cut = max flow，所以最小點覆蓋數量 = min cut = max flow。具體要選哪些中間的點，如下:
-
+    
+    以上圖來說，我們用 dfs 從 s → 4 → 6 → 1 找出 S-component，其餘的則是 T-component
+    
+    <figure markdown>
+      ![Image title](./images/108.png){ width="400" }
+    </figure>
+    
+    將 (u ∈ S, v ∈ T) 的用橘色標記出來，即為 min cut
+    
+    因為依照 min cut 的定義，將橘色這些邊刪除後 s 到 t 的 max flow = 0，代表橘色這些邊相鄰且在中間的點足以支配中間的每一條邊，而又 min cut = max flow，所以最小點覆蓋數量 = min cut = max flow。具體要選哪些中間的點，如下:
+    
     - 左邊且在 T-component 中
-
+    
     - 右邊且在 S-component 中
-
+    
     <figure markdown>
       ![Image title](./images/101.png){ width="400" }
       <figcaption>粗框的點就是最小點覆蓋</figcaption>
     </figure>
-    
+
 根據 Kőnig's theorem，我們得知最小點覆蓋數量跟最大匹配的數量是一樣的，也就是 max flow。若要輸出答案，那我們就選以下這些點即可
 
 - 左邊跟 mincut 同 t 側的的點
@@ -175,12 +506,13 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 ???+note "問題"
 	給一個二分圖，選一些點使選的點兩兩不相鄰，且數量越大越好，也就是最大獨立集，並輸出一組答案
 	
-!!! info "定理: 在一般圖上，|最小點覆蓋| + |最大獨集| = n"
+??? info "定理: 在一般圖上，|最小點覆蓋| + |最大獨集| = n"
+	待補
 	
 所以答案就是 n - max flow。輸出答案的話，就把最小點覆蓋沒選到的點都選起來
 
 <figure markdown>
-  ![Image title](./images/102.png){ width="300" }
+  ![Image title](./images/102.png){ width="250" }
   <figcaption>藍色為最小點覆蓋, 紅色為最大獨集</figcaption>
 </figure>
 
@@ -196,553 +528,145 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 	- 最大獨立集,最小點覆蓋 : NP-hard 問題 (目前已知的演算法只能指數時間解出)
 	- 最大匹配 : P 問題
 
-## 模板
-### dinic
-```cpp linenums="1"
-#include <bits/stdc++.h>
-#define int long long
-#define pii pair<int, int>
-#define pb push_back
-#define mk make_pair
-#define F first
-#define S second
-#define ALL(x) x.begin(), x.end()
 
-using namespace std;
+## min cost max flow
 
-const int INF = (1LL << 60);
-const int M = 1e9 + 7;
+???+note "題目"
+	給一個有向圖，每條邊 (u, v) 都有一個邊權 c(u, v) 代表容量上限，有 cost(u, v)代表在這條邊流過一單位的流所需要的成本，找一個 flow 使 $\sum f(u,v)\times cost(u,v)$ 最小
+	
+概念和 Ford-Fulkson 一樣找增廣路徑，但是每次要找最便宜的。每條邊我們會多紀錄一個成本  cost(u, v)，對於反向邊的成本為負的正向邊成本，退流的時候等價於抵銷成本。因為圖上有負邊，所以必須用 Bellman-Ford 或是 SPFA 來找最短路徑
 
-int n;
+複雜度 待補
 
-struct dinic {
-    struct Edge {
-        int u, v;
-        int cap;
-    };
+??? note "code"
+	```cpp linenums="1"
+	#include <bits/stdc++.h>
+    #define int long long
 
-    int n, m, s, t;
-    vector<vector<int>> G;
-    vector<Edge> edges;
-    vector<int> lv;
-    vector<int> cur;
-    vector<int> side;
-    vector<int> ans;
+    using namespace std;
 
-    void init () {
-        n = m = 0;
-        G.clear ();
-        edges.clear ();
-    }
+    const int INF = (1LL << 60);
+    const int M = 1e9 + 7;
 
-    int add_node () {
-        n++;
-        G.pb({});
-        return n - 1;
-    }
+    int n;
 
-    void add_edge (int u, int v, int cap) {
-        edges.pb({u, v, cap});
-        G[u].pb(m++); // 0
-        edges.pb({v, u, 0LL});
-        G[v].pb(m++); // 1
-    }
+    struct dinic {
+        struct Edge {
+            int u, v, cap, c;
+        };
 
-    void cut (int u) {
-        side[u] = 1;
-        ans.pb(u);
-        for (auto i : G[u]) {
-            if (!side[edges[i].v] && edges[i].cap > 0) {
-                cut (edges[i].v);
-            }
+        int n, m, s, t;
+        vector<vector<int>> G;
+        vector<Edge> edges;
+        vector<int> lv;
+        vector<int> cur;
+
+        void init() {
+            n = m = 0;
+            G.clear();
+            edges.clear();
         }
-    }
 
-    bool bfs () {
-        lv = vector<int> (n, -1);
-        queue<int> q;
-        lv[s] = 0;
-        q.push (s);
-        while (q.size()) {
-            int u = q.front ();
-            q.pop ();
-
-            for (int i = 0; i < G[u].size(); i++) {
-                Edge &e = edges[G[u][i]];
-                if (e.cap > 0 && lv[e.v] < 0) {
-                    lv[e.v] = lv[u] + 1;
-                    q.push (e.v);
-                }
-            }
+        int add_node() {
+            n++;
+            G.push_back({});
+            return n - 1;
         }
-        return lv[t] >= 0;
-    }
 
-    int dfs (int u, int f) {
-        if (u == t || f == 0) return f;
-        int res = 0;
-        for (auto &i = cur[u]; i < G[u].size(); i++) {
-            Edge &e = edges[G[u][i]];
-            Edge &rev = edges[G[u][i] ^ 1];
-            if (e.cap > 0 && lv[u] + 1 == lv[e.v]) {
-                int x = dfs (e.v, min (f, e.cap));
-                if (x > 0) {
-                    e.cap -= x;
-                    rev.cap += x;
-                    f -= x;
-                    res += x;
-                    if (f == 0) break;
-                }
-            }
+        void add_edge(int u, int v, int cap, int w) {
+            edges.push_back({u, v, cap, w});
+            G[u].push_back(m++);  // 0
+            edges.push_back({v, u, 0LL, -w});
+            G[v].push_back(m++);  // 1
         }
-        return res;
-    }
 
-    int max_flow (int _s, int _t) {
-        s = _s, t = _t;
-        int res = 0;
-        while (bfs()) {
-            cur = vector<int> (n, 0);
+        pair<int, int> flow(int _s, int _t) {
+            s = _s, t = _t;
+            int fl, cost;
+            fl = cost = 0;
+            int cnt = 0;
             while (true) {
-                int f = dfs (s, INF);
-                if (f == 0) break;
-                res += f;
-            }
-        }
-        return res;
-    }
+                vector<int> dis = vector<int>(n, INF);
+                vector<int> inq = vector<int>(n, 0);
+                vector<int> pre = vector<int>(n, -1);
+                vector<int> preL = vector<int>(n, -1);
+                dis[s] = 0;
+                queue<int> q;
+                q.push(s);
+                while (q.size()) {
+                    int u = q.front();
+                    q.pop();
+                    inq[u] = 0;
+                    for (int i = 0; i < (int)G[u].size(); i++) {
+                        int v = edges[G[u][i]].v;
+                        int w = edges[G[u][i]].c;
+                        int fw = edges[G[u][i]].cap;
 
-    void min_cut () {
-        side = vector<int>(n, 0);
-        cut (s);
-        cout << ans.size() << "\n";
-        for (auto ele : ans) cout << ele << "\n";
-    }
-
-    void print (int flow) {
-        vector<Edge> ans;
-        for (int i = 1; i < edges.size(); i += 2) {
-            auto [u, v, cap] = edges[i];
-            if (cap == 0) continue;
-            ans.pb({u, v, cap});
-            //cout << "u:" << v << ",v:" << u << ",cap:" << cap << "\n";
-        }
-        cout << n << " " << flow << " " << ans.size() << "\n";
-        for (auto [u, v, cap] : ans) cout << v << " " << u << " " << cap << "\n";
-    }
-}flow;
-
-void solve () {
-    int n, m, s, t;
-    cin >> n >> m >> s >> t;
-    flow.init ();
-    for (int i = 1; i <= n; i++) flow.add_node();
-    for (int i = 0; i < m; i++) {
-        int u, v, cap;
-        cin >> u >> v >> cap;
-        flow.add_edge(u, v, cap);
-    }
-    int f = flow.max_flow(s, t);
-    flow.min_cut();
-
-}
- 
-signed main() {
-    // ios::sync_with_stdio(0);
-    // cin.tie(0);
-    int t = 1;
-    // cin >> t;
-    while (t--) {
-        //init(); 
-        solve();
-    }
-} 
-
-```
-### min cost max flow
-```cpp linenums="1"
-#include <bits/stdc++.h>
-#define int long long
-#define pii pair<int, int>
-#define pb push_back
-#define mk make_pair
-#define F first
-#define S second
-#define ALL(x) x.begin(), x.end()
-
-using namespace std;
-
-const int INF = (1LL << 60);
-const int M = 1e9 + 7;
-
-int n;
-
-struct dinic {
-    struct Edge {
-        int u, v, cap, c;
-    };
-
-    int n, m, s, t;
-    vector<vector<int>> G;
-    vector<Edge> edges;
-    vector<int> lv;
-    vector<int> cur;
-
-    void init () {
-        n = m = 0;
-        G.clear ();
-        edges.clear ();
-    }
-
-    int add_node () {
-        n++;
-        G.pb({});
-        return n - 1;
-    }
-
-    void add_edge (int u, int v, int cap, int w) {
-        edges.pb({u, v, cap, w});
-        G[u].pb(m++); // 0
-        edges.pb({v, u, 0LL, -w});
-        G[v].pb(m++); // 1
-    }
-
-    pii flow (int _s, int _t) {
-        s = _s, t = _t;
-        int fl, cost;
-        fl = cost = 0;
-        int cnt = 0;
-        while (true) {
-            vector<int> dis = vector<int>(n, INF);
-            vector<int> inq = vector<int>(n, 0);
-            vector<int> pre = vector<int>(n, -1);
-            vector<int> preL = vector<int>(n, -1);
-            dis[s] = 0;
-            queue<int> q;
-            q.push(s);
-            while (q.size()) {
-                int u = q.front(); q.pop();
-                inq[u] = 0;
-                for ( int i = 0 ; i < (int)G[u].size() ; i++) {
-                    int v = edges[G[u][i]].v;
-                    int w = edges[G[u][i]].c;
-                    int fw = edges[G[u][i]].cap;
-                    
-                    if (fw > 0 && dis[v] > dis[u] + w) {
-                        pre[v] = u; preL[v] = G[u][i]; // bug: preL[v] = i;
-                        dis[v] = dis[u] + w;
-                        if (!inq[v]) {
-                            inq[v] = 1;
-                            q.push(v);
+                        if (fw > 0 && dis[v] > dis[u] + w) {
+                            pre[v] = u;
+                            preL[v] = G[u][i];  // bug: preL[v] = i;
+                            dis[v] = dis[u] + w;
+                            if (!inq[v]) {
+                                inq[v] = 1;
+                                q.push(v);
+                            }
                         }
                     }
                 }
-            }
 
-            if (dis[t] == INF) break;
-            int tf = INF;
-            int u, l;
-            for (int v = t; v != s ; v = u ) {
-                u = pre[v]; l = preL[v];
-                tf = min(tf, edges[l].cap);
-            }
-
-            for (int v = t, u, l ; v != s ; v = u ) {
-                u = pre[v]; l = preL[v];
-                edges[l].cap -= tf;
-                edges[l ^ 1].cap += tf;
-            }
-
-            cost += tf * dis[t];
-            fl += tf;
-        }
-        return {fl, cost};
-    }
-
-}flow;
-
-void solve () {
-    int n, m, s, t;
-    cin >> n >> m >> s >> t;
-    flow.init ();
-    for (int i = 1; i <= n; i++) flow.add_node();
-    for (int i = 0; i < m; i++) {
-        int u, v, cap, w;
-        cin >> u >> v >> cap >> w;
-        flow.add_edge(u, v, cap, w);
-    }
-    auto [f, cost] = flow.flow (s, t);
-    cout << f << " " << cost << "\n";
-}
- 
-signed main() {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    int t = 1;
-    // cin >> t;
-    while (t--) {
-        //init(); 
-        solve();
-    }
-} 
-```
-
-## algo
-![](https://i.imgur.com/9aKx784.png)
-
-
-## min cut
-### 理論
-- 切下去的邊有從 $\texttt{s}$ 流向 $\texttt{t}$ 的 $\texttt{cap}$ 和
-- $\texttt{max flow = min cut}$
-
-![](https://i.imgur.com/sH47Epq.png)
-![](https://i.imgur.com/ELXVA3m.png)
-
-### 輸出一組 min cut
-- 跑完 $\texttt{dinic}$ ， 跑下面這份 $\texttt{code}$ ，走 $s$ 往外走未流滿的 $\texttt{edge}$ 
-- 枚舉邊，檢查每條邊 $u,v$  的狀況，若 $u$ 屬於 $s$ 而 $v$ 屬於 $t$ 即為所求
-
-
-
-```cpp linenums="1"
-bool side[MAXN];
-void cut(int u) {
-    side[u] = 1;
-    for (int i : G[u]) {
-        if (!side[edges[i].v] && edges[i].cap) {
-            cut(edges[i].v);
-        }
-    }
-}
-```
-
-## 二分圖
-- capacity 都是 1
-### 最小點覆蓋
-#### 輸出答案
-- 左邊跟 $\texttt{min cut}$ 同 $\texttt{t}$ 側的點
-- 右邊跟 $\texttt{min cut}$ 同 $\texttt{s}$ 側的點
-
-![](https://i.imgur.com/dAHG427.png)
-
-```cpp linenums="1"
-#include <bits/stdc++.h>
-#define int long long
-#define pii pair<int, int>
-#define pb push_back
-#define mk make_pair
-#define F first
-#define S second
-#define ALL(x) x.begin(), x.end()
-
-using namespace std;
-
-const int INF = (1LL << 60);
-const int M = 1e9 + 7;
-
-int n;
-
-struct dinic {
-    struct Edge {
-        int u, v;
-        int cap;
-    };
-
-    int n, m, s, t;
-    vector<vector<int>> G;
-    vector<Edge> edges;
-    vector<int> lv;
-    vector<int> cur;
-    vector<int> side;
-    vector<int> ans;
-    vector<int> tag;
-
-    void init () {
-        n = m = 0;
-        G.clear ();
-        edges.clear ();
-    }
-
-    int add_node () {
-        n++;
-        G.pb({});
-        return n - 1;
-    }
-
-    void add_edge (int u, int v, int cap) {
-        edges.pb({u, v, cap});
-        G[u].pb(m++); // 0
-        edges.pb({v, u, 0LL});
-        G[v].pb(m++); // 1
-    }
-
-    void cut (int u) {
-        side[u] = 1;
-        tag[u] = 1;
-        for (auto i : G[u]) {
-            if (!side[edges[i].v] && edges[i].cap > 0) {
-                cut (edges[i].v);
-            }
-        }
-    }
-
-    bool bfs () {
-        lv = vector<int> (n, -1);
-        queue<int> q;
-        lv[s] = 0;
-        q.push (s);
-        while (q.size()) {
-            int u = q.front ();
-            q.pop ();
-
-            for (int i = 0; i < G[u].size(); i++) {
-                Edge &e = edges[G[u][i]];
-                if (e.cap > 0 && lv[e.v] < 0) {
-                    lv[e.v] = lv[u] + 1;
-                    q.push (e.v);
+                if (dis[t] == INF) break;
+                int tf = INF;
+                int u, l;
+                for (int v = t; v != s; v = u) {
+                    u = pre[v];
+                    l = preL[v];
+                    tf = min(tf, edges[l].cap);
                 }
-            }
-        }
-        return lv[t] >= 0;
-    }
 
-    int dfs (int u, int f) {
-        if (u == t || f == 0) return f;
-        int res = 0;
-        for (auto &i = cur[u]; i < G[u].size(); i++) {
-            Edge &e = edges[G[u][i]];
-            Edge &rev = edges[G[u][i] ^ 1];
-            if (e.cap > 0 && lv[u] + 1 == lv[e.v]) {
-                int x = dfs (e.v, min (f, e.cap));
-                if (x > 0) {
-                    e.cap -= x;
-                    rev.cap += x;
-                    f -= x;
-                    res += x;
-                    if (f == 0) break;
+                for (int v = t, u, l; v != s; v = u) {
+                    u = pre[v];
+                    l = preL[v];
+                    edges[l].cap -= tf;
+                    edges[l ^ 1].cap += tf;
                 }
+
+                cost += tf * dis[t];
+                fl += tf;
             }
-        }
-        return res;
-    }
-
-    int max_flow (int _s, int _t) {
-        s = _s, t = _t;
-        int res = 0;
-        while (bfs()) {
-            cur = vector<int> (n, 0);
-            while (true) {
-                int f = dfs (s, INF);
-                if (f == 0) break;
-                res += f;
-            }
-        }
-        return res;
-    }
-
-    void min_cut () {
-        side = vector<int>(n, 0);
-        tag = vector<int> (n, 0);
-        ans.clear ();
-        cut (s);
-        int N = n / 2 - 1;
-        vector<pii> res;
-        for (int i = 1; i <= N; i++) {
-            if (tag[i] == 0) {
-                res.pb({1, i});
-            }
+            return {fl, cost};
         }
 
-        for (int i = N + 1; i <= 2 * N; i++) {
-            if (tag[i] == 1) {
-                res.pb({2, i - N});
-            }
+    } flow;
+
+    signed main() {
+        ios::sync_with_stdio(0);
+        cin.tie(0);
+
+        int n, m, s, t;
+        cin >> n >> m >> s >> t;
+        flow.init();
+        for (int i = 1; i <= n; i++) flow.add_node();
+        for (int i = 0; i < m; i++) {
+            int u, v, cap, w;
+            cin >> u >> v >> cap >> w;
+            flow.add_edge(u, v, cap, w);
         }
-
-        cout << res.size() << "\n";
-        for (auto [F, S] : res) cout << F << " " << S << "\n";
+        auto [f, cost] = flow.flow(s, t);
+        cout << f << " " << cost << "\n";
     }
-}flow;
+    ```
 
-void solve () {
-    int n, m, s, t;
-    // s = 0, t = 2n + 1
-    // L = 1 ~ n
-    // R = n + 1 ~ 2n
-    cin >> n;
+## 建模技巧
 
-    flow.init ();
+## 題目
 
-    s = 0, t = 2 * n + 1;
-    for (int i = s; i <= t; i++) flow.add_node();
-    // 加 s -> L 
-    for (int i = 1; i <= n; i++) {
-        flow.add_edge (s, i, 1);
-    }   
-    // 加 t -> R
-    for (int i = n + 1; i <= 2 * n; i++) {
-        flow.add_edge (i, t, 1);
-    }
+???+note "[CSES - Distinct Routes](https://cses.fi/problemset/task/1711)"
+	給一張 n 點 m 邊的圖，最多找到幾條 disjoint path 
 
-    // 記得 flow 是 0-base
-    for (int i = 1; i <= n; i++) { // L
-        for (int j = n + 1; j <= 2 * n; j++) { // R
-            char x;
-            cin >> x;
-            if (x == 'o') flow.add_edge (i, j, 1);
-        }
-    }
-
-    // L & t
-    // R & s
-    int f = flow.max_flow(s, t);
-    flow.min_cut();
-
-}
- 
-signed main() {
-    // ios::sync_with_stdio(0);
-    // cin.tie(0);
-    int t = 1;
-    // cin >> t;
-    while (t--) {
-        solve();
-    }
-} 
-```
-- https://cses.fi/problemset/task/1709/
-
-### 最大獨立集
-- 最大獨立集 $+$ 最小點覆蓋 $=n$
-- $\begin{cases} 最大獨立集: 一個邊最多選一個 \\ 最小點覆蓋: 一個邊至少選一個 \end{cases}$
-- $\texttt{proof}$
-    - 一個邊上最多只有一個最大獨立集
-    - 代表沒選的至少一個
-    - 符合最小覆蓋定義
-
-### 帶權最大獨立集
-- 跑 $\texttt{min cost max flow}$ 即可
-
-## DAG 最小點覆蓋
-- 最少需要多少條路徑才可以蓋住所有的點，且任兩條路徑不能有共通的點
-- 不重疊路徑數 $+$ 路徑長總和 $=n$
-- 我想讓不重疊路徑數最小，就是想讓路徑常總和最小
-- 路徑選好後每個點的 $\texttt{in degree}$ 跟 $\texttt{out degree}$ 最多就是 $\texttt{1}$
-- 一個匹配就是一個路徑長 $+1$ ，我想讓路徑長越多越好，相當於要讓匹配最大
-- $\Rightarrow$ 二分圖最大匹配
-
-![](https://i.imgur.com/PBepEBG.png)
-
-## 有向無向
-- 不管什麼題型，無向從 $u \rightarrow v$ 和從 $v \rightarrow u$ 都是獨立的也就是你總共會看到 2 + 2 = 4 條
-- 對於 $\texttt{min cut max flow}$ 輸出那些邊有用到
-    - 有向: 對於 $m$ 條邊檢查
-    - 無向: 他只會用其中一條邊，所以就看那兩條邊比較小的(流比較多出去)的反向邊
-    - ![](https://i.imgur.com/T0n5E4z.png)
-
-- 無向圖，對於一般 $\texttt{flow}$ 正反互相底消
-    - ![](https://i.imgur.com/vODTOzt.png)
+	$2\le n\le 500, 1\le m\le 1000$
+	
+	??? note "思路"
+		edges capacity 設為 1，跑 max flow
 
 - [LOJ 網路流 24 題](https://loj.ac/problems/tag/30)
 
@@ -757,3 +681,7 @@ signed main() {
 - <https://github.com/NCTU-PCCA/NCTU_Fox/tree/master/codebook/Graph/Flow>
 
 - <https://web.ntnu.edu.tw/~algo/Matching.html>
+
+- <https://nckuacm.github.io/2020/slides/week13_1.pdf>
+
+- <https://chmnchiang.github.io/ioi-camp-2016-flow-slides/#/>

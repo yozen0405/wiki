@@ -240,7 +240,7 @@ $2=0\times 2^2+1\times 2^1 + 0\times 2^0$
 
 ## 環排列
 
-令 $s(n,k)$ 為有 $n$ 個人，$k$ 組的循環排列方法數，依照圖論，我們可以將他轉成一堆有向環[^1]。轉移式考慮第 $n$ 個人要「接」在哪個人的後面，或自己開一組，得 
+又為第一類斯特林函數。令 $s(n,k)$ 為有 $n$ 個人，$k$ 組的循環排列方法數，依照圖論，我們可以將他轉成一堆有向環[^1]。轉移式考慮第 $n$ 個人要「接」在哪個人的後面，或自己開一組，得 
 
 $$s(n,k)=(n-1) \times s(n-1,k)+s(n-1,k-1)$$
 
@@ -510,7 +510,7 @@ $$
 
 ### 球異箱異 - 沒空箱
 
-???+note "題目"
+???+note "第二類斯特林函數"
 	$n$ 個不同東西要分到 $m$ 個不同箱子，每個箱子至少放一個東西，總共有幾種放法。
 	
 考慮「全部 $-$ 非法」，也就是「全部放法 $-$ 一箱以上沒東西」 = $m^n  - m \times (m-1)^n$。但這樣是否會多扣? 若有兩個空箱的 case，會被扣掉兩次，有 $k$ 個空箱的 case，會被扣掉 $k$ 次。
@@ -561,7 +561,7 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	
 	    - 思考 $\texttt{max}$ 已經固定的情況
 	        - 骰到 $\texttt{max}$ 的機率 $\texttt{?}$ 
-
+	
 	    - 設目前骰到的 $\texttt{max}$ 的點數為 $i$
 	        - 共有 $i^n-(i-1)^n$ 種方法數骰到的最大點數是 $i$
 	        - 最多到 $i$ 的方法數 $-$ 最多只有到 $i-1$ 的方法數 $=i^n-(i-1)^n$
@@ -591,59 +591,59 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	
 	??? note "法2"
 	    - 令 $dp(n,k)$ 表示丟 $n$ 次骰子的情況下，最大值為 $k$ 的機率
-
+	
 	    - $dp(n,k)=P($已經有$k)+P($這局才骰到$k)$
-
+	
 	    - $\begin{align} dp(n, k)  \end{align}$
-
+	
 	    - 在配合前綴優化
 	
 	    $$\begin{align}dp(n,k) &= \frac{k}{K}dp(n-1, k) + \frac{1}{K} [ dp(n-1, k-1) + dp(n-1, k-2) + dp(n-1, k-3) + \dots + dp(n-1, 1) ] \\ &= \frac{k}{K}dp(n-1, k)+dp(n,k-1)-\frac{k-1}{K}dp(n-1, k-1)+\frac{1}{K}dp(n-1,k-1) \end{align}$$
-
-        ```cpp
-        void solve2 () {
-            for (int k = 1; k <= K; k++) dp[1][k] = (double) 1 / K;
-    
-            // O (nk^2)
-            for (int i = 2; i <= n; i++) {
-                for (int k = 1; k <= K; k++) {
-                    double ret = 0;
-                    for (int j = 1; j <= k - 1; j++) {
-                        ret = (double) ret + dp[i - 1][j];
-                    }
-                    ret = (double) ret / K;
-                    dp[i][k] = (double) ret + ((double) k / K) * dp[i - 1][k]; 
-                }   
-            }
-    
-            // O (nk)
-            for (int i = 2; i <= n; i++) {
-                for (int k = 1; k <= K; k++) {
-                    double ret = 0;
-    
-                    dp[i][k] = ((double)k / K) * dp[i - 1][k] + dp[i][k - 1] 
-                               - ((double)(k - 1) / K) * dp[i - 1][k - 1] 
-                               + ((double)1 / K) * dp[i - 1][k - 1];
-                }
-            }
-    
-            double res = 0;
-            for (int k = 1; k <= K; k++) {
-                res = (double) res + dp[n][k] * k;
-            }
-    
-            cout << fixed << setprecision (6) << res << "\n";
-        } 
-        ```
+	
+	    ```cpp
+	    void solve2 () {
+	        for (int k = 1; k <= K; k++) dp[1][k] = (double) 1 / K;
+	
+	        // O (nk^2)
+	        for (int i = 2; i <= n; i++) {
+	            for (int k = 1; k <= K; k++) {
+	                double ret = 0;
+	                for (int j = 1; j <= k - 1; j++) {
+	                    ret = (double) ret + dp[i - 1][j];
+	                }
+	                ret = (double) ret / K;
+	                dp[i][k] = (double) ret + ((double) k / K) * dp[i - 1][k]; 
+	            }   
+	        }
+	
+	        // O (nk)
+	        for (int i = 2; i <= n; i++) {
+	            for (int k = 1; k <= K; k++) {
+	                double ret = 0;
+	
+	                dp[i][k] = ((double)k / K) * dp[i - 1][k] + dp[i][k - 1] 
+	                           - ((double)(k - 1) / K) * dp[i - 1][k - 1] 
+	                           + ((double)1 / K) * dp[i - 1][k - 1];
+	            }
+	        }
+	
+	        double res = 0;
+	        for (int k = 1; k <= K; k++) {
+	            res = (double) res + dp[n][k] * k;
+	        }
+	
+	        cout << fixed << setprecision (6) << res << "\n";
+	    } 
+	    ```
 
 ???+note "期望抽取次數"
 	有 $n$ 種物品，每種物品被抽到的機率都是 $1/n$。求在 $n$ 個物品中至少抽過 $i$ 種不同物品至少一次的期望所需抽取次數，設計 DP 狀態並列出轉移求解此題。
 	
 	??? note "思路"
 		- $dp[i]=dp[i-1]+\frac{n}{n-i-1}$
-
+	
 	    - $10$ 次有兩次會中
-
+	
 	    - 代表 $5$ 次中 $1$ 次
 
 ???+note "環排列類似題 [Hackerrank - Construct the Array](https://www.hackerrank.com/challenges/construct-the-array/problem)"
