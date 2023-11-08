@@ -48,6 +48,11 @@
 
 ## Maximum s-t flow 演算法
 
+???+note "模板測試 [LOJ #101. 最大流](https://loj.ac/p/101)"
+	給一張 $n$ 點 $m$ 邊有向圖，每條邊給定容量 c(u, v)，問 $s$ 到 $t$ 的最大流
+	
+	$n\le 100, m\le 5000, 0\le c(u, v) \le 2^{31}-1$
+
 ### Ford–Fulkerson
 
 ???+note "算法概要"
@@ -91,16 +96,14 @@ Ford–Fulkerson 雖然複雜度不佳，但他的精神在後續提到的演算
 
 最差會需要跑 O(F) 回合，每回合做一次 DFS O(E)。
 
-worst case 的圖，待補
-
-??? note "worst case 說明"
+??? note "複雜度 worst case 說明"
 	<figure markdown>
       ![Image title](./images/112.png){ width="400" }
     </figure>
     
-    考慮上面這張圖跑 Ford–Fulkerson
+    考慮上面這張圖跑 Ford–Fulkerson，A 為源點，F 為匯點
     
-	<figure markdown>
+    <figure markdown>
       ![Image title](./images/113.png){ width="400" }
     </figure>
     
@@ -121,7 +124,7 @@ worst case 的圖，待補
     </figure>
     
     會發現如果我們這樣找增廣路徑 worst case 每次都只會將剩餘流量最大的邊流掉一單位的流量，所以最差會找 O(F) 次增廣路徑
-	
+
 ??? note "code"
 	```cpp linenums="1"
 	struct FordFulkson {
@@ -207,47 +210,71 @@ Edmonds-Karp 跟 Ford–Fulkerson 只差在每次找的是**最短的一條**增
 
 一個網路最多只有 O(VE) 條增廣路徑，而找一條增廣路徑需要 O(E) bfs，所以總複雜度為 O(min(VE<sup>2</sup>, FE))
 
-??? info "複雜度證明"
-	數學證明 待補
+??? info "證明: 最短增廣路的距離非遞減"
+	先假設一些變數
 
-	感性證明 待補
+    - 設 $\delta_f(s,x)$ 為增廣前的剩餘網路中，源點到 $x$ 的最短距離。
+    
+    - 令 $v$ 是在某次增廣後 $\delta_f(s,v)$ 變小的點中距離源點最近的點
+    
+    - 設 $\delta_{f'}(s,x)$ 為增廣後的剩餘網路中，源點到 $x$ 的最短距離。 則可以得到 $\delta_{f'}(s,v)<\delta_f(s,v)$
+    
+    - 令 $u$ 是在增廣後的剩餘網路中，從源點到 $v$ 之最短路徑的前一個節點，則 $\delta_{f'}(s,v)=\delta_{f'}(s,u)+1$
+    
+    又因為我們選擇 $v$ 的方式，因此
+    
+    $\delta_{f}(s,u) \le\delta_{f'}(s,u)$
+    
+    $\Rightarrow \delta_{f}(s,u) +1\le\delta_{f'}(s,u)+1$
+    
+    又 $\delta_{f'}(s,v)=\delta_{f'}(s,u)+1$，所以 $\delta_f(s,u)+1<\delta_{f'}(s,v)$
+    
+    而 $\delta_{f'}(s,v)<\delta_f(s,v)$，得 $\delta_f(s,u)+1<\delta_{f}(s,v)$
+    
+    也就是說 $(u,v)$ 邊沒有剩餘流量，因為如果 $(u,v)$ 邊還有剩餘流量的話代表 $\delta_f(s,v)\le \delta_{f}(s,u)+1$
+    
+    $(u,v)$ 邊在增廣前沒有剩餘流量，但增廣後有剩餘流量， 代表在這次增廣時有通過 $(v,u)$ 邊，所以 $\delta_f(s,v)+1=\delta_f(s,u)$ ，但是這與 $\delta_f(s,u)+1<\delta_{f}(s,v)$ 矛盾，因此不存在這樣的 $v$ 點 ⇒ 最短增廣路的距離非遞減
+    
+    ---
+    
+    感性證明 待補
 
 ??? note "Edmonds-Karp 過程 - 範例"
 	<figure markdown>
       ![Image title](./images/112.png){ width="400" }
     </figure>
     
-    考慮上面這張圖跑 Edmonds-Karp
+    考慮上面這張圖跑 Edmonds-Karp，A 為源點，F 為匯點
     
-	<figure markdown>
+    <figure markdown>
       ![Image title](./images/118.png){ width="400" }
     </figure>
     
-    找到 s -> a -> d -> t，流量為 1
+    找到 A → B → E → F，流量為 1
     
     <figure markdown>
       ![Image title](./images/119.png){ width="400" }
     </figure>
     
-    找到 s -> a -> b -> t，流量為 99
+    找到 A → B → C → F，流量為 99
     
     <figure markdown>
       ![Image title](./images/120.png){ width="400" }
     </figure>
     
-    找到 s -> c -> d -> t，流量為 99
+    找到 A → D → E → F，流量為 99
     
     <figure markdown>
       ![Image title](./images/121.png){ width="400" }
     </figure>
     
-    找到 s -> c -> d -> a -> b -> t，流量為 1
+    找到 A → D → E → B → C → F，流量為 1
     
     <figure markdown>
       ![Image title](./images/122.png){ width="400" }
     </figure>
     
-    s 無法走到 t，總流量為 200，可以發現因為我們每次都挑最短的走，比上面 Ford–Fulkerson 要少跑了好幾輪
+    A 無法走到 F，總流量為 200，可以發現因為我們每次都挑最短的走，比上面 Ford–Fulkerson 要少跑了好幾輪
 
 ??? note "code"
 	```cpp linenums="1"
@@ -479,6 +506,48 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 
 	最多: 從 t 開始走沒有流滿的 edges，沒走到的點就是答案
 
+### min cut 應用
+
+???+note "生產產品問題"
+	有 $n$ 種 tools 和 $m$ 種 jobs，每種 job 需要若干種 tools。第 $i$ 種 tool 需要花 $c_i$ 元買下來，第 $i$ 種 job 的報酬為 $p_i$，求最大利潤
+	
+	<figure markdown>
+	  ![Image title](./images/126.png){ width="300" }
+	</figure>
+	
+	$1 \le n, m \le 500,$ 物品需求關係數量 $\le 2\times 10^4$
+	
+	??? note "思路"
+		先建圖，左半排擺 tools，右半排擺 jobs，成本和報酬為邊權，若方案 i 需要工具 j，則連邊 (j, i)
+		
+		<figure markdown>
+	      ![Image title](./images/127.png){ width="400" }
+	    </figure>
+	    
+	    我們要選一個連通塊，使得裡面包含要選的 tools 與 jobs，而這個連通塊其實就是我們的 T-component
+	    
+	    <figure markdown>
+	      ![Image title](./images/128.png){ width="400" }
+	    </figure>
+	    
+	    這時候得到的 min cut 就會是**要買的 tools C** 和**不賺的 jobs P'**。若選完 maximum flow > 0，代表還有一個 tool 你沒有決定要不要選
+	    
+	    - 選: 切在 s -> tools
+	
+		- 不選: 切在 jobs -> t
+	
+		最後答案就是 $\sum P$ - (C + P')
+
+???+note "最大權閉包問題"
+	給 n 個人的受歡迎程度和每個人的好友列表 (好友並非雙向關係)，若第 i 個人要參加聚會的話則他的所有好友都要參加聚會，要邀請若干個人使得受歡迎程度總和最大
+	
+	1 ≤ n ≤ 100, 1 ≤ m ≤ 1000
+	
+	??? note "思路"
+		將受歡迎程度為負的當成要付出成本的工具，將受歡迎程度為正的當成可以賺錢的方案，A 要來的話 B 就要來，就很像要用 A 方案賺錢，就要買 B 工具，因此若有關係 A 來的話 B 一定要來，則要連結邊 (B, A)
+		
+		得到的最小割為要來的負受歡程度的人和不來的正受歡迎程度的人，如同成本利潤問題，用正受歡迎程度的人的總和扣掉最小割即為答案
+
 ## 二分圖系列
 
 ### 二分圖最大匹配
@@ -576,7 +645,7 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 	【證明】: 最小點覆蓋以外都是最大獨立集
 
 	每條邊都會被最小覆蓋支配（每條邊至少會有一個點被最小點覆蓋選到），所以剩餘的點跟點之間不可能會有一條邊（有的話代表沒被支配），符合最大獨立集定義
-	
+
 所以答案就是 n - max flow。輸出答案的話，就把最小點覆蓋沒選到的點都選起來
 
 <figure markdown>
@@ -734,7 +803,47 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 		
 		邊有費用，權重都是 1 or -1，可以每次用 Bellman-Ford O(nm) 找到起點終點最便宜增廣路徑，共會跑 k 次，所以是 O(n * m * k)
 
-## 建模技巧
+???+note "[LOJ #6011. 「网络流 24 题」运输问题](https://loj.ac/p/6011)"
+	有 $m$ 個倉庫和 $n$ 個零售店，第 $i$ 個倉庫有 $a_i$ 的貨物，第 $j$ 個零售店需要 $b_j$ 的貨物，供需平衡。從第 $i$ 個倉庫運送一單位貨物到第 $j$ 個零售店需要 $c_{i,j}$ 的費用，求滿足供需的最少費用。
+	
+	$n, m\le 100$
+	
+	??? note "思路"
+		使用 MCMF
+		
+		- 將 s 向 m 個倉庫連邊，capacity = a[i], cost = 0
+	
+		- 將第 i 個倉庫與第 j 個零售店連邊，capacity = INF, cost = c[i][j]
+	
+		- n 個零售店向 t 連邊，capacity = c[i], cost = 0
+
+???+note "二分圖帶權最大匹配 [CSES - Task Assignment](https://cses.fi/problemset/task/2129)"
+	有 n 個人和 n 個工作，編號 i 的人做工作 j 要 cost(i, j) 的費用，每個工作分配給一個人做，每個人只能做一個工作，最小化總共的費用
+	
+	$n\le 200, 1\le c_{i, j}\le 1000$
+	
+	??? note "思路"
+		用 MCMF，將人與工作個擺兩邊，中間用 capactity = 1, cost = cost(i, j) 的邊連接，s 連接所有人，capacity = 1, cost = 0，所有工作連接 t，capacity = 1, cost = 0
+		
+		複雜度為 O(n) 次 SPFA，SPFA 複雜度 O(V * E) = O(n * n^2)，所以是 O(n^4)
+
+## 建模技巧(Flow Graph Modeling)
+
+### 多源點多匯點
+
+建立一個超級源點和超級匯點，和原本的源點與匯點連接，capacity 設為無限大
+
+<figure markdown>
+  ![Image title](./images/124.png){ width="700" }
+</figure>
+
+### 點有流量限制
+
+將每個點拆成兩個點，中間用對應的流量限制當邊的 capacity
+
+<figure markdown>
+  ![Image title](./images/125.png){ width="700" }
+</figure>
 
 ## 題目
 
