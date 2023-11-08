@@ -186,86 +186,69 @@
 	
 	$n\le 10^5$
 	
+	??? note "思路"
+		利用樹 dp 找樹直徑的方法，只是多保留當前次長得即可
+		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    using namespace std;
-	
-	    const int INF = 2e18;
-	    const int maxn = 1e5 + 5;
-	    const int M = 1e9 + 7;
-	
-	    struct Eg {
-	        int v, w;
-	    };
-	
-	    struct node {
-	        int mx, sec;
-	    };
-	
-	    int n, m;
-	    vector<Eg> G[maxn];
-	    vector<node> dp(maxn);
-	    int vis[maxn];
-	    node ans;
-	
-	    void cal (int val, node &x) {
-	        if (x.mx < val) x.sec = x.mx, x.mx = val;
-	        else if (val != x.mx && x.sec < val) x.sec = val;
-	    }
-	
-	    void dfs (int u) {
-	        vis[u] = true;
-	        for (auto [v, w] : G[u]) {  
-	            if (vis[v] == 1) continue;
-	
-	            dfs (v);
-	            // ans 的轉移式
-	            cal (dp[v].mx + dp[u].mx + w, ans);
-	            cal (dp[v].mx + dp[u].sec + w, ans);
-	            cal (dp[u].mx + dp[v].sec + w, ans);
-	            // 沒有 u.sec + v.sec 因為她一定會比其他的小(成為第三名)
-	
-	            // 把 v 的鏈更新 u.mx, u.sec
-	            cal (dp[v].mx + w, dp[u]);
-	            cal (dp[v].sec + w, dp[u]);
-	        }
-	    }
-	
-	    void init() {
-	        cin >> n;
-	        int u, v, w;
-	        for (int i = 1; i <= n - 1; i++) {
-	            cin >> u >> v >> w;
-	            u++, v++;
-	            G[u].pb({v, w});
-	            G[v].pb({u, w});
-	        }
-	    }
-	
-	    void solve() {
-	        dfs (1);
-	        cout << ans.sec << "\n";
-	    } 
-	
-	    signed main() {
-	        // ios::sync_with_stdio(0);
-	        // cin.tie(0);
-	        int t = 1;
-	        //cin >> t;
-	        while (t--) {
-	            init();
-	            solve();
-	        }
-	    } 
+        #define int long long
+        using namespace std;
+
+        const int INF = 2e18;
+        const int MAXN = 1e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Node {
+            int mx, sec;
+        };
+
+        int n, m;
+        vector<pair<int, int>> G[MAXN];
+        vector<Node> dp(MAXN);
+        int vis[MAXN];
+        Node ans;
+
+        void cal(int val, Node &x) {
+            if (x.mx < val) {
+                x.sec = x.mx, x.mx = val;
+            } else if (val != x.mx && x.sec < val) {
+                x.sec = val;
+            }
+        }
+
+        void dfs(int u) {
+            vis[u] = true;
+            for (auto [v, w] : G[u]) {
+                if (vis[v] == 1) continue;
+
+                dfs(v);
+                // ans 的轉移式
+                cal(dp[v].mx + dp[u].mx + w, ans);
+                cal(dp[v].mx + dp[u].sec + w, ans);
+                cal(dp[u].mx + dp[v].sec + w, ans);
+
+                // update dp[u]
+                cal(dp[v].mx + w, dp[u]);
+                cal(dp[v].sec + w, dp[u]);
+            }
+        }
+
+        signed main() {
+            cin >> n;
+            int u, v, w;
+            for (int i = 1; i <= n - 1; i++) {
+                cin >> u >> v >> w;
+                u++, v++;
+                G[u].push_back({v, w});
+                G[v].push_back({u, w});
+            }
+
+            dfs(1);
+            cout << ans.sec << "\n";
+        }
 	    ```
-	    
+
 ???+note "[CF 1294 F. Tree Paths on a Tree](https://codeforces.com/problemset/problem/1294/F)"
 	給你一顆 $n$ 個點的樹，選相異三個點 $a, b, c$，使得至少有包含 $a,b,c$ 其中兩個的 path 數量最大，輸出最大 path 數量和 $a,b,c$。
 	

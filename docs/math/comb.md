@@ -49,9 +49,9 @@
 
 ??? note "code"
 	```cpp linenums="1"
-    long long pre[maxn];   // i! % p
-    long long inv[maxn];   // i 對 p 模逆元
-    long long prei[maxn];  // i! 對 p 的模逆元
+    long long pre[MAXN];   // i! % p
+    long long inv[MAXN];   // i 對 p 模逆元
+    long long prei[MAXN];  // i! 對 p 的模逆元
 
     void build(int n) {
         pre[1] = pre[0] = 1, inv[1] = inv[0] = 1, prei[1] = prei[0] = 1;
@@ -61,7 +61,7 @@
             prei[i] = prei[i - 1] * inv[i] % M;
         }
     }
-    
+
     int C(int n, int k) {
         return pre[n] * prei[k] % M * prei[n - k] % M;
     }
@@ -228,7 +228,7 @@ $2=0\times 2^2+1\times 2^1 + 0\times 2^0$
 - 初始化 dp(1, 1) = k
 - ans = dp(n, 0)
 
-### m=3
+### m=2
 
 - dp(i, s): 考慮前 i 的東西，s 最後三個分別有沒有跟第一個一樣顏色，其中 s 可能是 000, 001, 010, 100
 - $dp(i, 000)=dp(i-1, 100) \times (k-3) + dp(i-1, 000) \times (k-4)$
@@ -478,7 +478,7 @@ $$
 
 <figure markdown>
   ![Image title](./images/34.png){ width="300" }
-  <figcaption>以這個例子來說，左邊能放 n - 1 個，右邊能放 1 個</figcaption>
+  <figcaption>以這個例子來說，左邊能放 n - 2 個，右邊能放 1 個</figcaption>
 </figure>
 
 令能構出 n 個 traingle 的解為 $f(n)$，我們可以列出:

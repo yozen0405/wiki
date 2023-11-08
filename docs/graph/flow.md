@@ -55,7 +55,7 @@
 	2. 找到路徑中流量最小的邊，並更新剩餘網路（亦對逆向邊做更新）
 	3. 做 1. 2. 直到找不到增廣路徑為止
 
-Ford–Fulkerson 雖然複雜度不佳，但他的經神在後續提到的演算法中都會用到。
+Ford–Fulkerson 雖然複雜度不佳，但他的精神在後續提到的演算法中都會用到。
 
 每次從 s 開始 dfs 找到一條增廣路徑，找到路徑中流量最小的邊，並將整條路徑填滿，直到找不到 s 到 t 的增廣路徑即結束。
 
@@ -84,7 +84,7 @@ Ford–Fulkerson 雖然複雜度不佳，但他的經神在後續提到的演算
 當有 f 的流量從 (u, v) 流過時，反向邊 (v, u) 的剩餘流量就加 f
 
 <figure markdown>
-  ![Image title](./images/111.png){ width="400" }
+  ![Image title](./images/111.png){ width="500" }
 </figure>
 
 可以發現我們就會流過 A → B → C → D 後，還能再流 A → C → B → D，中間被流過去一次，又流回來一次，剛好抵銷掉。第一次我們流了 1 的流量，第二次我們也是流了 1 的流量，所以求出最大流就是 1 + 1 = 2
@@ -93,6 +93,35 @@ Ford–Fulkerson 雖然複雜度不佳，但他的經神在後續提到的演算
 
 worst case 的圖，待補
 
+??? note "worst case 說明"
+	<figure markdown>
+      ![Image title](./images/112.png){ width="400" }
+    </figure>
+    
+    考慮上面這張圖跑 Ford–Fulkerson
+    
+	<figure markdown>
+      ![Image title](./images/113.png){ width="400" }
+    </figure>
+    
+    <figure markdown>
+      ![Image title](./images/114.png){ width="400" }
+    </figure>
+    
+    <figure markdown>
+      ![Image title](./images/115.png){ width="400" }
+    </figure>
+    
+    <figure markdown>
+      ![Image title](./images/116.png){ width="400" }
+    </figure>
+    
+    <figure markdown>
+      ![Image title](./images/117.png){ width="400" }
+    </figure>
+    
+    會發現如果我們這樣找增廣路徑 worst case 每次都只會將剩餘流量最大的邊流掉一單位的流量，所以最差會找 O(F) 次增廣路徑
+	
 ??? note "code"
 	```cpp linenums="1"
 	struct FordFulkson {
@@ -156,14 +185,14 @@ worst case 的圖，待補
 	跟 dijkstra 一樣，將無向邊看成兩條獨立的有向邊。因為最後只會使用來、回其中一側（若兩側都使用可以互相消掉），如圖
 	
 	<figure markdown>
-      ![Image title](./images/107.png){ width="400" }
-    </figure>
+	  ![Image title](./images/107.png){ width="400" }
+	</figure>
 	
 	那要怎麼實作 ? 我們對於來、回這兩個有向邊，依照 Ford–Fulkerson，除了原本的方向外，都各自建立一條逆向邊，逆向邊的流量都會是 0，也就是 u 與 v 之間就會產生 4 條邊。輸出答案就看哪一側流過去的比較多，就輸出那個方向，也就是看來、回分別的「逆向邊」的剩餘流量。如下圖
 	
 	<figure markdown>
-      ![Image title](./images/106.png){ width="200" }
-    </figure>
+	  ![Image title](./images/106.png){ width="200" }
+	</figure>
 	
 	(v, u) 的逆向邊剩餘流量為 2，(u, v) 的逆向邊剩餘流量為 1，因為 2 - 1 = 1，所以最後就是輸出從 (v, u) 流過去 1 單位
 
@@ -182,7 +211,44 @@ Edmonds-Karp 跟 Ford–Fulkerson 只差在每次找的是**最短的一條**增
 	數學證明 待補
 
 	感性證明 待補
-	
+
+??? note "Edmonds-Karp 過程 - 範例"
+	<figure markdown>
+      ![Image title](./images/112.png){ width="400" }
+    </figure>
+    
+    考慮上面這張圖跑 Edmonds-Karp
+    
+	<figure markdown>
+      ![Image title](./images/118.png){ width="400" }
+    </figure>
+    
+    找到 s -> a -> d -> t，流量為 1
+    
+    <figure markdown>
+      ![Image title](./images/119.png){ width="400" }
+    </figure>
+    
+    找到 s -> a -> b -> t，流量為 99
+    
+    <figure markdown>
+      ![Image title](./images/120.png){ width="400" }
+    </figure>
+    
+    找到 s -> c -> d -> t，流量為 99
+    
+    <figure markdown>
+      ![Image title](./images/121.png){ width="400" }
+    </figure>
+    
+    找到 s -> c -> d -> a -> b -> t，流量為 1
+    
+    <figure markdown>
+      ![Image title](./images/122.png){ width="400" }
+    </figure>
+    
+    s 無法走到 t，總流量為 200，可以發現因為我們每次都挑最短的走，比上面 Ford–Fulkerson 要少跑了好幾輪
+
 ??? note "code"
 	```cpp linenums="1"
 	struct EdmondsKarp {
@@ -250,7 +316,7 @@ Edmonds-Karp 跟 Ford–Fulkerson 只差在每次找的是**最短的一條**增
         }
     } flow;
     ```
-    
+
 ### Dinic
 
 ???+note "算法概要"
@@ -368,7 +434,7 @@ s-t cut 的 cost 為 cut-set 內的邊的 capacity 總和，min cut 就是要最
 
 以這個例子來說，min cut 就是 2 + 2 = 4（從 t 到 s 的邊雖有被切到，但不計算在 s-t 割，因為對 s 能不能走到 t 的連通性沒有影響）
 
-??? info "【Min Flow Max Cut Theorm】: max flow = min cut"
+??? info "【Max Flow Min Cut Theorm】: max flow = min cut"
 	max flow <= cut
 
 	Max Flow 可以想成很多個 disjoint path，任何的 cut 一定都會切到這些 path，所以任何 cut 不會比任何 flow 小。
@@ -384,9 +450,9 @@ s-t cut 的 cost 為 cut-set 內的邊的 capacity 總和，min cut 就是要最
 	問題常常是一體兩面，某個求最大值的問題常常等價於另一個求最小值的問題，例如說:
 	
 	- 「你會的問題裡最難的一個」差不多就是 「你不會的問題裡最簡單的一個」
-
+	
 	- 「給你 1000 元你最多可以活多久」跟 「你要活一個月至少需要多少錢？」差不多
-
+	
 	那最大流的對偶是什麼呢 ? 一個網路的最大流，就是那些被「堵住」的水管的淨流量，這些堵住的水管會把點分成兩群。
 
 ### 如何輸出一個 mincut
@@ -412,7 +478,7 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 	最少: 從 s 開始走沒有流滿的 edges，走到的點就是答案
 
 	最多: 從 t 開始走沒有流滿的 edges，沒走到的點就是答案
-	
+
 ## 二分圖系列
 
 ### 二分圖最大匹配
@@ -441,13 +507,13 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 	- 前面有一條邊連接
 	
 	- 為 disjoint path 的開頭
-
+	
 	因此每個點都貢獻都可以分成上述兩種 case，而點的數量為 n，不重疊路徑數 + 路徑長總和自然就是 n
 	
 	<figure markdown>
-      ![Image title](./images/110.png){ width="300" }
-    </figure>
-	
+	  ![Image title](./images/110.png){ width="300" }
+	</figure>
+
 路徑上會滿足每個點的 in-degree 和 out-degree 至多都是 1，所以我們可以將每個點拆成入點跟出點，進行二分圖最大匹配
 
 <figure markdown>
@@ -507,7 +573,9 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 	給一個二分圖，選一些點使選的點兩兩不相鄰，且數量越大越好，也就是最大獨立集，並輸出一組答案
 	
 ??? info "定理: 在一般圖上，|最小點覆蓋| + |最大獨集| = n"
-	待補
+	【證明】: 最小點覆蓋以外都是最大獨立集
+
+	每條邊都會被最小覆蓋支配（每條邊至少會有一個點被最小點覆蓋選到），所以剩餘的點跟點之間不可能會有一條邊（有的話代表沒被支配），符合最大獨立集定義
 	
 所以答案就是 n - max flow。輸出答案的話，就把最小點覆蓋沒選到的點都選起來
 
@@ -536,7 +604,7 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 	
 概念和 Ford-Fulkson 一樣找增廣路徑，但是每次要找最便宜的。每條邊我們會多紀錄一個成本  cost(u, v)，對於反向邊的成本為負的正向邊成本，退流的時候等價於抵銷成本。因為圖上有負邊，所以必須用 Bellman-Ford 或是 SPFA 來找最短路徑
 
-複雜度 待補
+複雜度跟 Fulk-Fulkerson 就差在一個是 dfs，一個是 Bellman-Ford，而 Bellman-Ford 是 O(VE)，所以複雜度就是 O(F * VE)
 
 ??? note "code"
 	```cpp linenums="1"
@@ -544,42 +612,42 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
     #define int long long
 
     using namespace std;
-
+    
     const int INF = (1LL << 60);
     const int M = 1e9 + 7;
-
+    
     int n;
-
+    
     struct dinic {
         struct Edge {
             int u, v, cap, c;
         };
-
+    
         int n, m, s, t;
         vector<vector<int>> G;
         vector<Edge> edges;
         vector<int> lv;
         vector<int> cur;
-
+    
         void init() {
             n = m = 0;
             G.clear();
             edges.clear();
         }
-
+    
         int add_node() {
             n++;
             G.push_back({});
             return n - 1;
         }
-
+    
         void add_edge(int u, int v, int cap, int w) {
             edges.push_back({u, v, cap, w});
             G[u].push_back(m++);  // 0
             edges.push_back({v, u, 0LL, -w});
             G[v].push_back(m++);  // 1
         }
-
+    
         pair<int, int> flow(int _s, int _t) {
             s = _s, t = _t;
             int fl, cost;
@@ -601,7 +669,7 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
                         int v = edges[G[u][i]].v;
                         int w = edges[G[u][i]].c;
                         int fw = edges[G[u][i]].cap;
-
+    
                         if (fw > 0 && dis[v] > dis[u] + w) {
                             pre[v] = u;
                             preL[v] = G[u][i];  // bug: preL[v] = i;
@@ -613,7 +681,7 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
                         }
                     }
                 }
-
+    
                 if (dis[t] == INF) break;
                 int tf = INF;
                 int u, l;
@@ -622,26 +690,26 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
                     l = preL[v];
                     tf = min(tf, edges[l].cap);
                 }
-
+    
                 for (int v = t, u, l; v != s; v = u) {
                     u = pre[v];
                     l = preL[v];
                     edges[l].cap -= tf;
                     edges[l ^ 1].cap += tf;
                 }
-
+    
                 cost += tf * dis[t];
                 fl += tf;
             }
             return {fl, cost};
         }
-
+    
     } flow;
-
+    
     signed main() {
         ios::sync_with_stdio(0);
         cin.tie(0);
-
+    
         int n, m, s, t;
         cin >> n >> m >> s >> t;
         flow.init();
@@ -655,6 +723,16 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
         cout << f << " " << cost << "\n";
     }
     ```
+
+???+note "[CSES - Distinct Routes II](https://cses.fi/problemset/task/2130)"
+	給一張 n 點 m 邊有向圖，有源點 1 走到匯點 n，每條邊 (u, v) 最多只能走 c(u, v) 次，且經過的 cost 都是 1，最少需要花多少 cost 才能走出 k 條 disjoint path
+	
+	$n\le 10^5, m\le 10^5, 1\le k\le n - 1$
+	
+	??? note "思路"
+		若邊的費用都是 0，只需要判斷 s-t maximum flow 是否大於等於 k
+		
+		邊有費用，權重都是 1 or -1，可以每次用 Bellman-Ford O(nm) 找到起點終點最便宜增廣路徑，共會跑 k 次，所以是 O(n * m * k)
 
 ## 建模技巧
 
