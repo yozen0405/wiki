@@ -374,15 +374,73 @@
 	$1\le n\le 750,1\le a_i \le n$
 	
 	??? note "思路"
-		枚舉 k，假設有 k 個 gaps 至少有放一個東西，要將 cnt[i + 1] 個物品填入，利用隔板法得知方法數為 C(cnt[i + 1] - 1, k - 1)
+		先將相同的數字分為一類，定義 dp(i, j) = 前 i 組數字恰好有 j 對相鄰數字相同的方案數
 		
-		枚舉 L，代表選 L 個同 pair gaps，方法數 : C(j, L)
+		考慮從 dp(i, j) 轉移到 dp(i + 1, ?)，先令前 i 組組成的是一個長度為 S 的序列，也就是可以在 S + 1 的 gaps 中插入 i + 1（第一項之前、中間、最後一項之後）
+	
+		我們先枚舉 k，假設有 k 個 gaps 至少有放一個第 i + 1 組的數字，要將 cnt[i + 1] 個物品填入，也就是將 cnt[i + 1] 顆球放入 k 個箱子，利用[隔板法](https://zh.wikipedia.org/zh-tw/%E9%9A%94%E6%9D%BF%E6%B3%95)得知方法數為 C(cnt[i + 1] - 1, k - 1)
 		
-		也就會有 j - L 個異 pair gaps，方法數 : C(S - j, j - L)
+		我會怎麼選這 k 個 gaps 呢 ? 這也需要考慮 gaps 的「種類」會是什麼
 		
-		所以會被扣掉 L 個同 pair gaps，將 cnt[i + 1] 個物品放入 k 個 gaps 會產生 cnt[i + 1] - k 個同 pair，我們可列出轉移式 dp(i, j) → dp(i + 1, j - L + cnt[i + 1] - k)
+		- 枚舉 L，代表選 L 個同 pair gaps，方法數 : C(j, L)
+		
+		- 也就會有 k - L 個異 pair gaps，方法數 : C(S + 1 - j, k - L)
+		
+		所以會被扣掉 L 個同 pair gaps，將 cnt[i + 1] 個物品放入 k 個 gaps 會產生 cnt[i + 1] - k 個同 pair（例如說 5 個物品放入 3 個 gap，不管怎麼放一定會有 2 個物品相鄰），我們發現 dp(i, j) 就是要轉移到 dp(i + 1, j - L + cnt[i + 1] - k)
+		
+		現在要正式的來列轉移式，我們把剛剛所說的方法數都乘起來:
+		
+		dp(i + 1, j - L + cnt[i + 1] - k) = dp(i, j) * C(cnt[i + 1] - 1, k - 1) * C(j, L) * C(S + 1 - j, k - L)
 		
 		> 參考自 : <https://www.cnblogs.com/jiachinzhao/p/7410938.html>
+
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define LL long long
+        using namespace std;
+        const int N = 800;
+        const int mod = 1e9 + 7;
+        int C[N][N];
+        void init() {
+            for (int i = 0; i < N; i++) C[i][0] = C[i][i] = 1;
+            for (int i = 2; i < N; i++) {
+                for (int j = 1; j <= i; j++) {
+                    C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) % mod;
+                }
+            }
+        }
+        int dp[N][N], cnt[N], total[N];
+        vector<int> v;
+        int main() {
+            init();
+            int n, x, mx = 1;
+            cin >> n;
+            v.push_back(0);
+            for (int i = 1; i <= n; i++) {
+                cin >> x;
+                if (!cnt[x]) v.push_back(x);
+                cnt[x]++;
+            }
+            for (int i = 1; i < v.size(); i++) total[i] = total[i - 1] + cnt[v[i]];
+            dp[0][0] = 1;
+            for (int i = 0; i < v.size() - 1; i++) {
+                int num = cnt[v[i + 1]], S = total[i] + 1;
+                for (int j = S - 1; j >= 0; j--) {  
+                    int kk = min(num, S);        
+                    for (int k = 1; k <= kk; k++) {
+                        int L = min(j, k);
+                        for (int l = L; S - j >= k - l; l--) {
+                            int &res = dp[i + 1][j - l + num - k];
+                            res = (res + 1LL * C[num - 1][k - 1] * C[j][l] % mod * C[S - j][k - l] % mod * dp[i][j] % mod) % mod;
+                        }
+                    }
+                }
+            }
+            cout << dp[v.size() - 1][0] << endl;
+            return 0;
+        }
+        ```
 
 ???+note "[2021 全國賽 pF. 挑水果](https://tioj.ck.tp.edu.tw/problems/2258)"
 	一開始船上有 $c$ 個種類的水果，第 $i$ 種類有 $n_i$ 顆，依序經過 $c$ 個城市，每經過一個城市可以決定要不要把船上所有前 $i$ 種類的水果給當地盤商賣，積載每顆水果經過都市 $i$ 需要積載成本 $p_i$，把每顆水果給都市 $i$ 的盤商賣需要成本 $s_i$，在都市 $i$ 賣種類 $j$ 的水果最後只會賣出 $r_{i,j}$ 顆，問若積載成本和銷售成本總和不超過 $T$ 的前提下，最多能賣幾顆水果 ?
@@ -1012,13 +1070,13 @@
 	$n\le 10^5, 1\le w_i\le 10^9,$ point 數量 $\le 300$
 	
 	??? note "思路"
-		觀察到可以分成好幾段，每一段 point 都只會被一個 interval 覆蓋
+		觀察到可以將有覆蓋到的 point 分成好幾段，每一段 point 都只會被一個 interval 覆蓋
 	
 		cost(l, r) : 用一個 interval 覆蓋 point[l ~ r] 的最小權重
 		
 		dp(i, k) = 在 point 1 ~ i 內恰好覆蓋 k 個 point 的 min cost
 		
-		$$dp(i, k) = \min \begin{cases}dp(i - 1, k) \\ dp(i - j, k - j) +  \text{cost}(i - j + 1, i) \text{for} \space \text{all}\space j=1 \ldots k\end{cases}$$
+		$$dp(i, k) = \min \begin{cases}dp(i - 1, k) \\ dp(i - j, k - j) +  \text{cost}(i - j + 1, i) \space\space \text{for} \space   \text{all}\space j=1 \ldots k\end{cases}$$
 		
 	??? note "code"
 		```cpp linenums="1"
@@ -1029,21 +1087,21 @@
 	
 	    using namespace std;
 	
-	    int costs[MAX_N][MAX_N]; // costs[i][j]表示从i放到j的花费
-	    int dp[MAX_N][MAX_N]; // dp[i][j]表示在总共i个里面放k个的最小花费
+	    int costs[MAX_N][MAX_N];  // costs[i][j]表示从i放到j的花费
+	    int dp[MAX_N][MAX_N];     // dp[i][j]表示在总共i个里面放k个的最小花费
 	
 	    int main() {
 	        int caseNumber;
 	        scanf("%d", &caseNumber);
-	        for (int caseIndex = 0; caseIndex<caseNumber; ++caseIndex) {
-	            for (int i=0; i<MAX_N; ++i) {
-	                for (int j=0; j<MAX_N; ++j) {
-	                    costs[i][j]=INFINITY;
+	        for (int caseIndex = 0; caseIndex < caseNumber; ++caseIndex) {
+	            for (int i = 0; i < MAX_N; ++i) {
+	                for (int j = 0; j < MAX_N; ++j) {
+	                    costs[i][j] = INFINITY;
 	                }
 	            }
-	            for (int i=0; i<MAX_N; ++i) {
-	                for (int j=0; j<MAX_N; ++j) {
-	                    dp[i][j]=INFINITY;
+	            for (int i = 0; i < MAX_N; ++i) {
+	                for (int j = 0; j < MAX_N; ++j) {
+	                    dp[i][j] = INFINITY;
 	                }
 	            }
 	            int n, m, k;
@@ -1053,16 +1111,16 @@
 	                scanf("%d%d%d", &left, &right, &cost);
 	                costs[left][right] = min(costs[left][right], cost);
 	
-	                for (int i=left; i<=right; ++i) {
-	                    for (int j=i; j<=right; ++j) {
-	                        costs[i][j]=min(costs[i][j],cost);
+	                for (int i = left; i <= right; ++i) {
+	                    for (int j = i; j <= right; ++j) {
+	                        costs[i][j] = min(costs[i][j], cost);
 	                    }
 	                }
 	            }
-	            for (int i=1; i<=n; ++i) {
-	                for (int j=i; j<=n; ++j) {
-	                    for (int t=i; t<j; ++t) {
-	                        costs[i][j]=min(costs[i][j],costs[i][t]+costs[t+1][j]);
+	            for (int i = 1; i <= n; ++i) {
+	                for (int j = i; j <= n; ++j) {
+	                    for (int t = i; t < j; ++t) {
+	                        costs[i][j] = min(costs[i][j], costs[i][t] + costs[t + 1][j]);
 	                    }
 	                }
 	            }
@@ -1076,7 +1134,7 @@
 	                        if (costs[i - t + 1][i] != INFINITY)
 	                            dp[i][j] = min(dp[i][j], dp[i - t][j - t] + costs[i - t + 1][i]);
 	                }
-	            printf("case #%d:\n%d\n",caseIndex,dp[n][k]==INFINITY?-1:dp[n][k]);
+	            printf("case #%d:\n%d\n", caseIndex, dp[n][k] == INFINITY ? -1 : dp[n][k]);
 	        }
 	
 	        return 0;

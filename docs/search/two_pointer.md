@@ -1,8 +1,69 @@
 - CF EDU
-- <https://blog.csdn.net/qq_31908675/article/details/82749573?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522168318044816800226588552%2522%252C%2522scm%2522%253A%252220140713.130102334.wap%255Fall.%2522%257D&request_id=168318044816800226588552&biz_id=0&utm_medium=distribute.wap_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-5-82749573-null-null.wap_first_rank_v2_rank_v29&utm_term=%E4%BA%8C%E5%88%86%20%E5%B0%BA%E5%8F%96&spm=1018.2118.3001.4187>
 
-
-
+???+note "[CSES - Sum of Two Values](https://cses.fi/problemset/task/1640)"
+	給一個長度為 n 的序列 $a_1, \ldots ,a_n$，以及數字 x，問這 n 個數字中哪兩個數字和為 x，輸出任何一組解
+	
+	$n\le 2\times 10^5, 1\le x,a_i\le 10^9$
+	
+	??? note "思路"
+		排序後使用雙指針
+		
+	??? note "code"
+		```cpp linenums="1"
+		void solve() {
+            vector<pair<int, int>> v;
+            int n, x;
+            cin >> n >> x;
+            for (int i = 1; i <= n; i++) {
+                int x;
+                cin >> x;
+                v.push_back({x, i});
+            }
+            sort(v.begin(), v.end());
+            int l = 0, r = n - 1;
+            while (r > l) {
+                if (v[l].first + v[r].first > x) {
+                    r--;
+                } else if (v[l].first + v[r].first < x) {
+                    l++;
+                } else {
+                    cout << v[l].S << ' ' << v[r].S << endl;
+                    exit(0);
+                }
+            }
+            cout << "IMPOSSIBLE\n";
+        }
+        ```
+		
+???+note "[CSES - Sum of Three Values](https://cses.fi/problemset/task/1641)"
+	給一個長度為 n 的序列 $a_1, \ldots ,a_n$，以及數字 x，問這 n 個數字中哪三個數字和為 x，輸出任何一組解
+	
+	$n\le 5000, 1\le x, a_i\le 10^9$
+	
+	??? note "思路"
+		枚舉第一項，後續套用 Sum of Two Values
+		
+???+note "Sum of Two values 變化"
+	給一個長度為 n 的序列 $a_1, \ldots ,a_n$，以及數字 x，問有幾組 (i, j) 使 $a_i+a_j=x$
+	
+	$n\le 2\times 10^5, 1\le x, a_i\le 10^9$
+	
+	??? note "思路"
+		開一個桶 cnt[ ] 紀錄每種數字出現的次數，然後我們就可以將 a[ ] sort，並使用 unique 去除重複的元素，然後用雙指針（枚舉 l，r 會單調遞減）
+		
+	??? note "code"
+		```cpp linenums="1"
+		int j = n - 1;
+		for (int i = 0; i < n; i++) {
+			while (i < j && a[i] + a[j] >= x) {
+				if (a[i] + a[j] == x) {
+					ans += cnt[i] * cnt[j];
+				}
+				j--;
+			}
+		}
+		```
+	
 ???+note "[USACO 2021 December Contest, Silver Problem 2. Connecting Two Barns](https://www.usaco.org/index.php?page=viewproblem2&cpid=1159)"
 	給 $n$ 點 $m$ 邊，點邊號 $1\ldots n$，可以額外建最多兩條邊，在點 $i,j$ 之間建邊花費 $(i-j)^2$，問最小花費使點 $1$ 跟點 $n$ 連通
 	
@@ -105,5 +166,3 @@
 	        return 0;
 	    }
 	    ```
-	    
-???+note "[CSES - Sum of Four Values](https://cses.fi/problemset/task/1642/)"

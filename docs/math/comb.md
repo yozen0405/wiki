@@ -61,7 +61,7 @@
             prei[i] = prei[i - 1] * inv[i] % M;
         }
     }
-
+    
     int C(int n, int k) {
         return pre[n] * prei[k] % M * prei[n - k] % M;
     }
@@ -861,6 +861,89 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 		
 		最後的算答案可以在終點放一個障礙物，答案就是 dp(m + 1)
 
+???+note "[CF 1342 E. Placing Rooks](https://codeforces.com/problemset/problem/1342/E)"
+	給一個 n * n 的棋盤格，問要放 n 個「車」，並且滿足以下條件，有幾種放法
+	
+	- 每一個空格子都能被至少一個車走到
+
+	- 恰好存在 k 組能互相走到的車
+	
+	$n\le 2\times 10^5, 0\le k\le \frac{n(n-1)}{2}$
+	
+	??? note "思路"
+		【觀察】: 合法必定滿足每一列或每一行都有一個車
+		
+		<u>證明</u>: 假設第 i 列沒有車，因為每一個格子都要被攻擊到，所以第 i 列上的每一個格子都要被攻擊到，因為第 i 列上沒有車，所以 應該被同行的車攻擊到，所以此時每一行都有車。
+		
+		假設所有 row 都有車，那麼我們就只要考慮 column 就好，若我們把所有車都放在了 1 個 column，則會產生 n - 1 組互相走到的車，若我們把所有車放在了 2 個 column，則會產生 n - 2 組互相走到的車，...。觀察到需要的 column 跟產生的 pair 相加恰為 n，代表若我們想要產生 k 組互相走到的車，則必定要放 n - k 個 column。
+		
+		所以答案就是 $(n-k)^n$ 嗎 ? 但這樣會算到有 1 個空行的情況，還需要再加上 2 個空行的情況，減掉 3 個空行的情況，...
+		
+		所以答案就是 $(n-k)^n-(n-k-1)^n C^{n-k}_1+(n-k-2)^n C^{n-k}_2 \ldots$，還要記得再乘上選 k 個 column 的方法數 $C^{n}_{n-k}$，和換固定 column 要 * 2
+		
+		特判: 
+		
+		- 當 k >= n 時，不可能有合法解，答案為 0
+
+		- 當 k = 0 時，相當於可以放 n 個 column，這時固定 row 跟固定 column 是一樣的，所以答案不用 * 2
+
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define mk make_pair
+        #define pb push_back
+        using namespace std;
+
+        int fastpow(int a, int b, int m) {
+            int ret = 1;
+            while (b != 0) {
+                if (b & 1) ret = ret * a % m;
+                a = a * a % m;
+                b >>= 1;
+            }
+            return ret;
+        }
+
+        const int MAXN = 3e6 + 5;
+        const int M = 998244353;
+        int prei[MAXN], pinv[MAXN], pref[MAXN];
+
+        void build() {
+            prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
+            for (int i = 2; i < MAXN; i++) {
+                pref[i] = pref[i - 1] * i % M;
+                pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
+                prei[i] = prei[i - 1] * pinv[i] % M;
+            }
+        }
+
+        int C(int n, int k) {
+            return pref[n] * prei[k] % M * prei[n - k] % M;
+        }
+
+        signed main() {
+            int n, m, k;
+            build();
+            cin >> n >> k;
+            if (k > n - 1) {
+                cout << 0;
+                exit(0);
+            }
+            int ans = 0;
+            for (int i = 0; i <= n - k; i++) {
+                ans += ((i & 1) ? -1 : 1) * fastpow((n - k) - i, n, M) * C(n - k, i) % M;
+                ans = (ans % M + M) % M;
+            }
+            ans = (ans * C(n, n - k)) % M;
+            if (k) {
+                ans = (ans * 2) % M;
+            }
+            cout << ans << '\n';
+        }
+		```
+		
 [^1]: 例如 (D), (A, B, C)，<a href="/wiki/math/images/15.png" target="_blank">見此圖</a>
 
 [^2]: <a href="/wiki/math/images/20.png" target="_blank">見此圖</a> 參考自 [stackexchange 博客](https://math.stackexchange.com/questions/95491/n-choose-k-bmod-m-using-chinese-remainder-theorem)

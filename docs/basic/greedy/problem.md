@@ -1,94 +1,42 @@
-### 2023 TOI 1模 pB
+## 金錢問題
 
-???+note "2023 TOI 1模 pB. 最佳劇照 (stills)"
-    在一維數線上有 $n$ 個 interval $[l_i, r_i]$，要求選擇最少的 point，使得每個 interval 都至少包含一個 point，且所選點的 cost 總和最小。
-    
-    其中點的 cost 計算方式為：
-    
-    $$\text{cost}(t) = 有包含 \texttt{ point } t \text{ } 的 \text{ } \texttt{interval} \text{ } 的\text{ } |(r_i - t) - (t - l_i)| \text{ }的總和$$
-    
-    ??? note "題解"
-        > 步驟一，離散化:
-        
-        利用線段的開頭 $l_i$ 和結尾 $r_i$ 可以把數線切出 $2n-1$ 個 blocks。
-        
-        這樣一來，每個 interval 可以當成是某個 block 的左界開始到某個 block 的右界結束。
-    
-        每個 block 只會有一個最好的 $t$，先計算出一個陣列 $w[0], ..., w[2n-2]$ 表示每個 block 裡面最好的位置的 cost
-    
-        > 步驟二，計算 $w[i]$：
-        
-        每個 block 的 $w[i]$ 計算方式 $|(r_i - t) - (t - l_i) |$ 也可以寫成 $2|(l_i+r_i)/2 - t|$ 也就是 $t$ 到 $[l_i, r_i]$ 中間點的距離的兩倍。
-        
-        也就是說，一個 block 裡面位置 $t$ 的 cost 就是 $t$ 到所有有包含這個 block 的區間的中間點的距離總和的兩倍。
-        
-        令 $m_i = (l_i+r_i)/2$，
-        
-        $$|m_1-t| + |m_2-t| + \cdots |m_k-t|$$
-        
-        這個函數的最小值發生於 $t$ 等於 $m_i$ 的中位數
-        
-        不過 $t$ 需要被限制在 block 的範圍內，所以需要分幾個 case 討論
-    
-        - $m_i$ 的中位數在在 block 內，直接讓 $t = m_i$ 的中位數
-    
-        - $m_i$ 的中位數在在 block 左邊，直接讓 $t =$ block 左界
-    
-        - $m_i$ 的中位數在在 block 右邊，直接讓 $t =$ block 右界
-    
-        掃描線的過程需要對每個 block 維護目前有哪些 $m_i$ 可以用，並且維護這些 $m_i$ 的中位數。決定好 $t$ 之後，需要透過一些資料結構在 $O(\log n)$ 時間計算出 $|m_1-t| + |m_2-t| + ... |m_k-t|$，這個部分可以使用線段樹達成。
-    
-        > 步驟三， dp 算答案：
-        
-        $dp(i)$ 表示最後一個點選在 block $i$ ，且左界在 block $i$ 以前的所有 interval 都有包含到至少一個點的最好答案。
-        
-        $dp(i) = \max dp(j) + w[i]$, $j$ 可以選的條件是沒有 interval 開頭結尾都在 block ($j+1$) ~ block ($i - 1$)
-        
-        這些的可以用來轉移的 $j$ 會是連續的一段，所以可以用套用資料結構快速計算出 $dp(i)$，計算 dp 的總時間是 $O(n) \times$ 查詢時間。資料結構的部分可以用單調隊列 $O(1)$ 查詢，或是用線段樹 $O(\log n)$ 查詢
-        
-        > ref : <https://hackmd.io/@algoseacow/rJw_DISe3>
-
-???+ note "Parallel Scheduling Problem [TIOJ 1072. 誰先晚餐](https://tioj.ck.tp.edu.tw/problems/1072)"
-	有 $n$ 個人要吃飯，第 $i$ 個人想吃的食物需要 $C_i$ 時間才能煮好，而他吃掉食物所花的時間為 $E_i$ ，且廚師同一時間只能煮一個食物，最小化所有人都吃完飯的時間。
+???+note "換零錢（互相整除）"
+	給一個長度為 $n$ 的遞增序列 $a_1, \ldots ,a_n$，代表每種硬幣的面額，每種硬幣的數量都有無限個，問最少選幾個硬幣恰能湊出 $k$ 元
 	
-	$n\le 10^4, 1\le C_i, E_i\le 1000$
+	$n\le 10^6,a_{i+1}$ % $a_i=0$
 	
 	??? note "思路"
-		不管哪道食物先煮，總共需要煮的時間都一樣。想要縮短總工時，最好先煮吃飯時間較長的食物。
-		<figure markdown>
-	    	![Image title](./images/8.png){ width="500"}
-	    	  <figcaption><font color="#4472C4">藍色</font>代表煮的時間，<font color="#ED7D31">橘色</font>代表吃的時間</figcaption>
-	    </figure>
-	    
-		??? note "證明"
-			假設由演算法得到的吃飯的順序為 $a_1, a_2,\ldots, a_n$ ，則此序列一定滿足特性 $E_{a_i} \ge E_{a_{i+1}}$ 。假設有另外一組吃飯順序為 $b_1, b_2, · · · , b_n$，且不滿足該特性，則一定存在兩個相鄰的人 $b_i , b_i+1$ 滿足 $E_{b_i} < E_{b_{i+1}}$ 。如果將這兩個人的吃飯順序對調， 則考慮第 $j$ 個人吃飯結束的時間 (對調前為 $t_1(j)$ ，對調後為 $t_2(j)$ )，可以以下四種人的情況： 
+		例如說 k = 1384，a 是新台幣，那我們就可以附 1 個 1000、3 個 100、1 個 50、3 個 10、4 個 1，但為什麼這樣一定是好的 ?
+		
+		【引理】: 在面額互相整除的情況下，若存在面額 x 的貨幣，且面額在 x 之下的總和超過 x，則必定能夠透過換錢使得面額在 x 以下的貨幣總和不到 x 且使貨幣數量更少
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define ALL(x) x.begin(),x.end()
+	    using namespace std;
 	
-	        1. $j < i$： <br>
-	           對調前，結束的時間為 $t_1(j) = \sum \limits_{k=1}^j C_{b_k} + E_{b_j}$；<br>
-	           對調後，結束的時間為 $t_2(j) = \sum \limits_{k=1}^j C_{b_k} + E_{b_j}$。  
-	        2. $j = i$： <br>
-	           對調前，結束的時間為 $t_1(j) = t_1(i)= \sum \limits_{k=1}^{i-1} C_{b_k} + C_{b_i}+E_{b_i}$ <br>
-	           對調後，結束的時間為 $t_2(j) = t_2(i)= \sum \limits_{k=1}^{i-1} C_{b_k} + C_{b_{i+1}}+C_{b_i}+E_{b_i}$ 。
+	    const int MAXN = 1e6 + 5;
+	    int n, k, a[MAXN];
 	
-	        3. $j = i + 1$： <br>
-	           對調前，結束的時間為 $t_1(j) = t_1(i+1)= \sum \limits_{k=1}^{i-1} C_{b_k} + C_{b_i}+C_{b_{i+1}}+E_{b_{i+1}}$ ； <br>
-	           對調後，結束的時間為 $t_2(j) = t_2(i+1)= \sum \limits_{k=1}^{i-1} C_{b_k} + C_{b_{i+1}}+E_{b_{i+1}}$。 
-	
-	        4. $j > i + 1$： <br>
-	           對調前，結束的時間為 $t_1(j) = \sum \limits_{k=1}^j C_{b_k} + E_{b_j}$； <br>
-	           對調後，結束的時間為 $t_2(j) = \sum \limits_{k=1}^j C_{b_k} + E_{b_j}$。  
-	
-	        我們要比較的是 $\max\{t_1(j)\}$ 和 $\max\{t_2(j)\}$ $(1 \le j \le n)$ ，可以發現會讓 $t_1(j)$ 和 $t_2(j)$ 不同值的只有 $j = i$ 和 $j = i + 1$ ，而且 
-	
-	        $$\begin{cases}t_1(i + 1) \ge t_2(i) \\ t_1(i + 1) \ge t_2(i + 1)\end{cases}$$
-	
-	        所以 $\max\{t_1(j)\} \ge \max\{t_2(j)\}$，也就是對調之後，最後吃完的時間一定不會比對調前差。 最後，經過不斷的兩兩對調，一定可以將序列 $b$ 變成序列 $a$ 。最後吃完的時間必為非嚴格遞減，得證序列 $a$ 是這個問題的最優解。
-	        
-	        > ref : <https://www.csie.ntu.edu.tw/~sprout/algo2021/homework/hand05.pdf>
+	    signed main() {
+	        cin >> n >> k;
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	        }
+	        int ans = 0;
+	        for (int i = n - 1; i >= 0; i--) {
+	            ans += k / a[i];
+	            k %= a[i];
+	        }
+	        cout << ans << '\n';
+	    }
+		```
 
 ???+note "[TIOJ 1579.來自未來的新台幣](https://tioj.ck.tp.edu.tw/problems/1579)"
 	給長度為 $n$，⾯額分別為 $1,5,10,50,100,500,1000,\ldots$ 的錢幣，第 $i$ 個錢幣的數量為 $c_i$，能湊出的金額共有多少種
-	
+
 	$1\le n\le 19$
 	
 	??? note "思路"
@@ -153,14 +101,131 @@
 	    }  
 	    ```
 
+???+note "[CSES - Missing Coin Sum](https://cses.fi/problemset/task/2183)"
+	給 $n$ 個錢幣，面額是 $a_1, \ldots ,a_n$，問最小湊不出來的面額是多少
+	
+	$n\le 2\times 10^5, 1\le a_i \le 10^9$
+	
+	??? note "思路"
+		若小的足換大，則大**必定**要換小，跟上一題一樣，重複直到小不足以換大為止
+		
+		這邊要注意，跟上一題不同的是，若小的金額跟大的只差一，也是可以將大換小的，例如說 1 元有 4 個，5 元有 1 個，這樣其實 [0, 9] 都湊得出來，所以也是可以把這個 5 元換成 5 個 1 元
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    using namespace std;
+	
+	    const int INF = 9e18;
+	    const int MAXN = 2e5 + 5;
+	    int n, m;
+	    int a[MAXN];
+	
+	    signed main() {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	        }
+	        sort(a + 1, a + n + 1);
+	        int mx = 0;
+	        for (int i = 1; i <= n; i++) {
+	            if (a[i] > mx + 1) {
+	                cout << mx + 1 << "\n";
+	                exit(0);
+	            }
+	            mx = max(mx, mx + a[i]);
+	        }
+	        cout << mx + 1 << "\n";
+	    }
+		```
+
+???+note "[CSES - Missing Coin Sum Queries](https://cses.fi/problemset/task/2184)"
+	給 $n$ 個錢幣，面額是 $a_1, \ldots ,a_n$，有 $q$ 筆詢問:
+	
+	- $\text{query}(l,r):$ 問只能使用 $a_l, \ldots ,a_r$，最小湊不出來的面額是多少
+	
+	$n,q\le 2\times 10^5, 1\le a_i \le 10^9$
+
+???+note "[CF 1303 D. Fill The Bag](https://codeforces.com/contest/1303/problem/D)"
+	給一個長度為 $m$ 的序列 $a_1, \ldots ,a_m$，$a_i$ 都是 2 的冪次。每次操作可將一個 $a_i$ 拆兩半，問最少幾次操作才能挑一些 $a$ 裡面的元素來組成 $n$
+	
+	$m\le 10^5, 1\le n\le 10^{18}, 1\le a_i \le 10^9$
+	
+	??? note "思路"
+		以二進制的角度來考慮此題，將 $m$ 以二進制表示，我們的目標就是要讓 $m$ 的二進制裡的每一個 1 都有被貢獻，有兩個觀察:
+		
+		- 可將高位分解成低位（在 $a_i$）
+	
+		- 高位能由低位組成
+	
+		從大到小考慮的話，若高位不夠借，那我就必須從低位借，這樣又要處理左邊又要處理右邊很麻煩。不如我們從小到大考慮，若低位不夠用則需要跟最近的高位借，將高位分解成低位使用，在過程中將低位換成高位，這樣實作起來就很順了
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <iostream>
+	    #include <map>
+	    #include <cstring>
+	    using namespace std;
+	
+	    int t, m, cnt[65];
+	    long long n, a, total, ans;
+	    map <int, int> mp;
+	
+	    int main() {
+	        cin >> t;
+	        for (int i = 0; i < 60; i++) {
+	            mp[(1LL << i)] = i;
+	        }
+	        while (t--) {
+	            cin >> n >> m;
+	            total = 0;
+	            memset(cnt, 0, sizeof(cnt));
+	            for (int i = 0; i < m; i++) {
+	                cin >> a;
+	                total += a;
+	                cnt[mp[a]]++;
+	            }
+	            if (total < n){
+	                cout << -1 << "\n";
+	                continue;
+	            }
+	            ans = 0;
+	            for (int i = 0; i < 61; i++) {
+	                if (n & (1LL<<i)) {
+	                    for (int j = i; j <= 60; j++) {
+	                        if (cnt[j]) {
+	                            ans += j-i;
+	                            cnt[j]--;
+	                            for (int k = j-1; k >= i; k--) {
+	                                cnt[k]++;
+	                            }
+	                            break;
+	                        }
+	                    }
+	                }
+	                cnt[i+1] += cnt[i]/2;
+	            }
+	            cout << ans << "\n";
+	        }
+	    }
+	    ```
+
 ## 交換法
 
 ???+note "[APCS 物品堆疊](https://zerojudge.tw/ShowProblem?problemid=c471)"
-	給 $n$ 個物品，第 $i$ 個物品有權重 $w_i$ 與頻率 $f_i$。問可以任意決定擺放順序，最小的 cost 為何 ?
-	
-	假設目前的順序是 {p1, p2, p3}，那麼 cost = w[p1] * f[p2] + (w[p1] + w[p2]) * f[p3]
+	給 $n$ 個物品，第 $i$ 個物品有權重 $w_i$ 與頻率 $f_i$。你要把 n 個物品堆成一疊，對於每個物品所需要花的能量是 $f_i\times$ 在這個箱子上方的箱子重量總和。計算在最好的疊法的情況下，最少需要花多少能量
 	
 	$n\le 10^5, 1\le w_i, f_i \le 1000$
+	
+	??? note "思路"
+		如何判斷最底下的兩個是否需要交換？ 對於兩個物品 i, j，假設 (w[i], f[i]) 放在最底下是最好情況，w[i] * f[j] 和 w[j] * f[i] 必然有其一會被計算答案中，greedy 選擇小的可得到最佳解。代表 
+		
+		w[j] * f[i] < w[i] * f[j]
+		
+		⇒ w[j] / f[j] < w[i] / f[i]
+		
+		若 w[j] / f[j] < w[i] / f[i]，則 i 放在底下比較好
 
 ???+note "[CF 559 B. Equivalent Strings](https://codeforces.com/problemset/problem/559/B)"
 	給兩個長度相同的字串 a, b，兩個次串「相等」若且唯若符合以下條件之一
@@ -170,6 +235,38 @@
 	- 將 a, b 各自分成兩半，兩半對應「相等」
 	
 	$|a|=|b|\le 2\times 10^5$
+	
+	??? note "思路"
+		我們對於兩個字串 a, b 分別進行 reorder，利用分治，每次都 Greedy 的使字典序比較小的那一半在前面，最後看 a, b reorder 出來有沒有長的一樣
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    using namespace std;
+	
+	    string s1, s2;
+	
+	    string dc(string s) {
+	        if (s.size() & 1) return s;
+	        string a = dc(s.substr(0, s.size() / 2));
+	        string b = dc(s.substr(s.size() / 2));
+	        return a < b ? a + b : b + a;
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> s1 >> s2;
+	        string ra = dc(s1);
+	        string rb = dc(s2);
+	        if (ra == rb) {
+	             cout << "YES\n";
+	        } else {
+	            cout << "NO\n";
+	        }
+	    }
+	    ```
 
 ## 霍夫曼編碼
 
@@ -347,69 +444,93 @@
 	
 			- 對於後面，選 $a_i$ 最小的 $k-i$ 個 → 預處理
 
-???+note "[CF 1303 D. Fill The Bag](https://codeforces.com/contest/1303/problem/D)"
-	給一個長度為 $m$ 的序列 $a_1, \ldots ,a_m$，$a_i$ 都是 2 的冪次。每次操作可將一個 $a_i$ 拆兩半，問最少幾次操作才能挑一些 $a$ 裡面的元素來組成 $n$
+## 其他題目
+
+???+note "2023 TOI 1模 pB. 最佳劇照 (stills)"
+    在一維數線上有 $n$ 個 interval $[l_i, r_i]$，要求選擇最少的 point，使得每個 interval 都至少包含一個 point，且所選點的 cost 總和最小。
+    
+    其中點的 cost 計算方式為：
+    
+    $$\text{cost}(t) = 有包含 \texttt{ point } t \text{ } 的 \text{ } \texttt{interval} \text{ } 的\text{ } |(r_i - t) - (t - l_i)| \text{ }的總和$$
+    
+    ??? note "題解"
+        > 步驟一，離散化:
+        
+        利用線段的開頭 $l_i$ 和結尾 $r_i$ 可以把數線切出 $2n-1$ 個 blocks。
+        
+        這樣一來，每個 interval 可以當成是某個 block 的左界開始到某個 block 的右界結束。
+    
+        每個 block 只會有一個最好的 $t$，先計算出一個陣列 $w[0], ..., w[2n-2]$ 表示每個 block 裡面最好的位置的 cost
+    
+        > 步驟二，計算 $w[i]$：
+        
+        每個 block 的 $w[i]$ 計算方式 $|(r_i - t) - (t - l_i) |$ 也可以寫成 $2|(l_i+r_i)/2 - t|$ 也就是 $t$ 到 $[l_i, r_i]$ 中間點的距離的兩倍。
+        
+        也就是說，一個 block 裡面位置 $t$ 的 cost 就是 $t$ 到所有有包含這個 block 的區間的中間點的距離總和的兩倍。
+        
+        令 $m_i = (l_i+r_i)/2$，
+        
+        $$|m_1-t| + |m_2-t| + \cdots |m_k-t|$$
+        
+        這個函數的最小值發生於 $t$ 等於 $m_i$ 的中位數
+        
+        不過 $t$ 需要被限制在 block 的範圍內，所以需要分幾個 case 討論
+    
+        - $m_i$ 的中位數在在 block 內，直接讓 $t = m_i$ 的中位數
+    
+        - $m_i$ 的中位數在在 block 左邊，直接讓 $t =$ block 左界
+    
+        - $m_i$ 的中位數在在 block 右邊，直接讓 $t =$ block 右界
+    
+        掃描線的過程需要對每個 block 維護目前有哪些 $m_i$ 可以用，並且維護這些 $m_i$ 的中位數。決定好 $t$ 之後，需要透過一些資料結構在 $O(\log n)$ 時間計算出 $|m_1-t| + |m_2-t| + ... |m_k-t|$，這個部分可以使用線段樹達成。
+    
+        > 步驟三， dp 算答案：
+        
+        $dp(i)$ 表示最後一個點選在 block $i$ ，且左界在 block $i$ 以前的所有 interval 都有包含到至少一個點的最好答案。
+        
+        $dp(i) = \max dp(j) + w[i]$, $j$ 可以選的條件是沒有 interval 開頭結尾都在 block ($j+1$) ~ block ($i - 1$)
+        
+        這些的可以用來轉移的 $j$ 會是連續的一段，所以可以用套用資料結構快速計算出 $dp(i)$，計算 dp 的總時間是 $O(n) \times$ 查詢時間。資料結構的部分可以用單調隊列 $O(1)$ 查詢，或是用線段樹 $O(\log n)$ 查詢
+        
+        > ref : <https://hackmd.io/@algoseacow/rJw_DISe3>
+
+???+ note "Parallel Scheduling Problem [TIOJ 1072. 誰先晚餐](https://tioj.ck.tp.edu.tw/problems/1072)"
+	有 $n$ 個人要吃飯，第 $i$ 個人想吃的食物需要 $C_i$ 時間才能煮好，而他吃掉食物所花的時間為 $E_i$ ，且廚師同一時間只能煮一個食物，最小化所有人都吃完飯的時間。
 	
-	$m\le 10^5, 1\le n\le 10^{18}, 1\le a_i \le 10^9$
+	$n\le 10^4, 1\le C_i, E_i\le 1000$
 	
 	??? note "思路"
-		以二進制的角度來考慮此題，將 $m$ 以二進制表示，我們的目標就是要讓 $m$ 的二進制裡的每一個 1 都有被貢獻，有兩個觀察:
-		
-		- 可將高位分解成低位（在 $a_i$）
+		不管哪道食物先煮，總共需要煮的時間都一樣。想要縮短總工時，最好先煮吃飯時間較長的食物。
+		<figure markdown>
+	    	![Image title](./images/8.png){ width="500"}
+	    	  <figcaption><font color="#4472C4">藍色</font>代表煮的時間，<font color="#ED7D31">橘色</font>代表吃的時間</figcaption>
+	    </figure>
+	    
+		??? note "證明"
+			假設由演算法得到的吃飯的順序為 $a_1, a_2,\ldots, a_n$ ，則此序列一定滿足特性 $E_{a_i} \ge E_{a_{i+1}}$ 。假設有另外一組吃飯順序為 $b_1, b_2, · · · , b_n$，且不滿足該特性，則一定存在兩個相鄰的人 $b_i , b_i+1$ 滿足 $E_{b_i} < E_{b_{i+1}}$ 。如果將這兩個人的吃飯順序對調， 則考慮第 $j$ 個人吃飯結束的時間 (對調前為 $t_1(j)$ ，對調後為 $t_2(j)$ )，可以以下四種人的情況： 
 	
-		- 高位能由低位組成
+	        1. $j < i$： <br>
+	           對調前，結束的時間為 $t_1(j) = \sum \limits_{k=1}^j C_{b_k} + E_{b_j}$；<br>
+	           對調後，結束的時間為 $t_2(j) = \sum \limits_{k=1}^j C_{b_k} + E_{b_j}$。  
+	        2. $j = i$： <br>
+	           對調前，結束的時間為 $t_1(j) = t_1(i)= \sum \limits_{k=1}^{i-1} C_{b_k} + C_{b_i}+E_{b_i}$ <br>
+	           對調後，結束的時間為 $t_2(j) = t_2(i)= \sum \limits_{k=1}^{i-1} C_{b_k} + C_{b_{i+1}}+C_{b_i}+E_{b_i}$ 。
 	
-		從大到小考慮的話，若高位不夠借，那我就必須從低位借，這樣又要處理左邊又要處理右邊很麻煩。不如我們從小到大考慮，若低位不夠用則需要跟最近的高位借，將高位分解成低位使用，在過程中將低位換成高位，這樣實作起來就很順了
-		
-	??? note "code"
-		```cpp linenums="1"
-		#include <iostream>
-	    #include <map>
-	    #include <cstring>
-	    using namespace std;
+	        3. $j = i + 1$： <br>
+	           對調前，結束的時間為 $t_1(j) = t_1(i+1)= \sum \limits_{k=1}^{i-1} C_{b_k} + C_{b_i}+C_{b_{i+1}}+E_{b_{i+1}}$ ； <br>
+	           對調後，結束的時間為 $t_2(j) = t_2(i+1)= \sum \limits_{k=1}^{i-1} C_{b_k} + C_{b_{i+1}}+E_{b_{i+1}}$。 
 	
-	    int t, m, cnt[65];
-	    long long n, a, total, ans;
-	    map <int, int> mp;
+	        4. $j > i + 1$： <br>
+	           對調前，結束的時間為 $t_1(j) = \sum \limits_{k=1}^j C_{b_k} + E_{b_j}$； <br>
+	           對調後，結束的時間為 $t_2(j) = \sum \limits_{k=1}^j C_{b_k} + E_{b_j}$。  
 	
-	    int main() {
-	        cin >> t;
-	        for (int i = 0; i < 60; i++) {
-	            mp[(1LL << i)] = i;
-	        }
-	        while (t--) {
-	            cin >> n >> m;
-	            total = 0;
-	            memset(cnt, 0, sizeof(cnt));
-	            for (int i = 0; i < m; i++) {
-	                cin >> a;
-	                total += a;
-	                cnt[mp[a]]++;
-	            }
-	            if (total < n){
-	                cout << -1 << "\n";
-	                continue;
-	            }
-	            ans = 0;
-	            for (int i = 0; i < 61; i++) {
-	                if (n & (1LL<<i)) {
-	                    for (int j = i; j <= 60; j++) {
-	                        if (cnt[j]) {
-	                            ans += j-i;
-	                            cnt[j]--;
-	                            for (int k = j-1; k >= i; k--) {
-	                                cnt[k]++;
-	                            }
-	                            break;
-	                        }
-	                    }
-	                }
-	                cnt[i+1] += cnt[i]/2;
-	            }
-	            cout << ans << "\n";
-	        }
-	    }
-	    ```
+	        我們要比較的是 $\max\{t_1(j)\}$ 和 $\max\{t_2(j)\}$ $(1 \le j \le n)$ ，可以發現會讓 $t_1(j)$ 和 $t_2(j)$ 不同值的只有 $j = i$ 和 $j = i + 1$ ，而且 
+	
+	        $$\begin{cases}t_1(i + 1) \ge t_2(i) \\ t_1(i + 1) \ge t_2(i + 1)\end{cases}$$
+	
+	        所以 $\max\{t_1(j)\} \ge \max\{t_2(j)\}$，也就是對調之後，最後吃完的時間一定不會比對調前差。 最後，經過不斷的兩兩對調，一定可以將序列 $b$ 變成序列 $a$ 。最後吃完的時間必為非嚴格遞減，得證序列 $a$ 是這個問題的最優解。
+	        
+	        > ref : <https://www.csie.ntu.edu.tw/~sprout/algo2021/homework/hand05.pdf>
 
 ---
 
