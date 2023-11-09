@@ -525,6 +525,8 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 
 </center>
 
+對於至少 $m$ 箱空其實無意義，因為 $(m-m)^{n}=0$，也就是可加可不加
+
 ???+note "code"
 	```cpp linenums="1"
     int F(int n, int m) {
@@ -551,7 +553,57 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	有 $n$ 個人，每人各要送一個禮物。問有幾種方法，使每人收到一個禮物（自己送自己收）
 	
 	$n\le 10^6$
+	
+	??? note "思路"
+		第一個人可以送 n 個人，第二個人可以送 n - 1 個人，第三個人可以送 n - 2 個人，...。所以方法數為 n!，但這樣可能會發生自己送自己的情況，我們使用排容原理求解
+		
+		n! - C(n, 1) * (n - 1)! + C(n, 2) * (n - 2)! + ...
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        using namespace std;
 
+        const int MAXN = 1e6 + 5;
+        const int M = 1e9 + 7;
+        int prei[MAXN], pinv[MAXN], pref[MAXN];
+
+        void build() {
+            prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
+            for (int i = 2; i < MAXN; i++) {
+                pref[i] = pref[i - 1] * i % M;
+                pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
+                prei[i] = prei[i - 1] * pinv[i] % M;
+            }
+        }
+
+        int C(int n, int k) {
+            return pref[n] * prei[k] % M * prei[n - k] % M;
+        }
+
+        signed main() {
+            int n;
+            cin >> n;
+            int ans = 0;
+            build();
+            for (int i = 0; i <= n; i++) {
+                if ((n - i) & 1) {
+                    ans -= C(n, i) * pref[i];
+                } else {
+                    ans += C(n, i) * pref[i];
+                }   
+                ans = (ans % M + M) % M;
+            }
+            cout << ans << "\n";
+        }
+		```
+		
 ## 經典問題
 
 ???+note "n 個 p 面骰子"
@@ -865,7 +917,7 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	給一個 n * n 的棋盤格，問要放 n 個「車」，並且滿足以下條件，有幾種放法
 	
 	- 每一個空格子都能被至少一個車走到
-
+	
 	- 恰好存在 k 組能互相走到的車
 	
 	$n\le 2\times 10^5, 0\le k\le \frac{n(n-1)}{2}$
@@ -884,66 +936,66 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 		特判: 
 		
 		- 當 k >= n 時，不可能有合法解，答案為 0
-
+	
 		- 當 k = 0 時，相當於可以放 n 個 column，這時固定 row 跟固定 column 是一樣的，所以答案不用 * 2
-
+	
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define mk make_pair
-        #define pb push_back
-        using namespace std;
-
-        int fastpow(int a, int b, int m) {
-            int ret = 1;
-            while (b != 0) {
-                if (b & 1) ret = ret * a % m;
-                a = a * a % m;
-                b >>= 1;
-            }
-            return ret;
-        }
-
-        const int MAXN = 3e6 + 5;
-        const int M = 998244353;
-        int prei[MAXN], pinv[MAXN], pref[MAXN];
-
-        void build() {
-            prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
-            for (int i = 2; i < MAXN; i++) {
-                pref[i] = pref[i - 1] * i % M;
-                pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
-                prei[i] = prei[i - 1] * pinv[i] % M;
-            }
-        }
-
-        int C(int n, int k) {
-            return pref[n] * prei[k] % M * prei[n - k] % M;
-        }
-
-        signed main() {
-            int n, m, k;
-            build();
-            cin >> n >> k;
-            if (k > n - 1) {
-                cout << 0;
-                exit(0);
-            }
-            int ans = 0;
-            for (int i = 0; i <= n - k; i++) {
-                ans += ((i & 1) ? -1 : 1) * fastpow((n - k) - i, n, M) * C(n - k, i) % M;
-                ans = (ans % M + M) % M;
-            }
-            ans = (ans * C(n, n - k)) % M;
-            if (k) {
-                ans = (ans * 2) % M;
-            }
-            cout << ans << '\n';
-        }
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define mk make_pair
+	    #define pb push_back
+	    using namespace std;
+	
+	    int fastpow(int a, int b, int m) {
+	        int ret = 1;
+	        while (b != 0) {
+	            if (b & 1) ret = ret * a % m;
+	            a = a * a % m;
+	            b >>= 1;
+	        }
+	        return ret;
+	    }
+	
+	    const int MAXN = 3e6 + 5;
+	    const int M = 998244353;
+	    int prei[MAXN], pinv[MAXN], pref[MAXN];
+	
+	    void build() {
+	        prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
+	        for (int i = 2; i < MAXN; i++) {
+	            pref[i] = pref[i - 1] * i % M;
+	            pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
+	            prei[i] = prei[i - 1] * pinv[i] % M;
+	        }
+	    }
+	
+	    int C(int n, int k) {
+	        return pref[n] * prei[k] % M * prei[n - k] % M;
+	    }
+	
+	    signed main() {
+	        int n, m, k;
+	        build();
+	        cin >> n >> k;
+	        if (k > n - 1) {
+	            cout << 0;
+	            exit(0);
+	        }
+	        int ans = 0;
+	        for (int i = 0; i <= n - k; i++) {
+	            ans += ((i & 1) ? -1 : 1) * fastpow((n - k) - i, n, M) * C(n - k, i) % M;
+	            ans = (ans % M + M) % M;
+	        }
+	        ans = (ans * C(n, n - k)) % M;
+	        if (k) {
+	            ans = (ans * 2) % M;
+	        }
+	        cout << ans << '\n';
+	    }
 		```
-		
+
 [^1]: 例如 (D), (A, B, C)，<a href="/wiki/math/images/15.png" target="_blank">見此圖</a>
 
 [^2]: <a href="/wiki/math/images/20.png" target="_blank">見此圖</a> 參考自 [stackexchange 博客](https://math.stackexchange.com/questions/95491/n-choose-k-bmod-m-using-chinese-remainder-theorem)
@@ -953,3 +1005,4 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 ## 參考資料
 
 - <https://zhuanlan.zhihu.com/p/609104268>
+
