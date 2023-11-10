@@ -1,10 +1,29 @@
 ## 倍增法
 
+跳到一個位置 t，使 check(t) = true，check(t + 1) = false。利用二進制枚舉高位到低位，若跳了之後是合法的就跳
+
+??? note "code"
+	```cpp linenums="1"
+	int jump(int now) {
+        int ans = 0;
+        for (int i = 20; i >= 1; i--) {
+            if (check(now, i)) {
+                now = dp[now][i];
+                ans += (1 << i);
+            }
+        }
+        return ans;
+    }
+	```
+
+??? warning "在某些題目, 最好還是將越界的倍增數組定義好無效狀態, 例如說 -1, INF 等等"
+	例如說 dp(i, 0) = nxt[i]，但如果沒有設好狀態可能會使 nxt[i] = 0, 導致 dp(i, 0) = 0，然後 dp(i, j) = dp(dp(i, j - 1), j - 1) = dp(0, j - 1) = 0。這樣在 query 時，看能不能 jump 的時候會發現 0 < r，不會超過所以可以 jump，導致最後答案壞掉
+	
 ???+note "[2021 附中模競 pE. 時空旅人之爭 (Time)](https://codeforces.com/gym/344833/problem/E)"
 	給一棵 $n$ 個點的樹，複製人大軍會從 root 開始擴散，每 2 秒擴散一個節點。有 $q$ 筆詢問:
 	
 	- $\text{query}(s,t):$ 從入侵的時間點開始，從 $s$ 到 $t$ 至少要經過幾個有複製人大軍的節點
-
+	
 	$n,q\le 2\times 10^5$
 	
 	??? note "思路"
@@ -17,121 +36,121 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-
-        #define StarBurstStream               \
-            ios_base::sync_with_stdio(false); \
-            cin.tie(0);                       \
-            cout.tie(0);
-        #define eb(a) emplace_back(a)
-
-        using namespace std;
-
-        vector<vector<int>> g;
-        vector<int> in, out, dpt;
-        int ts = 0;
-        vector<vector<int>> anc;
-
-        void dfs(int now, int p, int d) {
-            in[now] = ts++;
-            dpt[now] = d;
-            anc[0][now] = p;
-            for (int i : g[now]) {
-                if (i == p) continue;
-                dfs(i, now, d + 1);
-            }
-            out[now] = ts++;
-        }
-
-        bool isAnc(int a, int b) {
-            return in[a] <= in[b] && out[a] >= out[b];
-        }
-
-        int getLCA(int a, int b) {
-            if (isAnc(a, b)) return a;
-            if (isAnc(b, a)) return b;
-            for (int i = 19; i >= 0; i--) {
-                if (!isAnc(anc[i][a], b)) a = anc[i][a];
-            }
-            return anc[0][a];
-        }
-
-        int getDis(int a, int b) {
-            int lca = getLCA(a, b);
-            return dpt[a] + dpt[b] - 2 * dpt[lca];
-        }
-
-        bool check(int s, int now) {
-            return getDis(s, now) < dpt[now] * 2;
-        }
-
-        void solve() {
-            int s, t;
-            cin >> s >> t;
-            int lca = getLCA(s, t);
-
-            if (check(s, lca)) {
-                cout << "0\n";
-                return;
-            }
-
-            int ans = 0;
-            int now = s;
-            for (int i = 19; i >= 0; i--) {
-                if (check(s, anc[i][now])) now = anc[i][now];
-            }
-            ans += dpt[now] - dpt[lca] + !check(s, s);
-            now = t;
-            for (int i = 19; i >= 0; i--) {
-                if (check(s, anc[i][now])) now = anc[i][now];
-            }
-            ans += dpt[now] - dpt[lca] + !check(s, t);
-            ans--;
-            cout << ans << "\n";
-        }
-
-        int main() {
-            StarBurstStream
-
-                int n;
-            cin >> n;
-
-            g.resize(n + 1);
-            in.resize(n + 1);
-            out.resize(n + 1);
-            dpt.resize(n + 1);
-            anc.resize(20, vector<int>(n + 1));
-
-            for (int i = 0; i < n - 1; i++) {
-                int u, v;
-                cin >> u >> v;
-                g[u].eb(v);
-                g[v].eb(u);
-            }
-
-            int q;
-            cin >> q;
-
-            dfs(1, 1, 0);
-
-            for (int i = 1; i < 20; i++) {
-                for (int j = 1; j <= n; j++) {
-                    anc[i][j] = anc[i - 1][anc[i - 1][j]];
-                }
-            }
-
-            for (int i = 0; i < q; i++) {
-                solve();
-            }
-
-            return 0;
-        }
+	
+	    #define StarBurstStream               \
+	        ios_base::sync_with_stdio(false); \
+	        cin.tie(0);                       \
+	        cout.tie(0);
+	    #define eb(a) emplace_back(a)
+	
+	    using namespace std;
+	
+	    vector<vector<int>> g;
+	    vector<int> in, out, dpt;
+	    int ts = 0;
+	    vector<vector<int>> anc;
+	
+	    void dfs(int now, int p, int d) {
+	        in[now] = ts++;
+	        dpt[now] = d;
+	        anc[0][now] = p;
+	        for (int i : g[now]) {
+	            if (i == p) continue;
+	            dfs(i, now, d + 1);
+	        }
+	        out[now] = ts++;
+	    }
+	
+	    bool isAnc(int a, int b) {
+	        return in[a] <= in[b] && out[a] >= out[b];
+	    }
+	
+	    int getLCA(int a, int b) {
+	        if (isAnc(a, b)) return a;
+	        if (isAnc(b, a)) return b;
+	        for (int i = 19; i >= 0; i--) {
+	            if (!isAnc(anc[i][a], b)) a = anc[i][a];
+	        }
+	        return anc[0][a];
+	    }
+	
+	    int getDis(int a, int b) {
+	        int lca = getLCA(a, b);
+	        return dpt[a] + dpt[b] - 2 * dpt[lca];
+	    }
+	
+	    bool check(int s, int now) {
+	        return getDis(s, now) < dpt[now] * 2;
+	    }
+	
+	    void solve() {
+	        int s, t;
+	        cin >> s >> t;
+	        int lca = getLCA(s, t);
+	
+	        if (check(s, lca)) {
+	            cout << "0\n";
+	            return;
+	        }
+	
+	        int ans = 0;
+	        int now = s;
+	        for (int i = 19; i >= 0; i--) {
+	            if (check(s, anc[i][now])) now = anc[i][now];
+	        }
+	        ans += dpt[now] - dpt[lca] + !check(s, s);
+	        now = t;
+	        for (int i = 19; i >= 0; i--) {
+	            if (check(s, anc[i][now])) now = anc[i][now];
+	        }
+	        ans += dpt[now] - dpt[lca] + !check(s, t);
+	        ans--;
+	        cout << ans << "\n";
+	    }
+	
+	    int main() {
+	        StarBurstStream
+	
+	            int n;
+	        cin >> n;
+	
+	        g.resize(n + 1);
+	        in.resize(n + 1);
+	        out.resize(n + 1);
+	        dpt.resize(n + 1);
+	        anc.resize(20, vector<int>(n + 1));
+	
+	        for (int i = 0; i < n - 1; i++) {
+	            int u, v;
+	            cin >> u >> v;
+	            g[u].eb(v);
+	            g[v].eb(u);
+	        }
+	
+	        int q;
+	        cin >> q;
+	
+	        dfs(1, 1, 0);
+	
+	        for (int i = 1; i < 20; i++) {
+	            for (int j = 1; j <= n; j++) {
+	                anc[i][j] = anc[i - 1][anc[i - 1][j]];
+	            }
+	        }
+	
+	        for (int i = 0; i < q; i++) {
+	            solve();
+	        }
+	
+	        return 0;
+	    }
 		```
 
 ???+note "[CSES - Movie Queries](https://cses.fi/problemset/task/1664)"
 	給 n 個 interval，有 q 筆詢問:
 	
 	- query(s, t): 在 [s, t] 最多能選幾個 interval 使兩兩不 overlap
-
+	
 	$n,q\le 2\times 10^5$
 	
 	??? note "思路"
@@ -140,76 +159,76 @@
 		- base case:
 		
 			- 每個 interval[l, r] 將 dp(l, 0) = r
-
+	
 			- dp(i, 0) = min(dp(i + 1), 0)
-
+	
 		- 轉移式:
-
+	
 			- dp(i, j) = dp(dp(i, j - 1), j - 1)
-
+	
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define l first
-        #define r second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int MAXN = 1e6 + 5;
-        const int M = 1e9 + 7;
-
-        int n, q;
-        int p[MAXN][25];
-
-        void build() {
-            for (int i = MAXN - 2; i >= 1; i--) {
-                p[i][0] = min(p[i + 1][0], p[i][0]);
-                int j = 0;
-            }
-
-            for (int j = 1; j < 25; j++) {
-                for (int i = 1; i < MAXN - 1; i++) {
-                    if (p[i][j - 1] > INF) continue;
-                    p[i][j] = p[p[i][j - 1]][j - 1];
-                }
-            }
-        }
-
-        int query(int l, int r) {
-            int res = 0;
-            for (int i = 24; i >= 0; i--) {
-                if (p[l][i] <= r) {
-                    res += (1 << i);
-                    l = p[l][i];
-                }
-            }
-
-            return res;
-        }
-
-        signed main() {
-            cin >> n >> q;
-            memset(p, 0x3f, sizeof(p));
-            for (int i = 0; i < n; i++) {
-                int l, r;
-                cin >> l >> r;
-                p[l][0] = min(p[l][0], r);
-            }
-
-            build();
-
-            while (q--) {
-                int s, t;
-                cin >> s >> t;
-                cout << query(s, t) << "\n";
-            }
-        }
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define l first
+	    #define r second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int MAXN = 1e6 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, q;
+	    int p[MAXN][25];
+	
+	    void build() {
+	        for (int i = MAXN - 2; i >= 1; i--) {
+	            p[i][0] = min(p[i + 1][0], p[i][0]);
+	            int j = 0;
+	        }
+	
+	        for (int j = 1; j < 25; j++) {
+	            for (int i = 1; i < MAXN - 1; i++) {
+	                if (p[i][j - 1] > INF) continue;
+	                p[i][j] = p[p[i][j - 1]][j - 1];
+	            }
+	        }
+	    }
+	
+	    int query(int l, int r) {
+	        int res = 0;
+	        for (int i = 24; i >= 0; i--) {
+	            if (p[l][i] <= r) {
+	                res += (1 << i);
+	                l = p[l][i];
+	            }
+	        }
+	
+	        return res;
+	    }
+	
+	    signed main() {
+	        cin >> n >> q;
+	        memset(p, 0x3f, sizeof(p));
+	        for (int i = 0; i < n; i++) {
+	            int l, r;
+	            cin >> l >> r;
+	            p[l][0] = min(p[l][0], r);
+	        }
+	
+	        build();
+	
+	        while (q--) {
+	            int s, t;
+	            cin >> s >> t;
+	            cout << query(s, t) << "\n";
+	        }
+	    }
 		```
 
 ???+note "[CF 1143 E. Lynyrd Skynyrd](https://codeforces.com/problemset/problem/1143/E)"
@@ -227,10 +246,64 @@
 		- base case: dp(i, 0) = nxt[i]
 		
 		- 轉移式: dp(i, j) = dp(dp(i, j - 1), j - 1)
-
+	
 		最後我們令 ans[i] = i 開頭要找到長度為 n - 1 的 cycle shift 至少要選到哪裡，這可以用倍增法查表得到，之後，我們可以將 ans[ ] 做一個後綴最小值，也就是 ans[i] = min(ans[i + 1], ans[i])，答案就會是看 ans[l] 是否 <= r 即可。
-		
+
 ???+note "[CF 1175 E. Minimal Segment Cover](https://codeforces.com/problemset/problem/1175/E)"
+	給 n 個 interval，有 q 筆詢問:
+	
+	- query(s, t): 問要將 point[s, t] 都覆蓋至少要挑幾個 interval
+	
+	$n,q\le 2\times 10^5, 0\le l_i<r_i\le 5\times 10^5$
+	
+	??? note "思路"
+		令 dp(i, j) = i 開始選 2^j 個 interval 最多能完整覆蓋到哪裡
+		
+		- base case:
+			- 對於輸入的所有 interval [l, r]，將 dp(l, 0) = r
+	
+			- dp(i, 0) = max{dp(i, 0), dp(i - 1, 0)}
+	
+		- 轉移: dp(i, j) = dp(dp(i, j - 1), j - 1)
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    using namespace std;
+	
+	    const int MAXN = 5e5 + 10;
+	    int n, q, dp[MAXN][25];
+	
+	    int main() {
+	        cin >> n >> q;
+	        for (int i = 1; i <= n; i++) {
+	            int l, r;
+	            cin >> l >> r;
+	            dp[l][0] = max(dp[l][0], r);
+	        }
+	        for (int i = 1; i < MAXN; i++) {
+	            dp[i][0] = max(dp[i][0], dp[i - 1][0]);
+	        }
+	        for (int i = 1; i <= 20; i++) {
+	            for (int j = 0; j < MAXN; j++) {
+	                dp[j][i] = dp[dp[j][i - 1]][i - 1];
+	            }
+	        }
+	
+	        while (q--) {
+	            int l, r, ans = 0;
+	            cin >> l >> r;
+	            for (int i = 20; i >= 0; i--) {
+	                if (dp[l][i] < r) {
+	                    ans += 1 << i;
+	                    l = dp[l][i];
+	                }
+	            }
+	            cout << (dp[l][0] >= r ? ans + 1 : -1) << '\n';
+	        }
+	        return 0;
+	    }
+		```
 
 ## 時間標記
 
@@ -290,28 +363,27 @@
 
 - 否則就跳 k 格
 
-最後，u, v 會跳到 lca 的 children 上
+最後，u, v 恰好會跳到 lca 的下面一格(也就是 lca 的 children 上) 
 
 ??? note "code"
 	```cpp linenums="1"
-	vector<pair<int, int>> G[maxn];
-    int p[maxn][21], dp[maxn][21], dep[maxn];
+	vector<int> G[MAXN];
+    int n;
+    int p[MAXN][21], dp[MAXN][21], dep[MAXN];
 
     void dfs(int u, int par) {
-        for (auto [v, w] : G[u]) {
+        for (auto v : G[u]) {
             if (v == par) continue;
             p[v][0] = u;
-            dp[v][0] = w;
             dep[v] = dep[u] + 1;
             dfs(v, u);
         }
     }
     
     void build() {
-        for (int i = 1; i < 21; i++) {
-            for (int j = 1; j <= n; j++) {
-                p[j][i] = p[p[j][i - 1]][i - 1];
-                dp[j][i] = max (dp[j][i - 1], dp[p[j][i - 1]][i - 1]);
+        for (int j = 1; j < 21; j++) {
+            for (int i = 1; i <= n; i++) {
+                p[i][j] = p[p[i][j - 1]][j - 1];
             }
         }
     }

@@ -206,7 +206,7 @@ nav:
         - 組合: 'math/comb.md'
         - 賽局: 'math/game_theory.md'
         - Josephus Problem: 'math/josephus_problem.md'
-        - Sirpinski Triangle: 'math/sirpinski_triangle.md'
+        - 計算幾何: 'math/geometry.md'
         - 數論: 
           - 因數: 'math/facts.md'
           - 模運算: 'math/mod.md'

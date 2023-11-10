@@ -1,3 +1,107 @@
+## 基本模板
+
+???+note "code"
+	```cpp linenums="1"
+	using Point = pair<double, double>;
+    #define x first
+    #define y second
+    Point operator+(Point a, Point b) {
+        return {a.x + b.x, a.y + b.y};
+    }
+    Point operator-(Point a, Point b) {  
+        return {a.x - b.x, a.y - b.y};
+    }
+    Point operator*(Point a, double d) { 
+        return {d * a.x, d * a.y};
+    }
+    double dot(Point a, Point b) {  
+        return a.x * b.x + a.y * b.y;
+    }
+    double cross(Point a, Point b) { 
+        return a.x * b.y - a.y * b.x;
+    }
+	```
+
+## 線段相交判定
+
+???+note "問題"
+	給兩個線段的端點座標，判斷是否有交點
+
+    <figure markdown>
+      ![Image title](./images/37.png){ width="250" }
+    </figure>
+
+我們先判斷 A, B 是否在 CD 兩側，也就是看 cross(AB, AC) 與 cross(AB, AD) 是否正負號不同，然後判斷，判斷 C, D 是否在 AB 兩側，也就是看 corss(AB, AC) 與 cross(AB, AD) 是否正負號不同，兩者都符合時，必定相交
+
+<figure markdown>
+  ![Image title](./images/38.png){ width="400" }
+</figure>
+
+???+note "目前的 code"
+	```cpp linenums="1"
+	int sign(long long x) {
+        if (x < 0) {
+            return -1;
+        } else if (x == 0) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+    bool intersection(Point a, Point b, Point c, Point d) {
+        int c1 = sign(cross(b - a, c - a)) * sign(cross(b - a, d - a));
+        int c2 = sign(cross(d - c, a - c)) * sign(cross(d - c, b - c));
+        if (c1 == -1 && c2 == -1) return true;
+        return false;
+    }
+    ```
+    
+但若發生 cross = 0 的 case 呢 ? 可能會發生三點共線
+
+<figure markdown>
+  ![Image title](./images/39.png){ width="400" }
+</figure>
+
+cross 有 0 的合法 case 至少會有三點共線，所以我們直接將可能的 case 列出來:
+
+- A 在 CD 線段上，回傳 true
+
+- B 在 CD 線段上，回傳 true
+
+- C 在 AB 線段上，回傳 true
+
+- D 在 AB 線段上，回傳 true
+
+???+note "如何判斷一個點 C 在一個線段 AB 上 ?"
+	首先要判斷 C 是否在「直線」 AB 上，也就是 cross(AB, AC) 是否為 0
+	
+	若在「直線」 AB 上的話，再來就要判斷是否在 A, B 之間
+	
+	<figure markdown>
+      ![Image title](./images/40.png){ width="400" }
+    </figure>
+	
+???+note "code"
+	```cpp linenums="1"
+	bool onseg(Point a, Point b, Point c) {
+        if (cross(b - a, c - a) != 0) return false;
+        if (sign(dot(b - a, c - a)) < 0) return false;
+        if (sign(dot(a - b, c - b)) < 0) return false;
+        return true;
+    }
+    bool intersection(Point a, Point b, Point c, Point d) {
+        int c1 = sign(cross(b - a, c - a)) * sign(cross(b - a, d - a));
+        int c2 = sign(cross(d - c, a - c)) * sign(cross(d - c, b - c));
+        if (c1 == 1 || c2 == 1) return false;
+        if (c1 < 0 && c2 < 0) return true;
+        if (onseg(a, b, c)) return true;
+        if (onseg(a, b, d)) return true;
+        if (onseg(c, d, a)) return true;
+        if (onseg(c, d, b)) return true;
+        return false;
+    }
+	```
+	
 ## 最近點對問題
 
 ### 分治
