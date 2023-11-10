@@ -548,6 +548,20 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 		
 		得到的最小割為要來的負受歡程度的人和不來的正受歡迎程度的人，如同成本利潤問題，用正受歡迎程度的人的總和扣掉最小割即為答案
 
+???+note "[TOI 2019 pE. 傳真修復 (fixing)](https://sorahisa-rank.github.io/oi-toi/2019/problems.pdf#page=6)"
+	給一個 n * m 的 grid，每個格子上都有圖黑色或白色。問花費最少多少:
+	
+	- 若相鄰的格子不同顏色，會產生 1 單位的花費
+
+	- 改變一個格子的顏色，會產生 2 單位的花費
+
+	$n\le 30, m\le 30$
+	
+	??? note "思路"
+		<figure markdown>
+          ![Image title](./images/129.png){ width="300" }
+        </figure>
+	
 ## 二分圖系列
 
 ### 二分圖最大匹配

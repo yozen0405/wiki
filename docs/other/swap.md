@@ -63,10 +63,10 @@
 		- abab
 	
 		- abba
-	
-		那麼當 n 可以任意的時候，我們就只要枚舉 i, j，看他們的位置排列是哪種然後加入貢獻即可，因為例如 abcbca，後面的 a **一定**要經過兩個 b 才能到達前面的 a，abba, acca, bcbc : 2 + 2 + 1 = 5，有點類似[比較排序](https://tmt514.github.io/algorithm-analysis/sorting/minimum-comparison-sort.html)。
+
+		這啟發了我們可以把相同的字母的頭、看，看成是一個 interval，問題就變成要 interval 與 interval 倆倆之間的貢獻，例如 abcbca，那麼 interval a 對 b 的順序 abba，需要 swap 兩次才能使相同的相鄰，所以貢獻為 2，a 對 c 的順序是 acca，貢獻也是 2，b 對 c 的順序是 bcbc，因為只要 swap 一次就可使相同的相鄰，所以貢獻為 1。答案就是貢獻加總起來: 2 + 2 + 1 = 5。這個想法其實有點類似[比較排序](https://tmt514.github.io/algorithm-analysis/sorting/minimum-comparison-sort.html)
 		
-		可以用 BIT 之類的來優化這個過程，變 O(n log n)
+		最後，可以用 BIT 之類的來計算 interval 之間的貢獻，O(n log n)
 		
 		---
 	
