@@ -241,6 +241,10 @@ $$
 
 把凸包想成由一些三角形組成，可用二分搜在哪個三角形內
 
+<figure markdown>
+  ![Image title](./images/53.png){ width="300" }
+</figure>
+
 ??? note "code"
 	```cpp linenums="1"
     #include <bits/stdc++.h>
@@ -380,6 +384,10 @@ $$
 
 找射線，算線段交的次數，奇數次為內部，偶數次為外部。但射線可能恰好相交於端點上，這樣會壞掉，解決辦法就是讓射線的斜率射為無限大，使得沒有題目範圍內的整數點會在上面，例如說射線向量 = (1, 2e9 + 1)
 
+<figure markdown>
+  ![Image title](./images/52.png){ width="300" }
+</figure>
+
 ??? note "code"
 	```cpp linenums="1"
 	#include <bits/stdc++.h>
@@ -391,41 +399,41 @@ $$
 
     int n, m;
     vector<Point> p; 
-
+    
     Point operator+(Point a, Point b) {
         return {a.x + b.x, a.y + b.y};
     }
-
+    
     Point operator-(Point a, Point b) {
         return {a.x - b.x, a.y - b.y};
     }
-
+    
     Point operator*(Point a, double d) {
         return {a.x * d, a.y * d};
     }
-
+    
     int dot(Point a, Point b) {
         return a.x * b.x + a.y * b.y;
     }
-
+    
     int cross(Point a, Point b) {
         return a.x * b.y - a.y * b.x;
     }
-
+    
     int sign(int x) {
         if (x < 0) return -1;
         if (x == 0) return 0;
         return 1;
     }
-
+    
     bool onseg(Point a, Point b, Point c) {
         if (cross(c - a, b - a) != 0) return false;
         if (dot(c - a, b - a) < 0) return false;
         if (dot(a - b, c - b) < 0) return false;
-
+    
         return true;
     }
-
+    
     int intersect(Point a, Point b, Point c, Point d) {
         int c1 = sign(cross(b - a, c - a)) * sign(cross(b - a, d - a));
         int c2 = sign(cross(d - c, b - c)) * sign(cross(d - c, a - c));
@@ -437,7 +445,7 @@ $$
         if (onseg(c, d, b)) return true;
         return false;
     }
-
+    
     void solve() {
         Point tar;
         cin >> tar.x >> tar.y;
@@ -464,7 +472,7 @@ $$
         if (cnt & 1) cout << "INSIDE";
         else cout << "OUTSIDE";
     }
-
+    
     signed main(){
         cin >> n >> m;
         p.resize(n);
@@ -520,8 +528,8 @@ $$
             }
             h.push_back(p[i]), m++;
         }
-		
-		// 因為 h.back() 一定是 p[n - 1], 所以可以直接接在上面繼續做
+    	
+    	// 因為 h.back() 一定是 p[n - 1], 所以可以直接接在上面繼續做
         for (int i = n - 2; i >= 0; i--) {
             while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
                 h.pop_back(), m--;
@@ -531,7 +539,7 @@ $$
         return h;
     }
     ```
-    
+
 ???+note "[CSES - Convex Hull](https://cses.fi/problemset/task/2195/)"
 	給 n 個二維座標點，求出凸包
 	
@@ -540,109 +548,123 @@ $$
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define mk make_pair
-        #define pb push_back
-        #define x first
-        #define y second
-        #define ALL(x) x.begin(), x.end()
-        using namespace std;
-        using Point = pair<int, int>;
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define mk make_pair
+	    #define pb push_back
+	    #define x first
+	    #define y second
+	    #define ALL(x) x.begin(), x.end()
+	    using namespace std;
+	    using Point = pair<int, int>;
+	
+	    int n;
+	    vector<Point> p; 
+	
+	    Point operator+(Point a, Point b) {
+	        return {a.x + b.x, a.y + b.y};
+	    }
+	
+	    Point operator-(Point a, Point b) {
+	        return {a.x - b.x, a.y - b.y};
+	    }
+	
+	    Point operator*(Point a, double d) {
+	        return {a.x * d, a.y * d};
+	    }
+	
+	    int dot(Point a, Point b) {
+	        return a.x * b.x + a.y * b.y;
+	    }
+	
+	    int cross(Point a, Point b) {
+	        return a.x * b.y - a.y * b.x;
+	    }
+	
+	    int sign(int x) {
+	        if (x < 0) return -1;
+	        if (x == 0) return 0;
+	        return 1;
+	    }
+	
+	    bool onseg(Point a, Point b, Point c) {
+	        if (cross(c - a, b - a) != 0) return false;
+	        if (dot(c - a, b - a) < 0) return false;
+	        if (dot(a - b, c - b) < 0) return false;
+	
+	        return true;
+	    }
+	
+	    int intersect(Point a, Point b, Point c, Point d) {
+	        int c1 = sign(cross(b - a, c - a)) * sign(cross(b - a, d - a));
+	        int c2 = sign(cross(d - c, b - c)) * sign(cross(d - c, a - c));
+	        if (c1 == 1 || c2 == 1) return false; 
+	        if (c1 == -1 && c2 == -1) return true; 
+	        if (onseg(a, b, c)) return true;
+	        if (onseg(a, b, d)) return true;
+	        if (onseg(c, d, a)) return true;
+	        if (onseg(c, d, b)) return true;
+	        return false;
+	    }
+	
+	    vector<Point> convex_hull(vector<Point> p) {
+	        int n = p.size(), m = 0;
+	        sort(p.begin(), p.end());
+	
+	        vector<Point> h;
+	        for (int i = 0; i < n; i++) {
+	            while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
+	                h.pop_back(), m--;
+	            }
+	            h.push_back(p[i]), m++;
+	        }
+	
+	        // 因為 h.back() 一定是 p[n - 1], 所以可以直接接在上面繼續做
+	        for (int i = n - 2; i >= 0; i--) {
+	            while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
+	                h.pop_back(), m--;
+	            }
+	            h.push_back(p[i]), m++;
+	        }
+	        return h;
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	        p.resize(n);
+	        for (int i = 0; i < n; i++) {
+	            cin >> p[i].x >> p[i].y;
+	        }
+	
+	        vector<Point> h = convex_hull(p);
+	        cout << h.size() - 1 << "\n";
+	        for (int i = 0; i < h.size() - 1; i++) {
+	            cout << h[i].x << " " << h[i].y << "\n";
+	        }
+	    }
+	    ```
 
-        int n;
-        vector<Point> p; 
-
-        Point operator+(Point a, Point b) {
-            return {a.x + b.x, a.y + b.y};
-        }
-
-        Point operator-(Point a, Point b) {
-            return {a.x - b.x, a.y - b.y};
-        }
-
-        Point operator*(Point a, double d) {
-            return {a.x * d, a.y * d};
-        }
-
-        int dot(Point a, Point b) {
-            return a.x * b.x + a.y * b.y;
-        }
-
-        int cross(Point a, Point b) {
-            return a.x * b.y - a.y * b.x;
-        }
-
-        int sign(int x) {
-            if (x < 0) return -1;
-            if (x == 0) return 0;
-            return 1;
-        }
-
-        bool onseg(Point a, Point b, Point c) {
-            if (cross(c - a, b - a) != 0) return false;
-            if (dot(c - a, b - a) < 0) return false;
-            if (dot(a - b, c - b) < 0) return false;
-
-            return true;
-        }
-
-        int intersect(Point a, Point b, Point c, Point d) {
-            int c1 = sign(cross(b - a, c - a)) * sign(cross(b - a, d - a));
-            int c2 = sign(cross(d - c, b - c)) * sign(cross(d - c, a - c));
-            if (c1 == 1 || c2 == 1) return false; 
-            if (c1 == -1 && c2 == -1) return true; 
-            if (onseg(a, b, c)) return true;
-            if (onseg(a, b, d)) return true;
-            if (onseg(c, d, a)) return true;
-            if (onseg(c, d, b)) return true;
-            return false;
-        }
-
-        vector<Point> convex_hull(vector<Point> p) {
-            int n = p.size(), m = 0;
-            sort(p.begin(), p.end());
-
-            vector<Point> h;
-            for (int i = 0; i < n; i++) {
-                while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
-                    h.pop_back(), m--;
-                }
-                h.push_back(p[i]), m++;
-            }
-
-            // 因為 h.back() 一定是 p[n - 1], 所以可以直接接在上面繼續做
-            for (int i = n - 2; i >= 0; i--) {
-                while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
-                    h.pop_back(), m--;
-                }
-                h.push_back(p[i]), m++;
-            }
-            return h;
-        }
-
-        signed main() {
-            cin >> n;
-            p.resize(n);
-            for (int i = 0; i < n; i++) {
-                cin >> p[i].x >> p[i].y;
-            }
-
-            vector<Point> h = convex_hull(p);
-            cout << h.size() - 1 << "\n";
-            for (int i = 0; i < h.size() - 1; i++) {
-                cout << h[i].x << " " << h[i].y << "\n";
-            }
-        }
-        ```
-		
 ## 極角排序
+
+一般用這個即可，不用自定義 cmp，其中 atan2 的值域是 [-180, 180]
+
+??? note "code"
+	```cpp linenums="1"
+	bool cmp(Point a, Point b) {
+        return atan2(a.y, a.x) < atan2(b.y, b.x) ;
+    }
+    ```
 
 ???+note "[TOI 2020 pD. 質感測試](https://tioj.ck.tp.edu.tw/problems/2191)"
 	給 $n$ 個二維座標平面的點，第 $i$ 個點有權重 $w_i$，問任意通過原點的直線，能掃過的點的權重總和最大是多少
 	
 	$n\le 3\times 10^5, -1000\le w_i\le 1000, |x_i|, |y_i| \le 10^5$
 	
+	??? note "思路"
+		【觀察】: 任意通過原點的直線 ↔ 一條斜率為 m 的直線
+	
+		按照斜率排序，問題就變成了 Maximum Cirricular Subarray
+		
 ???+note "[TOI 2019 pA. 四點共線 (collinearity)](https://sorahisa-rank.github.io/oi-toi/2019/problems.pdf)"
 	 給 n 個點，問輸出四點共線中最小字典序的
 	 
