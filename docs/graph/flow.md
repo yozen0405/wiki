@@ -355,7 +355,7 @@ Dinic 演算法跟 Edmond-Karp 不同的是，每次把所有長度為 k 的增�
 
 在最短路徑 DAG 上的增廣路長度最多 O(V)，每次做完一條邊就會從最短路徑 DAG 消失，最多消失 m 條邊，所以找到 blocking flow 會花費 O(VE)。每次 BFS s-t 距離至少增加 1，至多做 V 次 BFS，總時間為 O(min(V<sup>2</sup>E, FE))
 
-dinic Matching 複雜度 待補
+dinic Matching 複雜度為 O(E * sqrt(V))
 
 ??? note "code"
 	```cpp linenums="1"
@@ -461,6 +461,8 @@ s-t cut 的 cost 為 cut-set 內的邊的 capacity 總和，min cut 就是要最
 
 以這個例子來說，min cut 就是 2 + 2 = 4（從 t 到 s 的邊雖有被切到，但不計算在 s-t 割，因為對 s 能不能走到 t 的連通性沒有影響）
 
+min cut 為什麼很多圖片都會用一條線來切割，因為我們可以想成把 S-component 與 T-component 拔開，中間就會產生好幾條連通兩側的邊，這條線就代表著 min cut 會切割這些邊
+
 ??? info "【Max Flow Min Cut Theorm】: max flow = min cut"
 	max flow <= cut
 
@@ -508,8 +510,8 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 
 ### min cut 應用
 
-???+note "生產產品問題"
-	有 $n$ 種 tools 和 $m$ 種 jobs，每種 job 需要若干種 tools。第 $i$ 種 tool 需要花 $c_i$ 元買下來，第 $i$ 種 job 的報酬為 $p_i$，求最大利潤
+???+note "生產產品問題 [NCTUOJ 1138. 成本利潤問題 (Group 31)](https://oj.nctu.edu.tw/problems/1138/)"
+	有 $n$ 種工具和 $m$ 種工作，每種工作需要若干種工具。第 $i$ 種工具需要花 $c_i$ 元買下來，第 $i$ 種工作的報酬為 $p_i$，求最大利潤
 	
 	<figure markdown>
 	  ![Image title](./images/126.png){ width="300" }
@@ -518,27 +520,29 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 	$1 \le n, m \le 500,$ 物品需求關係數量 $\le 2\times 10^4$
 	
 	??? note "思路"
-		先建圖，左半排擺 tools，右半排擺 jobs，成本和報酬為邊權，若方案 i 需要工具 j，則連邊 (j, i)
+		先建圖，左半排擺工具，右半排擺工作，成本和報酬為邊權，若方案 i 需要工具 j，則連邊 (j, i)
 		
 		<figure markdown>
 	      ![Image title](./images/127.png){ width="400" }
 	    </figure>
 	    
-	    我們要選一個連通塊，使得裡面包含要選的 tools 與 jobs，而這個連通塊其實就是我們的 T-component
+	    因為 min cut 要最小化，切到的就會是**要買的工具 C** 和**不賺的工作 P'**。若選完 maximum flow > 0
 	    
 	    <figure markdown>
 	      ![Image title](./images/128.png){ width="400" }
 	    </figure>
 	    
-	    這時候得到的 min cut 就會是**要買的 tools C** 和**不賺的 jobs P'**。若選完 maximum flow > 0，代表還有一個 tool 你沒有決定要不要選
+	    最後答案就是 $\sum P$ - (C + P')
 	    
-	    - 選: 切在 s -> tools
+	    我們來驗證為什麼這個問題可以轉換成 min cut，以上圖的工作 p1 來說:
+	    
+	    - 不做 p1 → c1, c3 選不選都無所謂
+	    	- min cut 的角度: 切 p1 → c1, c3 切不切都無所謂
+		
+		- 做 p1 → c1, c3 一定要選
+			- min cut 的角度: 不切 p1 → c1, c3 都一定要被切
 	
-		- 不選: 切在 jobs -> t
-	
-		最後答案就是 $\sum P$ - (C + P')
-
-???+note "最大權閉包問題"
+???+note "最大權閉包問題 [NCTUOJ 731. 最大權閉包問題 (Group 19)](https://oj.nctu.edu.tw/problems/731/)"
 	給 n 個人的受歡迎程度和每個人的好友列表 (好友並非雙向關係)，若第 i 個人要參加聚會的話則他的所有好友都要參加聚會，要邀請若干個人使得受歡迎程度總和最大
 	
 	1 ≤ n ≤ 100, 1 ≤ m ≤ 1000
@@ -546,22 +550,82 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 	??? note "思路"
 		將受歡迎程度為負的當成要付出成本的工具，將受歡迎程度為正的當成可以賺錢的方案，A 要來的話 B 就要來，就很像要用 A 方案賺錢，就要買 B 工具，因此若有關係 A 來的話 B 一定要來，則要連結邊 (B, A)
 		
+		<figure markdown>
+	      ![Image title](./images/130.png){ width="400" }
+	    </figure>
+		
 		得到的最小割為要來的負受歡程度的人和不來的正受歡迎程度的人，如同成本利潤問題，用正受歡迎程度的人的總和扣掉最小割即為答案
+		
+		---
+		
+		我們來驗證為什麼這個問題可以轉換成 min cut，假設如果 u 要選 v 就要選，我們有 edge(v, u):
+		
+		- 不選 u → v 選不選都無所謂
+	    	- min cut 的角度: 切 u → v 切不切都無所謂
+		
+		- 選 u → v 一定要選
+			- min cut 的角度: 不切 u → v 都一定要被切
+		
+		再來說明為何 edge 會從左到右。假設如果 u 要選 v 就要選，我們有 edge(v, u)，為左到右的 edge，且 weight = INF，使得 min cut 不可能會切這條邊，所以不會發生 u 有選 v 沒有選的情況
+
+???+note "雙機工作分配"
+	有兩台主機 A, B，有 n 個工作被執行，第 i 個工作在 A 主機執行需要耗電 a[i] 單位，在 B 主機執行需要耗電 b[i] 單位，有 m 組工作之間有相依關係，工作 i 與工作 j 若在不同主機執行，需要額外 p(i, j) 單位電力，決定每個工作依序要在哪個主機執行，最小化耗電
+	
+	1 ≤ n ≤ 500, 1 ≤ m ≤ 10000
+	
+	??? note "思路"
+		mincut 會將點分成兩群，不同群的點之間的 cost 會被 cut 到
+		
+		<figure markdown>
+          ![Image title](./images/131.png){ width="400" }
+        </figure>
+	
+		S-component 給機器 B, T-component 給機器 A
+		
+        ---
+        
+        我們來驗證轉換成 min cut 的正確性，假設每個工作都已經確定好是機器 A 還是機器 B 了:
+        
+        - 若為機器 A，必須產生 a[i] 的 cost
+        	-  i 在 T-component 內，所以在 edge(s, i) 上有 cost = a[i] 的 cut
+
+		- 若為機器 B，必須產生 b[i] 的 cost
+        	-  i 在 S-component 內，所以在 edge(i, t) 上有 cost = b[i] 的 cut
+
+		- i 在 B 執行 j 在 A 執行，必須產生 p(i, j) 的 cost
+			- i 在 S-component 內，j 在 T-component 內，所以有 cost(i, j)
 
 ???+note "[TOI 2019 pE. 傳真修復 (fixing)](https://sorahisa-rank.github.io/oi-toi/2019/problems.pdf#page=6)"
 	給一個 n * m 的 grid，每個格子上都有圖黑色或白色。問花費最少多少:
 	
 	- 若相鄰的格子不同顏色，會產生 1 單位的花費
-
+	
 	- 改變一個格子的顏色，會產生 2 單位的花費
-
+	
 	$n\le 30, m\le 30$
 	
 	??? note "思路"
+		建圖，格子當點，格子與格子間建立無向邊，cost = 1，起點到白點建立有向邊，cost = 2，黑點到終點建立 cost = 1 的有向邊
+		
 		<figure markdown>
-          ![Image title](./images/129.png){ width="300" }
-        </figure>
+	      ![Image title](./images/129.png){ width="400" }
+	    </figure>
+			
+		跟上一題一樣，要將點分兩群，變 S-component 與 T-component。，S-component 代表是白色，T-component 代表是黑色
 	
+	    ---
+	    
+	    我們來驗證為轉換成 min cut 的正確性，假設每個格子都已經確定好是白色或黑色:
+        
+        - 若 i 從白變黑，產生 2 的 cost
+        	-  i 在 T-component 內，所以在 edge(s, i) 上有 cost = 2 的 cut
+
+		- 若 i 從黑變白，產生 2 的 cost
+        	-  i 在 S-component 內，所以在 edge(i, t) 上有 cost = 2 的 cut
+
+		- i 是白，j 是黑，產生 1 的 cost
+			- i 在 S-component 內，j 在 T-component 內，所以有 cost = 1
+
 ## 二分圖系列
 
 ### 二分圖最大匹配

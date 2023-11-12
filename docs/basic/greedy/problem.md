@@ -47,7 +47,7 @@
 	
 	??? note "思路"
 		dp(i) = 是否能湊出 i，去執行類似背包問題就可以了，複雜度 O(nk)
-		
+
 ???+note "[TIOJ 1579.來自未來的新台幣](https://tioj.ck.tp.edu.tw/problems/1579)"
 	給長度為 $n$，⾯額分別為 $1,5,10,50,100,500,1000,\ldots$ 的錢幣，第 $i$ 個錢幣的數量為 $c_i$，能湊出的金額共有多少種
 
@@ -160,6 +160,9 @@
 	- $\text{query}(l,r):$ 問只能使用 $a_l, \ldots ,a_r$，最小湊不出來的面額是多少
 	
 	$n,q\le 2\times 10^5, 1\le a_i \le 10^9$
+	
+	??? note "思路"
+		
 
 ???+note "[CF 1303 D. Fill The Bag](https://codeforces.com/contest/1303/problem/D)"
 	給一個長度為 $m$ 的序列 $a_1, \ldots ,a_m$，$a_i$ 都是 2 的冪次。每次操作可將一個 $a_i$ 拆兩半，問最少幾次操作才能挑一些 $a$ 裡面的元素來組成 $n$

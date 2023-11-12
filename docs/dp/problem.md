@@ -374,7 +374,11 @@
 	$1\le n\le 750,1\le a_i \le n$
 	
 	??? note "思路"
-		先將相同的數字分為一類，定義 dp(i, j) = 前 i 組數字恰好有 j 對相鄰數字相同的方案數
+		首先，將相同的數字分為一類
+	
+		先考慮只有兩組數字的 case，例如說是 4 個 a，3 個 b，會發現我們可以插入 b 使一些相鄰的 a 斷掉，也就是當只使用前面的字元不合法時，我們依然能在他們之間 insert 新的字元，使其變合法
+	
+		所以我們定義 dp(i, j) = 前 i 組數字恰好有 j 對相鄰數字相同的方案數
 		
 		考慮從 dp(i, j) 轉移到 dp(i + 1, ?)，先令前 i 組組成的是一個長度為 S 的序列，也就是可以在 S + 1 的 gaps 中插入 i + 1（第一項之前、中間、最後一項之後）
 	
@@ -393,54 +397,54 @@
 		dp(i + 1, j - L + cnt[i + 1] - k) = dp(i, j) * C(cnt[i + 1] - 1, k - 1) * C(j, L) * C(S + 1 - j, k - L)
 		
 		> 參考自 : <https://www.cnblogs.com/jiachinzhao/p/7410938.html>
-
+	
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define LL long long
-        using namespace std;
-        const int N = 800;
-        const int mod = 1e9 + 7;
-        int C[N][N];
-        void init() {
-            for (int i = 0; i < N; i++) C[i][0] = C[i][i] = 1;
-            for (int i = 2; i < N; i++) {
-                for (int j = 1; j <= i; j++) {
-                    C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) % mod;
-                }
-            }
-        }
-        int dp[N][N], cnt[N], total[N];
-        vector<int> v;
-        int main() {
-            init();
-            int n, x, mx = 1;
-            cin >> n;
-            v.push_back(0);
-            for (int i = 1; i <= n; i++) {
-                cin >> x;
-                if (!cnt[x]) v.push_back(x);
-                cnt[x]++;
-            }
-            for (int i = 1; i < v.size(); i++) total[i] = total[i - 1] + cnt[v[i]];
-            dp[0][0] = 1;
-            for (int i = 0; i < v.size() - 1; i++) {
-                int num = cnt[v[i + 1]], S = total[i] + 1;
-                for (int j = S - 1; j >= 0; j--) {  
-                    int kk = min(num, S);        
-                    for (int k = 1; k <= kk; k++) {
-                        int L = min(j, k);
-                        for (int l = L; S - j >= k - l; l--) {
-                            int &res = dp[i + 1][j - l + num - k];
-                            res = (res + 1LL * C[num - 1][k - 1] * C[j][l] % mod * C[S - j][k - l] % mod * dp[i][j] % mod) % mod;
-                        }
-                    }
-                }
-            }
-            cout << dp[v.size() - 1][0] << endl;
-            return 0;
-        }
-        ```
+	    #define LL long long
+	    using namespace std;
+	    const int N = 800;
+	    const int mod = 1e9 + 7;
+	    int C[N][N];
+	    void init() {
+	        for (int i = 0; i < N; i++) C[i][0] = C[i][i] = 1;
+	        for (int i = 2; i < N; i++) {
+	            for (int j = 1; j <= i; j++) {
+	                C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) % mod;
+	            }
+	        }
+	    }
+	    int dp[N][N], cnt[N], total[N];
+	    vector<int> v;
+	    int main() {
+	        init();
+	        int n, x, mx = 1;
+	        cin >> n;
+	        v.push_back(0);
+	        for (int i = 1; i <= n; i++) {
+	            cin >> x;
+	            if (!cnt[x]) v.push_back(x);
+	            cnt[x]++;
+	        }
+	        for (int i = 1; i < v.size(); i++) total[i] = total[i - 1] + cnt[v[i]];
+	        dp[0][0] = 1;
+	        for (int i = 0; i < v.size() - 1; i++) {
+	            int num = cnt[v[i + 1]], S = total[i] + 1;
+	            for (int j = S - 1; j >= 0; j--) {  
+	                int kk = min(num, S);        
+	                for (int k = 1; k <= kk; k++) {
+	                    int L = min(j, k);
+	                    for (int l = L; S - j >= k - l; l--) {
+	                        int &res = dp[i + 1][j - l + num - k];
+	                        res = (res + 1LL * C[num - 1][k - 1] * C[j][l] % mod * C[S - j][k - l] % mod * dp[i][j] % mod) % mod;
+	                    }
+	                }
+	            }
+	        }
+	        cout << dp[v.size() - 1][0] << endl;
+	        return 0;
+	    }
+	    ```
 
 ???+note "[2021 全國賽 pF. 挑水果](https://tioj.ck.tp.edu.tw/problems/2258)"
 	一開始船上有 $c$ 個種類的水果，第 $i$ 種類有 $n_i$ 顆，依序經過 $c$ 個城市，每經過一個城市可以決定要不要把船上所有前 $i$ 種類的水果給當地盤商賣，積載每顆水果經過都市 $i$ 需要積載成本 $p_i$，把每顆水果給都市 $i$ 的盤商賣需要成本 $s_i$，在都市 $i$ 賣種類 $j$ 的水果最後只會賣出 $r_{i,j}$ 顆，問若積載成本和銷售成本總和不超過 $T$ 的前提下，最多能賣幾顆水果 ?

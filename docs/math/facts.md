@@ -214,7 +214,9 @@
 	$n\le 10^{18},k\le 20,2\le a_i\le n$
 	
 	??? note "思路"
-		莫比烏斯函數
+		因為 k = 20，我們可以枚舉用到的質數，看在 [1, n] 內，**同時**擁有這些質數的數字有幾個
+		
+		可是這樣會算到重複的，我們利用排容原理，將看集合大小的奇偶性來判斷是加是減
 		
 	??? note "code"
 	    ```cpp linenums="1"
@@ -275,8 +277,8 @@
     - 因數和
     
     - 因數乘積
-
-	$n\le 10^5, 2\le p_i\le 10^6, 1\le k_i\le 10^9$
+    
+    $n\le 10^5, 2\le p_i\le 10^6, 1\le k_i\le 10^9$
     
     ??? note "思路"
     
@@ -295,7 +297,7 @@
         - 當 $d$ 是奇數
             - 代表 $k_1, \ldots ,k_n$ 都是偶數
             - 可以把 $x^{d \div 2}$ 拆成 $\sqrt{x}^{d}$
-
+    
         - $d$ 是偶數
             - 直接把某個為偶數的 $k_i+1$ 除 $2$ 就好
     
@@ -313,10 +315,10 @@
         #include <bits/stdc++.h>
         #define int long long
         using namespace std;
-
+    
         const int M = 1e9 + 7;
         int n, k;
-
+    
         int fastpow(int a, int b, int m) {
             int ret = 1;
             while (b != 0) {
@@ -324,14 +326,14 @@
                 a = (a * a) % m;
                 b >>= 1;
             }
-
+    
             return ret;
         }
-
+    
         int inv(int x) {
             return fastpow(x, M - 2, M);
         }
-
+    
         signed main() {
             int ans2 = 1, ans1 = 1, num = 1, sqt = 1;
             cin >> n;
@@ -341,7 +343,7 @@
                 cin >> p >> k;
                 ans1 = (ans1 * ((k + 1) % M)) % M;
                 ans2 = (ans2 * ((fastpow(p, k + 1, M) - 1) * inv(p - 1) % M)) % M;
-
+    
                 // calculate ans3
                 num = (num * (fastpow(p, k, M) % M)) % M;
                 sqt = (sqt * (fastpow(p, k / 2, M) % M)) % M;
@@ -356,7 +358,7 @@
                     d = (d * (k + 1)) % (M - 1);
                 }
             }
-
+    
             int ans3 = (fg ? fastpow(num, d, M) : fastpow(sqt, d, M));
             cout << ans1 << " " << ans2 << " " << ans3 << "\n";
         }
@@ -523,6 +525,17 @@ $$\displaystyle \varphi(n)=n \left ( 1-\frac{1}{p_1} \right )\left( 1-\frac{1}{p
     
     - $x$ 跟 $12$ 的 $\gcd$ 是 $1$，$\varphi(12)=4$，$x$ 可能是 $\{1\times 1,1\times 5,1\times 7,1\times 11\}$
 
+???+note "求 phi(因數總和)"
+	求 phi(因數總和)，不能利用上面的公式
+	
+	??? note "思路"
+		先花費 O(sqrt(n)) 幫 n 做質因數分解，還有找到所有的因數。而 n 的因數個數最多 O(n^{1/3})。
+        
+        在來我們會遇到的問題就是: 對於每個因數 x，計算 phi(x) 要花多少時間 ?
+        
+        因為 x 的質因數，一定也都是 n 的質因數，所以只需要 O(log n) 即可計算，總複雜度是 O(n^{½} + n^{⅓} * log n) = O(n^0.5) 
+
+		
 ???+note "類題"
 	求 $\gcd(1,n) + \gcd(2,n) + \ldots + \gcd(n,n)$
 	
