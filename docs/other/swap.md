@@ -63,7 +63,7 @@
 		- abab
 	
 		- abba
-
+	
 		這啟發了我們可以把相同的字母的頭、看，看成是一個 interval，問題就變成要 interval 與 interval 倆倆之間的貢獻，例如 abcbca，那麼 interval a 對 b 的順序 abba，需要 swap 兩次才能使相同的相鄰，所以貢獻為 2，a 對 c 的順序是 acca，貢獻也是 2，b 對 c 的順序是 bcbc，因為只要 swap 一次就可使相同的相鄰，所以貢獻為 1。答案就是貢獻加總起來: 2 + 2 + 1 = 5。這個想法其實有點類似[比較排序](https://tmt514.github.io/algorithm-analysis/sorting/minimum-comparison-sort.html)
 		
 		最後，可以用 BIT 之類的來計算 interval 之間的貢獻，O(n log n)
@@ -74,18 +74,60 @@
 		
 		所以我們將第一個數字做完後，就可以刪掉他們變子問題。可使用 BIT 計算 cost
 
-## 附中模競III pG
+## 附中模競III pE
 
-- https://codeforces.com/gym/375522
-
+???+note "2021 附中模競 III pE. HNO3 與音樂遊戲 (Game)"
+	給兩個長度為 n 的序列 a, b，其中 a 為 1...n 的 permutation，而 b 也是 1...n 的 permutation 但可能其中一些項會變成 0。每次可以交換序列中相鄰的兩項，最少幾次操作能使所有 $b_i\neq 0$ 的項都滿足 $a_i=b_i$
+	
+	??? note "思路"
+		考慮 b 沒有 0 的 case，我們可重新編號讓 b = [1, 2, ..., n]，問題就變逆序數對
+		
+		假如現在 b 有一項是 0，我們是可以直接確定那項要是什麼，然後套用上面的作法
+		
+		假如現在 b 有兩項是 0，可以枚舉一個放前面的，一個放後面的，然後套用上面的作法。但觀察到其實不會發生在 a 是前、後，在 b 變後、前，若發生代表他們兩個互相 swap 了，將這個操作刪掉可以得到更佳解
+		
+		所以歸納一下，每次交換時，交換的兩個對象應該至少一個要是 b 裡面出現的元素，不然把這個操作拔掉依舊是一個合法解。所以在最佳解的情況下不會有交換不在  b 裡的兩個元素的情形，**剩下 b 裡沒有的元素應該依照原順序填入，之後就套上面的作法**
+		
 ## CSES Sorting Methods
 
 ???+note "[CSES - Sorting Methods](https://cses.fi/problemset/task/1162)"
+	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，以下有 4 種操作，問單獨使用每一種可讓陣列小到大 sort 的最小操作次數:
 
-## CSES Permutation Inversions
+	- swap 相鄰的兩個元素
 
-???+note "[CSES - Permutation Inversions](https://cses.fi/problemset/task/2229/)"
+	- swap 任意兩個元素
 
+	- 刪掉一個元素，再把它插入到另外的位置
+
+	- 刪掉一個元素，再把它插入到陣列的最前面
+
+	$n\le 2\times 10^5$
+	
+	??? note "思路"
+		> sort1
+
+        ans = 逆序數對
+
+        ---
+        
+        > sort2
+
+		建邊 i → a[i]，答案為 n - cycle 數量
+		
+		---
+		
+        > sort 3
+
+        n - LIS
+		
+		---
+		
+        > sort4
+
+        【觀察】: 如果 $x$ 動，那小於 $x$ 的數字全部都要動（因為 $x$ 已經到最前面了，後面比她小的數字都需移到他前面才可以）
+        
+        從 $n$ 找下來看他們的順序是否從 $n$ 往左看過去遞減，答案為 n - len
+		
 ## JOI 2019
 ???+note "[JOI 2019 p3](https://loj.ac/p/3012)"
 
