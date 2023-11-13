@@ -562,48 +562,48 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        using namespace std;
-
-        const int MAXN = 1e6 + 5;
-        const int M = 1e9 + 7;
-        int prei[MAXN], pinv[MAXN], pref[MAXN];
-
-        void build() {
-            prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
-            for (int i = 2; i < MAXN; i++) {
-                pref[i] = pref[i - 1] * i % M;
-                pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
-                prei[i] = prei[i - 1] * pinv[i] % M;
-            }
-        }
-
-        int C(int n, int k) {
-            return pref[n] * prei[k] % M * prei[n - k] % M;
-        }
-
-        signed main() {
-            int n;
-            cin >> n;
-            int ans = 0;
-            build();
-            for (int i = 0; i <= n; i++) {
-                if ((n - i) & 1) {
-                    ans -= C(n, i) * pref[i];
-                } else {
-                    ans += C(n, i) * pref[i];
-                }   
-                ans = (ans % M + M) % M;
-            }
-            cout << ans << "\n";
-        }
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    using namespace std;
+	
+	    const int MAXN = 1e6 + 5;
+	    const int M = 1e9 + 7;
+	    int prei[MAXN], pinv[MAXN], pref[MAXN];
+	
+	    void build() {
+	        prei[0] = prei[1] = pinv[0] = pinv[1] = pref[0] = pref[1] = 1;
+	        for (int i = 2; i < MAXN; i++) {
+	            pref[i] = pref[i - 1] * i % M;
+	            pinv[i] = (M - (M / i) * pinv[M % i] % M) % M;
+	            prei[i] = prei[i - 1] * pinv[i] % M;
+	        }
+	    }
+	
+	    int C(int n, int k) {
+	        return pref[n] * prei[k] % M * prei[n - k] % M;
+	    }
+	
+	    signed main() {
+	        int n;
+	        cin >> n;
+	        int ans = 0;
+	        build();
+	        for (int i = 0; i <= n; i++) {
+	            if ((n - i) & 1) {
+	                ans -= C(n, i) * pref[i];
+	            } else {
+	                ans += C(n, i) * pref[i];
+	            }   
+	            ans = (ans % M + M) % M;
+	        }
+	        cout << ans << "\n";
+	    }
 		```
-		
+
 ## 經典問題
 
 ???+note "n 個 p 面骰子"
@@ -996,6 +996,17 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	    }
 		```
 
+???+note "停車問題"
+	停車場有 n 個空的停車位，依序編號 1, 2, ..., n，有 n 臺車想進去停車，第 i 台車想停在 p[i] 這個位置，若 p[i] 這個位置已經停車的話，就會開到 p[i] 之後第一個空的停車位，如果都沒有這台車就會離開。求多少個 permutation p[1], ..., p[n] 可使每一台車最終都在停車場中
+	
+	??? note "思路"
+		將值域變成 {1, ..., n + 1}，答案依然不變，因為
+	
+		- 有用到環狀功能 → 代表 n + 1 已經停車 → 不合法
+			- ⇒ 合法解不會用到環狀功能
+		
+		發現 n + 1 組一個循環，答案為 $\frac{(n + 1) ^ n}{n+1}$
+		
 [^1]: 例如 (D), (A, B, C)，<a href="/wiki/math/images/15.png" target="_blank">見此圖</a>
 
 [^2]: <a href="/wiki/math/images/20.png" target="_blank">見此圖</a> 參考自 [stackexchange 博客](https://math.stackexchange.com/questions/95491/n-choose-k-bmod-m-using-chinese-remainder-theorem)

@@ -207,6 +207,7 @@ nav:
         - 賽局: 'math/game_theory.md'
         - Josephus Problem: 'math/josephus_problem.md'
         - 計算幾何: 'math/geometry.md'
+        - 大步小步: 'math/bsgs.md'
         - 數論: 
           - 因數: 'math/facts.md'
           - 模運算: 'math/mod.md'

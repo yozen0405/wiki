@@ -234,10 +234,6 @@ Edmonds-Karp 跟 Ford–Fulkerson 只差在每次找的是**最短的一條**增
     也就是說 $(u,v)$ 邊沒有剩餘流量，因為如果 $(u,v)$ 邊還有剩餘流量的話代表 $\delta_f(s,v)\le \delta_{f}(s,u)+1$
     
     $(u,v)$ 邊在增廣前沒有剩餘流量，但增廣後有剩餘流量， 代表在這次增廣時有通過 $(v,u)$ 邊，所以 $\delta_f(s,v)+1=\delta_f(s,u)$ ，但是這與 $\delta_f(s,u)+1<\delta_{f}(s,v)$ 矛盾，因此不存在這樣的 $v$ 點 ⇒ 最短增廣路的距離非遞減
-    
-    ---
-    
-    感性證明 待補
 
 ??? note "Edmonds-Karp 過程 - 範例"
 	<figure markdown>
@@ -541,7 +537,7 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 		
 		- 做 p1 → c1, c3 一定要選
 			- min cut 的角度: 不切 p1 → c1, c3 都一定要被切
-	
+
 ???+note "最大權閉包問題 [NCTUOJ 731. 最大權閉包問題 (Group 19)](https://oj.nctu.edu.tw/problems/731/)"
 	給 n 個人的受歡迎程度和每個人的好友列表 (好友並非雙向關係)，若第 i 個人要參加聚會的話則他的所有好友都要參加聚會，要邀請若干個人使得受歡迎程度總和最大
 	
@@ -577,21 +573,21 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 		mincut 會將點分成兩群，不同群的點之間的 cost 會被 cut 到
 		
 		<figure markdown>
-          ![Image title](./images/131.png){ width="400" }
-        </figure>
+	      ![Image title](./images/131.png){ width="400" }
+	    </figure>
 	
 		S-component 給機器 B, T-component 給機器 A
 		
-        ---
-        
-        我們來驗證轉換成 min cut 的正確性，假設每個工作都已經確定好是機器 A 還是機器 B 了:
-        
-        - 若為機器 A，必須產生 a[i] 的 cost
-        	-  i 在 T-component 內，所以在 edge(s, i) 上有 cost = a[i] 的 cut
-
+	    ---
+	    
+	    我們來驗證轉換成 min cut 的正確性，假設每個工作都已經確定好是機器 A 還是機器 B 了:
+	    
+	    - 若為機器 A，必須產生 a[i] 的 cost
+	    	-  i 在 T-component 內，所以在 edge(s, i) 上有 cost = a[i] 的 cut
+	
 		- 若為機器 B，必須產生 b[i] 的 cost
-        	-  i 在 S-component 內，所以在 edge(i, t) 上有 cost = b[i] 的 cut
-
+	    	-  i 在 S-component 內，所以在 edge(i, t) 上有 cost = b[i] 的 cut
+	
 		- i 在 B 執行 j 在 A 執行，必須產生 p(i, j) 的 cost
 			- i 在 S-component 內，j 在 T-component 內，所以有 cost(i, j)
 
@@ -616,13 +612,13 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 	    ---
 	    
 	    我們來驗證為轉換成 min cut 的正確性，假設每個格子都已經確定好是白色或黑色:
-        
-        - 若 i 從白變黑，產生 2 的 cost
-        	-  i 在 T-component 內，所以在 edge(s, i) 上有 cost = 2 的 cut
-
+	    
+	    - 若 i 從白變黑，產生 2 的 cost
+	    	-  i 在 T-component 內，所以在 edge(s, i) 上有 cost = 2 的 cut
+	
 		- 若 i 從黑變白，產生 2 的 cost
-        	-  i 在 S-component 內，所以在 edge(i, t) 上有 cost = 2 的 cut
-
+	    	-  i 在 S-component 內，所以在 edge(i, t) 上有 cost = 2 的 cut
+	
 		- i 是白，j 是黑，產生 1 的 cost
 			- i 在 S-component 內，j 在 T-component 內，所以有 cost = 1
 
