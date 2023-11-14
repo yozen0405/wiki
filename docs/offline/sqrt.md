@@ -21,7 +21,7 @@
 ???+note "[CF 785 E. Anton and Permutation](https://codeforces.com/problemset/problem/785/E)"
 	給一個 $1\ldots n$ 的 permutation，$q$ 次 swap$(i,j)$，每次 swap 完輸出逆序數對數量
 	
-	$2\times 10^5, q\le 5\times 10^4$
+	$n\le 2\times 10^5, q\le 5\times 10^4$
 	
 	??? note "思路"
 		將序列每 sqrt(n) 個當成一個 block。假如交換 i 位置和 j 位置（假設 i < j），那麼只需要統計 [i + 1, j - 1] 這個區間內比 a[i] 大的有幾個, 小的有幾個，比 a[j] 位置的數大的有幾個, 小的有幾個即可。所以在 query 時對於完整的 block 直接在 block 內二分（對於每個 block 開一個大小為 n 的 BIT）。

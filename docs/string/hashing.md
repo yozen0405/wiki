@@ -8,11 +8,65 @@ S.substr(l, r - l + 1)
 
 ## rolling hash
 
+??? note "code"
+	```cpp linenums="1"
+	struct Hash {
+        static const int M = 998244353;
+        static const int X = 131;
+        vector<int> x;
+        vector<int> h;
+        vector<int> pre;
+        vector<int> inv;
+        int n;
+
+        Hash(string &s) : {
+            n = s.size();
+            x = vector<int>(n);
+            h = vector<int>(n);
+            pre = vector<int>(n);
+            inv = vector<int>(n);
+            x[0] = 1;
+            for (int i = 0; i < n; i++) {
+                if (i) x[i] = (x[i - 1] * X) % M;
+                inv[i] = fastpow(x[i], M - 2);
+            }
+
+            for (int i = 0; i < n; i++) {
+                h[i] = ((s[i] - '0' + 1) * x[i]) % M;
+
+                if (i == 0) {
+                    pre[i] = h[i];
+                } else {
+                    pre[i] = (pre[i - 1] + h[i]) % M;
+                }
+            }
+        }
+
+        int query(int l, int r) {
+            if (l == 0) return pre[r];
+            return ((pre[r] - pre[l - 1] + M) % M * inv[l]) % M;
+        }
+
+       private:
+        int fastpow(int a, int b) {
+            int ret = 1;
+            while (b != 0) {
+                if (b & 1) ret = ret * a % M;
+                a = (a * a) % M;
+
+                b >>= 1;
+            }
+            return ret;
+        }
+    };
+    ```
+	
 ### 判斷兩子字串是否相等
 
 ???+note "問題"
 	輸入一個長度 n 的字串 S，接著有 q 次詢問，每次詢問 S 中兩個子字串 S(l<sub>1</sub>, r<sub>1</sub>) 和 S(l<sub>2</sub>, r<sub>2</sub>) 是否相同
 	
+
 	??? note "思路"
 	
 	    <figure markdown>
@@ -455,138 +509,144 @@ S.substr(l, r - l + 1)
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	
-	    using namespace std;
-	
-	    const int INF = 2e18;
-	    const int maxn = 1e6 + 5;
-	    const int M = 1e9 + 7;
-	    const int X = 131;
-	
-	    int H[maxn], inv[maxn];
-	
-	    struct hah {
-	        int n;
-	        vector<int> pre;
-	        vector<int> h;
-	
-	        void build (string &s) {
-	            n = s.size ();
-	            pre.resize (n);
-	            h.resize (n);
-	
-	            for (int i = 0; i < n; i++) {
-	                h[i] = H[i] * (s[i] - 'a' + 1) % M;
-	                int tmp = H[i] * (s[i] - 'a' + 1);
-	                if (i) pre[i] = (pre[i - 1] + h[i]) % M;
-	                else pre[i] = h[i] % M;
-	            }
-	        }
-	
-	        int query (int l, int r) {
-	            if (l == 0) return pre[r];
-	            return (((pre[r] - pre[l - 1]) % M + M) % M) * inv[l] % M;
-	        }
-	    };
-	
-	    int fastpow (int a, int b) {
-	        int ret = 1;
-	        while (b != 0) {
-	            if (b & 1) ret = ret * a % M;
-	            a = (a * a) % M;
-	
-	            b >>= 1;
-	        }
-	        return ret;
-	    }
-	
-	    string s, t;
-	    int n;
-	    hah *Hs = new hah ();
-	    hah *Ht = new hah ();
-	
-	    void init () {
-	        cin >> s;
-	        reverse (ALL(s));
-	        t = s;
-	        reverse (ALL(s));
-	        n = s.size ();
-	        H[0] = 1;
-	        for (int i = 1; i < n; i++) {
-	            H[i] = H[i - 1] * X % M;
-	            inv[i] = fastpow (H[i], M - 2);
-	        }
-	    }
-	
-	    bool check (int l, int r) {
-	        if (l < 0) return 0;
-	        if (r > n - 1) return 0;
-	        if (l > r) return 0;
-	
-	        return Hs->query (l, r) == Ht->query (n - r - 1, n - l - 1);
-	    }
-	
-	    void solve () {
-	        Hs->build (s);
-	        Ht->build (t);
-	
-	        int ans = 0, L = 0;
-	        // ODD
-	        for (int i = 0; i < n; i++) {
-	            int l = 0, r = n;
-	
-	            while (l < r - 1) {
-	                int mid = (l + r) >> 1;
-	                if (check (i - mid, i + mid)) l = mid;
-	                else r = mid;
-	            }
-	            if (2 * l + 1 > ans) {
-	                ans = 2 * l + 1;
-	                L = i - l;
-	            }
-	        }
-	
-	        // EVEN
-	        for (int i = 0; i < n - 1; i++) {
-	            int l = 0, r = n;
-	
-	            while (l < r - 1) {
-	                int mid = (l + r) >> 1;
-	                if (check (i - mid + 1, i + mid)) l = mid;
-	                else r = mid;
-	            }
-	            if (2 * l > ans) {
-	                ans = 2 * l;
-	                L = i - l + 1;
-	            }
-	        }
-	        cout << s.substr (L, ans) << "\n";
-	    } 
-	
-	    signed main() {
-	        // ios::sync_with_stdio(0);
-	        // cin.tie(0);
-	        int t = 1;
-	        //cin >> t;
-	        while (t--) {
-	            init();
-	            solve();
-	        } 
-	    } 
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 1e6 + 5;
+        const int M = 1e9 + 7;
+        const int X = 131;
+
+        int H[maxn], inv[maxn];
+
+        struct hah {
+            int n;
+            vector<int> pre;
+            vector<int> h;
+
+            void build(string &s) {
+                n = s.size();
+                pre.resize(n);
+                h.resize(n);
+
+                for (int i = 0; i < n; i++) {
+                    h[i] = H[i] * (s[i] - 'a' + 1) % M;
+                    int tmp = H[i] * (s[i] - 'a' + 1);
+                    if (i)
+                        pre[i] = (pre[i - 1] + h[i]) % M;
+                    else
+                        pre[i] = h[i] % M;
+                }
+            }
+
+            int query(int l, int r) {
+                if (l == 0) return pre[r];
+                return (((pre[r] - pre[l - 1]) % M + M) % M) * inv[l] % M;
+            }
+        };
+
+        int fastpow(int a, int b) {
+            int ret = 1;
+            while (b != 0) {
+                if (b & 1) ret = ret * a % M;
+                a = (a * a) % M;
+
+                b >>= 1;
+            }
+            return ret;
+        }
+
+        string s, t;
+        int n;
+        hah *Hs = new hah();
+        hah *Ht = new hah();
+
+        void init() {
+            cin >> s;
+            reverse(ALL(s));
+            t = s;
+            reverse(ALL(s));
+            n = s.size();
+            H[0] = 1;
+            for (int i = 1; i < n; i++) {
+                H[i] = H[i - 1] * X % M;
+                inv[i] = fastpow(H[i], M - 2);
+            }
+        }
+
+        bool check(int l, int r) {
+            if (l < 0) return 0;
+            if (r > n - 1) return 0;
+            if (l > r) return 0;
+
+            return Hs->query(l, r) == Ht->query(n - r - 1, n - l - 1);
+        }
+
+        void solve() {
+            Hs->build(s);
+            Ht->build(t);
+
+            int ans = 0, L = 0;
+            // ODD
+            for (int i = 0; i < n; i++) {
+                int l = 0, r = n;
+
+                while (l < r - 1) {
+                    int mid = (l + r) >> 1;
+                    if (check(i - mid, i + mid))
+                        l = mid;
+                    else
+                        r = mid;
+                }
+                if (2 * l + 1 > ans) {
+                    ans = 2 * l + 1;
+                    L = i - l;
+                }
+            }
+
+            // EVEN
+            for (int i = 0; i < n - 1; i++) {
+                int l = 0, r = n;
+
+                while (l < r - 1) {
+                    int mid = (l + r) >> 1;
+                    if (check(i - mid + 1, i + mid))
+                        l = mid;
+                    else
+                        r = mid;
+                }
+                if (2 * l > ans) {
+                    ans = 2 * l;
+                    L = i - l + 1;
+                }
+            }
+            cout << s.substr(L, ans) << "\n";
+        }
+
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            // cin >> t;
+            while (t--) {
+                init();
+                solve();
+            }
+        }
 		```
 
 ???+note "[2018 全國賽 p6]()"
 	
 	??? note "思路"
 		<https://drive.google.com/file/d/1c9A1MrB-9D3EVr3eZPNWgaO4Rti3CN4K/view?usp=drive_open>
-		
+
 ## 相關主題
 
 - 樹同構

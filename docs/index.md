@@ -17,18 +17,19 @@
 
 - 樹論
 
-  - <a href="/wiki/graph/solving_for_all_roots" target="_blank">換根 dp</a>
-  - <a href="/wiki/graph/tree_dp" target="_blank">樹 dp</a>
-  - <a href="/wiki/graph/lca" target="_blank">倍增法與 LCA</a>
-  - <a href="/wiki/graph/other_problem" target="_blank">其他類型</a>
+    - <a href="/wiki/graph/solving_for_all_roots" target="_blank">換根 dp</a>
+    - <a href="/wiki/graph/tree_dp" target="_blank">樹 dp</a>
+    - <a href="/wiki/graph/lca" target="_blank">倍增法與 LCA</a>
+    - <a href="/wiki/graph/other_problem" target="_blank">其他類型</a>
 
 - 圖論
 	- <a href="/wiki/graph/dsu" target="_blank">Disjoint Set</a>
 	- <a href="/wiki/graph/sp" target="_blank">最短路</a>
 	- <a href="/wiki/graph/mst" target="_blank">MST</a>
+	- <a href="/wiki/graph/functional_graph/" target="_blank">水母圖</a>
 	- <a href="/wiki/graph/connected_component/" target="_blank">連通元件圖論</a>
 	- <a href="/wiki/graph/flow/" target="_blank">網路流</a>
-
+	
 - 數學
 	- <a href="/wiki/math/comb" target="_blank">組合</a>
 	- <a href="/wiki/math/geometry" target="_blank">計算幾何</a>

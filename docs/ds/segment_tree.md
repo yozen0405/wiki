@@ -1,91 +1,3 @@
-???+note "[HDU 5726 GCD](https://vjudge.net/problem/HDU-5726)"
-	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，$q$ 次詢問 :
-	
-	- $\text{query}(l,r):$ 問 $[l,r]$ 之間的子區間 $[l',r']$，有幾個 $\gcd(a_{l'},\ldots ,a_{r'})=\gcd(a_l,\ldots ,a_r)$
-	
-	$n, q\le 10^5$
-	
-	??? note "思路"
-		
-		區間 gcd 的值利可以用 Sparse Table 或 Segment Tree 算出來，但要怎麼求有幾個子區間的 gcd = x 呢 ? 觀察到，對於一個左界，當右界遞增時 gcd 是單調遞減的，所以我們假設已用 map 存以 a[i - 1] 結尾的 distinct 區間 gcd，那我們就只要將這些 gcd 在去跟 a[i] 取 gcd 存入 map 即可
-		
-		詳見代碼，抄錄自以下博客
-		
-		> 參考 : <https://blog.nowcoder.net/n/27772b54fd3c4968b905303d83138dea?from=nowcoder_improve>
-	
-	??? note "code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
-	    using namespace std;
-	    typedef long long ll;
-	    const int mod = 1000000007;
-	    const int maxn = 1e5 + 10;
-	    int g[maxn * 4], a[maxn];
-	    map<int, ll> ans;      // 存最终答案
-	    map<int, ll> p[maxn];  // p[i]表示以i结尾的gcd的区间集合,前者为gcd，后者为对应的区间个数
-	    int t, n, q, x, y;
-	    int Gcd(int a, int b) {
-	        return b == 0 ? a : Gcd(b, a % b);
-	    }
-	    void update(int id) {
-	        g[id] = Gcd(g[id << 1], g[id << 1 | 1]);
-	    }
-	    void build(int l, int r, int id) {
-	        if (l == r) {
-	            g[id] = a[l];
-	            return;
-	        }
-	        int mid = (l + r) >> 1;
-	        build(l, mid, id << 1);
-	        build(mid + 1, r, id << 1 | 1);
-	        update(id);
-	    }
-	    int query(int l, int r, int x, int y, int id) {
-	        if (x <= l && r <= y)
-	            return g[id];
-	        int mid = (l + r) >> 1;
-	        int le = 0, ri = 0;
-	        if (x <= mid)
-	            le = query(l, mid, x, y, id << 1);
-	        if (y > mid)
-	            ri = query(mid + 1, r, x, y, id << 1 | 1);
-	        if (!le) swap(le, ri);  // le为0， 不能求ri%0
-	        return Gcd(le, ri);     // Gcd(x, 0) = x
-	    }
-	    int main() {
-	        // freopen("/Users/zhangkanqi/Desktop/11.txt","r",stdin);
-	        scanf("%d", &t);
-	        int Case = 1;
-	        while (t--) {
-	            printf("Case #%d:\n", Case++);
-	            scanf("%d", &n);
-	            ans.clear();  // 清空!!
-	            for (int i = 1; i <= n; i++)
-	                p[i].clear();
-	            for (int i = 1; i <= n; i++)
-	                scanf("%d", &a[i]);
-	
-	            build(1, n, 1);
-	            ans[a[1]] = 1, p[1][a[1]] = 1;
-	            for (int i = 2; i <= n; i++) {
-	                ans[a[i]]++, p[i][a[i]] += 1;
-	                for (map<int, ll>::iterator it = p[i - 1].begin(); it != p[i - 1].end(); it++) {
-	                    int tmp = Gcd(a[i], it->first);  // 求a[i]和之前的数的gcd
-	                    p[i][tmp] += it->second;
-	                    ans[tmp] += it->second;
-	                }
-	            }
-	            scanf("%d", &q);
-	            while (q--) {
-	                scanf("%d %d", &x, &y);
-	                int k = query(1, n, x, y, 1);
-	                printf("%d %lld\n", k, ans[k]);
-	            }
-	        }
-	        return 0;
-	    }
-		```
-
 ## 線段樹基本
 
 ???+note "區間開根號 [LOJ #10128. 「一本通 4.3 练习 2」花神游历各国](https://loj.ac/p/10128)"
@@ -198,6 +110,146 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
 
 - 若 minv > 0 ⇒ ans = total
 
+需要離散化的話只要將 leaf 的 cntv 改成維護「離散化前的長度」即可
+
+<figure markdown>
+  ![Image title](./images/19.png){ width="400" }
+</figure>
+
+??? note "[TIOJ 1224](https://tioj.ck.tp.edu.tw/problems/1224) 離散化的 code"
+    ```cpp linenums="1"
+    #include <bits/stdc++.h>
+    #define int long long
+    #define pii pair<int, int>
+    #define pb push_back
+    #define mk make_pair
+    #define F first
+    #define S second
+    #define ALL(x) x.begin(), x.end()
+
+    using namespace std;
+
+    const int INF = 2e18;
+
+    struct Node {
+        int l, r;
+        Node *lc = nullptr;
+        Node *rc = nullptr;
+        int cnt;
+        int mn;
+        int add = 0;
+
+        Node(int l, int r) : l(l), r(r) {}
+
+        void pull() {
+            mn = min(lc->mn, rc->mn);
+            cnt = 0;
+            if (mn == lc->mn) {
+                cnt += lc->cnt;
+            } 
+            if (mn == rc->mn) {
+                cnt += rc->cnt;
+            }
+        }
+
+        void push() {
+            if (add) {
+                lc->mn += add;
+                lc->add += add;
+                rc->mn += add;
+                rc->add += add;
+                add = 0;
+            }
+        }
+    };
+
+    struct OP {
+        int x, y1, y2, val;
+
+        bool operator<(const OP &rhs) const {
+            return x < rhs.x;
+        }
+    };
+
+    int n;
+    vector<int> sortedY; 
+    vector<OP> op;
+
+    // {1, 8, 9, 10}
+    // i 維護 i~i+1
+    // lb(i), lb(i - 1)
+
+    Node* build(int l, int r) {
+        Node* root = new Node(l, r);
+        if (l == r) {
+            root->cnt = sortedY[l + 1] - sortedY[l]; 
+            root->mn = 0; 
+            return root;
+        }
+        int mid = (l + r) / 2;
+        root->lc = build(l, mid);
+        root->rc = build(mid + 1, r);
+
+        root->pull();
+        return root;
+    }
+
+    void modify(Node* root, int ml, int mr, int val) {
+        if (ml <= root->l && root->r <= mr) {
+            root->mn += val;
+            root->add += val;
+            return;
+        }
+        if (root->r < ml || mr < root->l) {
+            return;
+        }
+        root->push();
+        modify(root->lc, ml, mr, val);
+
+        modify(root->rc, ml, mr, val);
+        root->pull();
+    }
+
+    void init() {
+        cin >> n;
+        for (int i = 0; i < n; i++) {
+            int x1, x2, y1, y2;
+            cin >> x1 >> x2 >> y1 >> y2;
+            op.pb({x1, y1, y2, +1});
+            op.pb({x2, y1, y2, -1});
+            sortedY.pb(y1);
+            sortedY.pb(y2);
+        }
+        sort(ALL(sortedY));
+        sortedY.resize(unique(ALL(sortedY)) - sortedY.begin());
+        sort(ALL(op));
+    }
+
+    void solve() {
+        int range = sortedY.back() - sortedY.front();
+        Node* root = build(0, sortedY.size() - 2);
+        int lastX = INF, ans = 0;
+        for (auto [x, y1, y2, val] : op) {
+            int yl = lower_bound(ALL(sortedY), y1) - sortedY.begin();
+            int yr = lower_bound(ALL(sortedY), y2) - sortedY.begin() - 1;
+
+            if (lastX != INF && x != lastX) {
+                int dy = (root->mn == 0) ? (range - root->cnt) : range;
+                ans += (x - lastX) * dy;
+            }
+
+            modify(root, yl, yr, val);
+            lastX = x;
+        }
+        cout << ans << '\n';
+    }
+
+    signed main() {
+        init();
+        solve();
+    } 
+    ```
+	
 ???+note "[2021 全國賽 pF. 歡樂外送點](https://tioj.ck.tp.edu.tw/problems/2228)" 
 	給 $n$ 個菱形，中心點為 $(x_i, y_i)$，半徑為 $r_i$，權值為 $w_i$。問所有格子點的上被覆蓋到的權值總和最大值
 	
@@ -229,13 +281,13 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
 	
 	??? note "思路"
 		把每個線段都想成一個矩形，用 sweep line 從左邊掃到右邊，過程中可能會有三種情況:
-
+	
 		1. 遇到一個平行線段的起始點
 		2. 遇到一個平行線段的終點
 		3. 遇到一個垂直線段
-
-        其中當遇到 3. 的時候，會需要詢問當前的一段區間有幾條線段經過，而遇到 1. 2. 的時候，會需要將一個點加值或減值
 	
+	    其中當遇到 3. 的時候，會需要詢問當前的一段區間有幾條線段經過，而遇到 1. 2. 的時候，會需要將一個點加值或減值
+
 ???+note "[LOJ #6276.果树](https://loj.ac/p/6276)"
 	給出一棵 $n$ 個點的樹，每個點有一種顏色。問有多少條路徑滿足路徑上任意兩點的顏色都不同。 
 	
@@ -1118,6 +1170,8 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
     	
     	```
 
+## 題目
+
 ???+note "[NPSC 2020 高中組初賽 pF. 兔田建設](https://contest.cc.ntu.edu.tw/npsc2020/teamclient/semi_senior.pdf#page=15)"
 	給一個長度為 $n$ 的序列 $a_1, \ldots, a_n$，給 $k$，有 $q$ 筆詢問 : 
 	
@@ -1131,6 +1185,94 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
 		開頭在 $i$ 的區間和開頭在 $i+1$ 的區間，塗色的位置數量最多只會差 1，所以可以用類似介值定理的想法，$c$ 在最小值和最大值之間就表示有出現 $c$。
 		
 		> 參考自 : <https://www.wiwiho.me/2020/11/21/npsc2020pre/>
+
+???+note "[HDU 5726 GCD](https://vjudge.net/problem/HDU-5726)"
+	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，$q$ 次詢問 :
+	
+	- $\text{query}(l,r):$ 問 $[l,r]$ 之間的子區間 $[l',r']$，有幾個 $\gcd(a_{l'},\ldots ,a_{r'})=\gcd(a_l,\ldots ,a_r)$
+	
+	$n, q\le 10^5$
+	
+	??? note "思路"
+		
+		區間 gcd 的值利可以用 Sparse Table 或 Segment Tree 算出來，但要怎麼求有幾個子區間的 gcd = x 呢 ? 觀察到，對於一個左界，當右界遞增時 gcd 是單調遞減的，所以我們假設已用 map 存以 a[i - 1] 結尾的 distinct 區間 gcd，那我們就只要將這些 gcd 在去跟 a[i] 取 gcd 存入 map 即可
+		
+		詳見代碼，抄錄自以下博客
+		
+		> 參考 : <https://blog.nowcoder.net/n/27772b54fd3c4968b905303d83138dea?from=nowcoder_improve>
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    using namespace std;
+	    typedef long long ll;
+	    const int mod = 1000000007;
+	    const int maxn = 1e5 + 10;
+	    int g[maxn * 4], a[maxn];
+	    map<int, ll> ans;      // 存最终答案
+	    map<int, ll> p[maxn];  // p[i]表示以i结尾的gcd的区间集合,前者为gcd，后者为对应的区间个数
+	    int t, n, q, x, y;
+	    int Gcd(int a, int b) {
+	        return b == 0 ? a : Gcd(b, a % b);
+	    }
+	    void update(int id) {
+	        g[id] = Gcd(g[id << 1], g[id << 1 | 1]);
+	    }
+	    void build(int l, int r, int id) {
+	        if (l == r) {
+	            g[id] = a[l];
+	            return;
+	        }
+	        int mid = (l + r) >> 1;
+	        build(l, mid, id << 1);
+	        build(mid + 1, r, id << 1 | 1);
+	        update(id);
+	    }
+	    int query(int l, int r, int x, int y, int id) {
+	        if (x <= l && r <= y)
+	            return g[id];
+	        int mid = (l + r) >> 1;
+	        int le = 0, ri = 0;
+	        if (x <= mid)
+	            le = query(l, mid, x, y, id << 1);
+	        if (y > mid)
+	            ri = query(mid + 1, r, x, y, id << 1 | 1);
+	        if (!le) swap(le, ri);  // le为0， 不能求ri%0
+	        return Gcd(le, ri);     // Gcd(x, 0) = x
+	    }
+	    int main() {
+	        // freopen("/Users/zhangkanqi/Desktop/11.txt","r",stdin);
+	        scanf("%d", &t);
+	        int Case = 1;
+	        while (t--) {
+	            printf("Case #%d:\n", Case++);
+	            scanf("%d", &n);
+	            ans.clear();  // 清空!!
+	            for (int i = 1; i <= n; i++)
+	                p[i].clear();
+	            for (int i = 1; i <= n; i++)
+	                scanf("%d", &a[i]);
+	
+	            build(1, n, 1);
+	            ans[a[1]] = 1, p[1][a[1]] = 1;
+	            for (int i = 2; i <= n; i++) {
+	                ans[a[i]]++, p[i][a[i]] += 1;
+	                for (map<int, ll>::iterator it = p[i - 1].begin(); it != p[i - 1].end(); it++) {
+	                    int tmp = Gcd(a[i], it->first);  // 求a[i]和之前的数的gcd
+	                    p[i][tmp] += it->second;
+	                    ans[tmp] += it->second;
+	                }
+	            }
+	            scanf("%d", &q);
+	            while (q--) {
+	                scanf("%d %d", &x, &y);
+	                int k = query(1, n, x, y, 1);
+	                printf("%d %lld\n", k, ans[k]);
+	            }
+	        }
+	        return 0;
+	    }
+		```
 
 ## 參考
 
