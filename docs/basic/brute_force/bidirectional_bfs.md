@@ -10,8 +10,9 @@
 
 1. 創建“兩個隊列”分別用於兩個方向的搜尋；
 2. 建立“兩個哈希表”用於“解決相同節點重複搜尋”和“記錄轉換次數”；
-3. 為了盡可能讓兩個搜尋方向“平均”，每次從佇列中取值進行擴展時，先判斷哪個佇列容量較少； 4. 如果在搜尋過程中「搜尋到對方搜尋過的節點」，表示找到了最短路徑。
- 
+3. 為了盡可能讓兩個搜尋方向“平均”，每次從佇列中取值進行擴展時，先判斷哪個佇列容量較少；
+4. 如果在搜尋過程中「搜尋到對方搜尋過的節點」，表示找到了最短路徑。
+
 「雙向 BFS」基本想法對應的偽代碼大致如下：
 
 ```cpp linenums="1" title="pseudocode"
@@ -120,7 +121,7 @@ void update(queue d, map cur, map other) {}
 		最多也才 9! 種狀態，可以暴力 bfs，至於要怎麼將一個 grid 壓成 int 呢，可以套用 hash 的方法:
 		
 		$$
-		$S=\sum_{i=0}^{8}a_i\times 9^{i}$
+		S=\sum_{i=0}^{8}a_i\times 9^{i}
 		$$
 		
 		其中 a[i] = 0...8。若要詢問第 i 項的數字，可以直接回傳 (S / 9^i) % 9
@@ -128,169 +129,169 @@ void update(queue d, map cur, map other) {}
 	??? note "code(普通 BFS)"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-
-        using namespace std;
-
-        int h[11];
-        bitset<387420489> vis;
-
-        int swap(int i, int j, int state) {
-            int a = (state / h[i]) % 9;
-            int b = (state / h[j]) % 9;
-            state += (b - a) * h[i];
-            state += (a - b) * h[j];
-            return state;
-        }
-
-        int solve(int s, int t) {
-            queue<pair<int, int>> q;
-            q.push({s, 0});  
-            vis[s] = 1;
-            while (q.size()) {
-                auto [state, step] = q.front();
-                q.pop();
-                if (state == t) return step;
-
-                for (int i = 0; i < 9; i++) {
-                    if (i % 3 != 2) {
-                        int nxt = swap(i, i + 1, state);
-                        if (!vis[nxt]) {
-                            q.push({nxt, step + 1});
-                            vis[nxt] = 1;
-                        }
-                    }
-                    if (i < 6) {
-                        int nxt = swap(i, i + 3, state);
-                        if (!vis[nxt]) {
-                            q.push({nxt, step + 1});
-                            vis[nxt] = 1;
-                        }
-                    }
-                }
-            }
-        }
-
-        signed main() {
-            h[0] = 1;
-            for (int i = 1; i <= 9; i++) {
-                h[i] = h[i - 1] * 9;
-            }
-            int s = 0, t = 0;
-            for (int i = 0; i < 9; i++) {
-                t += i * h[i];
-            }
-            for (int i = 0; i < 9; i++) {
-                int x;
-                cin >> x;
-                x--;
-                s += x * h[i];
-            }
-            if (s == t) {
-                cout << 0 << '\n';
-            } else {
-                cout << solve(s, t) << '\n';
-            }
-        }
+	    #define int long long
+	
+	    using namespace std;
+	
+	    int h[11];
+	    bitset<387420489> vis;
+	
+	    int swap(int i, int j, int state) {
+	        int a = (state / h[i]) % 9;
+	        int b = (state / h[j]) % 9;
+	        state += (b - a) * h[i];
+	        state += (a - b) * h[j];
+	        return state;
+	    }
+	
+	    int solve(int s, int t) {
+	        queue<pair<int, int>> q;
+	        q.push({s, 0});  
+	        vis[s] = 1;
+	        while (q.size()) {
+	            auto [state, step] = q.front();
+	            q.pop();
+	            if (state == t) return step;
+	
+	            for (int i = 0; i < 9; i++) {
+	                if (i % 3 != 2) {
+	                    int nxt = swap(i, i + 1, state);
+	                    if (!vis[nxt]) {
+	                        q.push({nxt, step + 1});
+	                        vis[nxt] = 1;
+	                    }
+	                }
+	                if (i < 6) {
+	                    int nxt = swap(i, i + 3, state);
+	                    if (!vis[nxt]) {
+	                        q.push({nxt, step + 1});
+	                        vis[nxt] = 1;
+	                    }
+	                }
+	            }
+	        }
+	    }
+	
+	    signed main() {
+	        h[0] = 1;
+	        for (int i = 1; i <= 9; i++) {
+	            h[i] = h[i - 1] * 9;
+	        }
+	        int s = 0, t = 0;
+	        for (int i = 0; i < 9; i++) {
+	            t += i * h[i];
+	        }
+	        for (int i = 0; i < 9; i++) {
+	            int x;
+	            cin >> x;
+	            x--;
+	            s += x * h[i];
+	        }
+	        if (s == t) {
+	            cout << 0 << '\n';
+	        } else {
+	            cout << solve(s, t) << '\n';
+	        }
+	    }
 		```
 		
 	??? note "code(雙向 BFS)"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-
-        using namespace std;
-
-        int h[11];
-
-        int swap(int i, int j, int state) {
-            int a = (state / h[i]) % 9;
-            int b = (state / h[j]) % 9;
-            state += (b - a) * h[i];
-            state += (a - b) * h[j];
-            return state;
-        }
-
-        int bfs(queue<int> &q, unordered_map<int, int> &mp1, unordered_map<int, int> &mp2) {
-            int m = q.size();
-            while (m--) {
-                int state = q.front();
-                q.pop();
-
-                function<int(int)> update = [&](int nxt) {
-                    if (mp1.count(nxt)) {
-                        return -1LL;
-                    }
-                    if (mp2.count(nxt)) {
-                        return mp1[state] + 1 + mp2[nxt];
-                    }
-                    mp1[nxt] = mp1[state] + 1;
-                    q.push(nxt);
-                    return -1LL;
-                };
-
-                for (int i = 0; i < 9; i++) {
-                    if (i % 3 != 2) {
-                        int nxt = swap(i, i + 1, state);
-                        int ret = update(nxt);
-                        if (ret != -1) {
-                            return ret;
-                        }
-                    }
-                    if (i < 6) {
-                        int nxt = swap(i, i + 3, state);
-                        int ret = update(nxt);
-                        if (ret != -1) {
-                            return ret;
-                        }
-                    }
-                }
-            }
-            return -1;
-        }
-
-        int solve(int s, int t) {
-            queue<int> q1, q2;
-            unordered_map<int, int> mp1, mp2;
-            q1.push(s);
-            mp1[s] = 0;
-            q2.push(t);
-            mp2[t] = 0;
-            while (q1.size() && q2.size()) {
-                int t = -1;
-                if (q1.size() > q2.size()) {
-                    t = bfs(q1, mp1, mp2);
-                } else {
-                    t = bfs(q2, mp2, mp1);
-                }
-                if (t != -1) return t;
-            }
-            return -1;
-        }
-
-        signed main() {
-            h[0] = 1;
-            for (int i = 1; i <= 9; i++) {
-                h[i] = h[i - 1] * 9;
-            }
-            int s = 0, t = 0;
-            for (int i = 0; i < 9; i++) {
-                t += i * h[i];
-            }
-            for (int i = 0; i < 9; i++) {
-                int x;
-                cin >> x;
-                x--;
-                s += x * h[i];
-            }
-            if (s == t) {
-                cout << 0 << '\n';
-            } else {
-                cout << solve(s, t) << '\n';
-            }
-        }
+	    #define int long long
+	
+	    using namespace std;
+	
+	    int h[11];
+	
+	    int swap(int i, int j, int state) {
+	        int a = (state / h[i]) % 9;
+	        int b = (state / h[j]) % 9;
+	        state += (b - a) * h[i];
+	        state += (a - b) * h[j];
+	        return state;
+	    }
+	
+	    int bfs(queue<int> &q, unordered_map<int, int> &mp1, unordered_map<int, int> &mp2) {
+	        int m = q.size();
+	        while (m--) {
+	            int state = q.front();
+	            q.pop();
+	
+	            function<int(int)> update = [&](int nxt) {
+	                if (mp1.count(nxt)) {
+	                    return -1LL;
+	                }
+	                if (mp2.count(nxt)) {
+	                    return mp1[state] + 1 + mp2[nxt];
+	                }
+	                mp1[nxt] = mp1[state] + 1;
+	                q.push(nxt);
+	                return -1LL;
+	            };
+	
+	            for (int i = 0; i < 9; i++) {
+	                if (i % 3 != 2) {
+	                    int nxt = swap(i, i + 1, state);
+	                    int ret = update(nxt);
+	                    if (ret != -1) {
+	                        return ret;
+	                    }
+	                }
+	                if (i < 6) {
+	                    int nxt = swap(i, i + 3, state);
+	                    int ret = update(nxt);
+	                    if (ret != -1) {
+	                        return ret;
+	                    }
+	                }
+	            }
+	        }
+	        return -1;
+	    }
+	
+	    int solve(int s, int t) {
+	        queue<int> q1, q2;
+	        unordered_map<int, int> mp1, mp2;
+	        q1.push(s);
+	        mp1[s] = 0;
+	        q2.push(t);
+	        mp2[t] = 0;
+	        while (q1.size() && q2.size()) {
+	            int t = -1;
+	            if (q1.size() > q2.size()) {
+	                t = bfs(q1, mp1, mp2);
+	            } else {
+	                t = bfs(q2, mp2, mp1);
+	            }
+	            if (t != -1) return t;
+	        }
+	        return -1;
+	    }
+	
+	    signed main() {
+	        h[0] = 1;
+	        for (int i = 1; i <= 9; i++) {
+	            h[i] = h[i - 1] * 9;
+	        }
+	        int s = 0, t = 0;
+	        for (int i = 0; i < 9; i++) {
+	            t += i * h[i];
+	        }
+	        for (int i = 0; i < 9; i++) {
+	            int x;
+	            cin >> x;
+	            x--;
+	            s += x * h[i];
+	        }
+	        if (s == t) {
+	            cout << 0 << '\n';
+	        } else {
+	            cout << solve(s, t) << '\n';
+	        }
+	    }
 		```
-		
+
 ## 參考資料
 
 - <https://leetcode.cn/problems/open-the-lock/solutions/843986/gong-shui-san-xie-yi-ti-shuang-jie-shuan-wyr9/>

@@ -1463,3 +1463,56 @@
 	    $$
 	    
 	    觀察到我們在其實可以先枚舉 $j$，再枚舉 $i$，這樣我們就可以開一個陣列 $cnt$，$cnt_x$ 紀錄 $S_i\% j=x$ 的總和，轉移直接去查表即可，複雜度 $O(n^2)$
+
+???+note "[JOI 2018 Final 团子制作](https://loj.ac/p/2349)"
+	給一個 n * m 的 grid，每格有 R, G, W 其中一個，盡可能的選一些順序為 R → G → W 的格子，只能從左到右或從上到下。問最多能選幾個 R → G → W
+	
+	$n, m\le 3000$
+	
+	??? note "思路"
+		<figure markdown>
+	      ![Image title](./images/35.png){ width="450" }
+	      <figcaption>如果重合（二選一）肯定是上面三種情況之一</figcaption>
+	    </figure>
+	
+		注意到，如果需要二選一時，兩個 G 的部分會在一條對角線上。所以我們可以對每條對角線單獨進行 dp，最後再加起來即可。也就是 dp(i, 0 / 1 / 2) 表示當前在看的這條對角線上，第 i 行「不選 / 橫著選 / 豎著選」
+		
+		---
+		
+		第二種方法是建圖，用 Dinic 流 Maximum Flow
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	
+	    using namespace std;
+	
+	    const int MAXN = 3005;
+	    int n, m, ans;
+	    int dp[MAXN][3];
+	    char s[MAXN][MAXN];
+	
+	    int main() {
+	        cin >> n >> m;
+	        for (int i = 1; i <= n; ++i) {
+	            cin >> s[i] + 1;
+	        }
+	        for (int sm = 2; sm <= n + m; ++sm) {
+	            memset(dp, 0, sizeof(dp));
+	            int tmp = 0;
+	            for (int i = max(1, sm - m), j = sm - i; i <= n && j; ++i, --j) {
+	                dp[i][0] = max({dp[i - 1][0], dp[i - 1][1], dp[i - 1][2]});
+	                if (s[i][j] == 'G') {
+	                    if (s[i - 1][j] == 'R' && s[i + 1][j] == 'W')
+	                        dp[i][1] = max(dp[i][1], max(dp[i - 1][0], dp[i - 1][1]) + 1);
+	                    if (s[i][j - 1] == 'R' && s[i][j + 1] == 'W')
+	                        dp[i][2] = max(dp[i][2], max(dp[i - 1][0], dp[i - 1][2]) + 1);
+	                }
+	                tmp = max(tmp, max({dp[i][0], dp[i][1], dp[i][2]}));
+	            }
+	            ans += tmp;
+	        }
+	        cout << ans << '\n';
+	    }
+	    ```
+

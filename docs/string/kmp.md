@@ -25,6 +25,10 @@ f[i] - 1 一定是 s[1 ~ (i-1)] 的一個共同前後綴長度，但不一定是
 
 ⇒ 想要找 f[i] : 從 s[1~(i-1)] 共同前後綴去找
 
+<figure markdown>
+  ![Image title](./images/6.png){ width="500" }
+</figure>
+
 ### 實作
 
 ???+note "code"
@@ -55,8 +59,6 @@ f[i] - 1 一定是 s[1 ~ (i-1)] 的一個共同前後綴長度，但不一定是
 	    - new_str = target + "$" + str
 	    - f = build_f(new_str), 看幾個 f[i] = target.size()
 
-???+note "[]()"
-
 ### fail link dp
 
 ???+note "[CF 432 D. Prefixes and Suffixes](https://codeforces.com/problemset/problem/432/D)"
@@ -65,7 +67,7 @@ f[i] - 1 一定是 s[1 ~ (i-1)] 的一個共同前後綴長度，但不一定是
 	$1\le |s| \le 10^5$
 	
 	??? note "思路"
-		根據性質 2，我們可以推得一個 dp 轉移 :
+		根據性質 2，也就是當 f(i) 出現時，f(f(i)) 也會出現，我們可以推得一個 dp 轉移 :
 		
 		```
 		for (int i = n ~ 1)
@@ -79,7 +81,114 @@ f[i] - 1 一定是 s[1 ~ (i-1)] 的一個共同前後綴長度，但不一定是
 	$2\le |t| \le 2\times k\le |s|\le 5\times 10^5$
 	
 	??? note "思路"
-		https://codeforces.com/contest/955/submission/170083972
+		令 pre[i]: t[1:i] 首次出現位置，存結尾位置，suf[i]: t[i:m] 最後出現位置，存開頭位置，我們就只要枚舉 i，看是否符合 pre[i] < suf[i] 即可
+		
+		至於 pre, suf 要怎麼建立呢 ? 我們可以利用 kmp 看 s 的每一項與 t 的次長共同前後綴，然後再用 fail link dp 轉移。或是也可以用 rolling hash + two pointer
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <algorithm>
+        #include <cstdlib>
+        #include <iostream>
+        #include <string>
+        #include <vector>
+
+        using namespace std;
+
+        const int INF = 1e9;
+
+        vector<int> kmp(string s) {  // 1-based string
+            int n = s.size();
+            vector<int> f(n, -1);
+            for (int i = 1; i < n; i++) {
+                int w = f[i - 1];
+                while (w >= 0 && s[w + 1] != s[i]) {
+                    w = f[w];
+                }
+                f[i] = w + 1;
+            }
+            return f;
+        }
+
+        vector<int> make_pre(int k, string s, string t) {
+            int n = s.size();
+            int m = t.size();
+
+            auto f = kmp("$" + t + "$" + s);              // $aaaa$baabaab
+                                                          //
+            if (*max_element(f.begin(), f.end()) >= m) {  // 不用分兩段就是好的
+
+                cout << "Yes" << '\n';
+                int pos = max_element(f.begin(), f.end()) - f.begin();
+                pos -= m + 1;
+                pos = max(pos, 2 * k);
+                cout << pos - 2 * k + 1 << ' ' << pos - k + 1 << '\n';
+
+                exit(0);
+            }
+
+            vector<int> pre(m + 1, INF);  // pre[i]: t[1:m] 第一次出現位置
+            for (int i = m + 1 + k; i < n + m + 2; i++) {
+                int len = f[i];
+                pre[len] = min(pre[len], i - m - 1);
+            }
+
+            // fail link dp
+            // 長度i 的位置出現的地方，也同時會有長度 f[i] 出現
+            for (int i = m; i >= 1; i--) {
+                int j = f[i];
+                pre[j] = min(pre[j], pre[i]);
+            }
+            return pre;
+        }
+
+        int main() {
+            cin.tie(0);
+            cin.sync_with_stdio(0);
+
+            int n, m, k;
+            string s;
+            string t;
+            cin >> n >> m >> k;
+            cin >> s >> t;
+
+            string rs(s.rbegin(), s.rend());
+            string rt(t.rbegin(), t.rend());
+
+            auto pre = make_pre(k, s, t);  // pre[i]: t[1:i] 首次出現位置，存結尾位置
+            auto suf = make_pre(k, rs, rt);  // suf[i]: t[i:m] 最後出現位置，存開頭位置
+            reverse(suf.begin(), suf.end());
+            for (int i = 0; i <= m; i++) {
+                suf[i] = n + 1 - suf[i];
+            }
+
+            /*
+            cout << s << '\n';
+            cout << t << '\n';
+            for (int i = 0; i <= m; i++) {
+                cout << pre[i] << '\t' << suf[i] << '\n';
+            }
+            */
+
+            bool good = false;
+            for (int i = 0; i <= m; i++) {
+                if (i <= k && m - i <= k && pre[i] < suf[i]) {
+                    cout << "Yes" << '\n';
+                    cout << pre[i] - k + 1 << ' ' << suf[i] << '\n';
+                    /*
+                    cout << s.substr(pre[i] - k, k) << ' ' << s.substr(suf[i] - 1, k)
+                         << '\n';
+                    */
+                    good = true;
+                    break;
+                }
+            }
+            if (good == false) {
+                cout << "No" << '\n';
+            }
+            return 0;
+        }
+        ```
 
 ### kmp+dp
 
@@ -108,71 +217,71 @@ f[i] - 1 一定是 s[1 ~ (i-1)] 的一個共同前後綴長度，但不一定是
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-        using pii = pair<int, int>;
-
-        const int INF = 2e18;
-        const int M = 1e9 + 7;
-
-        int fpow(int a, int b) {
-            int ret = 1;
-            a %= M;
-            while (b != 0) {
-                if (b & 1) ret = (ret * a) % M;
-                a = (a * a) % M;
-                b >>= 1;
-            }
-            return ret;
-        }
-
-        vector<int> kmp(string s) { 
-            int n = s.size();
-            vector<int> f(n, -1);
-            for (int i = 1; i < n; i++) {
-                int w = f[i - 1];
-                while (w >= 0 && s[w + 1] != s[i]) {
-                    w = f[w];
-                }
-                f[i] = w + 1;
-            }
-            return f;
-        }
-
-        signed main() {
-            int n;
-            cin >> n;
-            string t;
-            cin >> t;
-            int m = t.size();
-            t = "$" + t;
-
-            vector<int> f = kmp(t);
-            vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));
-            dp[0][0] = 1;
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) {
-                    for (int k = 0; k < 26; k++) {
-                        int w = j;
-                        while (w >= 0 && t[w + 1] != ('A' + k)) w = f[w];
-                        w += 1;
-                        dp[i + 1][w] = (dp[i + 1][w] + dp[i][j]) % M;
-                    }
-                } 
-            }
-            int sum = 0;
-            for (int j = 0; j < m; j++) {
-                sum = (sum + dp[n][j]) % M;
-            }
-            // total - fail
-            cout << (fpow(26, n) - sum + M) % M << endl;
-        } 
+	    #define int long long
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	    using pii = pair<int, int>;
+	
+	    const int INF = 2e18;
+	    const int M = 1e9 + 7;
+	
+	    int fpow(int a, int b) {
+	        int ret = 1;
+	        a %= M;
+	        while (b != 0) {
+	            if (b & 1) ret = (ret * a) % M;
+	            a = (a * a) % M;
+	            b >>= 1;
+	        }
+	        return ret;
+	    }
+	
+	    vector<int> kmp(string s) { 
+	        int n = s.size();
+	        vector<int> f(n, -1);
+	        for (int i = 1; i < n; i++) {
+	            int w = f[i - 1];
+	            while (w >= 0 && s[w + 1] != s[i]) {
+	                w = f[w];
+	            }
+	            f[i] = w + 1;
+	        }
+	        return f;
+	    }
+	
+	    signed main() {
+	        int n;
+	        cin >> n;
+	        string t;
+	        cin >> t;
+	        int m = t.size();
+	        t = "$" + t;
+	
+	        vector<int> f = kmp(t);
+	        vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));
+	        dp[0][0] = 1;
+	        for (int i = 0; i < n; i++) {
+	            for (int j = 0; j < m; j++) {
+	                for (int k = 0; k < 26; k++) {
+	                    int w = j;
+	                    while (w >= 0 && t[w + 1] != ('A' + k)) w = f[w];
+	                    w += 1;
+	                    dp[i + 1][w] = (dp[i + 1][w] + dp[i][j]) % M;
+	                }
+	            } 
+	        }
+	        int sum = 0;
+	        for (int j = 0; j < m; j++) {
+	            sum = (sum + dp[n][j]) % M;
+	        }
+	        // total - fail
+	        cout << (fpow(26, n) - sum + M) % M << endl;
+	    } 
 		```
 
 ???+note "[2015 北市賽 pD. 猜謎遊戲 (Guess)](https://tioj.ck.tp.edu.tw/problems/1091)"

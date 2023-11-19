@@ -1006,7 +1006,21 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 			- ⇒ 合法解不會用到環狀功能
 		
 		發現 n + 1 組一個循環，答案為 $\frac{(n + 1) ^ n}{n+1}$
+
+???+note "[2018 全國賽 pC. 平均變異次數](https://zerojudge.tw/ShowProblem?problemid=c893)"
+	已知長度 n 的字串內，有 k 個相異的字元，第 i 種字元有 c[i] 個，問所有 permutation 當中，相鄰不同的字元對的平均為何 ?
+	
+	$n,k \le 1000$
+	
+	??? note "思路"
+		先單看第一個與第二個字元相異的機率為
 		
+		<center>
+		(c[1] / n) * ((n - c[1]) / (n - 1)) + (c[2] / n) * ((n - c[2]) / (n - 1)) + ...
+		</center>
+		
+		而每個 gap 的相異機率都是一樣的（類似抽籤跟順序無關，是一個平均起來的概念），所以將上面的式子乘上 n - 1 就是答案
+
 [^1]: 例如 (D), (A, B, C)，<a href="/wiki/math/images/15.png" target="_blank">見此圖</a>
 
 [^2]: <a href="/wiki/math/images/20.png" target="_blank">見此圖</a> 參考自 [stackexchange 博客](https://math.stackexchange.com/questions/95491/n-choose-k-bmod-m-using-chinese-remainder-theorem)

@@ -37,4 +37,8 @@ b & 1 & 0 & 0 & 1 & 1 & 1 & 0 & 0 \\\\ \hline
 
 ## Implace Merge
 
+將一個陣列中的兩個有序數列區間 [l, mid), [mid, r) 合併成一個有序數列
+
+## Karasuba
+
 [^1]: 找中位數用 `nth_element` 函式

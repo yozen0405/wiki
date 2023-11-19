@@ -190,6 +190,7 @@ nav:
           - 其他類型: 'graph/other_problem.md'
       - 特殊圖:
         - 二分圖: 'graph/bipartite.md'
+        - 二元樹: 'graph/binary_tree.md'
         - 水母圖: 'graph/functional_graph.md'
       - 迴路:
         - 歐拉迴路: 'graph/euler_path.md'
@@ -232,6 +233,7 @@ nav:
       - 一般 dp 類型:
         - 區間dp: 'dp/range_dp.md'
         - 數位dp: 'dp/digit_dp.md'
+        - 子矩形dp: 'dp/submatrix_dp.md'
         - 雜題整理: 'dp/problem.md'
         - 狀壓dp: 'dp/bitmask.md'
       - 優化:

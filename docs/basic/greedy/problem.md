@@ -469,6 +469,140 @@
 	
 			- 對於後面，選 $a_i$ 最小的 $k-i$ 個 → 預處理
 
+## 均分紙牌
+
+???+note "[洛谷 P1031 [NOIP2002 提高组] 均分纸牌](https://www.luogu.com.cn/problem/P1031)"
+	給 n 堆石頭，每次可以從一堆拿取若干個放到相鄰的一側，問最少次數使每堆個數皆相等
+	
+	$n\le 100, 1\le a_i\le 10^4, \sum a_i$ 為 $n$ 的倍數
+	
+	??? note "思路"
+		我們可以先得到一個 difference 序列 c[i] = avg - a[i]
+		
+		從 i = 0...(n - 1)，若 c[i] != 0，則將 c[i + 1] += c[i]，操作次數 +1
+
+???+note "[CSES - Food Division](https://cses.fi/problemset/task/1189)"
+	有 $n$ 個人圍成一圈，第 $i$ 個人目前的分數為 $a_i$，期望分數為 $b_i$。每次操作能讓一個人分一單位的分數給相鄰的人，問最少幾次操作，使每個人都答到自己的期望分數。
+
+	$n\le 2\times 10^5, 0\le a_i,b_i\le 10^6$
+	
+	??? note "思路"
+		我們可以先得到一個 difference 序列 $c$，使 $c_i=a_i-b_i$，這樣問題就變成: 給一個陣列，每次可移動一單位的分數，最少幾次使滿項都變 $0$。
+		
+	    先限制題目給的是陣列，從第一項開始，我們可以利用跟右邊借的方式，來讓每一項都變成 0。
+	
+	    ```
+	    ex1:
+	    [5 -3 -1 4 -3 -2]
+	    [0 2 -1 4 -3 -2] +5
+	    [0 0 1 4 -3 -2] +2
+	    [0 0 0 5 -3 -2] +1
+	    [0 0 0 0 2 -2] +5
+	    [0 0 0 0 0 0] +2
+	    cost = 5+2+1+5+2
+	
+	    ex2:
+	    [-7 2 -1 2 4]
+	    [0 -5 -1 2 4] 7
+	    [0 0 -6 2 4] 5
+	    [0 0 0 -4 4] 6
+	    [0 0 0 0 0] 4
+	    cost = 7+5+6+4
+	    ```
+	
+	    這其實就是在做一個前綴和，而 cost 就是 $\sum \limits_{i=1}^n |pre_i|$，回到環的問題，我們發現一定存在一個邊，斷掉後還是能達到最佳解（見下方）。所以現在就是要暴力枚舉要切在哪，會有 n 個可能的一維問題，因為是環，所以我們可以先列出一個長度為 2n 的陣列，那麼對於一個長度為 n 的區間 [l, r]，答案就是 $\sum |pre_i-pre_{l-1}|$，這個可以用線段樹來維護。
+	
+	    ```
+	    a   [-7   2  -1   2  4  -7   2  -1   2  4]
+	    pre  -7  -5  -6  -4  0  -7  -5  -6  -4  0 
+	    ```
+	
+	    其實觀察可發現，長度為 n 的區間所形成的 $pre_i$ 的集合都是一樣的，而且 $pre_{l-1}$ 也是這個集合的其中一個數字，所以根據數學，選集合內的中位數就會是最好的。
+
+
+
+        我們想證明: 每個 node 出去 & 進來的量不變的前提下，把一條 edge 的流量變成 0
+    
+        對於一條邊先將流量 -1，那依序:
+    
+        - 若對於一個點兩邊流向都是相同的，則兩邊都一起 +1 or -1，使得流出去的總量（差值）不變
+    
+        - 若對於一個點兩邊的流向是相反的，則一邊 +1，一邊就要 -1，反之亦然，使得流出去的總量（總和）不變
+    
+        <figure markdown>
+          ![Image title](./images/16.png){ width="300" }
+        </figure>
+
+???+note "[JOI Final 2019 硬币收藏](https://loj.ac/p/3013)"
+	有一個二維座標平面，有 $2n$ 個硬幣，第 $i$ 個在 $(x_i, y_i)$。要將所有的硬幣放到 $1 \le x \le n, 1\le y\le 2$ 的區域中，每格恰好放一個，可將硬幣用曼哈頓距離移動，問最少移動次數
+	
+	$n\le 10^5, -10^9\le x_i, y_i\le 10^9$
+	
+	??? note "思路"
+		每個點都直接走到最近的範圍內的點上，以範例測資來說就是像下圖
+		
+		<figure markdown>
+	      ![Image title](./images/15.png){ width="300" }
+	    </figure>
+	    
+	    問題就變成要將範圍內的點平均分配，我們先考慮一維的作法，也就是從左到右看目前剩下多少，假設是 x，那就將 x 單位都移到右邊那格，移動次數 += |x|，回到原本的問題，我們就只要多考慮上、下的移動即可。具體來說就是從枚舉 i = 1...n，對於第 i 列的兩個格子 (i, 1) 和 (i, 2)，先內部把缺少/多餘的硬幣消化掉，然後留下最少的那幾個硬幣往下一個列的對應格子累加，同時將答案累加其中的步數即可，詳見代碼。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	
+	    using namespace std;
+	
+	    const int MAXN = 1e5 + 10;
+	    int cnt[MAXN][3], n;
+	
+	    signed main() {
+	        cin >> n;
+	        int ans = 0;
+	        for (int i = 1; i <= 2 * n; i++) {
+	            int x, y, xpos, ypos;
+	            cin >> x >> y;
+	            if (x < 1) {
+	                xpos = 1;
+	            } else if (x > n) {
+	                xpos = n;
+	            } else {
+	                xpos = x;
+	            }
+	            if (y < 1) {
+	                ypos = 1;
+	            } else if (y > 2) {
+	                ypos = 2;
+	            } else {
+	                ypos = y;
+	            }
+	            cnt[xpos][ypos]++;
+	            ans += abs(xpos - x) + abs(ypos - y);
+	        }
+	        int up = 0, down = 0;
+	        for (int i = 1; i <= n; i++) {
+	            up += cnt[i][1] - 1;
+	            down += cnt[i][2] - 1;
+	            // 上, 下調整
+	            if (up > 0 && down < 0) {
+	                int moved = min(-down, up);
+	                up -= moved;
+	                down += moved;
+	                ans += moved;
+	            } else if (up < 0 && down > 0) {
+	                int moved = min(down, -up);
+	                up += moved;
+	                down -= moved;
+	                ans += moved;
+	            }
+	            // 左右調整
+	            ans += abs(up) + abs(down);
+	        }
+	        cout << ans << '\n';
+	    }
+	    ```
+
 ## 其他題目
 
 ???+note "2023 TOI 1模 pB. 最佳劇照 (stills)"

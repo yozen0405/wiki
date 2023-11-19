@@ -277,11 +277,11 @@
 		dp(l, r) = min{
 		
 		- dp(l, k) + dp(k + 1, r) // 可以分成前後兩段
-
+	
 		- dp(l + 1, r - 1) if ok(s[l], s[r]) // 前後兩個剛好可以配對
-
+	
 		- dp(l, r - 1) + 1 // 例如說 ( [ ( ] <font color="#00A2E8">)</font>
-
+	
 		- dp(l + 1, r) + 1 // 例如說 <font color="#00A2E8">[</font> ( [ ( ] 
 
 ???+note "[LeetCode 516. Longest Palindromic Subsequence](https://leetcode.com/problems/longest-palindromic-subsequence/)"
@@ -297,38 +297,37 @@
 		dp(l, r) =
 		
 		- dp(l+1, r-1) + 2 if s[l] == s[r]
-
+	
 		- max(dp(l+1, r), dp(l, r-1)) else
-		
-		
+
 	??? note "code"
 		```cpp linenums="1"
 		class Solution {
-           public:
-            int longestPalindromeSubseq(string str) {
-                int n = str.size();
-                vector<vector<int>> dp(n, vector<int>(n));
-                for (int i = 0; i < n; i++) dp[i][i] = 1;
-                for (int len = 2; len <= n; len++) {
-                    for (int l = 0; l + len - 1 < n; l++) {
-                        int r = l + len - 1;
-                        if (str[l] == str[r]) {
-                            if (len == 2) {
-                                dp[l][r] = 2;
-                                continue;
-                            }
-                            dp[l][r] = dp[l + 1][r - 1] + 2;
-                        } else {
-                            dp[l][r] = max(dp[l + 1][r], dp[l][r - 1]);
-                        }
-                    }
-                }
-                return dp[0][n - 1];
-            }
-        };
-        ```
-	
-???+note "[Atcoder DP Contest N - Slimes](https://atcoder.jp/contests/dp/tasks/dp_n)"
+	       public:
+	        int longestPalindromeSubseq(string str) {
+	            int n = str.size();
+	            vector<vector<int>> dp(n, vector<int>(n));
+	            for (int i = 0; i < n; i++) dp[i][i] = 1;
+	            for (int len = 2; len <= n; len++) {
+	                for (int l = 0; l + len - 1 < n; l++) {
+	                    int r = l + len - 1;
+	                    if (str[l] == str[r]) {
+	                        if (len == 2) {
+	                            dp[l][r] = 2;
+	                            continue;
+	                        }
+	                        dp[l][r] = dp[l + 1][r - 1] + 2;
+	                    } else {
+	                        dp[l][r] = max(dp[l + 1][r], dp[l][r - 1]);
+	                    }
+	                }
+	            }
+	            return dp[0][n - 1];
+	        }
+	    };
+	    ```
+
+???+note "Optimal Binary Search Tree [Atcoder DP Contest N - Slimes](https://atcoder.jp/contests/dp/tasks/dp_n)"
 	有 $n$ 堆石子，分別有 $a_1, \ldots ,a_n$ 個，每次可以合併相鄰的石子，花費為兩堆石子數目之和，問最後剩下一堆的最少花費
 	
 	$2\le n\le 400, 1\le a_i \le 10^9$
@@ -343,34 +342,34 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int INF = (1LL << 60);
-        const int M = 1e9 + 7;
-        const int MAXN = 405;
-        int n;
-        int a[MAXN], psum[MAXN];
-
-        signed main() {
-            cin >> n;
-            vector<vector<int>> dp(n + 1, vector<int>(n + 1, INF));
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-                psum[i] =  psum[i - 1] + a[i];
-            }
-            for (int i = 1; i <= n; i++) {
-                dp[i][i] = 0;
-            }
-            for (int len = 2; len <= n; len++) {
-                for (int l = 1; l + len - 1 <= n; l++) { 
-                    int r = l + len - 1;                  
-                    for (int k = l; k < r; k++) {    
-                        dp[l][r] = min({dp[l][r], dp[l][k] + dp[k + 1][r]});
-                    }
-                    dp[l][r] += psum[r] - psum[l - 1];
-                }
-            }
-            cout << dp[1][n];
-        }
+	    #define int long long
+	    using namespace std;
+	
+	    const int INF = (1LL << 60);
+	    const int M = 1e9 + 7;
+	    const int MAXN = 405;
+	    int n;
+	    int a[MAXN], psum[MAXN];
+	
+	    signed main() {
+	        cin >> n;
+	        vector<vector<int>> dp(n + 1, vector<int>(n + 1, INF));
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	            psum[i] =  psum[i - 1] + a[i];
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            dp[i][i] = 0;
+	        }
+	        for (int len = 2; len <= n; len++) {
+	            for (int l = 1; l + len - 1 <= n; l++) { 
+	                int r = l + len - 1;                  
+	                for (int k = l; k < r; k++) {    
+	                    dp[l][r] = min({dp[l][r], dp[l][k] + dp[k + 1][r]});
+	                }
+	                dp[l][r] += psum[r] - psum[l - 1];
+	            }
+	        }
+	        cout << dp[1][n];
+	    }
 		```
