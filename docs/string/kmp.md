@@ -88,107 +88,107 @@ f[i] - 1 一定是 s[1 ~ (i-1)] 的一個共同前後綴長度，但不一定是
 	??? note "code"
 		```cpp linenums="1"
 		#include <algorithm>
-        #include <cstdlib>
-        #include <iostream>
-        #include <string>
-        #include <vector>
-
-        using namespace std;
-
-        const int INF = 1e9;
-
-        vector<int> kmp(string s) {  // 1-based string
-            int n = s.size();
-            vector<int> f(n, -1);
-            for (int i = 1; i < n; i++) {
-                int w = f[i - 1];
-                while (w >= 0 && s[w + 1] != s[i]) {
-                    w = f[w];
-                }
-                f[i] = w + 1;
-            }
-            return f;
-        }
-
-        vector<int> make_pre(int k, string s, string t) {
-            int n = s.size();
-            int m = t.size();
-
-            auto f = kmp("$" + t + "$" + s);              // $aaaa$baabaab
-                                                          //
-            if (*max_element(f.begin(), f.end()) >= m) {  // 不用分兩段就是好的
-
-                cout << "Yes" << '\n';
-                int pos = max_element(f.begin(), f.end()) - f.begin();
-                pos -= m + 1;
-                pos = max(pos, 2 * k);
-                cout << pos - 2 * k + 1 << ' ' << pos - k + 1 << '\n';
-
-                exit(0);
-            }
-
-            vector<int> pre(m + 1, INF);  // pre[i]: t[1:m] 第一次出現位置
-            for (int i = m + 1 + k; i < n + m + 2; i++) {
-                int len = f[i];
-                pre[len] = min(pre[len], i - m - 1);
-            }
-
-            // fail link dp
-            // 長度i 的位置出現的地方，也同時會有長度 f[i] 出現
-            for (int i = m; i >= 1; i--) {
-                int j = f[i];
-                pre[j] = min(pre[j], pre[i]);
-            }
-            return pre;
-        }
-
-        int main() {
-            cin.tie(0);
-            cin.sync_with_stdio(0);
-
-            int n, m, k;
-            string s;
-            string t;
-            cin >> n >> m >> k;
-            cin >> s >> t;
-
-            string rs(s.rbegin(), s.rend());
-            string rt(t.rbegin(), t.rend());
-
-            auto pre = make_pre(k, s, t);  // pre[i]: t[1:i] 首次出現位置，存結尾位置
-            auto suf = make_pre(k, rs, rt);  // suf[i]: t[i:m] 最後出現位置，存開頭位置
-            reverse(suf.begin(), suf.end());
-            for (int i = 0; i <= m; i++) {
-                suf[i] = n + 1 - suf[i];
-            }
-
-            /*
-            cout << s << '\n';
-            cout << t << '\n';
-            for (int i = 0; i <= m; i++) {
-                cout << pre[i] << '\t' << suf[i] << '\n';
-            }
-            */
-
-            bool good = false;
-            for (int i = 0; i <= m; i++) {
-                if (i <= k && m - i <= k && pre[i] < suf[i]) {
-                    cout << "Yes" << '\n';
-                    cout << pre[i] - k + 1 << ' ' << suf[i] << '\n';
-                    /*
-                    cout << s.substr(pre[i] - k, k) << ' ' << s.substr(suf[i] - 1, k)
-                         << '\n';
-                    */
-                    good = true;
-                    break;
-                }
-            }
-            if (good == false) {
-                cout << "No" << '\n';
-            }
-            return 0;
-        }
-        ```
+	    #include <cstdlib>
+	    #include <iostream>
+	    #include <string>
+	    #include <vector>
+	
+	    using namespace std;
+	
+	    const int INF = 1e9;
+	
+	    vector<int> kmp(string s) {  // 1-based string
+	        int n = s.size();
+	        vector<int> f(n, -1);
+	        for (int i = 1; i < n; i++) {
+	            int w = f[i - 1];
+	            while (w >= 0 && s[w + 1] != s[i]) {
+	                w = f[w];
+	            }
+	            f[i] = w + 1;
+	        }
+	        return f;
+	    }
+	
+	    vector<int> make_pre(int k, string s, string t) {
+	        int n = s.size();
+	        int m = t.size();
+	
+	        auto f = kmp("$" + t + "$" + s);              // $aaaa$baabaab
+	                                                      //
+	        if (*max_element(f.begin(), f.end()) >= m) {  // 不用分兩段就是好的
+	
+	            cout << "Yes" << '\n';
+	            int pos = max_element(f.begin(), f.end()) - f.begin();
+	            pos -= m + 1;
+	            pos = max(pos, 2 * k);
+	            cout << pos - 2 * k + 1 << ' ' << pos - k + 1 << '\n';
+	
+	            exit(0);
+	        }
+	
+	        vector<int> pre(m + 1, INF);  // pre[i]: t[1:m] 第一次出現位置
+	        for (int i = m + 1 + k; i < n + m + 2; i++) {
+	            int len = f[i];
+	            pre[len] = min(pre[len], i - m - 1);
+	        }
+	
+	        // fail link dp
+	        // 長度i 的位置出現的地方，也同時會有長度 f[i] 出現
+	        for (int i = m; i >= 1; i--) {
+	            int j = f[i];
+	            pre[j] = min(pre[j], pre[i]);
+	        }
+	        return pre;
+	    }
+	
+	    int main() {
+	        cin.tie(0);
+	        cin.sync_with_stdio(0);
+	
+	        int n, m, k;
+	        string s;
+	        string t;
+	        cin >> n >> m >> k;
+	        cin >> s >> t;
+	
+	        string rs(s.rbegin(), s.rend());
+	        string rt(t.rbegin(), t.rend());
+	
+	        auto pre = make_pre(k, s, t);  // pre[i]: t[1:i] 首次出現位置，存結尾位置
+	        auto suf = make_pre(k, rs, rt);  // suf[i]: t[i:m] 最後出現位置，存開頭位置
+	        reverse(suf.begin(), suf.end());
+	        for (int i = 0; i <= m; i++) {
+	            suf[i] = n + 1 - suf[i];
+	        }
+	
+	        /*
+	        cout << s << '\n';
+	        cout << t << '\n';
+	        for (int i = 0; i <= m; i++) {
+	            cout << pre[i] << '\t' << suf[i] << '\n';
+	        }
+	        */
+	
+	        bool good = false;
+	        for (int i = 0; i <= m; i++) {
+	            if (i <= k && m - i <= k && pre[i] < suf[i]) {
+	                cout << "Yes" << '\n';
+	                cout << pre[i] - k + 1 << ' ' << suf[i] << '\n';
+	                /*
+	                cout << s.substr(pre[i] - k, k) << ' ' << s.substr(suf[i] - 1, k)
+	                     << '\n';
+	                */
+	                good = true;
+	                break;
+	            }
+	        }
+	        if (good == false) {
+	            cout << "No" << '\n';
+	        }
+	        return 0;
+	    }
+	    ```
 
 ### kmp+dp
 
@@ -360,6 +360,84 @@ f[i] - 1 一定是 s[1 ~ (i-1)] 的一個共同前後綴長度，但不一定是
 	    } 
 		```
 
+???+note "[CF 1303 E. Erase Subsequences](https://codeforces.com/contest/1303/problem/E)"
+	給 s, t，至多能從 s 中選出兩個 subsequence，問是否能組成 t
+	
+	$|t| \le |s| \le 400$
+	
+	??? note "思路"
+		我們很明顯可以想出來一步：枚舉 t 在哪裡拆開，然後將 t 轉化為 t1 + t2，再判斷 s 中能不能拆出 t1, t2 就好了。 那麼問題轉化為了 s 中能不能拆出來的問題了。發現可能需要 dp 解。
+		
+		很顯然的狀態是: dp(i, j, k) 表示 s 的前 i 位能不能拆出 t1 的前 j 位和 t2 的前 k 位，因為狀態量過大我們就考慮優化這個狀態，dp(i, j) 表示 s 的前 i 位拆出 t1 的前 j 位，最多再拆出 t2 的前多少位。
+		
+		- 當 s[i + 1] = t1[j + 1] 時，dp(i, j) → dp(i + 1, j + 1)
+
+		- 當 s[i + 1] = t2[dp(i, j) + 1] 時，dp(i, j) + 1 → dp(i + 1, j)
+
+		- 任何情況下，dp(i, j) → dp(i + 1, j)
+
+		複雜度 O(n) * O(n ^ 2) = O(n ^ 3)
+
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        using namespace std;
+
+        const int MAXN = 805;
+        int dp[MAXN][MAXN];
+
+        bool check(string s, string t1, string t2) {
+            memset(dp, -1, sizeof(dp));
+            dp[0][0] = 0;
+            s = "$" + s;
+            t1 = "$" + t1;
+            t2 = "$" + t2;
+            for (int i = 0; i < s.size(); i++) {
+                for (int j = 0; j < t1.size(); j++) {
+                    if (dp[i][j] == -1) continue;
+                    dp[i + 1][j] = max(dp[i + 1][j], dp[i][j]);
+                    if (s[i + 1] == t1[j + 1]) dp[i + 1][j + 1] = max(dp[i + 1][j + 1], dp[i][j]);
+                    if (s[i + 1] == t2[dp[i][j] + 1]) dp[i + 1][j] = max(dp[i + 1][j], dp[i][j] + 1);
+                }
+            }
+            if (dp[s.size() - 1][t1.size() - 1] == t2.size() - 1) {
+                return true;
+            }
+            return false;
+        }
+
+        bool solve(string s, string t) {
+            for (int i = 0; i <= t.size(); i++) {
+                string t1, t2;
+                for (int j = 0; j < i; j++) {
+                    t1 = t1 + t[j];
+                }
+                for (int j = i; j < t.size(); j++) {
+                    t2 = t2 + t[j];
+                }
+                if (check(s, t1, t2)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        int main() {
+            int n;
+            cin >> n;
+            while (n--) {
+                string s, t;
+                cin >> s >> t;
+                if (solve(s, t)) {
+                    printf("YES\n");
+                } else {
+                    printf("NO\n");
+                }
+            }
+            return 0;
+        }
+        ```
+		
 ---
 
 ## 資料

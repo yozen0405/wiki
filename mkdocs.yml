@@ -142,7 +142,6 @@ nav:
         - 比賽晉級路線圖: 'cp/contest/path.md'
     - 基礎算法:
       - Brute Force: 
-        - 時間複雜度: 'basic/brute_force/time_complexity.md'
         - 折半枚舉: 'basic/brute_force/meet_in_middle.md'
         - 雙向 BFS: 'basic/brute_force/bidirectional_bfs.md'
       - 貪心:
@@ -155,7 +154,6 @@ nav:
       - Sorting: 'basic/sorting_algorithms.md'
     - 搜索算法:
       - 二分搜: 'search/binary_search.md'
-      - 三分搜: 'search/tenary_search.md'
       - 雙指針: 'search/two_pointer.md'
     - 資料結構:
       - 概述: 'ds/index.md'
@@ -244,7 +242,6 @@ nav:
       - Hash: 'string/hashing.md'
       - Trie: 'string/trie.md'
       - KMP: 'string/kmp.md'
-      - Z-value: 'string/z_value.md'
     - 各種題型:
       - 構造題: 'problem/construct.md'
       - 互動題: 'problem/interactive.md'

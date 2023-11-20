@@ -299,7 +299,7 @@
 		- dp(l+1, r-1) + 2 if s[l] == s[r]
 	
 		- max(dp(l+1, r), dp(l, r-1)) else
-
+	
 	??? note "code"
 		```cpp linenums="1"
 		class Solution {
@@ -373,3 +373,100 @@
 	        cout << dp[1][n];
 	    }
 		```
+
+???+note "[JOI 2020 集邮比赛 3](https://loj.ac/p/3254)"
+	有一個周長為 $m$ 的園，有 $n$ 張郵票，第 $i$ 個張在 $a_i$，在 $t_i$ 內收集該郵票才算數。從起點開始，走順時針或逆時針最多可以收集到幾張郵票
+	
+	$1\le n\le 100, 2\le m \le 10^9, 0\le t_i\le 10^9$
+	
+	??? note "思路"
+		n = 200，想到區間 dp，令 dp(l, r, k, 0 / 1) 為目前考慮的範圍為逆時針 l 個與順時針 r 個，當前在這個範圍內已經取得 k 張郵票，最後停在左端點/右端點的最小時間
+		
+		轉移的話我們考慮從 dp(l, r, k, 0) 往後轉移，我們先說往 l 延伸一個到 l + 1 的 case:
+		
+		<center>
+		dp(l + 1, r, i + ok, 0) = min{dp(l, r, k, 0) + time(l, l + 1)}
+		</center>
+		
+		其中 time(l, l + 1) = a[n - l + 1] - a[n - l]，ok = dp(l, r, k, 0) + time(l, l + 1) <= t[n - l]
+		
+		而若往 r 延伸一格到 r + 1 的話則是:
+		
+		<center>
+		dp(l, r + 1, i + ok, 0) = min{dp(l, r, k, 0) + time(r, r + 1)}
+		</center>
+		
+		其中 time(l, r + 1) = m - (a[n - l + 1] - a[r + 1])，ok = dp(l, r, k, 0) + time(r, r + 1) <= t[r + 1]
+		
+		<figure markdown>
+          ![Image title](./images/39.png){ width="300" }
+        </figure>
+        
+        在實作上我們建立 a[0] = 0, a[n + 1] = m，讓我們有逆時針與順時針的起點
+        
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        inline int& min_to(int& a, int b) {
+            return a = min(a, b);
+        }
+
+        const int MAXN = 205;
+        int t[MAXN];
+        int a[MAXN];
+        int dp[MAXN][MAXN][MAXN][2];
+
+        signed main() {
+            int n, m;
+            scanf("%d%d", &n, &m);
+            for (int i = 1; i <= n; i++) scanf("%d", a + i);
+            for (int i = 1; i <= n; i++) scanf("%d", t + i);
+            memset(dp, 0x3f, sizeof(dp));
+            dp[0][0][0][0] = dp[0][0][0][1] = 0;
+            a[n + 1] = m;
+            for (int len = 0; len < n; len++) {
+                for (int l = 0; l <= n; l++) {
+                    int r = len - l;
+                    for (int k = 0; k <= n; k++) {
+                        if (dp[l][r][k][0] != 0x3f3f3f3f) {
+                            int tNow = dp[l][r][k][0];
+                            int time0 = tNow + a[n - l + 1] - a[n - l];
+                            int time1 = tNow + m - (a[n - l + 1] - a[r + 1]);
+                            bool canGet0 = time0 <= t[n - l];
+                            bool canGet1 = time1 <= t[r + 1];
+                            min_to(dp[l + 1][r][k + canGet0][0], time0);
+                            min_to(dp[l][r + 1][k + canGet1][1], time1);
+                        }
+                        if (dp[l][r][k][1] != 0x3f3f3f3f) {
+                            int tNow = dp[l][r][k][1];
+                            int time1 = tNow + a[r + 1] - a[r];
+                            int time0 = tNow + m - (a[n - l] - a[r]);
+                            bool canGet0 = time0 <= t[n - l];
+                            bool canGet1 = time1 <= t[r + 1];
+                            min_to(dp[l + 1][r][k + canGet0][0], time0);
+                            min_to(dp[l][r + 1][k + canGet1][1], time1);
+                        }
+                    }
+                }
+            }
+            int ans = 0;
+            for (int l = 0; l <= n; l++) {
+                for (int r = 0; r <= n; r++) {
+                    for (int i = 0; i <= n; i++) {
+                        if (dp[l][r][i][0] != 0x3f3f3f3f || dp[l][r][i][1] != 0x3f3f3f3f) {
+                            ans = max(ans, i);
+                        }
+                    }
+                }
+            }
+
+            printf("%d\n", ans);
+        }
+    	```
+    	
+???+note "[洛谷 P1220 关路灯](https://www.luogu.com.cn/problem/P1220)"
+	
