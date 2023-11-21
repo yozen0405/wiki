@@ -7,7 +7,9 @@
 基本的設計思路是：每次選擇直觀上最接近全局最優解的貪心策略，若發現最優解不對，就想辦法**自動**支持反悔策略。 （這就是自動機的意思）
 
 具體題目具體分析。一般需要反悔自動機的題都是通過差值巧妙達到反悔的目的。
+
 #### CF865D Buy Low Sell High
+
 ???+note "[CF865D Buy Low Sell High](https://codeforces.com/problemset/problem/865/D)"
     已知接下來 $N$ 天的股票價格，每天你可以做其中一件事
     
@@ -548,16 +550,16 @@
             long long collect_dust(int e, int k) {
                 priority_queue<pair<int, int>> pq;  // 維護 (目前蒐集得到的灰塵量, 教室id)
                 long long result = 0;
-
+    
                 for (int i = 1; i <= e; i++) {
                     pq.emplace(s[i], i);
                 }
                 for (int t = 1; t <= k; t++) {
                     if (pq.empty()) break;  // 所有 >= 0 的灰塵都被掃完了
-
+    
                     auto [dust, classroom] = pq.top();
                     pq.pop();
-
+    
                     result += dust;
                     if (dust - d[classroom] > 0) {  // 下一次掃除的灰塵量 > 0 的話
                         pq.emplace(dust - d[classroom], classroom);
@@ -725,6 +727,73 @@
 		
 		> 更詳細可參考 : [twpca editorial](https://github.com/twpca/nhspc-2020/blob/main/editorial/editorial.md#d---%E6%B0%B4%E6%9E%9C%E5%8C%85%E8%A3%9D) [twpca code](https://github.com/twpca/nhspc-2020/blob/main/solution/tester2/fruit.cpp)
 
+???+note "[CF 1821 D. Black Cells](https://codeforces.com/problemset/problem/1821/D)"
+	有一個數線，給 n 個不相交的 interval，代表只能在這些 interval 內的點塗色，目標是將 k 個點塗色。每次可做以下操作:
+	
+	- 往右移一格
+
+	- 將 shift 按住（在一個點上若 shift 被按住即塗色）
+
+	- 將 shift 鬆開
+
+	問最少幾次操作可至少將 k 個點塗色
+	
+	$n\le 2\times 10^5, 1\le k\le 10^9, 1\le l_i, r_i\le 10^9$
+	
+	??? note "思路"
+		考慮觀察性質可知答案只和**右端點大小**以及**所選的區間數量**有關。甚至可以直接寫出計算式:
+		
+		ans = 覆蓋的區間數量 * 2 + end
+		
+		其中 end = 最後塗色的點，例如說 interval 有 [1, 1], [3, 5] 而 k = 3，那我們只需要塗 [1, 1], [3, 4] 就好，end = 4。但我們不確定要覆蓋哪些區間，我們可以使用反悔貪心，枚舉當 end 的 interval，將 interval 用長度加入至 min heap 內，若當前 heap 內的被 interval 覆蓋到的點數量 >= k 則 pop 最小長度的 interval，並順便計算當前的答案，跟真正的答案取 min
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        const int N = 2e5 + 5;
+        int l[N], r[N], n, k;
+
+        void solve() {
+            priority_queue<int, vector<int>, greater<int>> q;
+            cin >> n >> k;
+            for (int i = 1; i <= n; i++) {
+                cin >> l[i];
+            }
+            for (int i = 1; i <= n; i++) {
+                cin >> r[i];
+            }
+            int num = 0, sum = 0, ans = INT_MAX;
+            for (int i = 1; i <= n; i++) {
+                q.push(r[i] - l[i] + 1);
+                num++;
+                sum += r[i] - l[i] + 1;
+                while (q.size() && sum >= k) {
+                    ans = min(ans, r[i] - (sum - k) + num * 2);
+                    sum -= q.top();
+                    q.pop();
+                    num--;
+                }
+            }
+            if (ans == INT_MAX) {
+                cout << "-1\n";
+                return;
+            } else {
+                cout << ans << '\n';
+            }
+        }
+
+        signed main() {
+            int t; 
+            cin >> t;
+            while (t--) {
+                solve();
+            }
+        }
+		```
+	
 ## 練習
 - [CSES Room Allocation](https://cses.fi/problemset/task/1164)
 	- max band width + 維護

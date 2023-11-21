@@ -18,7 +18,7 @@
 		
 		可以先預處理 G(i, j) 代表 i 是否能與 j 連邊，在轉移時維護一個 ans(l, r) 代表 [l, r] 是否能組出一顆合法的 BST，最後輸出 ans(1, n) 即可
 
-???+note "[全國賽模擬賽 pF. 鬧鐘設置 (F_Alarm_Clock)](https://drive.google.com/file/d/1KAaPOYdzBuoC0hXdFwS5W0ZEItY61ktk/view)"
+???+note "[2021 全國賽模擬賽 pF. 鬧鐘設置 (F_Alarm_Clock)](https://drive.google.com/file/d/1KAaPOYdzBuoC0hXdFwS5W0ZEItY61ktk/view)"
 	給一個長度 $n$ 的陣列 $a_1, \ldots ,a_n$，你可以在每個位置 $k+1\le i\le n - k$ 都設置任意個鬧鐘，並決定每個鬧鐘什麼時候要響，每個鬧鐘的影響範圍是 $[i-k, i+k]$，某一個位置 $j$ 的起床時間是影響到他的所有鬧鐘中，最早響的時間，而這個時間必須 $\le a_j$。求最大的起床時間總和。
 	
 	$1\le n\le 500 , 2k+1\le n, 1\le a_i\le 10^6$
@@ -399,74 +399,119 @@
 		其中 time(l, r + 1) = m - (a[n - l + 1] - a[r + 1])，ok = dp(l, r, k, 0) + time(r, r + 1) <= t[r + 1]
 		
 		<figure markdown>
-          ![Image title](./images/39.png){ width="300" }
-        </figure>
-        
-        在實作上我們建立 a[0] = 0, a[n + 1] = m，讓我們有逆時針與順時針的起點
-        
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        #define int long long
+	      ![Image title](./images/39.png){ width="300" }
+	    </figure>
+	    
+	    在實作上我們建立 a[0] = 0, a[n + 1] = m，讓我們有逆時針與順時針的起點
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	
+	    using namespace std;
+	
+	    inline int& min_to(int& a, int b) {
+	        return a = min(a, b);
+	    }
+	
+	    const int MAXN = 205;
+	    int t[MAXN];
+	    int a[MAXN];
+	    int dp[MAXN][MAXN][MAXN][2];
+	
+	    signed main() {
+	        int n, m;
+	        scanf("%d%d", &n, &m);
+	        for (int i = 1; i <= n; i++) scanf("%d", a + i);
+	        for (int i = 1; i <= n; i++) scanf("%d", t + i);
+	        memset(dp, 0x3f, sizeof(dp));
+	        dp[0][0][0][0] = dp[0][0][0][1] = 0;
+	        a[n + 1] = m;
+	        for (int len = 0; len < n; len++) {
+	            for (int l = 0; l <= n; l++) {
+	                int r = len - l;
+	                for (int k = 0; k <= n; k++) {
+	                    if (dp[l][r][k][0] != 0x3f3f3f3f) {
+	                        int tNow = dp[l][r][k][0];
+	                        int time0 = tNow + a[n - l + 1] - a[n - l];
+	                        int time1 = tNow + m - (a[n - l + 1] - a[r + 1]);
+	                        bool canGet0 = time0 <= t[n - l];
+	                        bool canGet1 = time1 <= t[r + 1];
+	                        min_to(dp[l + 1][r][k + canGet0][0], time0);
+	                        min_to(dp[l][r + 1][k + canGet1][1], time1);
+	                    }
+	                    if (dp[l][r][k][1] != 0x3f3f3f3f) {
+	                        int tNow = dp[l][r][k][1];
+	                        int time1 = tNow + a[r + 1] - a[r];
+	                        int time0 = tNow + m - (a[n - l] - a[r]);
+	                        bool canGet0 = time0 <= t[n - l];
+	                        bool canGet1 = time1 <= t[r + 1];
+	                        min_to(dp[l + 1][r][k + canGet0][0], time0);
+	                        min_to(dp[l][r + 1][k + canGet1][1], time1);
+	                    }
+	                }
+	            }
+	        }
+	        int ans = 0;
+	        for (int l = 0; l <= n; l++) {
+	            for (int r = 0; r <= n; r++) {
+	                for (int i = 0; i <= n; i++) {
+	                    if (dp[l][r][i][0] != 0x3f3f3f3f || dp[l][r][i][1] != 0x3f3f3f3f) {
+	                        ans = max(ans, i);
+	                    }
+	                }
+	            }
+	        }
+	
+	        printf("%d\n", ans);
+	    }
+		```
 
+???+note "[洛谷 P1220 关路灯](https://www.luogu.com.cn/problem/P1220)"
+	有 n 個路燈，第 i 個路燈在 a[i]，功率為 w[i]，一開始在第 i 個燈，每走一單位需要花一秒，問最少耗多少電力可以關完全部的燈
+	
+	$n\le 50, 1\le w_i \le 100$
+	
+	??? note "思路"
+		令 dp(l, r, 0 / 1) = 關完 l, ..., r 的燈，最後在 a[l] / a[r] 上的最小**全局**耗電量
+		
+		轉移的話就看能不能往左，往右擴展，cost 就是在 [l, r] 外的功率總和乘上轉移要走的時間，詳見代碼
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
         using namespace std;
 
-        inline int& min_to(int& a, int b) {
-            return a = min(a, b);
-        }
+        const int N = 55;
+        int n, c;
+        int a[N], w[N], pre[N];
+        int dp[N][N][2];
 
-        const int MAXN = 205;
-        int t[MAXN];
-        int a[MAXN];
-        int dp[MAXN][MAXN][MAXN][2];
+        int cal(int i, int j, int l, int r) {
+            return (a[j] - a[i]) * (pre[l] + pre[n] - pre[r - 1]);
+        }
 
         signed main() {
-            int n, m;
-            scanf("%d%d", &n, &m);
-            for (int i = 1; i <= n; i++) scanf("%d", a + i);
-            for (int i = 1; i <= n; i++) scanf("%d", t + i);
+            cin >> n >> c;
+            memset(pre, 0, sizeof(pre));
             memset(dp, 0x3f, sizeof(dp));
-            dp[0][0][0][0] = dp[0][0][0][1] = 0;
-            a[n + 1] = m;
-            for (int len = 0; len < n; len++) {
-                for (int l = 0; l <= n; l++) {
-                    int r = len - l;
-                    for (int k = 0; k <= n; k++) {
-                        if (dp[l][r][k][0] != 0x3f3f3f3f) {
-                            int tNow = dp[l][r][k][0];
-                            int time0 = tNow + a[n - l + 1] - a[n - l];
-                            int time1 = tNow + m - (a[n - l + 1] - a[r + 1]);
-                            bool canGet0 = time0 <= t[n - l];
-                            bool canGet1 = time1 <= t[r + 1];
-                            min_to(dp[l + 1][r][k + canGet0][0], time0);
-                            min_to(dp[l][r + 1][k + canGet1][1], time1);
-                        }
-                        if (dp[l][r][k][1] != 0x3f3f3f3f) {
-                            int tNow = dp[l][r][k][1];
-                            int time1 = tNow + a[r + 1] - a[r];
-                            int time0 = tNow + m - (a[n - l] - a[r]);
-                            bool canGet0 = time0 <= t[n - l];
-                            bool canGet1 = time1 <= t[r + 1];
-                            min_to(dp[l + 1][r][k + canGet0][0], time0);
-                            min_to(dp[l][r + 1][k + canGet1][1], time1);
-                        }
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i] >> w[i];
+                pre[i] = pre[i - 1] + w[i];
+            }
+            dp[c][c][1] = dp[c][c][0] = 0;
+            for (int len = 2; len <= n; len++) {
+                for (int l = 1; l <= n; l++) {
+                    int r = l + len - 1;
+                    if (r > n) {
+                        break;
                     }
+                    dp[l][r][0] = min(dp[l + 1][r][0] + cal(l, l + 1, l, r + 1), dp[l + 1][r][1] + cal(l, r, l, r + 1));
+                    dp[l][r][1] = min(dp[l][r - 1][0] + cal(l, r, l - 1, r), dp[l][r - 1][1] + cal(r - 1, r, l - 1, r));
                 }
             }
-            int ans = 0;
-            for (int l = 0; l <= n; l++) {
-                for (int r = 0; r <= n; r++) {
-                    for (int i = 0; i <= n; i++) {
-                        if (dp[l][r][i][0] != 0x3f3f3f3f || dp[l][r][i][1] != 0x3f3f3f3f) {
-                            ans = max(ans, i);
-                        }
-                    }
-                }
-            }
-
-            printf("%d\n", ans);
+            cout << min(dp[1][n][0], dp[1][n][1]) << '\n';
         }
-    	```
-    	
-???+note "[洛谷 P1220 关路灯](https://www.luogu.com.cn/problem/P1220)"
-	
+        ```

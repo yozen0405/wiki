@@ -749,7 +749,108 @@ $$
 
 ### bitset 
 
+## 補充: 退背包
 
+???+note "[CF 1442 D. sum](https://codeforces.com/contest/1442/problem/D)"
+	給定 $n$ 個單調不降的序列，可以從這些序列的最左端依次往右取，問取 $k$ 個數的最大值
+	
+	$n,k\le 3000, 0\le a_{i,j}\le 10^8, \sum |a_i| \le 10^6$
+	
+	??? note "思路"
+		有一個序列的取部分元素，其他序列要馬全取，要馬全不取。因為若部分取兩個序列，一定可以專注取其中一個一定會更好。所以問題就轉換成 01 背包了，我們可以去枚舉取一部分的，剩下做 01 背包，但這樣會 TLE。考慮分治，當遞迴到每個 leaf 就是不包含該項的 01 背包，複雜度 $O(nk \log n)$。 
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define mk make_pair
+	    #define pb push_back
+	    using namespace std;
+	
+	    const int maxn = 3e3 + 5;
+	    const long long mod = 1e9 + 7;
+	    int n, K, ans;
+	    int a[maxn][maxn];
+	    int t[maxn];
+	    int tot[maxn];
+	    int dp[maxn];
+	
+	    void solve (int l, int r) {
+	        if (l > r) return;
+	        if (l == r) {
+	            int cur = 0;
+	            for (int i = 0; i <= t[l]; i++) {
+	                cur += a[l][i];
+	                ans = max(dp[K - i] + cur, ans);
+	            }
+	            return;
+	        }
+	        int mid = (l + r) >> 1;
+	        vector<int> tmp(K + 1);
+	        for (int i = 1; i <= K; i++) {
+	            tmp[i] = dp[i];
+	        } 
+	        for (int i = mid + 1; i <= r; i++) {
+	            for (int j = K; j >= t[i]; j--) {
+	                dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
+	            }
+	        }
+	        solve (l, mid);
+	        for (int i = 1; i <= K; i++) dp[i] = tmp[i];
+	        for (int i = l; i <= mid; i++) {
+	            for (int j = K; j >= t[i]; j--) {
+	                dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
+	            }
+	        }
+	        solve (mid + 1, r);
+	    }
+	
+	    signed main () {
+	       ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> n >> K;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> t[i];
+	            int x;
+	            for (int j = 1; j <= t[i]; j++) {
+	                if(j <= K) cin >> a[i][j];
+	                else cin >> x;
+	                if (j <= K) tot[i] += a[i][j];
+	            }
+	            if (t[i] > K) t[i] = K;
+	        }
+	        solve (1, n);
+	        cout << ans;
+	    }
+	    ```
+
+???+note "[洛谷 P4141 消失之物](https://www.luogu.com.cn/problem/P4141)"
+    有 $n$ 個物品，體積分別是 $w_1,w_2,\dots,w_n$。第 $i$ 個物品丟失了。
+
+    「要使用剩下的 $n-1$ 物品裝滿容積為 $x$ 的背包，有幾種方法呢 ?」
+    
+    把答案記為 $\text{cnt}(i,x)$ ，輸出所有 $i \in [1,n]$, $x \in [1,m]$ 的$\text{cnt}(i, x)$。
+    
+    $n,m\le 2\times 10^3$
+    
+    ??? note "思路"
+    	設 f[i][j] 為只用前 i 件物品，不考慮刪除任何物品時，恰好裝滿容量為 j 的方法數，設 g[i][j] 為不考慮物品 i 的貢獻恰好裝滿容量為 j 的方法數。我們列出轉移式 :
+    	
+    	g[i][j] = f[n][j] - g[i][j - w[i]]
+    	
+    	此時的 g[i][j - w[i]] 恰好刪除了物品 i 的貢獻
+    	
+    	參考自 : <https://blog.csdn.net/qq_50332374/article/details/124864380>
+
+???+note "[Atcoder abc321 F - #(subset sum = K) with Add and Erase](https://atcoder.jp/contests/abc321/tasks/abc321_f)"
+	有 q 筆操作，第 i 次會新增一個物品或移除一個物品，體積為 w[i]，並回答:
+	
+	「用目前所剩的物品裝滿容量為 x 的背包，有幾種方法呢 ?」
+	
+	$1\le q, x, w_i \le 5000$
+	
+	??? note "思路"
 
 ## 題目
 
@@ -889,5 +990,7 @@ $$
 - <https://blog.csdn.net/windfriendc/article/details/123892024>
 
 - <https://hackmd.io/-EB3-tLaSbOcNb9yn1XCyg>
+
+- <https://koyingtw.github.io/2023/10/03/%E5%B8%B6%E5%88%AA%E9%99%A4%E8%83%8C%E5%8C%85%E5%95%8F%E9%A1%8C/>
 
 [^1]: 上述的方法是直接判斷，<a href="/wiki/dp/images/有限背包 - 單調隊列優化.html" target="_blank">此處</a>有對於網路上另一種方法的解釋

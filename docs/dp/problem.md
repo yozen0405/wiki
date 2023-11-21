@@ -10,7 +10,7 @@
 		
 		f(i, k) : 0~i 要讓 a[i]|k 或 k|a[i] 最少要填的 character 數量
 		
-		f(i, k) = min{dp(i, x) + size(x) - 1} 其中 x|k or k|x 且 dp(i, x) 有解
+		f(i, k) = min{dp(i, x)} 其中 x|k or k|x 且 dp(i, x) 有解
 		
 		dp(i + 1, k) = 
 		
@@ -623,188 +623,118 @@
 	    }
 	    ```
 
-???+note "[CF 1442 D. sum](https://codeforces.com/contest/1442/problem/D)"
-	給定 $n$ 個單調不降的序列，可以從這些序列的最左端依次往右取，問取 $k$ 個數的最大值
-	
-	$n,k\le 3000, 0\le a_{i,j}\le 10^8, \sum |a_i| \le 10^6$
-	
-	??? note "思路"
-		有一個序列的取部分元素，其他序列要馬全取，要馬全不取。因為若部分取兩個序列，一定可以專注取其中一個一定會更好。所以問題就轉換成 01 背包了，我們可以去枚舉取一部分的，剩下做 01 背包，但這樣會 TLE。考慮分治，當遞迴到每個 leaf 就是不包含該項的 01 背包，複雜度 $O(nk \log n)$。 
-		
-	??? note "code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define mk make_pair
-	    #define pb push_back
-	    using namespace std;
-	
-	    const int maxn = 3e3 + 5;
-	    const long long mod = 1e9 + 7;
-	    int n, K, ans;
-	    int a[maxn][maxn];
-	    int t[maxn];
-	    int tot[maxn];
-	    int dp[maxn];
-	
-	    void solve (int l, int r) {
-	        if (l > r) return;
-	        if (l == r) {
-	            int cur = 0;
-	            for (int i = 0; i <= t[l]; i++) {
-	                cur += a[l][i];
-	                ans = max(dp[K - i] + cur, ans);
-	            }
-	            return;
-	        }
-	        int mid = (l + r) >> 1;
-	        vector<int> tmp(K + 1);
-	        for (int i = 1; i <= K; i++) {
-	            tmp[i] = dp[i];
-	        } 
-	        for (int i = mid + 1; i <= r; i++) {
-	            for (int j = K; j >= t[i]; j--) {
-	                dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
-	            }
-	        }
-	        solve (l, mid);
-	        for (int i = 1; i <= K; i++) dp[i] = tmp[i];
-	        for (int i = l; i <= mid; i++) {
-	            for (int j = K; j >= t[i]; j--) {
-	                dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
-	            }
-	        }
-	        solve (mid + 1, r);
-	    }
-	
-	    signed main () {
-	       ios::sync_with_stdio(0);
-	        cin.tie(0);
-	        cin >> n >> K;
-	        for (int i = 1; i <= n; i++) {
-	            cin >> t[i];
-	            int x;
-	            for (int j = 1; j <= t[i]; j++) {
-	                if(j <= K) cin >> a[i][j];
-	                else cin >> x;
-	                if (j <= K) tot[i] += a[i][j];
-	            }
-	            if (t[i] > K) t[i] = K;
-	        }
-	        solve (1, n);
-	        cout << ans;
-	    }
-	    ```
-
 ???+note "[CF 1483 C. Skyline Photo](https://codeforces.com/problemset/problem/1483/C)"
 	給 $n$ 個建築，每個建築有高度 $a_i$ 和美麗值 $b_i$。劃分成若干個連續段，使得所有區間的貢獻之和最大。其中每個區間的貢獻值為，區間中高度最低的建築物的美麗值。輸出最大貢獻和。
 	
 	$n\le 3\times 10^5, 0\le |b_i| \le 10^9$
 	
 	??? note "思路"
-		$$dp(i)=\max \{dp_j + \text{cost}(j + 1, i) \}$$
+		$$dp(i)=\max \{dp(j) + \text{cost}(j + 1, i) \}$$
 		
-		我們想辦法利用線段樹來快速查詢最大值，但瓶頸在於後面的 cost 沒辦法很快地計算。不過可以觀察到實際上在 cost 貢獻的那一項可以用一個單調隊列（遞增）維護，複雜度 $O(n \log n)$
+		我們想辦法利用線段樹來快速查詢最大值，但瓶頸在於後面的 cost 沒辦法很快地計算。不過可以觀察到實際上在 cost(l, r) 就是 l, ..., r 裡面 a[i] 最小的那一項，若故固定 r，則 l = 1...r 會發現貢獻 cost(l, r) 的 a[i] 只會單調遞增（下圖就是一個例子），所以我們可以用一個單調隊列維護，複雜度 $O(n \log n)$
+		
+		<figure markdown>
+          ![Image title](./images/32.png){ width="400" }
+        </figure>
 		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pb push_back
-	    #define mk make_pair
-	    #define pii pair<int, int>
-	    using namespace std;
-	
-	    const int INF = 9e18;
-	    const int maxn = 3e5 + 5;
-	    int a[maxn], w[maxn], stk[maxn], dp[maxn];
-	    int n;
-	
-	    struct seg {
-	        int mx, tag;
-	        seg *lch, *rch;
-	        seg () {
-	            tag = 0;
-	            mx = 0;
-	            lch = rch = nullptr;
-	        }
-	        void push () {
-	            if (tag) {
-	                lch -> mx += tag;
-	                rch -> mx += tag;
-	                lch -> tag = tag;
-	                rch -> tag = tag;
-	                tag = 0;
-	            }
-	        }
-	        void modify (int l, int r, int mL, int mR, int val) {
-	            if (mL <= l && r <= mR) {
-	                mx += val, tag += val;
-	                return;
-	            }
-	            int mid = (l + r) >> 1;
-	            if (!lch) lch = new seg();
-	            if (!rch) rch = new seg();
-	            push();
-	            if (mL <= mid) {
-	                lch -> modify(l, mid, mL, mR, val);
-	            } 
-	            if (mid + 1 <= mR) {
-	                rch -> modify(mid + 1, r, mL, mR, val);
-	            } 
-	            mx = max(lch -> mx, rch -> mx);
-	        }
-	        int query (int l, int r, int qL, int qR) {
-	            if (qL <= l && r <= qR) {
-	                return mx;
-	            }
-	            int mid = (l + r) >> 1;
-	            if (!lch) lch = new seg();
-	            if (!rch) rch = new seg();
-	            push();
-	            int ret = -INF;
-	            if (qL <= mid) {
-	                ret = max(ret, lch -> query(l, mid, qL, qR));
-	            } 
-	            if (mid + 1 <= qR) {
-	                ret = max(ret, rch -> query(mid + 1, r, qL, qR));
-	            } 
-	            return ret;
-	        }
-	    };
-	
-	    void init () {
-	        cin >> n;
-	        for (int i = 1; i <= n; i++) {
-	            cin >> a[i];
-	        }
-	        for (int i = 1; i <= n; i++) {
-	            cin >> w[i];
-	        }
-	    }
-	
-	    void solve () {
-	        seg *rt = new seg();
-	        a[0] = -INF;
-	        int top = 1;
-	        for (int i = 1; i <= n; i++) {
-	            while (top && a[stk[top - 1]] >= a[i]) {
-	                rt -> modify(0, n, stk[top - 2], stk[top - 1] - 1, -w[stk[top - 1]]);
-	                top--;
-	            }
-	            rt -> modify(0, n, stk[top - 1], i - 1, w[i]);
-	            dp[i] = rt -> query(0, n, 0, i - 1);
-	            rt -> modify(0, n, i, i, dp[i]);
-	            stk[top++] = i;
-	        }
-	        cout << dp[n] << "\n";
-	    }
-	
-	    signed main () {
-	        init();
-	        solve();
-	    }
+        #define int long long
+        #define pb push_back
+        #define mk make_pair
+        #define pii pair<int, int>
+        using namespace std;
+
+        const int INF = 9e18;
+        const int maxn = 3e5 + 5;
+        int a[maxn], w[maxn], stk[maxn], dp[maxn];
+        int n;
+
+        struct seg {
+            int mx, tag;
+            seg *lch, *rch;
+            seg() {
+                tag = 0;
+                mx = 0;
+                lch = rch = nullptr;
+            }
+            void push() {
+                if (tag) {
+                    lch->mx += tag;
+                    rch->mx += tag;
+                    lch->tag = tag;
+                    rch->tag = tag;
+                    tag = 0;
+                }
+            }
+            void modify(int l, int r, int mL, int mR, int val) {
+                if (mL <= l && r <= mR) {
+                    mx += val, tag += val;
+                    return;
+                }
+                int mid = (l + r) >> 1;
+                if (!lch) lch = new seg();
+                if (!rch) rch = new seg();
+                push();
+                if (mL <= mid) {
+                    lch->modify(l, mid, mL, mR, val);
+                }
+                if (mid + 1 <= mR) {
+                    rch->modify(mid + 1, r, mL, mR, val);
+                }
+                mx = max(lch->mx, rch->mx);
+            }
+            int query(int l, int r, int qL, int qR) {
+                if (qL <= l && r <= qR) {
+                    return mx;
+                }
+                int mid = (l + r) >> 1;
+                if (!lch) lch = new seg();
+                if (!rch) rch = new seg();
+                push();
+                int ret = -INF;
+                if (qL <= mid) {
+                    ret = max(ret, lch->query(l, mid, qL, qR));
+                }
+                if (mid + 1 <= qR) {
+                    ret = max(ret, rch->query(mid + 1, r, qL, qR));
+                }
+                return ret;
+            }
+        };
+
+        void init() {
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+            }
+            for (int i = 1; i <= n; i++) {
+                cin >> w[i];
+            }
+        }
+
+        void solve() {
+            seg *rt = new seg();
+            a[0] = -INF;
+            int top = 1;
+            for (int i = 1; i <= n; i++) {
+                while (top && a[stk[top - 1]] >= a[i]) {
+                    rt->modify(0, n, stk[top - 2], stk[top - 1] - 1, -w[stk[top - 1]]);
+                    top--;
+                }
+                rt->modify(0, n, stk[top - 1], i - 1, w[i]);
+                dp[i] = rt->query(0, n, 0, i - 1);
+                rt->modify(0, n, i, i, dp[i]);
+                stk[top++] = i;
+            }
+            cout << dp[n] << "\n";
+        }
+
+        signed main() {
+            init();
+            solve();
+        }
 	    ```
 
 ???+note "[2019 全國賽 pG. 隔離採礦](https://judge.tcirc.tw/ShowProblem?problemid=d088)"	
@@ -818,11 +748,11 @@
 		可以發現能轉移的 $j$ 會長這樣 :
 		
 		<figure markdown>
-	      ![Image title](./images/1.png){ width="300" }
+	      ![Image title](./images/23.png){ width="300" }
 	      <figcaption>綠色有辦法轉移，紅色沒辦法</figcaption>
 	    </figure>
 	    
-	    所以我們可以用單調 stack 維護無法轉移的 $j$。但不能直接取 stack.top，因為可能會發生 $h_i=h_j$ 的情況，所以我們必須在 stack 內二分出比 $h_i$ 大且最靠近 $i$ 的 $j$，用 BIT 去 query_max$(1, j)$ 來轉移即可
+	    所以我們可以用單調 stack 維護無法轉移的 $j$，利用 BIT 儲存能「合法」轉移的 $j$ 的 dp 值。我們必須在 stack 內二分出比 $h_i$ 大且最靠近 $i$ 的 $j$，用 BIT 去 query_max$(1, j)$ 來轉移即可
 	    
 	??? note "code"
 		```cpp linenums="1"
@@ -896,23 +826,6 @@
 	    }
 		```
 
-???+note "[洛谷 P4141 消失之物](https://www.luogu.com.cn/problem/P4141)"
-    有 $n$ 個物品，體積分別是 $w_1,w_2,\dots,w_n$。第 $i$ 個物品丟失了。
-
-    「要使用剩下的 $n-1$ 物品裝滿容積為 $x$ 的背包，有幾種方法呢 ?」
-    
-    把答案記為$\text{cnt}(i,x)$ ，輸出所有 $i \in [1,n]$, $x \in [1,m]$ 的$\text{cnt}(i, x)$。
-    
-    $n,m\le 2\times 10^3$
-    
-    ??? note "思路"
-    	設 f[i][j] 為只用前 i 件物品，不考慮刪除任何物品時，恰好裝滿容量為 j 的方法數，設 g[i][j] 為不考慮物品 i 的貢獻恰好裝滿容量為 j 的方法數。我們列出轉移式 :
-    	
-    	g[i][j] = f[n][j] - g[i][j - w[i]]
-    	
-    	此時的 g[i][j - w[i]] 恰好刪除了物品 i 的貢獻
-    	
-    	參考自 : <https://blog.csdn.net/qq_50332374/article/details/124864380>
 
 ???+note "[CF 730 J. Bottles](https://codeforces.com/problemset/problem/730/J)"
 	有 $n$ 個瓶子，各有水量 $a_i$ 和容量 $b_i$。現在要將這寫瓶子裡的水存入最少的瓶子裡。問最少需要的瓶子數，與在保證瓶子數最少的情況下，轉移的水量最少是多少。
@@ -1058,11 +971,11 @@
 	$1\le n\le 10^5, 1\le k\le 10, 1\le h_i\le 10^9$
 	
 	??? note "思路"
-		考慮 dp，令 dp(i, k) = 從 n 往 i 考慮，第 i 棟是第 k 個被看見的最小 cost
+		考慮 dp，因為第一棟不能炸，所以要從後往前做，最後的答案就是第一項的 dp 值。令 dp(i, k) = 從 n 往 i 考慮，第 i 棟是第 k 個被看見的最小 cost
 		
 		dp(i, k) = dp(j, k - 1) + cost(i + 1, j - 1) | h[i] < h[j]，其中 cost 為 h[i + 1, j - 1] 有幾個比 h[i] 大
 		
-		我們轉移都是先枚舉 k。考慮優化，我們開一顆線段樹，每隔紀錄 dp(i, k - 1)，初始化都將其設為 dp(i, k - 1) + INF，讓待會的區間最小值不會挑到 h[j] 比 h[i] 小的。還有一個問題，就是我們要怎麼計算 cost，我們可以想辦法先算好 h[i + 1, n] 比 h[i] 的數量，然後讓線段樹每隔裡面都扣掉我們多選的貢獻。我們從 h[i] 的數值大到小做，dp(i, k) 就直接等於「線段樹 [i + 1, n] 的 min」+「h[i + 1, n] 比 h[i] 大的數量」，再來，要將自己會被別人多算的貢獻給扣掉，所以要將線段樹的 [1, i - 1] 都 -1。
+		我們轉移都是先枚舉 k。考慮優化，我們開一顆線段樹，每隔紀錄 dp(i, k - 1)，初始化都將其設為 dp(i, k - 1) + INF，讓待會的區間最小值不會挑到 h[j] 比 h[i] 小的。還有一個問題，就是我們要怎麼計算 cost，我們可以想辦法先算好（預處理） h[i + 1, n] 比 h[i] 的數量，然後讓線段樹每隔裡面都扣掉我們多選的貢獻。我們從 h[i] 的數值大到小做，dp(i, k) 就直接等於「線段樹 [i + 1, n] 的 min」+「h[i + 1, n] 比 h[i] 大的數量」，再來，要將自己會被之後的 i 計算「h[i + 1, n] 比 h[i] 大的數量」多算的貢獻給扣掉，因為之後的 h[i] 肯定比目前的 h[i] 還來的小，所以對於前面所有的轉移點，也就是線段樹的 [1, i - 1] 都 -1。
 		
 		可以將 (i, h[i]) 打在二維座標平面上理解會更清楚。
 		
