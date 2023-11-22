@@ -11,7 +11,7 @@
 #### CF865D Buy Low Sell High
 
 ???+note "[CF865D Buy Low Sell High](https://codeforces.com/problemset/problem/865/D)"
-    已知接下來 $N$ 天的股票價格，每天你可以做其中一件事
+    已知接下來 $n$ 天的股票價格，每天你可以做其中一件事
     
     1. 買進一股股票
     
@@ -19,19 +19,18 @@
     
     3. 什麼也不做
     
-    $N$ 天之後你手上不能有多餘的股票，求利潤最大多少
+    $n$ 天之後你手上不能有多餘的股票，求利潤最大多少
+    
+    $2\le n\le 3\times 10^5$
     
     ??? note "思路"
-        所以我們嘗試去考慮設計一種反悔策略，使所有的貪心情況都可以得到全局最優解。 （即設計反悔自動機的反悔策略）
-    
-        定義 $S_\text{buy}$ 為全局最優解中買入當天的價格，$S_\text{sell}$ 為全局最優解中賣出當天的價格，則：
-    
-        $$S_\text{sell}-S_\text{buy}=(S_\text{sell}-S_i)+(S_i-S_\text{buy})$$
-    
-        $S_i$ 為任意一天的股票價格
-        即我們買價格最小的股票去賣價格最大的股票，以期得到最大的利潤。我們先把當前的價格放入小根堆一次（維護 最大的Sell - 最小Buy 的最小Buy)，判斷當前的價格是否比堆頂大，若是比其大，我們就將差值計入全局最優解，再將當前的價格放入小根堆（這次是反悔操作）。相當於我們把當前的股票價格若不是最優解，就沒有用，最後可以得到全局最優解。
-    
-        上面的等式即被稱為反悔自動機的反悔策略，因為我們並沒有反復更新全局最優解，而是通過差值消去中間項的方法快速得到的全局最優解。
+    	我們將每天的價格視為一個個"選項"， 壓入小根堆中，為了確保買入操作在賣出操作之前，我們從前往後掃描 p，對於現在的價格 p[i]，如果堆頂元素 p[j] 滿足 p[j] < p[i]，那麼，我們取出堆頂，在第 j 天買入股票，在第 i 天賣出股票，此時，我們就可以獲得 p[i] - p[j] 的收益。
+
+        然而，如果之後有 p[k] 滿足 p[k] > p[i]，那麼，我們目前所做的決策可能不是最優的，如何反悔？
+
+        於是，當我們進行上述操作時，我們將 p[i] 也壓入堆中，增加一個 p[i] 的選項，彈出時，我們相當於將 p[j]  按照 p[i] 的價格又買了回來
+        
+        > 這個跟[期權](https://zh.wikipedia.org/wiki/%E6%9C%9F%E6%AC%8A)的概念相關
     
     ??? note "code"
         ```cpp linenums="1"
@@ -52,11 +51,13 @@
             cout << ans << "\n";
         }
         ```
+        
 #### 洛谷 P1792 种树
+
 ???+ note "[洛谷 P1792 [国家集训队]种树](https://www.luogu.com.cn/problem/P1792)"
-	給定長度為 $n$ 的環形陣列，第 $i$ 個位置有權值 $a[i]$，求相鄰的不能同時選的情況下選 $m$ 個位置的權值總和最大能多少
+	給定長度為 $n$ 的環形陣列，第 $i$ 個位置有權值 $a_i$，求相鄰的不能同時選的情況下選 $m$ 個位置的權值總和最大能多少
 	
-	- $n,m\le 2\times 10^5$
+	$n,m\le 2\times 10^5$
 	
 	??? note "思路"
 		考慮這個問題的簡化版本：我們去掉「不能選相鄰的土地」的條件，那麼問題就變成了一個非常顯而易見的貪心：排序，選最大的 $m$ 個
@@ -68,131 +69,118 @@
 	??? note "code"
 		```cpp linenums="1"
 		priority_queue<pii> pq;
-	    void init() {
-	        cin >> n >> m;
-	        if (m * 2 > n) { 
-	            cout << "Error\n"; 
-	            exit(0);
-	        }
-	        for (int i = 1; i <= n; i++) cin >> a[i];
-	        for (int i = 1; i <= n; i++) {
-	            next[i] = i + 1;
-	            pre[i] = i - 1;
-	            pq.push(make_pair(a[i], i));
-	        }
-	        pre[1] = n;
-	        next[n] = 1;
-	    }
-	    
-	    void del(int x) {
-	        next[pre[x]] = next[x];
-	        pre[next[x]] = pre[x];
-	        deleted[x] = true;
-	    }
-	    
-	    void greed() {
-	        while (deleted[pq.top().id]) pq.pop();
-	        int x = pq.top().id; pq.pop();
-	        ans += a[x];
-	        a[x] = a[pre[x]] + a[next[x]] - a[x];
-	        del (pre[x]);
-	        del (next[x]);
-	        pq.push(make_pair (a[x], x));
-	    }
-	    
-	    void work() {
-	        for (int i = 1; i <= m; i++) greed();
-	        cout << ans << "\n";
-	    }
+        void init() {
+            cin >> n >> m;
+            if (m * 2 > n) {
+                cout << "Error\n";
+                exit(0);
+            }
+            for (int i = 1; i <= n; i++) cin >> a[i];
+            for (int i = 1; i <= n; i++) {
+                next[i] = i + 1;
+                pre[i] = i - 1;
+                pq.push(make_pair(a[i], i));
+            }
+            pre[1] = n;
+            next[n] = 1;
+        }
+
+        void del(int x) {
+            next[pre[x]] = next[x];
+            pre[next[x]] = pre[x];
+            deleted[x] = true;
+        }
+
+        void greed() {
+            while (deleted[pq.top().id]) pq.pop();
+            int x = pq.top().id;
+            pq.pop();
+            ans += a[x];
+            a[x] = a[pre[x]] + a[next[x]] - a[x];
+            del(pre[x]);
+            del(next[x]);
+            pq.push(make_pair(a[x], x));
+        }
+
+        void work() {
+            for (int i = 1; i <= m; i++) greed();
+            cout << ans << "\n";
+        }
 		```
 
 #### USACO Cow Coupons
+
 ???+note "[USACO 2012 FEB Cow Coupons](https://www.luogu.com.cn/problem/P3045)"
-    FJ 看中了 $n$ 頭牛，他有 $m$ 元，還有 $k$ 張優惠券。第 $i$ 頭牛的價格為 $P_i$，如果使用優惠券則為 $C_i$。問他最多能買到多少頭牛。
+    有 $n$ 頭牛，目前有 $m$ 元，還有 $k$ 張優惠券。第 $i$ 頭牛的價格為 $p_i$，如果使用優惠券則為 $c_i$。問最多能買到多少頭牛
+    
+    $k\le n\le 5\times 10^4, c_i\le p_i\le 10^9, 1\le m\le 10^{14}$
 
     ??? note "思路"
-    	 一開始按 $C_i$ 排序，前 $k$ 小必然是要選的，因為他們的下限最小
-    
-        對於剩下的無非兩種選擇，$P$ 買，$C$ 買
-        
-        1. $P$ 買就直接算
-    
-        2. 按 $C$ 買就要進行貪心的反悔，$cost=C_i+(P_j-C_j)$
-    
-    	上面總共有提到 $P$ 和 $C$ 和 $P_j-C_j$ 都要維護，且越小越好，用 min heap 維護
+    	一個直覺的想法就是維護最小堆，將每個物品的 p[i], c[i] 都加入裡面，每次 pop 最小的出來，若沒取過就直接取。但這樣若優惠券都被用完了，後面的 i 就只能以 p[i] 來取，但說不定將一個優惠券移過來用在 i 上總花費比用 p[i] 買來的更便宜，所以我們需要一個反悔的操作，維護的是 (p[j] - c[j])，若對於 i 來說 c[i] + (p[j] - c[j]) < p[i]，代表可將優惠券移過來用在 i 上。
     	
-    	> 註 : 有些博客只有維護未購買的牛的 $P_i$ 的 min heap，這是錯誤的，要同時維護 $C_i$ 和 $P_i$ 才有最優解，因為「對於剩下的無非兩種選擇，$P$ 買，$C$ 買」兩種都要同時考慮
+    	實作上來說，我們可以開三個 min heap，一個存每一頭牛的原價 P，一個存每一頭奶牛使用優惠卷後的價格 C，一個存放原價和使用優惠卷後的價格的差 delta。一開始先把所有的 c[i] 放入 C，p[i] 放入 P，然後在存放差值的隊列中放入 k 個 0，表示目前有 k 張優惠卷可以使用，即不用補差價。
+
+		接著便是調整優惠卷的使用。在剩下的錢還沒用完的情況下，我們每一次取出存放 C 和 P 的 top，根據貪心，如果 P.top() < C.top() + delta.top()，就用原價 p[i] 買入，否則，我們就使用優惠卷，進行反悔貪心。最後，我們把這頭乳牛打上標記，防止之後再被取出。
+    	
+    	> 註 : 有些博客只有維護未購買的牛的 $p_i$ 的 min heap，這是錯誤的，要同時維護 $c_i$ 和 $p_i$ 才有最優解，因為「對於剩下的無非兩種選擇，$p$ 買，$c$ 買」兩種都要同時考慮
     
     ??? note "code"
     	```cpp linenums="1"
-    	#include<bits/stdc++.h>
+    	#include <bits/stdc++.h>
+        #define int long long
+
         using namespace std;
-    
-        typedef long long ll;
-    
-        struct pqitem {
-            ll value;
-            int index;
-    
-            bool operator<(const pqitem &b) const {
-                return value > b.value;
+        using pii = pair<int, int>;
+
+        const int MAXN = 50010;
+
+        int n, k, m;
+        int p[MAXN], c[MAXN];
+        bool buy[MAXN];  // buy[i] 表示第 i 個物品是否被買過
+        int ans = 0;
+        priority_queue<pii, vector<pii>, greater<pii>> P, C;
+        priority_queue<int, vector<int>, greater<int>> delta;
+
+        signed main() {
+            cin >> n >> k >> m;
+            for (int i = 1; i <= n; ++i) {
+                cin >> p[i] >> c[i];
+                P.push(make_pair(p[i], i));
+                C.push(make_pair(c[i], i));
             }
-    
-            pqitem() {}
-            pqitem(ll value, int index) : value(value), index(index) {}
-        };
-    
-        int main() {
-            int N, K;
-            ll M;
-            cin >> N >> K >> M;
-    
-            vector<ll> P(N), C(N);
-            for (int i = 0; i < N; i++) {
-                cin >> P[i] >> C[i];
+            for (int i = 1; i <= k; ++i) {
+                delta.push(0);
             }
-    		
-    		// all min heap
-            typedef priority_queue<pqitem> pqtype;
-            priority_queue<ll, vector<ll>, greater<ll> > recover;
-            pqtype cheap;
-            pqtype expensive;
-            for (int i = 0; i < K; i++)
-                recover.push(0LL);
-            for (int i = 0; i < N; i++) {
-                cheap.push(pqitem(C[i], i));
-                expensive.push(pqitem(P[i], i));
-            }
-    
-            vector<bool> used(N, false);
-            int ans = 0;
-            while (M > 0 && nused < N) {
-                while (used[cheap.top().index])
-                    cheap.pop();
-                while (used[expensive.top().index])
-                    expensive.pop();
-    
-                if (recover.top() + cheap.top().value < expensive.top().value) {
-                    const pqitem top = cheap.top();
-                    ll cost = recover.top() + top.value;
-                    if (M < cost)
-                        break;
-                    M -= cost;
-                    recover.pop();
-                    recover.push(P[top.index] - C[top.index]);
-                    used[top.index] = true;
+            while (!P.empty()) {
+                auto [pval, pid] = P.top();
+                auto [cval, cid] = C.top();
+                if (buy[pid]) {  // 如果被買過了，就跳過
+                    P.pop();
+                    continue;
                 }
-                else {
-                    const pqitem top = expensive.top();
-                    ll cost = top.value;
-                    if (M < cost)
-                        break;
-                    M -= cost;
-                    used[top.index] = true;
+                if (buy[cid]) {
+                    C.pop();
+                    continue;
                 }
-                ans++;
+                if (delta.top() + cval > pval) {  // 用原價買 i 比較划算
+                    m -= pval;
+                    P.pop();
+                    buy[pid] = true;
+                } else {  // 否則的話，就是用優惠券買 i 比較划算
+                    m -= cval + delta.top();
+                    delta.pop();
+                    C.pop();
+                    buy[cid] = true;
+                    delta.push(p[cid] - c[cid]);
+                }
+                if (m >= 0) {
+                    ans++;
+                } else {
+                    break;
+                }
             }
-            cout << ans << "\n";
+            cout << ans << endl;
+            return 0;
         }
     	```
 
@@ -726,11 +714,55 @@
 		當注意到最優決策時，是從右邊開始進行括號匹配，而每對括號的貢獻是括號內的括號數量 / 2
 		
 		<figure markdown>
-          ![Image title](./images/17.png){ width="400" }
-        </figure>
-        
-        而 k 次的操作就可以視為將 k 個貢獻最大的括號的貢獻給移除，因為這些括號貢獻會最大就代表我們一定能把它照貢獻大到小看，對於每組移動到不會影響別人的位置（不會對別人造成貢獻），所以就用 prioirty queue 維護每組的貢獻即可
-		
+	      ![Image title](./images/17.png){ width="400" }
+	    </figure>
+	    
+	    而 k 次的操作就可以視為將 k 個貢獻最大的括號的貢獻給移除，因為這些括號貢獻會最大就代表我們一定能把它照貢獻大到小看，對於每組移動到不會影響別人的位置（不會對別人造成貢獻），所以就用 prioirty queue 維護每組的貢獻即可
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        void solve() {
+            int k;
+            cin >> k;
+            string s;
+            cin >> s;
+
+            int n = s.size();
+            priority_queue<int> pq;
+            vector<int> stk;
+            int cost = 0;
+            for (int i = n - 1; i >= 0; i--) {
+                if (s[i] == '(') {
+                    cost += stk.back() - i - 1;
+                    pq.push(stk.back() - i - 1);
+                    stk.pop_back();
+                } else {
+                    stk.push_back(i);
+                }
+            }
+            while (pq.size()) {
+                if (k == 0) break;
+                k--;
+                cost -= pq.top();
+                pq.pop();
+            }
+            cout << cost / 2 << '\n';
+        }
+
+        signed main() {
+            int t;
+            cin >> t;
+            while (t--) {
+                solve();
+            }
+        } 
+        ```
+
 ???+note "[2020 全國賽 D. 水果包裝](https://tioj.ck.tp.edu.tw/problems/2226)"
 	有 $n$ 個水果，第 $i$ 個的重量是 $w_i$，然後機器會按照 $p_1, \ldots ,p_n$ 的順序將水果裝袋。有 $m$ 個袋子，機器在裝某個水果時，會把它放到總重最小的那個袋子裡，如果有等重的會放到編號最小的那個裡面。
 	
@@ -810,7 +842,62 @@
 	    }
 		```
 
-## 練習
-- [CSES Room Allocation](https://cses.fi/problemset/task/1164)
-	- max band width + 維護
+???+note "[CSES Room Allocation](https://cses.fi/problemset/task/1164)"
+	有 $n$ 人，給每個人的入住時間與離開時間 $[l_i, r_i]$，問至少要幾間房間才夠，並輸出每個人的房間編號
+	
+	$n\le 2\times 10^5, 1\le l_i \le r_i\le 10^9$
+	
+	??? note "思路"
+		用 min heap 維護每個人的 $r_i$，有人要住進來時就住進當前 $r_i$ 最小的房間，若那個人還沒離開就再開一間新的即可
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+        using pii = pair<int, int>;
+
+        struct Interval {
+            int l, r, id;
+
+            bool operator<(const Interval &rhs) const {
+                return l < rhs.l;
+            }
+        };
+
+        const int INF = 9e18;
+        const int MAXN = 2e5 + 5;
+        int n, k, ans[MAXN];
+
+        signed main() {
+            cin >> n;
+            vector<Interval> a(n);
+            for (int i = 0; i < n; i++) {
+                cin >> a[i].l >> a[i].r;
+                a[i].id = i;
+            }
+            sort(a.begin(), a.end());
+
+            priority_queue<pii, vector<pii>, greater<pii>> pq;
+            pq.push({a[0].r, 1});
+            ans[a[0].id] = 1;
+            int cnt = 1;
+            for (int i = 1; i < n; i++) {
+                auto [t, room] = pq.top();
+                if (t < a[i].l) {
+                    pq.pop();
+                    pq.push({a[i].r, room});
+                    ans[a[i].id] = room;
+                } else {
+                    pq.push({a[i].r, ++cnt});
+                    ans[a[i].id] = cnt;
+                }
+            }
+            cout << cnt << '\n';
+            for (int i = 0; i < n; i++) {
+                cout << ans[i] << " ";
+            }
+        }
+        ```
 
