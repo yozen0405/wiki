@@ -280,9 +280,9 @@
 	
 		- dp(l + 1, r - 1) if ok(s[l], s[r]) // 前後兩個剛好可以配對
 	
-		- dp(l, r - 1) + 1 // 例如說 ( [ ( ] <font color="#00A2E8">)</font>
+		- dp(l, r - 1) + 1 // 例如說 <font color="#00A2E8">[</font> ( [ ( ] 
 	
-		- dp(l + 1, r) + 1 // 例如說 <font color="#00A2E8">[</font> ( [ ( ] 
+		- dp(l + 1, r) + 1 // 例如說 ( [ ( ] <font color="#00A2E8">)</font>
 
 ???+note "[LeetCode 516. Longest Palindromic Subsequence](https://leetcode.com/problems/longest-palindromic-subsequence/)"
 	給一個長度 n 的字串 s，問 s 的最長迴文子序列長度
@@ -481,37 +481,37 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int N = 55;
-        int n, c;
-        int a[N], w[N], pre[N];
-        int dp[N][N][2];
-
-        int cal(int i, int j, int l, int r) {
-            return (a[j] - a[i]) * (pre[l] + pre[n] - pre[r - 1]);
-        }
-
-        signed main() {
-            cin >> n >> c;
-            memset(pre, 0, sizeof(pre));
-            memset(dp, 0x3f, sizeof(dp));
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i] >> w[i];
-                pre[i] = pre[i - 1] + w[i];
-            }
-            dp[c][c][1] = dp[c][c][0] = 0;
-            for (int len = 2; len <= n; len++) {
-                for (int l = 1; l <= n; l++) {
-                    int r = l + len - 1;
-                    if (r > n) {
-                        break;
-                    }
-                    dp[l][r][0] = min(dp[l + 1][r][0] + cal(l, l + 1, l, r + 1), dp[l + 1][r][1] + cal(l, r, l, r + 1));
-                    dp[l][r][1] = min(dp[l][r - 1][0] + cal(l, r, l - 1, r), dp[l][r - 1][1] + cal(r - 1, r, l - 1, r));
-                }
-            }
-            cout << min(dp[1][n][0], dp[1][n][1]) << '\n';
-        }
-        ```
+	    #define int long long
+	    using namespace std;
+	
+	    const int N = 55;
+	    int n, c;
+	    int a[N], w[N], pre[N];
+	    int dp[N][N][2];
+	
+	    int cal(int i, int j, int l, int r) {
+	        return (a[j] - a[i]) * (pre[l] + pre[n] - pre[r - 1]);
+	    }
+	
+	    signed main() {
+	        cin >> n >> c;
+	        memset(pre, 0, sizeof(pre));
+	        memset(dp, 0x3f, sizeof(dp));
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i] >> w[i];
+	            pre[i] = pre[i - 1] + w[i];
+	        }
+	        dp[c][c][1] = dp[c][c][0] = 0;
+	        for (int len = 2; len <= n; len++) {
+	            for (int l = 1; l <= n; l++) {
+	                int r = l + len - 1;
+	                if (r > n) {
+	                    break;
+	                }
+	                dp[l][r][0] = min(dp[l + 1][r][0] + cal(l, l + 1, l, r + 1), dp[l + 1][r][1] + cal(l, r, l, r + 1));
+	                dp[l][r][1] = min(dp[l][r - 1][0] + cal(l, r, l - 1, r), dp[l][r - 1][1] + cal(r - 1, r, l - 1, r));
+	            }
+	        }
+	        cout << min(dp[1][n][0], dp[1][n][1]) << '\n';
+	    }
+	    ```

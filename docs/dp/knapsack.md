@@ -751,78 +751,90 @@ $$
 
 ## 補充: 退背包
 
+???+note "帶刪除背包 - 問方法數"
+	給一些物品，第 i 個物品的重量為 w[i]，分別輸出若刪除第 i 個物品，能湊到重量為 m 的**方案數**是多少
+	
+退背包就是從選購物品中刪除其中一個物品，問滿足所取能湊到重量為 j 的**方案數**。像一般背包一樣，退背包先普通 dp 以下，然後退去所選物品。設 f(i, j) 為只用前 i 件物品，不考慮刪除任何物品時，恰好裝滿容量為 j 的方法數，設 g(i, j) 為不考慮物品 i，恰好裝滿容量為 j 的方法數。f(i, j) 就用普通的 01 背包轉移即可，而 g(i, j) 在轉移時就要從 f(i, j) 扣掉「有選 i 個方法數」，如下:
+
+<center>
+g(i, j) = f(i, j) - g(i, j - w[i])
+</center>
+
 ???+note "[CF 1442 D. sum](https://codeforces.com/contest/1442/problem/D)"
 	給定 $n$ 個單調不降的序列，可以從這些序列的最左端依次往右取，問取 $k$ 個數的最大值
 	
 	$n,k\le 3000, 0\le a_{i,j}\le 10^8, \sum |a_i| \le 10^6$
 	
 	??? note "思路"
-		有一個序列的取部分元素，其他序列要馬全取，要馬全不取。因為若部分取兩個序列，一定可以專注取其中一個一定會更好。所以問題就轉換成 01 背包了，我們可以去枚舉取一部分的，剩下做 01 背包，但這樣會 TLE。考慮分治，當遞迴到每個 leaf 就是不包含該項的 01 背包，複雜度 $O(nk \log n)$。 
+		有一個序列的取部分元素，其他序列要馬全取，要馬全不取。因為若部分取兩個序列，一定可以專注取其中一個一定會更好。所以問題就轉換成 01 背包了，我們可以去枚舉哪個序列要取一部分，剩下做 01 背包（枚舉 i 代表從這個序列取 i 個，其他序列就是取 k - i 個，可以從 01 背包的 dp(k - i) 查表）。我們想辦法優化這個過程，考慮分治，當遞迴到每個 leaf 就是不包含該項的 01 背包，複雜度 $O(nk \log n)$。 
 		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define mk make_pair
-	    #define pb push_back
-	    using namespace std;
-	
-	    const int maxn = 3e3 + 5;
-	    const long long mod = 1e9 + 7;
-	    int n, K, ans;
-	    int a[maxn][maxn];
-	    int t[maxn];
-	    int tot[maxn];
-	    int dp[maxn];
-	
-	    void solve (int l, int r) {
-	        if (l > r) return;
-	        if (l == r) {
-	            int cur = 0;
-	            for (int i = 0; i <= t[l]; i++) {
-	                cur += a[l][i];
-	                ans = max(dp[K - i] + cur, ans);
-	            }
-	            return;
-	        }
-	        int mid = (l + r) >> 1;
-	        vector<int> tmp(K + 1);
-	        for (int i = 1; i <= K; i++) {
-	            tmp[i] = dp[i];
-	        } 
-	        for (int i = mid + 1; i <= r; i++) {
-	            for (int j = K; j >= t[i]; j--) {
-	                dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
-	            }
-	        }
-	        solve (l, mid);
-	        for (int i = 1; i <= K; i++) dp[i] = tmp[i];
-	        for (int i = l; i <= mid; i++) {
-	            for (int j = K; j >= t[i]; j--) {
-	                dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
-	            }
-	        }
-	        solve (mid + 1, r);
-	    }
-	
-	    signed main () {
-	       ios::sync_with_stdio(0);
-	        cin.tie(0);
-	        cin >> n >> K;
-	        for (int i = 1; i <= n; i++) {
-	            cin >> t[i];
-	            int x;
-	            for (int j = 1; j <= t[i]; j++) {
-	                if(j <= K) cin >> a[i][j];
-	                else cin >> x;
-	                if (j <= K) tot[i] += a[i][j];
-	            }
-	            if (t[i] > K) t[i] = K;
-	        }
-	        solve (1, n);
-	        cout << ans;
-	    }
+        #define int long long
+        #define pii pair<int, int>
+        #define mk make_pair
+        #define pb push_back
+        using namespace std;
+
+        const int MAXN = 3e3 + 5;
+        const long long mod = 1e9 + 7;
+        int n, k, ans;
+        int a[MAXN][MAXN];
+        int t[MAXN];
+        int tot[MAXN];
+        int dp[MAXN];
+
+        void solve(int l, int r) {
+            if (l > r) return;
+            if (l == r) {
+                int cur = 0;
+                for (int i = 0; i <= t[l]; i++) {
+                    cur += a[l][i];
+                    ans = max(dp[k - i] + cur, ans);
+                }
+                return;
+            }
+            int mid = (l + r) >> 1;
+            vector<int> tmp(k + 1);
+            for (int i = 1; i <= k; i++) {
+                tmp[i] = dp[i];
+            }
+            for (int i = mid + 1; i <= r; i++) {
+                for (int j = k; j >= t[i]; j--) {
+                    dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
+                }
+            }
+            solve(l, mid);
+            for (int i = 1; i <= k; i++) dp[i] = tmp[i];
+            for (int i = l; i <= mid; i++) {
+                for (int j = k; j >= t[i]; j--) {
+                    dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
+                }
+            }
+            solve(mid + 1, r);
+        }
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            cin >> n >> k;
+            for (int i = 1; i <= n; i++) {
+                cin >> t[i];
+                int x;
+                for (int j = 1; j <= t[i]; j++) {
+                    if (j <= k) {
+                        cin >> a[i][j];
+                    } else {
+                        cin >> x;
+                    }   
+                    if (j <= k) tot[i] += a[i][j];
+                }
+                if (t[i] > k) t[i] = k;
+            }
+            solve(1, n);
+            cout << ans;
+        }
 	    ```
 
 ???+note "[洛谷 P4141 消失之物](https://www.luogu.com.cn/problem/P4141)"
@@ -830,7 +842,7 @@ $$
 
     「要使用剩下的 $n-1$ 物品裝滿容積為 $x$ 的背包，有幾種方法呢 ?」
     
-    把答案記為 $\text{cnt}(i,x)$ ，輸出所有 $i \in [1,n]$, $x \in [1,m]$ 的$\text{cnt}(i, x)$。
+    把答案記為 $\text{cnt}(i,x)$ ，輸出所有 $i \in [1,n], x \in [1,m]$ 的 $\text{cnt}(i, x)$。
     
     $n,m\le 2\times 10^3$
     
@@ -851,6 +863,44 @@ $$
 	$1\le q, x, w_i \le 5000$
 	
 	??? note "思路"
+		新增物品 w: 也就是普通的背包 dp，我們枚舉 i 從大到小，然後將 dp(i) += dp(i - w)
+		
+		刪除物品 w: 也就是上面提到的退背包，我們枚舉 i 從小到大，然後將 dp(i) -= dp(i - w)
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        const int MAXN = 5005;
+        const int M = 998244353;
+        int n, m;
+        int dp[MAXN];
+
+        signed main() {
+            cin >> n >> m;
+            dp[0] = 1;
+            char op;
+            int w;
+            for (int i = 0; i < n; i++) {
+                cin >> op >> w;
+                if (op == '+') {
+                    for (int i = m; i >= w; i--) {
+                        dp[i] += dp[i - w];
+                        dp[i] %= M;
+                    }
+                } else {
+                    for (int i = w; i <= m; i++) {
+                        dp[i] -= dp[i - w];
+                        dp[i] = (dp[i] % M + M) % M;
+                    }
+                }
+                cout << dp[m] << endl;
+            }
+        }
+        ```
 
 ## 題目
 

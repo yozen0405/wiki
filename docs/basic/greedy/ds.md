@@ -715,6 +715,22 @@
 		
 		> 參考自 : [TOI 2021 Solutions - p3 pairing](https://omeletwithoutegg.github.io/2021/09/22/toi-2021-sols/)
 
+???+note "[CF 1821 E. Rearrange Brackets](https://codeforces.com/contest/1821/problem/E)"
+	對於一個合法的括號序列，定義它的「cost」為進行若干次以下操作，將它清空的最小總代價: 選取兩個相鄰的左右括號刪除，並將代價加上原右括號右邊的括號數量。
+	
+	你可以進行不超過 k 次以下操作，將給定的匹配括號序列 s 變為另一個匹配括號序列: 選取一個括號，將它移動到序列的任意位置。求最終括號字串的「cost」的最小值
+	
+	$|s| \le 2\times 10^5, 0\le k\le 5$
+	
+	??? note "思路"
+		當注意到最優決策時，是從右邊開始進行括號匹配，而每對括號的貢獻是括號內的括號數量 / 2
+		
+		<figure markdown>
+          ![Image title](./images/17.png){ width="400" }
+        </figure>
+        
+        而 k 次的操作就可以視為將 k 個貢獻最大的括號的貢獻給移除，因為這些括號貢獻會最大就代表我們一定能把它照貢獻大到小看，對於每組移動到不會影響別人的位置（不會對別人造成貢獻），所以就用 prioirty queue 維護每組的貢獻即可
+		
 ???+note "[2020 全國賽 D. 水果包裝](https://tioj.ck.tp.edu.tw/problems/2226)"
 	有 $n$ 個水果，第 $i$ 個的重量是 $w_i$，然後機器會按照 $p_1, \ldots ,p_n$ 的順序將水果裝袋。有 $m$ 個袋子，機器在裝某個水果時，會把它放到總重最小的那個袋子裡，如果有等重的會放到編號最小的那個裡面。
 	
@@ -731,11 +747,11 @@
 	有一個數線，給 n 個不相交的 interval，代表只能在這些 interval 內的點塗色，目標是將 k 個點塗色。每次可做以下操作:
 	
 	- 往右移一格
-
+	
 	- 將 shift 按住（在一個點上若 shift 被按住即塗色）
-
+	
 	- 將 shift 鬆開
-
+	
 	問最少幾次操作可至少將 k 個點塗色
 	
 	$n\le 2\times 10^5, 1\le k\le 10^9, 1\le l_i, r_i\le 10^9$
@@ -750,50 +766,50 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int N = 2e5 + 5;
-        int l[N], r[N], n, k;
-
-        void solve() {
-            priority_queue<int, vector<int>, greater<int>> q;
-            cin >> n >> k;
-            for (int i = 1; i <= n; i++) {
-                cin >> l[i];
-            }
-            for (int i = 1; i <= n; i++) {
-                cin >> r[i];
-            }
-            int num = 0, sum = 0, ans = INT_MAX;
-            for (int i = 1; i <= n; i++) {
-                q.push(r[i] - l[i] + 1);
-                num++;
-                sum += r[i] - l[i] + 1;
-                while (q.size() && sum >= k) {
-                    ans = min(ans, r[i] - (sum - k) + num * 2);
-                    sum -= q.top();
-                    q.pop();
-                    num--;
-                }
-            }
-            if (ans == INT_MAX) {
-                cout << "-1\n";
-                return;
-            } else {
-                cout << ans << '\n';
-            }
-        }
-
-        signed main() {
-            int t; 
-            cin >> t;
-            while (t--) {
-                solve();
-            }
-        }
-		```
+	    #define int long long
+	    using namespace std;
 	
+	    const int N = 2e5 + 5;
+	    int l[N], r[N], n, k;
+	
+	    void solve() {
+	        priority_queue<int, vector<int>, greater<int>> q;
+	        cin >> n >> k;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> l[i];
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            cin >> r[i];
+	        }
+	        int num = 0, sum = 0, ans = INT_MAX;
+	        for (int i = 1; i <= n; i++) {
+	            q.push(r[i] - l[i] + 1);
+	            num++;
+	            sum += r[i] - l[i] + 1;
+	            while (q.size() && sum >= k) {
+	                ans = min(ans, r[i] - (sum - k) + num * 2);
+	                sum -= q.top();
+	                q.pop();
+	                num--;
+	            }
+	        }
+	        if (ans == INT_MAX) {
+	            cout << "-1\n";
+	            return;
+	        } else {
+	            cout << ans << '\n';
+	        }
+	    }
+	
+	    signed main() {
+	        int t; 
+	        cin >> t;
+	        while (t--) {
+	            solve();
+	        }
+	    }
+		```
+
 ## 練習
 - [CSES Room Allocation](https://cses.fi/problemset/task/1164)
 	- max band width + 維護
