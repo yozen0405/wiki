@@ -110,14 +110,12 @@ Prüfer 是這樣建立的：每次選擇一個編號最小的葉結點並刪掉
 		那麼換選另一個數的時候 :
 		
 		<figure markdown>
-	      ![Image title](./images/8.png){ width="300" }
+	      ![Image title](./images/132.png){ width="300" }
 	    </figure>
 		
 		$\log$ 的計算 : $-\log(a-1)! + \log a! - \log b! + \log (a-1)!$
 		
 		$C^n_k\pmod{10^9+7}$ 的計算 : $\times b \times \text{inv}(a)$
-		
-		---
 	
 	??? note "code"
 		```cpp linenums="1"

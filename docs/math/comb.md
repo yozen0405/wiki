@@ -812,6 +812,12 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	$n\le 1.5\times 10^5, 1\le a_i \le 10^9$
 	
 	??? note "思路"
+		打表會發現，對於每一個 partition，$\sum |x_i - y_i|$ 會一樣，然後我們就要去觀察這個一樣的值是怎麼算出來的，會發現恰好就是將 a sort 好後後半的總和 - 前半的總和，所以答案就是 
+		
+		$$\binom{2n}{n}\times (\sum \limits_{i=n+1}^{2n}a_i - \sum \limits_{i=1}^n a_i)$$
+		
+		---
+		
 		考慮 $x_i,y_i$ 的關係，將 $a$ 小到大排序後，會發現  $x_i,y_i$ 恰好是一個在前 $n$ 個，一個在後 $n$ 個，所以答案就是 
 		
 		$$\binom{2n}{n}\times (\sum \limits_{i=n+1}^{2n}a_i - \sum \limits_{i=1}^n a_i)$$

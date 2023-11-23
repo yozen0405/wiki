@@ -1,59 +1,38 @@
-## 環狀
-### 問題
-???+note "[Maximum Sum Circular Subarray](https://leetcode.com/problems/maximum-sum-circular-subarray/)"
-	- 給一個環形陣列，問最大連續子陣列
+## 環狀最大連續子序列
 
-	- 不能選空的
-
-### 題解
+???+note "[LeetCode 918. Maximum Sum Circular Subarray](https://leetcode.com/problems/maximum-sum-circular-subarray/)"
+	給一個長度為 $n$ 的環形陣列 $a_1, \ldots ,a_n$，問最大連續子陣列，不能到選空的
+	
+	$n\le 3\times 10^4, -3\times 10^4\le a_i\le 3\times 10^4$
 
 <figure markdown>
   ![Image title](./images/10.png){ width="500" }
 </figure>
 
-- $ans=\max \begin{cases} \texttt{max subarray} \\ \sum a_i-\texttt{min subarray}\end{cases}$
+$$ans=\max \begin{cases} \texttt{max subarray} \\ \sum a_i-\texttt{min subarray}\end{cases}$$
 
-- 不能選到空的 $\Rightarrow$ 全部都是負的時候只 $\texttt{return max subbary}$ 
+不能選到空的 ⇒ 當 ans = 0 時，回傳陣列中最大的元素
 
-#### proof
-- $\texttt{Case 2: pre+suf}$
+proof
 
 $$\begin{align} \max(\texttt{pre} + \texttt{suf}) &= \max(\texttt{total sum} - \texttt{subarray})
 \\ &= \texttt{total sum} + \max(-\texttt{subarray})
  \\ &= \texttt{total sum} - \min(\texttt{subarray}) \end{align}$$
 
-#### 實作
-- 技巧 : 環上問題把陣列變成 2n 比較好做
+## 練習題
 
-- 變形: TIOJ 2119 質感測試
-
-## 線段樹維護
-- 變形: [2020 花中三模 pB](https://codeforces.com/group/GG44hyrVLY/contest/301661/problem/B)
-
-## k個子陣列
-
-- 發現答案 $=0 \Rightarrow \texttt{return max(a[i])}$ 
-- [2022 nhspc-mock pB](https://www.csie.ntu.edu.tw/~b11902109/PreNHSPC2022/IqwxCSqc_Pre_NHSPC_zh_TW.pdf)
-
-## 第 k 大
-???+ note "[TIOJ 1208.第K大連續和](https://tioj.ck.tp.edu.tw/problems/1208)"
-	- 輸出 $\texttt{k-th Subarray Sum}$
-
-## 2D
-???+note "[nhspc 2019 pD](https://sorahisa-rank.github.io/nhspc-fin/2019/problems.pdf)"
-	給定一個 $n\times m$ 的矩陣，問可以框起來的長方形最大是多少
+???+note "[2022 nhspc-mock pB](https://www.csie.ntu.edu.tw/~b11902109/PreNHSPC2022/IqwxCSqc_Pre_NHSPC_zh_TW.pdf)"
+	給 n 個陣列 $a_1, \ldots ,a_n$，問這些陣列以任意順序組合起來 Maximum Subarray Sum 最大是多少
+	
+	$n\le 10^5, \sum |a_i| \le 10^6, |a_{i, j}| \le 10^9$
 	
 	??? note "思路"
-	    - $O(n^2)$ 枚舉 $\texttt{col}$
-	
-	    - 把問題轉換成一維的 $\texttt{Maximum Subarray}$
-
-## 翻轉一次
-???+note "algoseacow 作業"
-	給定一個長度 $n$ 的整數陣列 $a$ ，你可以選陣列的一段翻轉，使最大連續子序列和最大
-		??? note "思路"
-			- $\texttt{pre(i)+suf(i+1)}$
-
-## APCS 內積
-
+		先想 O(n^2) 怎麼做，我們可以預處理每個陣列的前綴最大值 pre[i]，後綴最大值 suf[i]，然後枚舉左右，但這時，我們要怎麼計算中間的貢獻 ? 我們令 sum[i] = max(陣列 i 的總和, 0)，當左為 l, 右為 r 時，答案就是 
+		
+		<center>
+		suf[l] + (全部的總和 - sum[l] - sum[r]) + pre[r]
+		</center>
+		
+		那我們要怎麼做得更快呢 ? 我們考慮只枚舉當左右的其中一個，另一個看能不能快速的找出來。可以發現，若我們枚舉 l，那麼我們就只要找到 (pre[r] - sum[r]) 最大的即可（將上面的試子整理一下可推得）。所以我們將所有陣列的 (pre[i] - sum[i]) sort 好後，對一個 l 只要去看最大與次大（因為最大的可能就是 l）的 (pre[i] - sum[i]) 即可
+	 
 ???+note "[zerojudge i402. 4. 內積](https://zerojudge.tw/ShowProblem?problemid=i402)"

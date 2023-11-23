@@ -254,7 +254,7 @@ nav:
         - c++語法技巧: 'other/tips.md'
         - terminal 的一些指令: 'other/cmd.md'
       - 序列交換問題: 'other/swap.md'
-      - 字典序: 'other/Lexicographic.md'
+      - 字典序: 'other/lexicographic.md'
       - 分數運算: 'other/fraction.md'
       - 平面距離: 'other/distance.md'
       - 鴿籠原理: 'other/pigeonhole_principle.md'

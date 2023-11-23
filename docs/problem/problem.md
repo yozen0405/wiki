@@ -211,3 +211,138 @@
 		把某條燈飾複製後，各自可以再延伸 ⇒ 類似 Tree 的結構
 		
 		用 1. 2. 3. 操作讀進來後建立完 tree 後，建 lca，對於 4. O(log n) 回答
+		
+???+note "[CF 1644 E. Expand the Path](https://codeforces.com/problemset/problem/1644/E)"
+	有一個 n * n 的 Grid，給一個字串 s，包含 D, R，代表當前行走的路徑。可任意次的將 s 的某一項複製，但 s 不能超界，問能走到的 distinct 格子數量
+	
+	$n\le 10^8, |s| \le 2\times 10^5$
+	
+	??? note "思路"
+		【套路】: 對於每一個 s 的走過的位置，計算對全局的貢獻
+		
+		首先，我們按照給定的操作序列執行，到達目標格子 (x, y)。然後，計算在該位置最多可以向橫向或縱向移動多少格，以達到目標位置 (n, m)。設需要向右移動 x 格，向下移動 y 格。
+
+        在接下來的分析中，為方便起見，我們將格子與格子之間的操作轉化為格子內部的操作。例如，如果當前在 (1, 1)，需要向右移動，則我們將該格子標記為右移。當然，這樣做可能會漏掉一個格子，但後面會進行補充。
+
+        考慮計算答案。對於每個格子，我們最多可以向相對方向（例如，如果格子是向右的，則考慮向下移動）移動 x 或 y 格。由於移動一定是向右或向下的，擴展過程不會超出邊界或與其他格子重疊，因此我們可以直接將這些貢獻添加到答案中。
+
+        需要注意的是，只有在第一次轉向及以後才能執行這樣的操作（因為沒有辦法複製另一種方向的操作）。
+
+        然後，考慮最後一個格子。不難發現，從右下角開始的 n * m 個格子都可以到達，我們直接將其添加到答案中。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        const int N = 2e5 + 5;
+        char s[N];
+        int n, ans;
+
+        void work() {
+            bool flag = 1;
+            cin >> n >> s + 1;
+            int x = 1, y = 1;
+            for (int i = 1; s[i]; i++) {
+                if (s[i] == 'R') {
+                    x++;
+                } else {
+                    y++;
+                }
+                if (s[i] != s[i - 1] && i != 1) flag = 0;
+            }
+            if (flag == 1) {
+                cout << n << '\n';
+                return;
+            }
+            x = n - x, y = n - y;
+            int i = 2;
+            ans = 1;
+            while (s[i] == s[i - 1]) {
+                ans++;
+                i++;
+            }
+            for (i; s[i]; i++) {
+                ans++;
+                if (s[i] == 'R') {
+                    ans += y;
+                } else {
+                    ans += x;
+                }
+                if (s[i + 1] == 0) ans += (x + 1) * (y + 1);
+            }
+            cout << ans << '\n';
+        }
+
+        int main() {
+            int t;
+            cin >> t;
+            while (t--) work();
+        }
+        ```
+        
+???+note "[CF 1644 D. Cross Coloring](https://codeforces.com/contest/1644/problem/D)"
+	給一個 n * m 的 grid，每格最初都是白色的。有 q 筆操作:
+	
+	- color$(x_i, y_i):$ 選擇 k 種非白色的顏色的其中一種，然後將 row $x_i$ 與 $y_i$ 塗色
+	
+	問整張 grid 有幾種塗色方案數
+	
+	$n,m,k,q\le 2\times 10^5$
+	
+	??? note "思路"
+		如果倒著考慮，題目就變成: 每次選一行一列，然後染成一個顏色，後染的色不會覆蓋原來染得顏色。
+		
+		那麼當一次操作會沒有貢獻，當且僅當 row 跟 column 都被完全覆蓋，否則，答案就需要乘上 k。
+		
+		同時我們還需要考慮一種情況，當有 n 行全部被覆蓋時，實際上相當於 m 列全部被覆蓋了；反之亦然。此後的所有操作都將變為無效操作。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        const int MAXN = 2e5 + 5;
+        const int mod = 998244353;
+        bool row[MAXN], col[MAXN];
+        int x[MAXN], y[MAXN];
+
+        int fpow(int a, int b) {
+            int res = 1;
+            while (b) {
+                if (b & 1) res = res * a % mod;
+                a = a * a % mod;
+                b >>= 1;
+            }
+            return res;
+        }
+
+        int main() {
+            int t;
+            cin >> t;
+            while (t--) {
+                memset(row, 0, sizeof(row));
+                memset(col, 0, sizeof(col));
+                int n, m, k, q;
+                cin >> n >> m >> k >> q;
+                for (int i = 1; i <= q; i++) {
+                    cin >> x[i] >> y[i];
+                }
+                int cnt = 0, crow = 0, ccol = 0;
+                for (int i = q; i >= 1; i--) {
+                    bool ok = 0;
+                    if (crow < n && ccol < m && !row[x[i]]) {
+                        row[x[i]] = 1, crow++, ok = 1;
+                    }
+                    if (crow < n && ccol < m && !col[y[i]]) {
+                        col[y[i]] = 1, ccol++, ok = 1;
+                    }
+                    if (ok) cnt++;
+                }
+                cout << fpow(k, cnt) << '\n';
+            }
+        }
+        ```
