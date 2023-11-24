@@ -256,57 +256,57 @@
 	Alice 會進行 $Q$ 次操作，每一次操作都會選擇數列的某個數修改成新的數字，輸出修改後整個陣列的答案是多少。
 	
 	$N,Q\le 10^5,1\le a_i\le 10^6$
-	
+
 ???+note "[CF 1864 E. Guess Game](https://codeforces.com/contest/1864/problem/E)"
 	給一個陣列 $a_1,\ldots ,a_n$，選隨意兩個數 i, j，令 a = a[i], b = a[j]
     
     a 和 b 會輪流說出一些以下訊息，他們是可以聽到對方訊息的，一開始他們只知道 a | b 是多少，他們的目標是確定 a, b 的關係是 $a < b, a > b, a=b$ 哪種
     
-	- 說 : 「I don't know」
-
-	- 或說 : 「I know, 答案是 $a < b, a > b, a=b$」，說完後遊戲即結束
-
-	a 和 b 都 play optimally，問說話次數的期望值是多少
-	
-	$1\le n\le 2\times 10^5,0\le a_i\le 2^{30}$
-	
-	??? note "思路"
-		先觀察值域範圍只有 [0, 1] 的 case，a 為先手
-		
-		- 若當前 a = 0, b = 0，因為 a|b 的這位就是 0，他們會直接忽視
-
-			- 說話次數 += 0
-		
-		- 若當前 a = 0, b = 1，因為 a|b 的這位就是 1，a 可以直接輸出 $a<b$
-			
-			- 說話次數 += 1
-			
-		- 若當前 a = 1, b = 0，因為 a|b 的這位就是 1，不確定 b 是 0 或 1，a 會說 idk，輪到 b 時他就知道 $b>a$
-
-			- 說話次數 += 2
-		
-		- 若當前 a = 1, b = 1，因為 a|b 的這位就是 1，a 會說 idk，輪到 b 就知道 a 是 1（若後面還有位數則變子問題）
-
-			- 說話次數 += 1
-		
-		跟平常一樣，越高位越優先，我們考慮隨意兩個數 a, b，從 i = lgC … 0
-
+    - 說 : 「I don't know」
+    
+    - 或說 : 「I know, 答案是 $a < b, a > b, a=b$」，說完後遊戲即結束
+    
+    a 和 b 都 play optimally，問說話次數的期望值是多少
+    
+    $1\le n\le 2\times 10^5,0\le a_i\le 2^{30}$
+    
+    ??? note "思路"
+    	先觀察值域範圍只有 [0, 1] 的 case，a 為先手
+    	
+    	- 若當前 a = 0, b = 0，因為 a|b 的這位就是 0，他們會直接忽視
+    
+    		- 說話次數 += 0
+    	
+    	- 若當前 a = 0, b = 1，因為 a|b 的這位就是 1，a 可以直接輸出 $a<b$
+    		
+    		- 說話次數 += 1
+    		
+    	- 若當前 a = 1, b = 0，因為 a|b 的這位就是 1，不確定 b 是 0 或 1，a 會說 idk，輪到 b 時他就知道 $b>a$
+    
+    		- 說話次數 += 2
+    	
+    	- 若當前 a = 1, b = 1，因為 a|b 的這位就是 1，a 會說 idk，輪到 b 就知道 a 是 1（若後面還有位數則變子問題）
+    
+    		- 說話次數 += 1
+    	
+    	跟平常一樣，越高位越優先，我們考慮隨意兩個數 a, b，從 i = lgC … 0
+    
         - 若 a[i] = b[i] = 0 跳過
-
+    
         - 若 a[i] = b[i] = 1, cnt +=1, 交換先後手
             - a: idk, b: 知道 a[i] = 1 了, 直接去比較 i + 1
-
+    
         - 若 a[i] = 0 ⇒ ans = cnt ; 若 b[i] = 0 ⇒ ans = cnt + 1，然後遊戲就停止了
-
-		記得判當 a = b 時，他們會說話的次數恰好是 1-bit 的數量 +1
-
-		使用 01 Trie 枚舉 a[i]，考慮跟除了 a[i] 以外的 a[j] 的貢獻
-
-		> 比較詳細可以參考 : <https://www.bilibili.com/video/BV1Bp4y1P7u6/?p=5>
-
-	??? note "code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
+    
+    	記得判當 a = b 時，他們會說話的次數恰好是 1-bit 的數量 +1
+    
+    	使用 01 Trie 枚舉 a[i]，考慮跟除了 a[i] 以外的 a[j] 的貢獻
+    
+    	> 比較詳細可以參考 : <https://www.bilibili.com/video/BV1Bp4y1P7u6/?p=5>
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
         #define int long long
         #define pii pair<int, int>
         #define pb push_back
@@ -314,24 +314,24 @@
         #define F first
         #define S second
         #define ALL(x) x.begin(), x.end()
-
+    
         using namespace std;
-
+    
         const int M = 998244353;
         int ans, cnt, now;
-
+    
         struct Node {
             Node *lc = nullptr;
             Node *rc = nullptr;
             int sz = 0;
-
+    
             void pull() {
                 sz = 0;
                 if (lc) sz += lc->sz;
                 if (rc) sz += rc->sz;
             }
         };
-
+    
         void add(Node *root, int x, int i) {
             if (i == -1) {
                 root->sz++;
@@ -351,7 +351,7 @@
                 root->pull();
             }
         }
-
+    
         void query(Node *root, int x, int i) {
             if (i == -1) {
                 ans = (ans + root->sz * (cnt + 1)) % M;
@@ -379,7 +379,7 @@
                 query(root->lc, x, i - 1);
             }
         }
-
+    
         int fpow(int a, int b) {
             int ret = 1;
             a %= M;
@@ -390,12 +390,12 @@
             }
             return ret;
         }
-
+    
         void solve() {
             ans = 0;
             int n;
             cin >> n;
-
+    
             vector<int> a(n);
             for (int i = 0; i < n; i++) {
                 cin >> a[i];
@@ -411,7 +411,7 @@
             }
             cout << (ans * fpow(n * n, M - 2)) % M << '\n';
         }
-
+    
         signed main() {
             int t = 1;
             cin >> t;
@@ -419,8 +419,8 @@
                 solve();
             }
         } 
-		```
-	
+    	```
+
 ???+note "[USACO 2019 Dec. Gold p1. Cow Land](http://www.usaco.org/index.php?page=viewproblem2&cpid=921)"
     給一顆 $n$ 個點的樹，賦予每個 Node $a_i$，$q$ 筆詢問
     
@@ -438,3 +438,18 @@
         - 問題就轉成了 CSES path queries I
     
         - 用 euler technique 解決
+
+???+note "[CF 1895 D. XOR Construction](https://codeforces.com/contest/1895/problem/D)"
+	給一個長度為 $n - 1$ 的序列 $a_1, \ldots ,a_n$，構造一個 $0\ldots (n - 1)$ 的 permutation $b_1, \ldots ,b_n$，對於所有 $1\le i\le n - 1$ 滿足 $b_i\oplus b_{i+1}=a_i$
+	
+	$2\le n\le 2\times 10^5$
+	
+	??? note "hint"
+		當 b[1] 決定後，b[2], ..., b[n] 就可以被推出來
+		
+	??? note "思路"
+		我們可以看到數組 b 的第一個元素決定了所有其他值，即 b[i + 1] = b[1] ⊕ a[1] ⊕ ⋯ ⊕ a[i]。
+
+        枚舉所有 b[1] 可能的值，對於每個 b[1] 的值，我們需要檢查它是否產生合法的 permutation（即所有 b[i] < n）。為了有效率地檢查，我們開一個陣列 c，其中 c[i] 是 a 的前 i 個元素的 xor（即 c[i] = a[1] ⊕ a[2] ⊕ ⋯ ⊕ a[i]，其中 c[0] = 0）。我們可以看到 b[i + 1] = b[1] ⊕ c[i]。我們將所有 c[i] 的值存在一個 trie。要檢查 b[1] 是否生成了所有元素都小於 n 的數組，我們可以在 trie 上找到 b[1] ⊕ c[i] 的最大值，如果小於 n，那麼就是一個合法的 permutation。
+
+        我們實際上不需要檢查最小值是否為 0，以及所有元素是否都不同：因為保證存一組解，因此所有值 0, c[1], c[2], c[3], ⋯, c[n-1] 都會兩兩不同，所以無論選擇哪個 b[1]，所有 b[i] 也都將兩兩不同，那麼既然最大值都小於 n 了，一定就會是 {0, ..., n - 1} 這個集合

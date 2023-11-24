@@ -515,3 +515,125 @@
 	        cout << min(dp[1][n][0], dp[1][n][1]) << '\n';
 	    }
 	    ```
+	    
+[CF 149 D. Coloring Brackets](https://codeforces.com/problemset/problem/149/D) 
+給一個合法括號序列 s，問 s 有幾種染色方法。染色規則如下:
+
+1. 一個括號可以染紅色、藍色或不染色
+2. 一對匹配的括號需要且只能將其中一個染色
+3. 相鄰兩個括號顏色不能相同（但可以都不染色）
+
+$|s|\le 700$
+
+
+
+先執行括號配對，令 r_match[i] 為第 i 個括號的配對括號。定義 dp(l, r, p, q) = s[l] 的顏色為 p，s[r] 的顏色為 q，區間 [l, r] 的塗色方法數，其中 p, q 的值為 0 時代表不染色，為 1 時代表藍色，為 2 時代表紅色。
+
+首先是初始條件：如果 r = l + 1，那麼 [l,r] 一定是一對匹配的括號。所以我們設定 dp(l, r 0, 0) = dp(l, r, 1, 2) = dp(l, r, 2, 1) = dp(l, r, 2, 2) = 0
+
+轉移的時候，需要分類討論：
+
+1. 如果第 l 個括號剛好跟第 r 個括號配對
+
+	以 dp(l, r, 0, 1) 為例：由於左端點不染色，右端點是 1，所以它不能 dp(l + 1, r - 1, *, 1) 轉移過來，否則相鄰兩個括號的顏色相同，就不符合條件了。那麼我們從 0 到 2 枚舉 i,j，然後看 i, j 的值來一個一個轉移即可。
+	
+```cpp
+for (int i = 0; i <= 2; i++) {
+    for (int j = 0; j <= 2; j++) {
+        if (j != 1) dp[l][r][0][1] += dp[l + 1][r - 1][i][j], dp[l][r][0][1] %= mod;
+        if (j != 2) dp[l][r][0][2] += dp[l + 1][r - 1][i][j], dp[l][r][0][2] %= mod;
+        if (i != 1) dp[l][r][1][0] += dp[l + 1][r - 1][i][j], dp[l][r][1][0] %= mod;
+        if (i != 2) dp[l][r][2][0] += dp[l + 1][r - 1][i][j], dp[l][r][2][0] %= mod;
+    }
+}
+```
+
+2. 如果第 l 個括號剛好跟第 r 個括號不配對
+
+    例如說 ( ... ) (...)。我們找出與第 l 個括號配對的括號，分別處理出區間 [l, r_match[l]] 的方案數與 [r_match[l] + 1, r] 的方案數，然後相乘即可。需要注意的是 r_match[l] 與 r_match[l] + 1 處的括號顏色不能相同，這種情況需要特判。
+    
+```cpp
+for (int i = 0; i <= 2; i++) {
+    for (int j = 0; j <= 2; j++) {
+        for (int p = 0; p <= 2; p++) {
+            for (int q = 0; q <= 2; q++) {
+                // r_match[l] 與 r_match[l] + 1 處的括號顏色相同
+                if ((j == 1 && p == 1) || (j == 2 && p == 2)) continue;  
+                dp[l][r][i][q] += (dp[l][r_match[l]][i][j] * dp[r_match[l] + 1][r][p][q] % mod);
+                dp[l][r][i][q] %= mod;
+            }
+        }
+    }
+}
+```
+
+那麼，轉移方式就弄好！ 有一個需要注意的點就是：轉移順序最好是以記憶化搜尋（Top Down）的順序來，不然的話會很麻煩。
+
+```cpp
+#include <bits/stdc++.h>
+#define int long long
+
+using namespace std;
+
+const int MAXN = 800;
+string s;
+int dp[MAXN][MAXN][5][5], r_match[MAXN];
+stack<int> stk;
+
+const int mod = 1000000007;
+
+void dfs(int l, int r) {
+    if (r == l + 1) {
+        dp[l][r][0][1] = dp[l][r][0][2] = dp[l][r][1][0] = dp[l][r][2][0] = 1;
+    } else if (r_match[l] == r) {
+        dfs(l + 1, r - 1); 
+        for (int i = 0; i <= 2; i++) {
+            for (int j = 0; j <= 2; j++) {
+                if (j != 1) dp[l][r][0][1] += dp[l + 1][r - 1][i][j], dp[l][r][0][1] %= mod;
+                if (j != 2) dp[l][r][0][2] += dp[l + 1][r - 1][i][j], dp[l][r][0][2] %= mod;
+                if (i != 1) dp[l][r][1][0] += dp[l + 1][r - 1][i][j], dp[l][r][1][0] %= mod;
+                if (i != 2) dp[l][r][2][0] += dp[l + 1][r - 1][i][j], dp[l][r][2][0] %= mod;
+            }
+        }
+    } else {
+        dfs(l, r_match[l]);
+        dfs(r_match[l] + 1, r);
+        for (int i = 0; i <= 2; i++) {
+            for (int j = 0; j <= 2; j++) {
+                for (int p = 0; p <= 2; p++) {
+                    for (int q = 0; q <= 2; q++) {
+                        if ((j == 1 && p == 1) || (j == 2 && p == 2)) continue;
+                        dp[l][r][i][q] += (dp[l][r_match[l]][i][j] * dp[r_match[l] + 1][r][p][q] % mod);
+                        dp[l][r][i][q] %= mod;
+                    }
+                }
+            }
+        }
+    }
+}
+
+signed main() {
+    cin >> s;
+    int n = s.size();
+    s = "$" + s;
+    for (int i = 1; i <= n; i++) {
+        if (s[i] == '(') {
+            stk.push(i);
+        } else {
+            r_match[stk.top()] = i;
+            r_match[i] = stk.top();
+            stk.pop();
+        }
+    }
+
+    dfs(1, n);
+    int ans = 0;
+    for (int i = 0; i <= 2; i++) {
+        for (int j = 0; j <= 2; j++) {
+            ans += dp[1][n][i][j];
+            ans %= mod;
+        }
+    }
+    cout << ans << '\n';
+}
+```
