@@ -4,11 +4,6 @@
 
 	$n\le 2\times 10^5$
 
-- 樹直徑性質 (APCSC)
-
-- 兩次 dfs 找樹直徑 - 正確性證明
-	- code in CF 1085D 
-
 ??? note "兩次 dfs code"
 	```cpp linenums="1"
 	#include <bits/stdc++.h>
@@ -16,7 +11,7 @@
 
     const int MAXN = 2e5 + 5;
     vector<int> G[MAXN];
-    
+
     int x = 0;
     int mx = 0;
     void dfs(int u, int par, int dist) {
@@ -26,27 +21,29 @@
         }
         for (int v : G[u]) {
             if (v == par) continue;
-            dfs(v, u, dist+1);
+            dfs(v, u, dist + 1);
         }
     }
-    
+
     void solve() {
-        int n; cin >> n;
-        for (int i=0; i<n-1; i++) {
+        int n;
+        cin >> n;
+        for (int i = 0; i < n - 1; i++) {
             int u, v;
             cin >> u >> v;
-            u--; v--;
+            u--;
+            v--;
             G[u].push_back(v);
             G[v].push_back(u);
         }
-    
+
         dfs(0, -1, 0);
         mx = 0;
         dfs(x, -1, 0);
-    
+
         cout << mx << endl;
     }
-    
+
     int main() {
         ios::sync_with_stdio(0);
         cin.tie(0);
@@ -192,61 +189,61 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int INF = 2e18;
-        const int MAXN = 1e5 + 5;
-        const int M = 1e9 + 7;
-
-        struct Node {
-            int mx, sec;
-        };
-
-        int n, m;
-        vector<pair<int, int>> G[MAXN];
-        vector<Node> dp(MAXN);
-        int vis[MAXN];
-        Node ans;
-
-        void cal(int val, Node &x) {
-            if (x.mx < val) {
-                x.sec = x.mx, x.mx = val;
-            } else if (val != x.mx && x.sec < val) {
-                x.sec = val;
-            }
-        }
-
-        void dfs(int u) {
-            vis[u] = true;
-            for (auto [v, w] : G[u]) {
-                if (vis[v] == 1) continue;
-
-                dfs(v);
-                // ans 的轉移式
-                cal(dp[v].mx + dp[u].mx + w, ans);
-                cal(dp[v].mx + dp[u].sec + w, ans);
-                cal(dp[u].mx + dp[v].sec + w, ans);
-
-                // update dp[u]
-                cal(dp[v].mx + w, dp[u]);
-                cal(dp[v].sec + w, dp[u]);
-            }
-        }
-
-        signed main() {
-            cin >> n;
-            int u, v, w;
-            for (int i = 1; i <= n - 1; i++) {
-                cin >> u >> v >> w;
-                u++, v++;
-                G[u].push_back({v, w});
-                G[v].push_back({u, w});
-            }
-
-            dfs(1);
-            cout << ans.sec << "\n";
-        }
+	    #define int long long
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int MAXN = 1e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Node {
+	        int mx, sec;
+	    };
+	
+	    int n, m;
+	    vector<pair<int, int>> G[MAXN];
+	    vector<Node> dp(MAXN);
+	    int vis[MAXN];
+	    Node ans;
+	
+	    void cal(int val, Node &x) {
+	        if (x.mx < val) {
+	            x.sec = x.mx, x.mx = val;
+	        } else if (val != x.mx && x.sec < val) {
+	            x.sec = val;
+	        }
+	    }
+	
+	    void dfs(int u) {
+	        vis[u] = true;
+	        for (auto [v, w] : G[u]) {
+	            if (vis[v] == 1) continue;
+	
+	            dfs(v);
+	            // ans 的轉移式
+	            cal(dp[v].mx + dp[u].mx + w, ans);
+	            cal(dp[v].mx + dp[u].sec + w, ans);
+	            cal(dp[u].mx + dp[v].sec + w, ans);
+	
+	            // update dp[u]
+	            cal(dp[v].mx + w, dp[u]);
+	            cal(dp[v].sec + w, dp[u]);
+	        }
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	        int u, v, w;
+	        for (int i = 1; i <= n - 1; i++) {
+	            cin >> u >> v >> w;
+	            u++, v++;
+	            G[u].push_back({v, w});
+	            G[v].push_back({u, w});
+	        }
+	
+	        dfs(1);
+	        cout << ans.sec << "\n";
+	    }
 	    ```
 
 ???+note "[CF 1294 F. Tree Paths on a Tree](https://codeforces.com/problemset/problem/1294/F)"

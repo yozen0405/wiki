@@ -181,6 +181,7 @@ nav:
         - 樹壓平: 'graph/euler_tour.md'
         - 倍增法與 LCA: 'graph/lca.md'
         - prufer 序列: 'graph/prufer.md'
+        - 樹同構: 'graph/tree_isomorphism.md'
         - 題目:
           - 類 topo sort: 'graph/tree_topo_sort.md'
           - greedy: 'graph/tree_greedy.md'
