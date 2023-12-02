@@ -18,24 +18,24 @@
 	??? note "code"
 		```cpp linenums="1"
 		vector<int> maxSlidingWindow(vector<int>& nums, int k) {
-            vector<int> ret;
-            deque<int> dq;
-            for (int i = 0; i < nums.size(); i++) {
-                if (dq.size() && dq.front() <= i - k) {
-                    dq.pop_front();  // 將過期元素移除
-                }
-                while (dq.size() && nums[i] >= nums[dq.back()]) {
-                    dq.pop_back();  // 將隊尾用不上答案移除
-                }
-                dq.push_back(i);
-                if (i >= k - 1) {
-                    ret.push_back(nums[dq.front()]);  // 以 i 為結尾長度為 k 的極值
-                }
-            }
-            return ret;
-        }
+	        vector<int> ret;
+	        deque<int> dq;
+	        for (int i = 0; i < nums.size(); i++) {
+	            if (dq.size() && dq.front() <= i - k) {
+	                dq.pop_front();  // 將過期元素移除
+	            }
+	            while (dq.size() && nums[i] >= nums[dq.back()]) {
+	                dq.pop_back();  // 將隊尾用不上答案移除
+	            }
+	            dq.push_back(i);
+	            if (i >= k - 1) {
+	                ret.push_back(nums[dq.front()]);  // 以 i 為結尾長度為 k 的極值
+	            }
+	        }
+	        return ret;
+	    }
 		```
-		
+
 ???+note "[CF 372 C. Watching Fireworks is Fun](https://codeforces.com/problemset/problem/372/C)"
 	有 $n$ 個位置，有 $m$ 個煙花要放，每秒鐘可以移動 $d$ 長度的距離，每個煙花放出的地點和時間分別為 $a_i$ 和 $t_i$，如果在煙花放出時你所在位置為 $x$ 那麼得到的快樂值為 $b_i-|a_i-x|$，問你能得到的最大快樂值是多少？
 	
@@ -51,57 +51,57 @@
 	??? note "code"	
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define F first
-        #define S second
-        using namespace std;
-
-        const int MAXN = 15e4 + 5;
-
-        struct Node {
-            int t, a, b;
-        };
-
-        int n, m, d;
-        Node v[MAXN];
-        int dp[MAXN], tmp[MAXN];
-
-        signed main() {
-            cin >> n >> m >> d;
-            for (int i = 1; i <= m; i++) {
-                auto &[t, a, b] = v[i];
-                cin >> a >> b >> t;
-            }
-            sort(v + 1, v + m + 1);
-            int last = 0;
-            for (int i = 1; i <= m; i++) {
-                for (int j = 1; j <= n; j++) {
-                    tmp[j] = dp[j];
-                    dp[j] = 0;
-                }
-                auto [t, a, b] = v[i];
-
-                int rp = 0;
-                deque<pair<int, int>> st;
-                for (int j = 1; j <= n; j++) {
-                    int L = max(1ll, j - 1ll * (t - last) * d), R = min(n, j + 1ll * (t - last) * d);
-                    while (rp < R) {
-                        rp++;
-                        while (st.size() && tmp[rp] >= st.back().S) {
-                            st.pop_back();
-                        }
-                        st.push_back({rp, tmp[rp]});
-                    }
-                    while (st.front().F < L) st.pop_front();
-                    dp[j] = st.front().S;
-                }
-                for (int j = 1; j <= n; j++) {
-                    dp[j] += b - abs(a - j);
-                }
-                last = t;
-            }
-            cout << *max_element(dp + 1, dp + n + 1) << '\n';
-        }
+	    #define int long long
+	    #define F first
+	    #define S second
+	    using namespace std;
+	
+	    const int MAXN = 15e4 + 5;
+	
+	    struct Node {
+	        int t, a, b;
+	    };
+	
+	    int n, m, d;
+	    Node v[MAXN];
+	    int dp[MAXN], tmp[MAXN];
+	
+	    signed main() {
+	        cin >> n >> m >> d;
+	        for (int i = 1; i <= m; i++) {
+	            auto &[t, a, b] = v[i];
+	            cin >> a >> b >> t;
+	        }
+	        sort(v + 1, v + m + 1);
+	        int last = 0;
+	        for (int i = 1; i <= m; i++) {
+	            for (int j = 1; j <= n; j++) {
+	                tmp[j] = dp[j];
+	                dp[j] = 0;
+	            }
+	            auto [t, a, b] = v[i];
+	
+	            int rp = 0;
+	            deque<pair<int, int>> st;
+	            for (int j = 1; j <= n; j++) {
+	                int L = max(1ll, j - 1ll * (t - last) * d), R = min(n, j + 1ll * (t - last) * d);
+	                while (rp < R) {
+	                    rp++;
+	                    while (st.size() && tmp[rp] >= st.back().S) {
+	                        st.pop_back();
+	                    }
+	                    st.push_back({rp, tmp[rp]});
+	                }
+	                while (st.front().F < L) st.pop_front();
+	                dp[j] = st.front().S;
+	            }
+	            for (int j = 1; j <= n; j++) {
+	                dp[j] += b - abs(a - j);
+	            }
+	            last = t;
+	        }
+	        cout << *max_element(dp + 1, dp + n + 1) << '\n';
+	    }
 		```
 
 ???+note "[Zerojudge c528. 相隔小於一定距離最小總和子序列](https://zerojudge.tw/ShowProblem?problemid=c528)"
@@ -117,48 +117,50 @@
 		用單調對列維護，步驟為:
 		
 		- 刪掉過期的元素
-
+	
 		- 計算 dp(i)
-
+	
 		- 用 dp(i) 來更新單調 queue
 		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
+	    #define int long long
+	    using namespace std;
+	
+	    const int MAXN = 1e6 + 5;
+	    const int INF = 0x3f3f3f3f;
+	    int n, k;
+	    int a[MAXN];
+	    int dp[MAXN];
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> n >> k;
+	        deque<int> dq;
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	            while (dq.size() && dq.front() < i - k) {
+	                dq.pop_front();
+	            }
+	            if (i < k) {
+	                dp[i] = a[i];
+	                if (dq.size() && dp[dq.front()] < 0) dp[i] += dp[dq.front()];
+	            } else {
+	                dp[i] = dp[dq.front()] + a[i];
+	            }
+	            while (dq.size() && dp[dq.back()] >= dp[i]) {
+	                dq.pop_back();
+	            }
+	            dq.push_back(i);
+	        }
+	        cout << dp[dq.front()];
+	    }
+	    ```
 
-        const int MAXN = 1e6 + 5;
-        const int INF = 0x3f3f3f3f;
-        int n, k;
-        int a[MAXN];
-        int dp[MAXN];
+## 類似 stack 的維護過程
 
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cin >> n >> k;
-            deque<int> dq;
-            for (int i = 0; i < n; i++) {
-                cin >> a[i];
-                while (dq.size() && dq.front() < i - k) {
-                    dq.pop_front();
-                }
-                if (i < k) {
-                    dp[i] = a[i];
-                    if (dq.size() && dp[dq.front()] < 0) dp[i] += dp[dq.front()];
-                } else {
-                    dp[i] = dp[dq.front()] + a[i];
-                }
-                while (dq.size() && dp[dq.back()] >= dp[i]) {
-                    dq.pop_back();
-                }
-                dq.push_back(i);
-            }
-            cout << dp[dq.front()];
-        }
-        ```
-		
 ???+note "[JOI 2023 Stone Arranging 2](https://loj.ac/p/3940)"
 	依序給 $n$ 個 $a_i$，當 $i$ 加入時，令 $j$ 為 index 最大且 $a_j=a_i$，若存在，則將 $a_i,\ldots ,a_j$ 都設為 $a_i$，輸出最後的 $a_1, \ldots ,a_n$ 
 	
@@ -178,3 +180,50 @@
 		我們先求最後一個併起來的 $s$ 的長度會是多少
 	
 		依照字典序的定義 : 存在一個最小的 index $i$ 滿足 $a_i<b_i$，我們現在從左往右看，若發現當前的元素都是遞增的，那麼我們將最後一個元素刪除會是最好的，因為如果刪除其他元素會使大的被往前推 ; 若發現當前元素有一個突然遞減，那我們盡量將這個元素移往開頭會是最好的，所以這個過程可用單調 stack 來維護
+		
+???+note "[POI 2013 Take out](https://www.luogu.com.cn/problem/P3551)"
+	給一個長度為 $n$ 的序列，其中白色是黑色的 $k$ 倍，求一個消除序列，滿足以下條件: 
+
+    - 每次消除 $k + 1$ 個磚，其中 $k$ 塊白色，$1$ 塊黑色
+
+    - 並且這 $k + 1$ 塊磚從開始到結束，中間不能經過已經消除過的磚塊
+
+    輸出方案，數據保證有解。
+    
+    $2\le n\le 10^6, 1\le k\le n - 1$
+    
+    ??? note "思路"
+    	實際模擬一次，會發現有點類似一個分治的感覺，但不好思考。於是我們逆向考慮，考慮最後一次刪除一定是連續的區間，刪除後就變成子問題。例如範例測資對應的就是 `[c[c[bcb]bb]bb][bcb]`。同時，可以發現，只要滿足白色是黑色的 k 倍，就一定有解。所以我們可以使用 stack 來維護，一旦符合條件時（白色有 k 個，黑色有 1 個），就刪掉 stack 尾端的 k + 1 項，最後逆序輸刪除的順序即可
+
+        <u>證明</u>: 如果不能刪，則每個黑色相鄰的白色都 < k，那麼白色總數就 < k * 黑色，矛盾。
+        
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <cstdio>
+        #include <iostream>
+        using namespace std;
+
+        char a[1000001];
+        int n, top, sum[1000001], stack[1000001];
+        int k, cnt, ans[1000001];
+
+        int main() {
+            cin >> n >> k >> a + 1;
+            for (int i = 1; i <= n; i++) {
+                stack[++top] = i;
+                sum[top] = sum[top - 1] + (a[i] == 'c');
+                if (top >= k + 1 && sum[top] - sum[top - k - 1] == 1) {
+                    for (int j = top; j >= top - k; j--) {
+                        ans[++cnt] = stack[j];
+                    }
+                    top -= (k + 1);
+                }
+            }
+            for (int i = n; i >= 1; i--) {
+                cout << ans[i] << ' ';
+                if (i % (k + 1) == 1) {
+                    cout << '\n';
+                }
+            }
+        }
+    	```

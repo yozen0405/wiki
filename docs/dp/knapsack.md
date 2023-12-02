@@ -771,70 +771,70 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define mk make_pair
-        #define pb push_back
-        using namespace std;
-
-        const int MAXN = 3e3 + 5;
-        const long long mod = 1e9 + 7;
-        int n, k, ans;
-        int a[MAXN][MAXN];
-        int t[MAXN];
-        int tot[MAXN];
-        int dp[MAXN];
-
-        void solve(int l, int r) {
-            if (l > r) return;
-            if (l == r) {
-                int cur = 0;
-                for (int i = 0; i <= t[l]; i++) {
-                    cur += a[l][i];
-                    ans = max(dp[k - i] + cur, ans);
-                }
-                return;
-            }
-            int mid = (l + r) >> 1;
-            vector<int> tmp(k + 1);
-            for (int i = 1; i <= k; i++) {
-                tmp[i] = dp[i];
-            }
-            for (int i = mid + 1; i <= r; i++) {
-                for (int j = k; j >= t[i]; j--) {
-                    dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
-                }
-            }
-            solve(l, mid);
-            for (int i = 1; i <= k; i++) dp[i] = tmp[i];
-            for (int i = l; i <= mid; i++) {
-                for (int j = k; j >= t[i]; j--) {
-                    dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
-                }
-            }
-            solve(mid + 1, r);
-        }
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cin >> n >> k;
-            for (int i = 1; i <= n; i++) {
-                cin >> t[i];
-                int x;
-                for (int j = 1; j <= t[i]; j++) {
-                    if (j <= k) {
-                        cin >> a[i][j];
-                    } else {
-                        cin >> x;
-                    }   
-                    if (j <= k) tot[i] += a[i][j];
-                }
-                if (t[i] > k) t[i] = k;
-            }
-            solve(1, n);
-            cout << ans;
-        }
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define mk make_pair
+	    #define pb push_back
+	    using namespace std;
+	
+	    const int MAXN = 3e3 + 5;
+	    const long long mod = 1e9 + 7;
+	    int n, k, ans;
+	    int a[MAXN][MAXN];
+	    int t[MAXN];
+	    int tot[MAXN];
+	    int dp[MAXN];
+	
+	    void solve(int l, int r) {
+	        if (l > r) return;
+	        if (l == r) {
+	            int cur = 0;
+	            for (int i = 0; i <= t[l]; i++) {
+	                cur += a[l][i];
+	                ans = max(dp[k - i] + cur, ans);
+	            }
+	            return;
+	        }
+	        int mid = (l + r) >> 1;
+	        vector<int> tmp(k + 1);
+	        for (int i = 1; i <= k; i++) {
+	            tmp[i] = dp[i];
+	        }
+	        for (int i = mid + 1; i <= r; i++) {
+	            for (int j = k; j >= t[i]; j--) {
+	                dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
+	            }
+	        }
+	        solve(l, mid);
+	        for (int i = 1; i <= k; i++) dp[i] = tmp[i];
+	        for (int i = l; i <= mid; i++) {
+	            for (int j = k; j >= t[i]; j--) {
+	                dp[j] = max(dp[j], dp[j - t[i]] + tot[i]);
+	            }
+	        }
+	        solve(mid + 1, r);
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> n >> k;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> t[i];
+	            int x;
+	            for (int j = 1; j <= t[i]; j++) {
+	                if (j <= k) {
+	                    cin >> a[i][j];
+	                } else {
+	                    cin >> x;
+	                }   
+	                if (j <= k) tot[i] += a[i][j];
+	            }
+	            if (t[i] > k) t[i] = k;
+	        }
+	        solve(1, n);
+	        cout << ans;
+	    }
 	    ```
 
 ???+note "[洛谷 P4141 消失之物](https://www.luogu.com.cn/problem/P4141)"
@@ -870,37 +870,37 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-
-        using namespace std;
-
-        const int MAXN = 5005;
-        const int M = 998244353;
-        int n, m;
-        int dp[MAXN];
-
-        signed main() {
-            cin >> n >> m;
-            dp[0] = 1;
-            char op;
-            int w;
-            for (int i = 0; i < n; i++) {
-                cin >> op >> w;
-                if (op == '+') {
-                    for (int i = m; i >= w; i--) {
-                        dp[i] += dp[i - w];
-                        dp[i] %= M;
-                    }
-                } else {
-                    for (int i = w; i <= m; i++) {
-                        dp[i] -= dp[i - w];
-                        dp[i] = (dp[i] % M + M) % M;
-                    }
-                }
-                cout << dp[m] << endl;
-            }
-        }
-        ```
+	    #define int long long
+	
+	    using namespace std;
+	
+	    const int MAXN = 5005;
+	    const int M = 998244353;
+	    int n, m;
+	    int dp[MAXN];
+	
+	    signed main() {
+	        cin >> n >> m;
+	        dp[0] = 1;
+	        char op;
+	        int w;
+	        for (int i = 0; i < n; i++) {
+	            cin >> op >> w;
+	            if (op == '+') {
+	                for (int i = m; i >= w; i--) {
+	                    dp[i] += dp[i - w];
+	                    dp[i] %= M;
+	                }
+	            } else {
+	                for (int i = w; i <= m; i++) {
+	                    dp[i] -= dp[i - w];
+	                    dp[i] = (dp[i] % M + M) % M;
+	                }
+	            }
+	            cout << dp[m] << endl;
+	        }
+	    }
+	    ```
 
 ## 題目
 
@@ -1027,6 +1027,74 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 	    }
 	    ```
 
+???+note "[洛谷 P4394 选举](https://www.luogu.com.cn/problem/P4394)"
+	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，選一些 $a_i$，使得:
+	
+	- 有選的 $a_i$ 總和 $>$ $\sum a_i / 2$
+
+	- 捨棄掉一個 $a_i$，剩餘有選的 $a_i$ 總和必須 $\le \sum a_i / 2$
+
+	問有選的 $a_i$ 總和最大是多少
+
+	$1\le n\le 300$
+	
+	??? note "思路"
+		「捨棄掉一個 $a_i$，剩餘有選的 $a_i$ 總和必須 $\sum a_i / 2$」這個條件相當於: 將最小的捨棄，剩餘有選的 $a_i$ 總和必須 $\sum a_i / 2$
+	
+		我們發現「有選的 $a_i$」就是一個背包問題裡面所選的集合，而捨棄最小的，我們可以將 $a_i$ 由小到大 sort，然後反著做背包問題（$dp(i, j)$ 表示後 $i$ 個物品是否能湊到 j），這樣我們當前枚舉到的 $a_i$ 就會是當前集合內最小的了
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+
+        using namespace std;
+
+        int a[305];
+        int dp[100005];
+
+        int main() {
+            int n;
+            cin >> n;
+            int sum = 0;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+                sum += a[i];
+            }
+            sort(a + 1, a + n + 1);
+            dp[0] = 1;
+            int ans = 0;
+            for (int i = n; i >= 1; i--) {
+                for (int j = sum; j >= a[i]; j--) {
+                    dp[j] |= dp[j - a[i]];
+                    if (dp[j - a[i]] == 0) continue;
+                    if (j - a[i] <= sum / 2 && j > sum / 2) {
+                        ans = max(ans, j);
+                    }
+                }
+            }
+            cout << ans << '\n';
+        }
+        ```
+	
+???+note "[BOI 2019 Day2 p1. Tom's Kitchen](https://www.luogu.com.cn/problem/P6228)"
+	有 $n$ 個工作，$m$ 個工具，每個工作至少要用 $k$ 個不同的工具。第 $i$ 個工作所需的工具數量為 $a_i$，而第 $j$ 個工具有 $b_j$ 個，問有用到的工具裡面，剩下的總數最少是多少
+	
+	$1\le n,m,k,a_i,b_j\le 300$
+	
+	??? note "思路"
+		當 $a_i<k$ 時，無解。一個合法的方案需要:
+		
+		1. 總數量 $\ge \sum a_i$
+		2. distinct 的數量 $\ge n\times k$（這樣就能滿足每個工作至少要用 $k$ 個不同的工具）
+
+		這是一個背包的模型。設 $dp(i, j)$ 表示考慮前 $i$ 個工具，總數量為 $j$ 時，distinct 數量最大是多少。對於每個狀態，有兩種決策：
+
+		1. 不選第 $i$ 個工具，$dp(i, j) = dp(i - 1, j)$
+		2. 選第 $i$ 個工具，$dp(i, j) = dp(i - 1, j - b_i)+\min\{n,b_i \}$
+
+		最終答案就是 $dp(m, j)\ge n \times k$ 且 $j\ge \sum a_i$ 的最小的 $j$
+		
+	
 ---
 
 - APCSC

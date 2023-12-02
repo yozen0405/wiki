@@ -691,6 +691,74 @@
 	        
 	        > ref : <https://www.csie.ntu.edu.tw/~sprout/algo2021/homework/hand05.pdf>
 
+???+note "[POI 2013 Taxis](https://www.luogu.com.cn/problem/P3550)"
+	有一條一維數線，一開始在 $0$，$d$ 為計程車總部的位置，有 $n$ 台計程車，第 $i$ 台路程上限為 $a_i$，問最少叫幾台計程車可以到達位置 $m$
+
+	$1\le d\le m\le 10^{18},n\le 5\times 10^5, 1\le a_i\le 10^{18}$
+	
+	??? note "思路"
+		首先我們一看題目，不難發現，在過總部之前，使用距離越小的車越浪費，因此我們將 $a_i$ 從大到小排序，然後從前往後使用車即可。
+		
+		但是仔細一想，如果我們把大車都用了，最後剩下的小車是沒有辦法帶我們回家的。所以我們得留一輛可以從總部直接回家的車（且路程上限盡量小），然後使用剛剛的貪心策略就可以了。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        const int MAXN = 5e5 + 5;
+        int a[MAXN];
+
+        bool cmp(int a, int b) {
+            return a > b;
+        }
+
+        signed main() {
+            int m, d, n;
+            cin >> m >> d >> n;
+            for (int i = 1; i <= n; ++i) {
+                cin >> a[i];
+            }
+            sort(a + 1, a + 1 + n, cmp);
+            int last = 0;
+            for (int i = n; i >= 1; i--) {
+                if (a[i] >= m - d) {
+                    last = i;
+                    break;
+                }
+            }
+            if (last == 0) {
+                cout << "0\n";
+                exit(0);
+            }
+            int now = 0, ans = 0;
+            for (int i = 1; i <= n; ++i) {
+                if (i == last) continue;
+                if (now >= d || m - now + d - now <= a[last]) {
+                    // 到達總部或此距離小於留下的車就跳出循環
+                    break;
+                } else if (a[i] <= d - now) {
+                    cout << "0\n";
+                    exit(0);
+                }
+                ans++;
+                now += a[i] - (d - now);
+                // 解釋此距離: 車先要行駛 d - now 到達人的位置
+                if (now >= m) {
+                    cout << ans << '\n';
+                    exit(0);
+                }
+            }
+            if (m - now + d - now > a[last]) {
+                cout << "0\n";
+            } else {
+                cout << ans + 1 << '\n';
+            }
+            return 0;
+        }
+        ```
+	
 ---
 
 ## 參考資料
