@@ -70,14 +70,6 @@
 	
 	    x, y 若會不合法，此時可輸出無解，否則在得到 x, y 之後，我們就可以 greedy 的由後往前，將 b 變成我們最終的答案，具體來說，我們從後往前考慮，假如此時看到第 i 項，我們就看 v[i] 是對應到 x 或 y，若對應到的（假如是 x）還有剩，則就將 b[i] 改動，否則，我們就繼續往前面一項考慮。注意，最後改完的時候，也要記得檢查是否為不合法的括號序列。例如說 n = 10, k = 2, `a = )))))(((((`，則 `b = (((((((((( `，所以 `v = [-1, -1, -1, -1, -1, 1, 1, 1, 1, 1]`。此時 k' = 2 - 5 = -3。我們解二元一次方程式可得到 x = 1, y = -4，但這樣改完後續列為 `())))(((()`，不合法。
 
-???+note "[CF 1685 C. Bring Balance](https://codeforces.com/problemset/problem/1685/C)"
-	給定一個括號序列，每次可以 reverse 一個區間，求最少的操作次數使得括號串合法
-	
-	$n\le 2\times 10^5$
-	
-	??? note "思路"
-		解法：将左括号看做+1，右括号看做−1，所以整个字符串可以看作一个折线图，翻转一个区间相当于将这个区间的图像沿区间端点的连线的中点做中心对称，如果两端点高度之和大于中间任何一个点的高度，则可以翻转。所以可以寻找一个包含所有负值的区间，如果满足上述条件，可以一次翻折，否则以这段区间的峰值与两端点形成两个区间，两次翻折就可以搞定了。
-
 ???+note "最少修改次數"
 	給一個長度為 $n$ 的括號序列，一次操作可將一個括號改變方向，問至少幾次操作才可以使括號序列合法
 	
@@ -193,25 +185,40 @@
 	
 	??? note "code"
 	    ```cpp linenums="1"
-	    int countValidSubstrings(string s) {
-	        int n = s.length();
-	        s = "$" + s;
-	        vector<int> dp(n + 1, 0); 
-	        stack<int> stk;         
-	        int ans = 0;            
-	
-	        for (int i = 1; i <= n; ++i) {
-	            if (s[i] == '(') {
-	                stk.push(i);
-	            } else if (!stk.empty()) { 
-	                dp[i] = dp[stk.top() - 1] + 1;
-	                stk.pop();
-	                ans += dp[i];
-	            }
-	        }
-	
-	        return ans;
-	    }
+	    #include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        int countValidSubstrings(string s) {
+            int n = s.length();
+            s = "$" + s;
+            vector<int> dp(n + 1, 0);
+            stack<int> stk;
+            int ans = 0;
+
+            for (int i = 1; i <= n; ++i) {
+                if (s[i] == '(') {
+                    stk.push(i);
+                } else if (!stk.empty()) {
+                    dp[i] = dp[stk.top() - 1] + 1;
+                    stk.pop();
+                    ans += dp[i];
+                }
+            }
+
+            return ans;
+        }
+
+        signed main() {
+            int t;
+            cin >> t;
+            while (t--) {
+                string s;
+                cin >> s;
+                cout << countValidSubstrings(s) << '\n';
+            }
+        }
 	    ```
 
 ???+note "最長合法子序列"
@@ -258,6 +265,8 @@
 	$1\le n\le 10^6, 1\le m\le 10^5$
 	
 	??? note "思路"
+		考慮一個括號序列，我們把能匹配的括號全都刪掉，剩下的括號一定形如 `))))))(((((((((`
+	
 		我們考慮用線段樹去維護。考慮記錄每個區間
 		
 		- 未匹配的左括號數量
@@ -286,6 +295,23 @@
 		
 		> 參考 : <https://blog.csdn.net/weixin_45799835/article/details/120037468>
 
+???+note "合法括號子序列方法數"
+	給一個長度為 n 的序列，求括號序列的合法「子字串」個數
+	
+	$n\le 5000$
+	
+	??? note "思路"
+		dp(i, k) 表示考慮 1~i，左括號比右括號多 k 個的子序列數量
+		
+		轉移如下
+		
+		```
+		dp(i, k) += dp(i - 1, k)
+		if s[i] == '(': dp(i, k) += dp(i - 1, k - 1)
+		else s[i] == ')': dp(i, k) += dp(i - 1, k + 1)
+		```
+
+		
 ## 其他
 
 ???+note "最少交換次數"
@@ -349,7 +375,86 @@
 	$n\le 5000$
 	
 	??? note "思路"
-		<https://www.acwing.com/solution/content/99109/>
+		**【分析，簡化問題】**
+	
+		左括號與右括號所新增的位置方案是相互獨立的，不會相互影響，即使左、右括號添加在同一個間隙，因為不能存在 "()" 的形式，此處只能為類似 "))((" 的一種形式，故總的方案數等於左括號的方案數 * 右括號的方案數。
+		
+		單獨考慮添加左括號，若以右括號為分割點，將整個序列進行分割，因為分割後的子字串中均為左括號，添加任意數目的左括號方案數均為一種，那麼此時，我們僅需考慮添加不同數量的左括號的方案數即可。右括號同理。
+		
+		**【前綴 dp】**
+		dp(i, j) 表示只考慮前 i 部分，左括號比右括號多 j 個的所有方案數
+		
+		轉移如下:
+		
+		- 若 s[i] == '('，轉移式為 dp(i, j) = dp(i - 1, j - 1)
+
+		- 若 s[i] == ')'，轉移式為 dp(i, j) = dp(i - 1, j + 1) + dp(i - 1, j) + ... + dp(i - 1, 0)。可以透過前綴優化得到 dp(i, j) = dp(i - 1, j + 1) + dp(i, j - 1)。為了防止越界，dp(i, 0) 需要特判。
+		
+		> 參考自: <https://www.acwing.com/solution/content/75383/>
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+
+        using namespace std;
+
+        typedef long long ll;
+
+        const int N = 5010, MOD = 1e9 + 7;
+        int n;
+        char str[N];
+        ll dp[N][N];
+
+        ll add(ll x, ll y) {
+            return (x + y) % MOD;
+        }
+
+        ll brackets() {
+            memset(dp, 0, sizeof dp);
+            dp[0][0] = 1;
+
+            for (int i = 1; i <= n; i++) {
+                if (str[i] == '(') {
+                    for (int j = 1; j <= n; j++) {
+                        dp[i][j] = dp[i - 1][j - 1];
+                    }
+                } else {
+                    dp[i][0] = add(dp[i - 1][0], dp[i - 1][1]);
+                    for (int j = 1; j <= n; j++) {
+                        dp[i][j] = add(dp[i - 1][j + 1], dp[i][j - 1]);
+                    }
+                }
+            }
+
+            for (int i = 0; i <= n; i++) {
+                if (dp[n][i]) {
+                    return dp[n][i];
+                }       
+            }
+            return -1;
+        }
+
+        int main() {
+            scanf("%s", str + 1);
+            n = strlen(str + 1);
+
+            ll ans_l = brackets();
+
+            reverse(str + 1, str + n + 1);
+            for (int i = 1; i <= n; i++) {
+                if (str[i] == '(') {
+                    str[i] = ')';
+                } else {
+                    str[i] = '(';
+                }
+            }
+            ll ans_r = brackets();
+
+            printf("%lld\n", ans_l * ans_r % MOD);
+
+            return 0;
+        }
+        ```
 
 ???+note "[2022 全國賽 pD. 文字編輯器 (editor)](https://nhspc2022.twpca.org/release/problems/problems.pdf#page=11)"
 	有一個由 $\texttt{+}, \texttt{[}, \texttt{]}, \texttt{x}$ 組成合法序列，此時將其中一個 $\texttt{+}$ 改成 $\texttt{|}$，並將所有 $\texttt{[}, \texttt{]}$ 換成 $\texttt{|}$。給你這個改完的序列 $s$，輸出任意一個原來的合法序列。
