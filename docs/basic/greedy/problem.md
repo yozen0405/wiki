@@ -704,63 +704,65 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int MAXN = 5e5 + 5;
-        int a[MAXN];
-
-        bool cmp(int a, int b) {
-            return a > b;
-        }
-
-        signed main() {
-            int m, d, n;
-            cin >> m >> d >> n;
-            for (int i = 1; i <= n; ++i) {
-                cin >> a[i];
-            }
-            sort(a + 1, a + 1 + n, cmp);
-            int last = 0;
-            for (int i = n; i >= 1; i--) {
-                if (a[i] >= m - d) {
-                    last = i;
-                    break;
-                }
-            }
-            if (last == 0) {
-                cout << "0\n";
-                exit(0);
-            }
-            int now = 0, ans = 0;
-            for (int i = 1; i <= n; ++i) {
-                if (i == last) continue;
-                if (now >= d || m - now + d - now <= a[last]) {
-                    // 到達總部或此距離小於留下的車就跳出循環
-                    break;
-                } else if (a[i] <= d - now) {
-                    cout << "0\n";
-                    exit(0);
-                }
-                ans++;
-                now += a[i] - (d - now);
-                // 解釋此距離: 車先要行駛 d - now 到達人的位置
-                if (now >= m) {
-                    cout << ans << '\n';
-                    exit(0);
-                }
-            }
-            if (m - now + d - now > a[last]) {
-                cout << "0\n";
-            } else {
-                cout << ans + 1 << '\n';
-            }
-            return 0;
-        }
-        ```
+	    #define int long long
+	    using namespace std;
 	
+	    const int MAXN = 5e5 + 5;
+	    int a[MAXN];
+	
+	    bool cmp(int a, int b) {
+	        return a > b;
+	    }
+	
+	    signed main() {
+	        int m, d, n;
+	        cin >> m >> d >> n;
+	        for (int i = 1; i <= n; ++i) {
+	            cin >> a[i];
+	        }
+	        sort(a + 1, a + 1 + n, cmp);
+	        int last = 0;
+	        for (int i = n; i >= 1; i--) {
+	            if (a[i] >= m - d) {
+	                last = i;
+	                break;
+	            }
+	        }
+	        if (last == 0) {
+	            cout << "0\n";
+	            exit(0);
+	        }
+	        int now = 0, ans = 0;
+	        for (int i = 1; i <= n; ++i) {
+	            if (i == last) continue;
+	            if (now >= d || m - now + d - now <= a[last]) {
+	                // 到達總部或此距離小於留下的車就跳出循環
+	                break;
+	            } else if (a[i] <= d - now) {
+	                cout << "0\n";
+	                exit(0);
+	            }
+	            ans++;
+	            now += a[i] - (d - now);
+	            // 解釋此距離: 車先要行駛 d - now 到達人的位置
+	            if (now >= m) {
+	                cout << ans << '\n';
+	                exit(0);
+	            }
+	        }
+	        if (m - now + d - now > a[last]) {
+	            cout << "0\n";
+	        } else {
+	            cout << ans + 1 << '\n';
+	        }
+	        return 0;
+	    }
+	    ```
+
 ---
 
 ## 參考資料
 
 - <https://slides.com/fhvirus/1/fullscreen#/3/7>
+
+- 更多問題可看 [洛谷 Blog 集训第三天--贪心选讲](https://www.luogu.com.cn/blog/ysz2009/ji-xun-di-san-tian-tan-xin-xuan-jiang)

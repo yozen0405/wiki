@@ -644,6 +644,113 @@ $$
 	    }
 	    ```
 
+???+note "[Kattis -	Robot Protection](https://open.kattis.com/contests/igo32n/problems/robotprotection)"
+	給 $n$ 個點，要先求出凸包，再求凸包的面積
+	
+	$1\le n\le 10^4, |x_i|,|y_i|\le 10^4$
+	
+	??? note "細節"
+		注意直接套我們上面的凸包模板，加上面積公式即可，就算凸包模板起點會現兩次也是 ok 的，不能在最後把起點 pop 掉
+		
+		把最後重複出現的起點 pop 掉也可以，但要記得將 area() 函式內的細節改一下，防止 n = 1 時，凸包把所有點都 pop 掉的 edge case
+		
+		```cpp
+		double area(vector<Point> &points) {
+            int n = points.size();
+            int ret = 0;
+            for (int i = 1; i < n; i++) {
+                ret += cross(points[i], points[i - 1]);
+            }
+            // 前面加上 if (n)，防止 n = 0
+            if (n) ret += cross(points[0], points[n - 1]);
+            return fabs((double)ret / 2);
+        }
+		```
+		
+		> submission: <http://codepad.org/EYXy2YG2>
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define mk make_pair
+        #define pb push_back
+        #define x first
+        #define y second
+        #define ALL(x) x.begin(), x.end()
+        using namespace std;
+        using Point = pair<int, int>;
+
+        Point operator+(Point a, Point b) {
+            return {a.x + b.x, a.y + b.y};
+        }
+
+        Point operator-(Point a, Point b) {
+            return {a.x - b.x, a.y - b.y};
+        }
+
+        Point operator*(Point a, double d) {
+            return {a.x * d, a.y * d};
+        }
+
+        int dot(Point a, Point b) {
+            return a.x * b.x + a.y * b.y;
+        }
+
+        int cross(Point a, Point b) {
+            return a.x * b.y - a.y * b.x;
+        }
+
+        double area(vector<Point> &points) {
+            int n = points.size();
+            int ret = 0;
+            for (int i = 1; i < n; i++) {
+                ret += cross(points[i], points[i - 1]);
+            }
+            ret += cross(points[0], points[n - 1]);
+            return fabs((double)ret / 2);
+        }
+
+        vector<Point> convex_hull(vector<Point> p) {
+            int n = p.size(), m = 0;
+            sort(p.begin(), p.end());
+
+            vector<Point> h;
+            for (int i = 0; i < n; i++) {
+                while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
+                    h.pop_back(), m--;
+                }
+                h.push_back(p[i]), m++;
+            }
+
+            for (int i = n - 2; i >= 0; i--) {
+                while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
+                    h.pop_back(), m--;
+                }
+                h.push_back(p[i]), m++;
+            }
+            return h;
+        }
+
+        int n;
+        void solve() {
+            vector<Point> p; 
+            p.resize(n);
+            for (int i = 0; i < n; i++) {
+                cin >> p[i].x >> p[i].y;
+            }
+            vector<Point> h = convex_hull(p);
+            cout << fixed << setprecision(2) << area(h) << '\n';
+        }
+        signed main() {
+            while (cin >> n) {
+                if (n == 0) break;
+                solve();
+            }
+        }
+        ```
+		
 ## 極角排序
 
 一般用這個即可，不用自定義 cmp，其中 atan2 的值域是 [-180, 180]
@@ -664,7 +771,7 @@ $$
 		【觀察】: 任意通過原點的直線 ↔ 一條斜率為 m 的直線
 	
 		按照斜率排序，問題就變成了 Maximum Cirricular Subarray
-		
+
 ???+note "[TOI 2019 pA. 四點共線 (collinearity)](https://sorahisa-rank.github.io/oi-toi/2019/problems.pdf)"
 	 給 n 個點，問輸出四點共線中最小字典序的
 	 

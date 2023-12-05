@@ -281,6 +281,14 @@
 	    }
 	    ```
 
+???+note "[2023 全國賽模擬賽 pG. 吃午餐 (lunch)](https://codeforces.com/gym/104830/attachments/download/23302/zh_TW.pdf)"
+	給兩個長度為 $n$ 的序列 $a,b$，將兩兩分成一組，定義 cost 為每組的 $\max(a_i, a_j) + \max(b_i, b_j)$ 取 max，問 cost 最小是多少
+	
+	$2\le n\le 10^5, 1\le a_i, b_i \le 10^8$
+	
+	??? note "思路"
+		我們先固定一個維度，使其具有單調性，這樣就只要著重於處理另一個維度。二分搜後，我們先將 $a$ 大到小 sort，假設目前二分搜的 threshold 為 $t$，則 i 可以配的就是符合 $b_j\le t - a_i$，那這時候我們就要來思考要怎麼取最好，我們發現 $t-a_i$ 只會單調遞增，所以能取的 $b_j$ 之後只會越來越多，那麼這時我們就挑 $b_j\le t - a_i$ 中 $a_j$ 最大的，因為這時我們才能有效的使用 $a_i$ 來覆蓋 $a_j$ 的貢獻。
+		
 ???+note "法里西數列 [CS Academy - Farey Sequence](https://csacademy.com/contest/archive/task/farey_sequence/statement/)"
     給 $n$，序列 $F_n$ 舉例來說如下 :
 
