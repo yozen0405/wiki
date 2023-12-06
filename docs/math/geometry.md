@@ -523,7 +523,7 @@ $$
 
         vector<Point> h;
         for (int i = 0; i < n; i++) {
-            while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
+            while (m >= 2 && cross(p[i] - h[m - 1], h[m - 1] - h[m - 2]) < 0) {
                 h.pop_back(), m--;
             }
             h.push_back(p[i]), m++;
@@ -531,7 +531,7 @@ $$
     	
     	// 因為 h.back() 一定是 p[n - 1], 所以可以直接接在上面繼續做
         for (int i = n - 2; i >= 0; i--) {
-            while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
+            while (m >= 2 && cross(p[i] - h[m - 1], h[m - 1] - h[m - 2]) < 0) {
                 h.pop_back(), m--;
             }
             h.push_back(p[i]), m++;
@@ -613,7 +613,7 @@ $$
 	
 	        vector<Point> h;
 	        for (int i = 0; i < n; i++) {
-	            while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
+	            while (m >= 2 && cross(p[i] - h[m - 1], h[m - 1] - h[m - 2]) < 0) {
 	                h.pop_back(), m--;
 	            }
 	            h.push_back(p[i]), m++;
@@ -621,7 +621,7 @@ $$
 	
 	        // 因為 h.back() 一定是 p[n - 1], 所以可以直接接在上面繼續做
 	        for (int i = n - 2; i >= 0; i--) {
-	            while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
+	            while (m >= 2 && cross(p[i] - h[m - 1], h[m - 1] - h[m - 2]) < 0) {
 	                h.pop_back(), m--;
 	            }
 	            h.push_back(p[i]), m++;
@@ -656,15 +656,15 @@ $$
 		
 		```cpp
 		double area(vector<Point> &points) {
-            int n = points.size();
-            int ret = 0;
-            for (int i = 1; i < n; i++) {
-                ret += cross(points[i], points[i - 1]);
-            }
-            // 前面加上 if (n)，防止 n = 0
-            if (n) ret += cross(points[0], points[n - 1]);
-            return fabs((double)ret / 2);
-        }
+	        int n = points.size();
+	        int ret = 0;
+	        for (int i = 1; i < n; i++) {
+	            ret += cross(points[i], points[i - 1]);
+	        }
+	        // 前面加上 if (n)，防止 n = 0
+	        if (n) ret += cross(points[0], points[n - 1]);
+	        return fabs((double)ret / 2);
+	    }
 		```
 		
 		> submission: <http://codepad.org/EYXy2YG2>
@@ -672,85 +672,85 @@ $$
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define mk make_pair
-        #define pb push_back
-        #define x first
-        #define y second
-        #define ALL(x) x.begin(), x.end()
-        using namespace std;
-        using Point = pair<int, int>;
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define mk make_pair
+	    #define pb push_back
+	    #define x first
+	    #define y second
+	    #define ALL(x) x.begin(), x.end()
+	    using namespace std;
+	    using Point = pair<int, int>;
+	
+	    Point operator+(Point a, Point b) {
+	        return {a.x + b.x, a.y + b.y};
+	    }
+	
+	    Point operator-(Point a, Point b) {
+	        return {a.x - b.x, a.y - b.y};
+	    }
+	
+	    Point operator*(Point a, double d) {
+	        return {a.x * d, a.y * d};
+	    }
+	
+	    int dot(Point a, Point b) {
+	        return a.x * b.x + a.y * b.y;
+	    }
+	
+	    int cross(Point a, Point b) {
+	        return a.x * b.y - a.y * b.x;
+	    }
+	
+	    double area(vector<Point> &points) {
+	        int n = points.size();
+	        int ret = 0;
+	        for (int i = 1; i < n; i++) {
+	            ret += cross(points[i], points[i - 1]);
+	        }
+	        ret += cross(points[0], points[n - 1]);
+	        return fabs((double)ret / 2);
+	    }
+	
+	    vector<Point> convex_hull(vector<Point> p) {
+	        int n = p.size(), m = 0;
+	        sort(p.begin(), p.end());
+	
+	        vector<Point> h;
+	        for (int i = 0; i < n; i++) {
+	            while (m >= 2 && cross(p[i] - h[m - 1], h[m - 1] - h[m - 2]) < 0) {
+	                h.pop_back(), m--;
+	            }
+	            h.push_back(p[i]), m++;
+	        }
+	
+	        for (int i = n - 2; i >= 0; i--) {
+	            while (m >= 2 && cross(p[i] - h[m - 1], h[m - 1] - h[m - 2]) < 0) {
+	                h.pop_back(), m--;
+	            }
+	            h.push_back(p[i]), m++;
+	        }
+	        return h;
+	    }
+	
+	    int n;
+	    void solve() {
+	        vector<Point> p; 
+	        p.resize(n);
+	        for (int i = 0; i < n; i++) {
+	            cin >> p[i].x >> p[i].y;
+	        }
+	        vector<Point> h = convex_hull(p);
+	        cout << fixed << setprecision(2) << area(h) << '\n';
+	    }
+	    signed main() {
+	        while (cin >> n) {
+	            if (n == 0) break;
+	            solve();
+	        }
+	    }
+	    ```
 
-        Point operator+(Point a, Point b) {
-            return {a.x + b.x, a.y + b.y};
-        }
-
-        Point operator-(Point a, Point b) {
-            return {a.x - b.x, a.y - b.y};
-        }
-
-        Point operator*(Point a, double d) {
-            return {a.x * d, a.y * d};
-        }
-
-        int dot(Point a, Point b) {
-            return a.x * b.x + a.y * b.y;
-        }
-
-        int cross(Point a, Point b) {
-            return a.x * b.y - a.y * b.x;
-        }
-
-        double area(vector<Point> &points) {
-            int n = points.size();
-            int ret = 0;
-            for (int i = 1; i < n; i++) {
-                ret += cross(points[i], points[i - 1]);
-            }
-            ret += cross(points[0], points[n - 1]);
-            return fabs((double)ret / 2);
-        }
-
-        vector<Point> convex_hull(vector<Point> p) {
-            int n = p.size(), m = 0;
-            sort(p.begin(), p.end());
-
-            vector<Point> h;
-            for (int i = 0; i < n; i++) {
-                while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
-                    h.pop_back(), m--;
-                }
-                h.push_back(p[i]), m++;
-            }
-
-            for (int i = n - 2; i >= 0; i--) {
-                while (m >= 2 && cross(p[i] - h[m - 2], h[m - 1] - h[m - 2]) < 0) {
-                    h.pop_back(), m--;
-                }
-                h.push_back(p[i]), m++;
-            }
-            return h;
-        }
-
-        int n;
-        void solve() {
-            vector<Point> p; 
-            p.resize(n);
-            for (int i = 0; i < n; i++) {
-                cin >> p[i].x >> p[i].y;
-            }
-            vector<Point> h = convex_hull(p);
-            cout << fixed << setprecision(2) << area(h) << '\n';
-        }
-        signed main() {
-            while (cin >> n) {
-                if (n == 0) break;
-                solve();
-            }
-        }
-        ```
-		
 ## 極角排序
 
 一般用這個即可，不用自定義 cmp，其中 atan2 的值域是 [-180, 180]

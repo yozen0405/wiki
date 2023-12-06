@@ -7,9 +7,10 @@
 
 ### 有解條件
 
-<figure markdown>
-  ![Image title](./images/57.png){ width="600" }
-</figure>
+| 圖類型 | 歐拉路徑                                                     | 歐拉迴路                             |
+| ------ | ------------------------------------------------------------ | ------------------------------------ |
+| 有向圖 | 兩個頂點的 in degree 和 out degree 分別差 1，其餘頂點 in degree 等於 out degree | 每個頂點的 in degree 等於 out degree |
+| 無向圖 | 所有頂點的度數都是偶數，或者只有兩個頂點的度數是奇數，其餘頂點的度數是偶數 | 所有頂點的度數都是偶數               |
 
 ### Hierholzer’s Algorithm
 
@@ -159,8 +160,8 @@ void dfs(int u) {
 		按照「先往編號小的節點走」的策略 DFS
 		
 		<figure markdown>
-          ![Image title](./images/61.png){ width="400" }
-        </figure>
+	      ![Image title](./images/61.png){ width="400" }
+	    </figure>
 
 #### 有解條件分析
 
