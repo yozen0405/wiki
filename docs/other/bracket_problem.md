@@ -20,6 +20,7 @@
 
 ???+note "[2023 全國賽模擬賽 pF. 關卡設計 (level)](https://codeforces.com/gym/104830/attachments/download/23302/zh_TW.pdf#page=17)"
     給一個括號序列，一次操作可將一個括號改變方向，問是否能恰好做 k 次操作使括號序列合法，若可以的話輸出一組解
+    
     $n, k \le 2 \times 10^6$
 
 	??? note "思路"
@@ -138,8 +139,10 @@
 
 ## 合法長度/方法數
 
-???+note "[Leetcode 32. Longest Valid Parentheses](https://leetcode.cn/problems/longest-valid-parentheses/)"
-	給一個括號序列，問最長合法連續子字串（連續）長度
+???+note "[Leetcode 32. Longest Valid Parentheses](https://leetcode.com/problems/longest-valid-parentheses/)"
+	給一個長度為 n 的括號序列，問最長合法子字串（連續）長度
+
+	$0\le n\le 3\times 10^4$
 
 	??? note "code"
 		```cpp linenums="1"
@@ -166,7 +169,7 @@
 	    ```
 
 ???+note "合法子字串方法數 [51Nod 1791 合法括号子段](https://www.51nod.com/Challenge/Problem.html#problemId=1791)"
-	給一個長度為 n 的序列，求括號序列的合法「子字串」個數
+	給一個長度為 n 的括號序列，求合法子字串個數
 	
 	$n\le 1.1\times 10^6$
 	
@@ -186,44 +189,46 @@
 	??? note "code"
 	    ```cpp linenums="1"
 	    #include <bits/stdc++.h>
-        #define int long long
-
-        using namespace std;
-
-        int countValidSubstrings(string s) {
-            int n = s.length();
-            s = "$" + s;
-            vector<int> dp(n + 1, 0);
-            stack<int> stk;
-            int ans = 0;
-
-            for (int i = 1; i <= n; ++i) {
-                if (s[i] == '(') {
-                    stk.push(i);
-                } else if (!stk.empty()) {
-                    dp[i] = dp[stk.top() - 1] + 1;
-                    stk.pop();
-                    ans += dp[i];
-                }
-            }
-
-            return ans;
-        }
-
-        signed main() {
-            int t;
-            cin >> t;
-            while (t--) {
-                string s;
-                cin >> s;
-                cout << countValidSubstrings(s) << '\n';
-            }
-        }
+	    #define int long long
+	
+	    using namespace std;
+	
+	    int countValidSubstrings(string s) {
+	        int n = s.length();
+	        s = "$" + s;
+	        vector<int> dp(n + 1, 0);
+	        stack<int> stk;
+	        int ans = 0;
+	
+	        for (int i = 1; i <= n; ++i) {
+	            if (s[i] == '(') {
+	                stk.push(i);
+	            } else if (!stk.empty()) {
+	                dp[i] = dp[stk.top() - 1] + 1;
+	                stk.pop();
+	                ans += dp[i];
+	            }
+	        }
+	
+	        return ans;
+	    }
+	
+	    signed main() {
+	        int t;
+	        cin >> t;
+	        while (t--) {
+	            string s;
+	            cin >> s;
+	            cout << countValidSubstrings(s) << '\n';
+	        }
+	    }
 	    ```
 
-???+note "最長合法子序列"
-	給一個括號序列，問最長合法子序列（不一定連續）長度
-
+???+note "[AcWing 4207. 最长合法括号子序列](https://www.acwing.com/problem/content/4210/)"
+	給一個長度為 $n$ 的括號序列，問最長合法子序列（不一定連續）長度
+	
+	$1\le n\le 10^6$
+	
 	??? note "思路"
 		我們從第一項開始往後依序考慮，若當前右括號 - 左括號的數量 < 0 了，就不取當前這一項的右括號，否則就將 ans++
 	
@@ -310,7 +315,6 @@
 		if s[i] == '(': dp(i, k) += dp(i - 1, k - 1)
 		else s[i] == ')': dp(i, k) += dp(i - 1, k + 1)
 		```
-
 		
 ## 其他
 
@@ -387,7 +391,7 @@
 		轉移如下:
 		
 		- 若 s[i] == '('，轉移式為 dp(i, j) = dp(i - 1, j - 1)
-
+	
 		- 若 s[i] == ')'，轉移式為 dp(i, j) = dp(i - 1, j + 1) + dp(i - 1, j) + ... + dp(i - 1, 0)。可以透過前綴優化得到 dp(i, j) = dp(i - 1, j + 1) + dp(i, j - 1)。為了防止越界，dp(i, 0) 需要特判。
 		
 		> 參考自: <https://www.acwing.com/solution/content/75383/>
@@ -395,66 +399,66 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-
-        using namespace std;
-
-        typedef long long ll;
-
-        const int N = 5010, MOD = 1e9 + 7;
-        int n;
-        char str[N];
-        ll dp[N][N];
-
-        ll add(ll x, ll y) {
-            return (x + y) % MOD;
-        }
-
-        ll brackets() {
-            memset(dp, 0, sizeof dp);
-            dp[0][0] = 1;
-
-            for (int i = 1; i <= n; i++) {
-                if (str[i] == '(') {
-                    for (int j = 1; j <= n; j++) {
-                        dp[i][j] = dp[i - 1][j - 1];
-                    }
-                } else {
-                    dp[i][0] = add(dp[i - 1][0], dp[i - 1][1]);
-                    for (int j = 1; j <= n; j++) {
-                        dp[i][j] = add(dp[i - 1][j + 1], dp[i][j - 1]);
-                    }
-                }
-            }
-
-            for (int i = 0; i <= n; i++) {
-                if (dp[n][i]) {
-                    return dp[n][i];
-                }       
-            }
-            return -1;
-        }
-
-        int main() {
-            scanf("%s", str + 1);
-            n = strlen(str + 1);
-
-            ll ans_l = brackets();
-
-            reverse(str + 1, str + n + 1);
-            for (int i = 1; i <= n; i++) {
-                if (str[i] == '(') {
-                    str[i] = ')';
-                } else {
-                    str[i] = '(';
-                }
-            }
-            ll ans_r = brackets();
-
-            printf("%lld\n", ans_l * ans_r % MOD);
-
-            return 0;
-        }
-        ```
+	
+	    using namespace std;
+	
+	    typedef long long ll;
+	
+	    const int N = 5010, MOD = 1e9 + 7;
+	    int n;
+	    char str[N];
+	    ll dp[N][N];
+	
+	    ll add(ll x, ll y) {
+	        return (x + y) % MOD;
+	    }
+	
+	    ll brackets() {
+	        memset(dp, 0, sizeof dp);
+	        dp[0][0] = 1;
+	
+	        for (int i = 1; i <= n; i++) {
+	            if (str[i] == '(') {
+	                for (int j = 1; j <= n; j++) {
+	                    dp[i][j] = dp[i - 1][j - 1];
+	                }
+	            } else {
+	                dp[i][0] = add(dp[i - 1][0], dp[i - 1][1]);
+	                for (int j = 1; j <= n; j++) {
+	                    dp[i][j] = add(dp[i - 1][j + 1], dp[i][j - 1]);
+	                }
+	            }
+	        }
+	
+	        for (int i = 0; i <= n; i++) {
+	            if (dp[n][i]) {
+	                return dp[n][i];
+	            }       
+	        }
+	        return -1;
+	    }
+	
+	    int main() {
+	        scanf("%s", str + 1);
+	        n = strlen(str + 1);
+	
+	        ll ans_l = brackets();
+	
+	        reverse(str + 1, str + n + 1);
+	        for (int i = 1; i <= n; i++) {
+	            if (str[i] == '(') {
+	                str[i] = ')';
+	            } else {
+	                str[i] = '(';
+	            }
+	        }
+	        ll ans_r = brackets();
+	
+	        printf("%lld\n", ans_l * ans_r % MOD);
+	
+	        return 0;
+	    }
+	    ```
 
 ???+note "[2022 全國賽 pD. 文字編輯器 (editor)](https://nhspc2022.twpca.org/release/problems/problems.pdf#page=11)"
 	有一個由 $\texttt{+}, \texttt{[}, \texttt{]}, \texttt{x}$ 組成合法序列，此時將其中一個 $\texttt{+}$ 改成 $\texttt{|}$，並將所有 $\texttt{[}, \texttt{]}$ 換成 $\texttt{|}$。給你這個改完的序列 $s$，輸出任意一個原來的合法序列。
