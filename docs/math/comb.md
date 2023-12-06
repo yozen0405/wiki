@@ -49,15 +49,15 @@
 
 ??? note "code"
 	```cpp linenums="1"
-    long long pre[MAXN];   // i! % p
-    long long inv[MAXN];   // i 對 p 模逆元
-    long long prei[MAXN];  // i! 對 p 的模逆元
+    long long pre[MAXN];   // i! % m
+    long long inv[MAXN];   // i 對 m 模逆元
+    long long prei[MAXN];  // i! 對 m 的模逆元
 
     void build(int n) {
         pre[1] = pre[0] = 1, inv[1] = inv[0] = 1, prei[1] = prei[0] = 1;
         for (int i = 2; i <= n; i++) {
             pre[i] = pre[i - 1] * i % M;
-            inv[i] = (M - M / i * inv[p % i] % M) % M;
+            inv[i] = (M - M / i * inv[M % i] % M) % M;
             prei[i] = prei[i - 1] * inv[i] % M;
         }
     }

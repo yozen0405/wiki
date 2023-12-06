@@ -48,10 +48,10 @@
 
 ## Maximum s-t flow 演算法
 
-???+note "模板測試 [LOJ #101. 最大流](https://loj.ac/p/101)"
+???+note "模板測試 [Kattis - Max flow](https://loj.ac/p/https://open.kattis.com/problems/maxflow)"
 	給一張 $n$ 點 $m$ 邊有向圖，每條邊給定容量 c(u, v)，問 $s$ 到 $t$ 的最大流
 	
-	$n\le 100, m\le 5000, 0\le c(u, v) \le 2^{31}-1$
+	$n\le 500, m\le 10^4, 0\le c(u, v) \le 2^{31}-1$
 
 ### Ford–Fulkerson
 
