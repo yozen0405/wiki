@@ -819,4 +819,49 @@ for r = 1...n:
 	set.insert(p[r])
 ```
 
+??? note "code"
+	```cpp linenums="1"
+	#include <bits/stdc++.h>
+    #define int long long
+    #define x first
+    #define y second
+    #define pii pair<int, int>
+    using namespace std;
+
+    const int INF = 9e18;
+
+    int dis(pii a, pii b) {
+        int x = a.x - b.x, y = a.y - b.y;
+        return x * x + y * y;
+    }
+
+    signed main() {
+        int n;
+        cin >> n;
+        vector<pair<int, int>> p(n);
+        for (int i = 0; i < n; i++) {
+            cin >> p[i].x >> p[i].y;
+        }
+        sort(p.begin(), p.end());
+        set<pair<int, int>> s;
+        s.clear();
+        s.insert({p[0].y, p[0].x});
+        int l = 0, ans = INF;
+        for (int i = 1; i < n; i++) {
+            int d = ceil(sqrt(ans));
+            while (l < i && p[l].x < p[i].x - d) {
+                s.erase({p[l].y, p[l].x});
+                l++;
+            }
+            auto it_l = s.lower_bound({p[i].y - d, 0});
+            auto it_r = s.upper_bound({p[i].y + d, 0});
+            for (auto it = it_l; it != it_r; it++) {
+                ans = min(ans, dis({it->y, it->x}, p[i]));
+            }
+            s.insert({p[i].y, p[i].x});
+        }
+        cout << ans << '\n';
+    }
+    ```
+
 [^1]: 見<a href="/wiki/math/images/51.png" target="_blank">此圖</a>

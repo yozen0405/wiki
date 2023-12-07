@@ -48,11 +48,142 @@
 
 ## Maximum s-t flow 演算法
 
-???+note "模板測試 [Kattis - Max flow](https://loj.ac/p/https://open.kattis.com/problems/maxflow)"
-	給一張 $n$ 點 $m$ 邊有向圖，每條邊給定容量 c(u, v)，問 $s$ 到 $t$ 的最大流
+???+note "模板測試 [Kattis - Max flow](https://open.kattis.com/problems/maxflow)"
+	給一張 $n$ 點 $m$ 邊有向圖，每條邊給定容量 c(u, v)，問 $s$ 到 $t$ 的最大流，並輸出每條邊的流量
 	
-	$n\le 500, m\le 10^4, 0\le c(u, v) \le 2^{31}-1$
+	$2\le n\le 500, 0\le m\le 10^4, 1\le c(u, v) \le 10^8$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define ALL(x) x.begin(), x.end()
+        #define pb push_back
 
+        using namespace std;
+
+        const int INF = 2e18;
+
+        struct dinic {
+            int n, m, s, t;
+            struct Edge {
+                int u, v, cap;  
+            };
+            vector<Edge> edges;
+            vector<vector<int>> G;
+            vector<int> lv;
+            vector<int> cur;
+            void init() {
+                n = m = 0;
+                edges = vector<Edge>();
+                G = vector<vector<int>>();
+            }
+            void add_node() {
+                n++;
+                G.push_back({});
+            }
+            void add_edge(int u, int v, int cap) {
+                edges.push_back({u, v, cap});
+                G[u].push_back(m++);
+                edges.push_back({v, u, 0LL});
+                G[v].push_back(m++);
+            }
+            bool bfs() {
+                lv = vector<int>(n, -1);
+                queue<int> q;
+                q.push(s);
+                lv[s] = 0;
+                while (q.size()) {
+                    int u = q.front();
+                    q.pop();
+                    for (auto id : G[u]) {
+                        Edge &e = edges[id];
+                        if (e.cap > 0 && lv[e.v] < 0) {
+                            lv[e.v] = lv[u] + 1;
+                            q.push(e.v);
+                        }
+                    }
+                }
+                return lv[t] >= 0;
+            }
+            int dfs(int u, int f) {
+                if (u == t || f == 0) {
+                    return f;
+                }
+                int res = 0;
+                for (int &i = cur[u]; i < G[u].size(); i++) {
+                    Edge &e = edges[G[u][i]];
+                    Edge &rev = edges[G[u][i] ^ 1];
+                    if (e.cap > 0 && lv[e.v] == lv[u] + 1) {
+                        int a = dfs(e.v, min(f, e.cap));
+                        if (a > 0) {
+                            e.cap -= a;
+                            rev.cap += a;
+                            res += a;
+                            f -= a;
+                            if (f == 0) {
+                                break;
+                            }
+                        }
+                    }
+                }
+                return res;
+            }
+            int max_flow(int _s, int _t) {
+                s = _s, t = _t;
+                int res = 0;
+                while (bfs()) {
+                    cur = vector<int>(n, 0);
+                    while (true) {
+                        int f = dfs(s, INF);
+                        res += f;
+                        if (f == 0) break;
+                    }
+                }
+                return res;
+            }
+            void print(int flow) {
+                vector<Edge> ans;
+                for (int i = 1; i < edges.size(); i += 2) {
+                    auto [u, v, cap] = edges[i];
+                    if (cap == 0) continue;
+                    ans.push_back({u, v, cap});
+                    // cout << "u:" << v << ",v:" << u << ",cap:" << cap << "\n";
+                }
+                cout << n << " " << flow << " " << ans.size() << "\n";
+                for (auto [u, v, cap] : ans) {
+                    cout << v << " " << u << " " << cap << "\n";
+                }
+            }
+        } flow;
+
+        int n, m, s, t;
+
+        void solve() {
+            cin >> n >> m >> s >> t;
+            flow.init();
+            for (int i = 0; i < n; i++) flow.add_node();
+
+            int u, v, cap;
+            for (int i = 0; i < m; i++) {
+                cin >> u >> v >> cap;
+                flow.add_edge(u, v, cap);
+            }
+            int f = flow.max_flow(s, t);
+            flow.print(f);
+        }
+
+        signed main() {
+            // ios::sync_with_stdio (0);
+            // cin.tie (0);
+            int t = 1;
+            while (t--) {
+                solve();
+            }
+        }
+        ```
+	
 ### Ford–Fulkerson
 
 ???+note "算法概要"
@@ -503,6 +634,166 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 	最少: 從 s 開始走沒有流滿的 edges，走到的點就是答案
 
 	最多: 從 t 開始走沒有流滿的 edges，沒走到的點就是答案
+	
+???+note "模板測試 [Kattis - Min Cut](https://open.kattis.com/problems/mincut)"
+	給一張 $n$ 點 $m$ 邊有向圖，每條邊給定容量 c(u, v)，問 $s$ 到 $t$ 的 min cut，並輸出 S-component 內的點
+	
+	$2\le n\le 500, 0\le m\le 10^4, 1\le c(u, v) \le 10^8$
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define ALL(x) x.begin(), x.end()
+        #define pb push_back
+
+        using namespace std;
+
+        const int INF = 2e18;
+
+        struct dinic {
+            int n, m, s, t;
+            struct Edge {
+                int u, v, cap, w;
+            };
+
+            vector<vector<int>> G;
+            vector<Edge> edge;
+            vector<int> cur;
+            vector<int> lv;
+            vector<int> slide;
+            vector<int> ans;
+
+            void init() {
+                n = m = 0;
+                edge.clear();
+                G.clear();
+                cur.clear();
+                lv.clear();
+                slide.clear();
+                ans.clear();
+            }
+
+            void add_node() {
+                n++;
+                G.pb({});
+            }
+
+            void add_edge(int u, int v, int cap) {
+                G[u].pb(m++);
+                edge.pb({u, v, cap});
+                G[v].pb(m++);
+                edge.pb({v, u, 0LL});
+            }
+
+            int bfs() {
+                lv = vector<int>(n, -1);
+                queue<int> q;
+                q.push(s);
+                lv[s] = 0;
+
+                while (q.size()) {
+                    int u = q.front();
+                    q.pop();
+
+                    for (auto id : G[u]) {
+                        Edge &e = edge[id];
+
+                        if (e.cap > 0 && lv[e.v] == -1) {
+                            lv[e.v] = lv[e.u] + 1;
+                            q.push(e.v);
+                        }
+                    }
+                }
+                return lv[t] >= 0;
+            }
+
+            int dfs(int u, int f) {
+                if (u == t || f == 0) return f;
+                int res = 0;
+
+                for (int &i = cur[u]; i < G[u].size(); i++) {
+                    Edge &e = edge[G[u][i]];
+                    Edge &rev = edge[G[u][i] ^ 1];
+
+                    if (e.cap > 0 && lv[e.v] == lv[e.u] + 1) {
+                        int x = dfs(e.v, min(f, e.cap));
+
+                        if (x > 0) {
+                            res += x;
+                            f -= x;
+                            e.cap -= x;
+                            rev.cap += x;
+                            if (f == 0) break;
+                        }
+                    }
+                }
+
+                return res;
+            }
+
+            void cut(int u) {
+                slide[u] = 1;
+                ans.pb(u);
+                for (auto id : G[u]) {
+                    Edge &e = edge[id];
+
+                    if (slide[e.v] == -1 && e.cap > 0) {
+                        cut(e.v);
+                    }
+                }
+            }
+
+            void min_cut() {
+                slide = vector<int>(n, -1);
+                cut(s);
+
+                cout << ans.size() << "\n";
+                for (int it : ans) cout << it << "\n";
+            }
+
+            int max_flow(int _s, int _t) {
+                s = _s, t = _t;
+
+                int ans = 0;
+                while (bfs()) {
+                    cur = vector<int>(n, 0);
+                    while (true) {
+                        int f = dfs(s, INF);
+                        if (f == 0) break;
+                        ans += f;
+                    }
+                }
+                return ans;
+            }
+        } flow;
+
+        void solve() {
+            int n, m, s, t;
+            cin >> n >> m >> s >> t;
+            flow.init();
+            for (int i = 0; i < n; i++) flow.add_node();
+
+            int u, v, cap;
+            for (int i = 0; i < m; i++) {
+                cin >> u >> v >> cap;
+                flow.add_edge(u, v, cap);
+            }
+            int f = flow.max_flow(s, t);
+            flow.min_cut();
+        }
+
+        signed main() {
+            // ios::sync_with_stdio (0);
+            // cin.tie (0);
+            int t = 1;
+            while (t--) {
+                // init ();
+                solve();
+            }
+        }
+        ```
 
 ### min cut 應用
 
@@ -751,122 +1042,189 @@ min-cut 就是做 max-flow 後，從 s 半邊指到 t 半邊的那些邊。做�
 
 ??? note "code"
 	```cpp linenums="1"
-	#include <bits/stdc++.h>
-    #define int long long
-
-    using namespace std;
-    
     const int INF = (1LL << 60);
-    const int M = 1e9 + 7;
-    
-    int n;
-    
     struct dinic {
-        struct Edge {
-            int u, v, cap, c;
-        };
-    
         int n, m, s, t;
+        struct Edge {
+            int u, v, w, cap;
+        };
         vector<vector<int>> G;
         vector<Edge> edges;
-        vector<int> lv;
-        vector<int> cur;
-    
         void init() {
             n = m = 0;
-            G.clear();
-            edges.clear();
+            G = vector<vector<int>>();
+            edges = vector<Edge>();
         }
-    
-        int add_node() {
+        void add_node() {
             n++;
             G.push_back({});
-            return n - 1;
         }
-    
         void add_edge(int u, int v, int cap, int w) {
-            edges.push_back({u, v, cap, w});
-            G[u].push_back(m++);  // 0
-            edges.push_back({v, u, 0LL, -w});
-            G[v].push_back(m++);  // 1
+            edges.push_back({u, v, w, cap});
+            G[u].push_back(m++);
+            edges.push_back({v, u, -w, 0LL});
+            G[v].push_back(m++);
         }
-    
         pair<int, int> flow(int _s, int _t) {
             s = _s, t = _t;
-            int fl, cost;
-            fl = cost = 0;
-            int cnt = 0;
+            int cost = 0, fl = 0;
             while (true) {
-                vector<int> dis = vector<int>(n, INF);
-                vector<int> inq = vector<int>(n, 0);
-                vector<int> pre = vector<int>(n, -1);
-                vector<int> preL = vector<int>(n, -1);
-                dis[s] = 0;
+                vector<bool> inq(n, 0);
+                vector<int> dis(n, INF);
+                vector<int> pre_node(n, -1);
+                vector<int> pre_eid(n, -1);
                 queue<int> q;
                 q.push(s);
+                dis[s] = 0;
                 while (q.size()) {
                     int u = q.front();
                     q.pop();
-                    inq[u] = 0;
-                    for (int i = 0; i < (int)G[u].size(); i++) {
-                        int v = edges[G[u][i]].v;
-                        int w = edges[G[u][i]].c;
-                        int fw = edges[G[u][i]].cap;
-    
-                        if (fw > 0 && dis[v] > dis[u] + w) {
-                            pre[v] = u;
-                            preL[v] = G[u][i];  // bug: preL[v] = i;
-                            dis[v] = dis[u] + w;
-                            if (!inq[v]) {
-                                inq[v] = 1;
-                                q.push(v);
+                    if (inq[u]) {
+                        inq[u] = false;
+                    }
+                    for (auto id : G[u]) {
+                        Edge &e = edges[id];
+                        if (e.cap > 0 && dis[u] + e.w < dis[e.v]) {
+                            dis[e.v] = dis[u] + e.w;
+                            pre_node[e.v] = u;
+                            pre_eid[e.v] = id;
+                            if (!inq[e.v]) {
+                                inq[e.v] = true;
+                                q.push(e.v);
                             }
                         }
                     }
                 }
-    
-                if (dis[t] == INF) break;
+                if (dis[t] == INF) {
+                    break;
+                }
                 int tf = INF;
-                int u, l;
-                for (int v = t; v != s; v = u) {
-                    u = pre[v];
-                    l = preL[v];
-                    tf = min(tf, edges[l].cap);
+                for (int u, v = t, eid; v != s; v = u) {
+                    u = pre_node[v];
+                    eid = pre_eid[v];
+                    tf = min(tf, edges[eid].cap);
                 }
-    
-                for (int v = t, u, l; v != s; v = u) {
-                    u = pre[v];
-                    l = preL[v];
-                    edges[l].cap -= tf;
-                    edges[l ^ 1].cap += tf;
+                for (int u, v = t, eid; v != s; v = u) {
+                    u = pre_node[v];
+                    eid = pre_eid[v];
+                    edges[eid].cap -= tf;
+                    edges[eid ^ 1].cap += tf;
                 }
-    
                 cost += tf * dis[t];
                 fl += tf;
             }
             return {fl, cost};
         }
-    
     } flow;
-    
-    signed main() {
-        ios::sync_with_stdio(0);
-        cin.tie(0);
-    
-        int n, m, s, t;
-        cin >> n >> m >> s >> t;
-        flow.init();
-        for (int i = 1; i <= n; i++) flow.add_node();
-        for (int i = 0; i < m; i++) {
-            int u, v, cap, w;
-            cin >> u >> v >> cap >> w;
-            flow.add_edge(u, v, cap, w);
-        }
-        auto [f, cost] = flow.flow(s, t);
-        cout << f << " " << cost << "\n";
-    }
     ```
 
+???+note "模板測試 [Kattis - Minimum Cost Maximum Flow](https://open.kattis.com/problems/mincostmaxflow)"
+	給一張 $n$ 點 $m$ 邊有向圖，每條邊給定容量 c(u, v) 與 w(u, v)，問 $s$ 到 $t$ 的最大流，和 min cost
+	
+	$2\le n\le 250, 0\le m\le 10^5, 1\le c(u, v) \le 10^8$
+	
+	??? note "code"
+        ```cpp linenums="1"
+        #include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        const int INF = (1LL << 60);
+        const int M = 1e9 + 7;
+
+        struct dinic {
+            int n, m, s, t;
+            struct Edge {
+                int u, v, w, cap;
+            };
+            vector<vector<int>> G;
+            vector<Edge> edges;
+            void init() {
+                n = m = 0;
+                G = vector<vector<int>>();
+                edges = vector<Edge>();
+            }
+            void add_node() {
+                n++;
+                G.push_back({});
+            }
+            void add_edge(int u, int v, int cap, int w) {
+                edges.push_back({u, v, w, cap});
+                G[u].push_back(m++);
+                edges.push_back({v, u, -w, 0LL});
+                G[v].push_back(m++);
+            }
+            pair<int, int> flow(int _s, int _t) {
+                s = _s, t = _t;
+                int cost = 0, fl = 0;
+                while (true) {
+                    vector<bool> inq(n, 0);
+                    vector<int> dis(n, INF);
+                    vector<int> pre_node(n, -1);
+                    vector<int> pre_eid(n, -1);
+                    queue<int> q;
+                    q.push(s);
+                    dis[s] = 0;
+                    while (q.size()) {
+                        int u = q.front();
+                        q.pop();
+                        if (inq[u]) {
+                            inq[u] = false;
+                        }
+                        for (auto id : G[u]) {
+                            Edge &e = edges[id];
+                            if (e.cap > 0 && dis[u] + e.w < dis[e.v]) {
+                                dis[e.v] = dis[u] + e.w;
+                                pre_node[e.v] = u;
+                                pre_eid[e.v] = id;
+                                if (!inq[e.v]) {
+                                    inq[e.v] = true;
+                                    q.push(e.v);
+                                }
+                            }
+                        }
+                    }
+                    if (dis[t] == INF) {
+                        break;
+                    }
+                    int tf = INF;
+                    for (int u, v = t, eid; v != s; v = u) {
+                        u = pre_node[v];
+                        eid = pre_eid[v];
+                        tf = min(tf, edges[eid].cap);
+                    }
+                    for (int u, v = t, eid; v != s; v = u) {
+                        u = pre_node[v];
+                        eid = pre_eid[v];
+                        edges[eid].cap -= tf;
+                        edges[eid ^ 1].cap += tf;
+                    }
+                    cost += tf * dis[t];
+                    fl += tf;
+                }
+                return {fl, cost};
+            }
+        } flow;
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+
+            int n, m, s, t;
+            cin >> n >> m >> s >> t;
+            flow.init();
+            for (int i = 1; i <= n; i++) flow.add_node();
+            for (int i = 0; i < m; i++) {
+                int u, v, cap, w;
+                cin >> u >> v >> cap >> w;
+                flow.add_edge(u, v, cap, w);
+            }
+            auto [f, cost] = flow.flow(s, t);
+            cout << f << " " << cost << "\n";
+        }
+        ```
+	
 ???+note "[CSES - Distinct Routes II](https://cses.fi/problemset/task/2130)"
 	給一張 n 點 m 邊有向圖，有源點 1 走到匯點 n，每條邊 (u, v) 最多只能走 c(u, v) 次，且經過的 cost 都是 1，最少需要花多少 cost 才能走出 k 條 disjoint path
 	
