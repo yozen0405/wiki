@@ -75,8 +75,35 @@ $\text{query}(i,j)=\max\begin{cases} M(i, D) \\ M(j - D + 1, D) \end{cases}$
 	
 	$n,q\le 2\times 10^5,1\le a_i\le 10^9$
 
-???+note " [2021 附中模競 調色盤]()"
-	class 5
+???+note "[CF 1904 D2. Set To Max (Hard Version)](https://codeforces.com/problemset/problem/1904/D2)"
+	給兩個序列 $a,b$，問要進行幾次以下操作才能讓 $a=b$:
+	
+	- $\text{update}(l,r):$ 讓所有 $a_l,\ldots ,a_r$ 都改成 $\max\{ a_l,\ldots ,a_r\}$
+
+	$n\le 2\times 10^5, 1\le a_i, b_i\le n$ 	
+	
+	??? note "思路"
+		考慮能變得 interval 要符合什麼條件，假設當前要改 $a_i$，則我們要找到最近的 $j$ 滿足 $b_i=a_j$，而且對於 $i\le k\le j$:
+		
+		-  不能將 interval 內的項改的比他的 threshold 還小，也就是 $b_i\le b_k$ 
+
+		- $a_j$ 要是 interval $[i,j]$ 內的最大值，也就是 $a_k\le b_i$ 
+
+		所以我們從 $i=1\ldots n$，若當前 $a_i\neq b_i$，則將依照上面改即可，優化用 Sparse Table
+	
+???+note "[2021 附中模競 II pD. 調色盤 (Palette)](https://drive.google.com/file/d/1Qw4eUf0uSrLDOsdrq11xZxrCAVubAW4P/view)"
+	給一個長度為 $n$ 的陣列 $a_1 ,\ldots ,a_n$，有 $q$ 筆詢問如下 :
+	
+	- $\text{query}(l,r):$ 問 $a_l \sim a_r$ 裡有幾個 subarray 滿足最大最小差 $\le k$
+	
+	$n,k\le 10^6,c_i\le 10^6,q\le 10^6$
+	
+	??? note "思路"
+		對於每個 i 定義 last[i] = 從 i 開始最大可以到哪個 index 滿足區間 max - min <= k
+		
+		這可以用 two pointer + sparse table 預處理
+		
+		然後對於 query(l, r) 就可以二分搜最大的分界點 t，滿足前面的 last[i] 都 <= r，後面的都 > r。前面的可以對於 last[ ] 維護 prefix sum，後面用數學解 O(1) 算即可
 	
 ## Disjoint Sparse Table
 
