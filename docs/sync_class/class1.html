@@ -1,0 +1,705 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>第一章 程式語言初探</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="09e59c6b-c83e-41de-b54d-ea738fbbbd94" class="page sans"><header><h1 class="page-title">第一章 程式語言初探</h1><p class="page-description"></p></header><div class="page-body"><h2 id="b8962f68-574d-4211-a4dd-26a5fef9c444" class="">1.1 <strong><strong>程式語言是什麼</strong></strong></h2><p id="ee5ce3a1-c0d8-4355-bf9c-4d5667816e6c" class="">程式語言是一種人與電腦溝通的工具，這種允許了工程師能將想法和指令轉化為電腦能夠理解和執行的形式。<br/>每種程式語言都有其特定的語法和規則，並且可以應用於不同的應用領域。程式語言目前的應用，包括軟體應用程式、網站、遊戲、大數據分析、AI 等。<br/></p><h3 id="12505e79-bcd3-4015-929e-d35a41ec61f1" class="">1.1.1 <strong>語言的種類</strong></h3><p id="e0414d3a-f5f5-4308-a889-a9a31623ff01" class="">我們注要會分成 Python 一類，C, C++, Java 一類，Python 的特點是語法簡潔，好寫，但效率會比較差，注意在寫一些簡單的程式會很好用，C, C++, Java 則是語法比較困難，但能讓使用者更加細節的運用其中的語法，在寫一些大型專案時較有優勢。</p><p id="484d61e9-d7f5-47f8-b24e-96a1ed66585f" class="">其實程式語言的概念都是差不多的，而在學完 C, C++ 後再來學 Python 也能非常容易上手。我們這堂課主要會學習的就是 C++。</p><h2 id="4fab12c5-f05f-4296-94ce-ba70f6441efa" class="">1.2 <strong>如何寫出一個程式？</strong></h2><h3 id="837d4fc8-d28a-43d9-a200-e3a900ebbb72" class="">1.2.1 <strong>確定目標</strong></h3><p id="a21c8e0e-0119-4a60-bffe-c6ec0cefe523" class="">在你開始寫程式之前，首先要明確你的目標是什麼。你要解決什麼問題？</p><h3 id="018c0eb3-10cb-4d75-a835-28129e8f75ee" class="">1.2.2 <strong>設計程式架構</strong></h3><p id="83ed7a94-0d15-48b0-b7f0-ad1e3bfff861" class="">列出或想好你程式的主要功能，例如以下流程圖。</p><h3 id="6b4bc366-9b31-4a7c-9a02-c9d8af7121f4" class="">1.2.3 <strong><strong>編寫程式(Coding)</strong></strong></h3><p id="6eef0a43-f63f-4653-bec9-97d5b58b9ca9" class="">將上面想要實現的功能與步驟轉化為具體的程式碼。</p><figure id="0e48a2ab-ac53-4367-85c2-68e3901c6474" class="image"><a href="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled.png"><img style="width:288px" src="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled.png"/></a></figure><h2 id="d1049126-c4c0-4653-bcb5-c3829fbcfc73" class="">1.3 整合式開發環境 <strong>IDE</strong></h2><h3 id="f5ff0ab6-64c8-4e38-b14f-d84fde1c8b62" class="">1.3.1 介紹</h3><p id="b68c7e06-4803-4f19-9c76-e9ee4c7460f4" class="">在寫好程式後，我們會需要一個編譯器(compiler)能讓電腦接收到我們所輸入的訊息，就像翻譯師，把我們寫的程式碼轉換成電腦能夠理解的語言，讓它讀懂並執行我們的代碼。</p><figure id="913d1083-57d3-4ece-868a-6848cb90dffe" class="image"><a href="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%201.png"><img style="width:576px" src="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%201.png"/></a></figure><p id="dd32bd97-53f5-42a7-8a17-11ad0c13b7ea" class="">而整合式開發環境（IDE）則是一個集成了多個功能的環境，其中包括編譯器。</p><figure id="feea8785-ff51-4524-b012-c2765a7495c7" class="image"><a href="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%202.png"><img style="width:288px" src="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%202.png"/></a></figure><p id="e70fbb42-2c93-4344-b904-840ef89f24aa" class="">下面是我有用過的兩個編譯器</p><ul id="d024b8d5-97a5-4eb2-bf52-3bc9221089a4" class="bulleted-list"><li style="list-style-type:disc">Vscode: 功能最強大，是工程師一般都會使用的，但需要額外安裝一些插件，對新手稍不友善</li></ul><ul id="c06b6930-f22e-46bb-9c31-03c6d41d208a" class="bulleted-list"><li style="list-style-type:disc">Code::blocks: 適合新手上手，但對於工程師功能相對比較不好調整。</li></ul><p id="c194bdac-1f3f-4219-9307-a3999a3cc3a2" class="">我們這邊會使用很好上手的 Code::blocks，以下是安裝教學。</p><h3 id="0ddca17d-6728-41fb-8c31-eaa88bf248e3" class="">1.3.2 安裝教學</h3><h3 id="d9af4f83-fddb-436f-9c8a-14d572a57b68" class="">1.3.2.1 Mac</h3><ol type="1" id="e0f8bfa3-3ce2-40ac-8133-7ae4fdcf26b4" class="numbered-list" start="1"><li>點進去這個網址 <a href="http://www.codeblocks.org/downloads?ref=developerinsider.co">http://www.codeblocks.org/downloads</a></li></ol><ol type="1" id="8a6d76b2-9c98-4683-aae5-7b0f1c79547c" class="numbered-list" start="2"><li>點選 Binary releases</li></ol><ol type="1" id="8bb35c87-916e-4db1-a2b8-7c86718e0be6" class="numbered-list" start="3"><li>點選 Mac OS X</li></ol><ol type="1" id="79560b60-4a12-40d9-82b6-0be21faf53e6" class="numbered-list" start="4"><li>點選 <a href="http://sourceforge.net/">Sourceforge.net</a></li></ol><ol type="1" id="fec6db23-caa4-4b08-b77f-b2a511615761" class="numbered-list" start="5"><li>執行剛剛的 <code>.dmg</code> 檔然後照著他的指示做</li></ol><ol type="1" id="6f98d1b7-479c-4a3e-b3d6-6c2ce0b3c3fe" class="numbered-list" start="6"><li>開啟 Application 資料夾然後點擊 CodeBlocks</li></ol><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="041b95a6-68b5-4ac8-8afc-738e3fc8c333"><div style="font-size:1.5em"><span class="icon">⚠️</span></div><div style="width:100%">如果在這時候出現警告要去:<br/>點擊左上角的 apple 鍵 → System Preferences → Security &amp; Privacy → 點擊 🔒 → 輸入密碼 → Open Anyway<br/></div></figure><h3 id="04094c6f-876b-4625-8d40-9b878381cc77" class="">1.3.2.2 Window</h3><ol type="1" id="34044259-f1d9-4fb5-9e4f-c735b2af1c9e" class="numbered-list" start="1"><li>點進去這個網址 <a href="http://www.codeblocks.org/downloads?ref=developerinsider.co">http://www.codeblocks.org/downloads</a></li></ol><ol type="1" id="30fca2ef-2038-4fff-8573-ec9da13494dc" class="numbered-list" start="2"><li>點選 Binary releases</li></ol><ol type="1" id="ed8d6bc6-b9d7-447d-afbb-baea93e6b223" class="numbered-list" start="3"><li>點選 <code>Windows XP / Vista / 7 / 8.x / 10</code></li></ol><ol type="1" id="e5b5d8fc-8624-47a8-942e-939b06bae490" class="numbered-list" start="4"><li>點選 <code>codeblocks-20.03mingw-setup.exe</code>  的 <a href="http://sourceforge.net/">Sourceforge.net</a></li></ol><ol type="1" id="e79daa6f-4e08-4f00-a5a8-2853fc3370ea" class="numbered-list" start="5"><li>點開安裝檔之後基本上就一直點 next 就可以了</li></ol><p id="abb0510f-7ff4-4800-859e-78fc92b74bcb" class="">接著，Mac 跟 Window 的步驟都是一樣的，如下:</p><ul id="8f64876f-d70c-41c6-b7ff-5f980c1a9a87" class="bulleted-list"><li style="list-style-type:disc">安裝完第一次打開後，code::blocks 應該會讓你選擇編譯器(Compiler)，沒意外的話你應該只會看到 GNU GCC Compiler 是亮起來的，把它點下去就對了，記得按 Set as default </li></ul><ul id="aed8521e-26dd-4650-91a4-189173991e60" class="bulleted-list"><li style="list-style-type:disc">點擊 Yes, associate Code::Blocks with C/C++ file tyes</li></ul><h3 id="ec7d869e-d13a-48c8-9c2e-e8d2e503d9ed" class="">1.3.3 編譯</h3><p id="2125b5d6-e506-4c97-a2bc-ac2281ed83e1" class="">在視窗右上角，選擇那個檔案的 icon，然後選擇 Empty file，之後就會打開一個新的檔案了</p><figure id="b30ae0de-fe3d-49b3-90fc-695b117a1d0c" class="image"><a href="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%203.png"><img style="width:384px" src="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%203.png"/></a></figure><p id="76a2dc6e-b98e-4684-8647-6c20fccbe549" class="">預設的檔案是沒有附檔名的，所以也就文字不會有顏色，這時候記得先存檔，將檔名命名為 <code>名字.cpp</code>，例如 <code>main.cpp</code>，會讓你在寫程式的時候比較方便閱讀</p><p id="023068d8-f0bf-4415-ac07-5b78ece0b92c" class="">打好程式了之後，點擊上面的按鈕 build an run，就會看到一個小黑窗彈出來，這就是電腦與人類互動的區域，我們把他稱為終端機(terminal)。之後會提到輸入與輸出，如果你的程式需要輸入或輸出的話就會在此展現。</p><figure id="6e4aa05d-0241-4d1c-9eda-a703bcae3d5a" class="image"><a href="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%204.png"><img style="width:336px" src="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%204.png"/></a></figure><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="4bd336ef-1a6c-489b-a009-6479e7449320"><div style="font-size:1.5em"><img class="icon" src="https://www.notion.so/icons/info-alternate_gray.svg"/></div><div style="width:100%">以後再打完程式後，按 build an run 就可以執行了</div></figure><h2 id="c1d057ce-a121-4b0c-a151-337d4d178f7f" class="">1.4 第一支程式</h2><h3 id="8f2d33a4-a570-4383-b883-0793c2918021" class="">1.4.1 Hello World!</h3><p id="ceadcb4b-2fb8-4335-9a04-1686a58f4c7f" class="">試著在 CodeBlocks 輸入以下代碼:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="f0d8ad91-0ae9-4dca-ace2-354cc202fbd0" class="code"><code class="language-C++">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; &quot;hello world!&quot;;
+		return 0;
+}</code></pre><p id="50a58b15-1bf1-4818-b67e-e4dd56cff3b8" class="">剛剛的程式，大概可以分為以下部分:</p><figure id="b93d5d3f-8131-46f1-8a40-e696ee7631ef" class="image"><a href="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%205.png"><img style="width:480px" src="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%205.png"/></a></figure><p id="7fe156d7-98e9-4164-9be7-58930ee22be9" class=""><strong>包含函數</strong></p><p id="9e662c98-83e4-4538-be11-680c417b06d2" class="">有點像工具包，像這個程式中我們要輸出東西到螢幕上，要用 cout 這個函數，而 cout 是在 &lt;iostream&gt;（Iput/Output Stream，掌管輸入輸出）這個函數庫中。而 &lt; &gt; 則是包住標頭檔的符號。</p><figure id="e237cd04-b8f3-4c5d-a4b9-36c93d867237" class="image"><a href="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%206.png"><img style="width:240px" src="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%206.png"/></a></figure><p id="3af0c3ee-f05d-4f01-bc65-6566d09c42f3" class=""><strong>命名空間</strong></p><p id="9fe67684-0e22-4d9b-af70-78893466eba6" class="">有點像是工具欄，為了避免函數混淆而需要聲明函數所在的位置，因為可能有很多地方都有相同的函數。當你使用 using namespace std 時，你可以直接使用 std 命名空間中的元素，而不需要在每個元素前加上  std::。例如 std::cout 你就可以直接像上面一樣寫 cout。</p><p id="cedb88ec-cbb2-4cb9-b6d4-6667942aa373" class=""><strong>主函數</strong></p><p id="fce4e110-cc8d-4924-be77-8724d3413ef1" class="">程式的入口，也就是我們想要電腦做的指令。在函數的後方我們會打上一個括號。在函數所包含的區塊兩側，我們則會打上一個左大括號與一個右大括號。在主函數中，程式會由上而下一行一行的被運行。</p><p id="c380b94d-77d4-4bde-a54c-ed263e4e0ad7" class="">我們來解析裡面的 code，cout 的部分我們在下面 1.5. C++ 的輸出 會提到，通常使用 <code>return 0</code> 來表示程式成功執行並正常退出。一般來講，返回 0 通常表示程式成功執行，而其他非零值則表示程式發生了錯誤或異常情況。</p><figure id="c5a416d5-a852-41de-9dbe-852350018515" class="image"><a href="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%207.png"><img style="width:336px" src="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%207.png"/></a></figure><p id="b604e121-56f0-4b01-84dc-b983aa64d3d1" class="">在 C++ 的程式中，每個語句都應該以分號做結尾，讓電腦知道這是一行的結束。注意不要打成冒號。而在函數宣告和包含函數，是不需要加上分號的。</p><h2 id="53d6a4e3-5aa0-4d65-b570-eef67806808a" class="">1.5 C++ 的輸出</h2><h3 id="5d61a267-37cd-418b-88fd-263d5ec4e0e0" class="">1.5.1. 基礎輸出</h3><p id="04bf9807-0369-4dbb-ac57-2249fc100ffe" class="">在 C++中，我們使用 cout 進行基礎的文字輸出，後面記得加上 <code>&lt;&lt;</code> ，代表著將後面的字串傳給 cout。而 endl 是換行的意思。</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="48680c83-795f-4565-a069-ca616c733db1" class="code code-wrap"><code class="language-C++">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; &quot;Hello, World!&quot; &lt;&lt; endl;
+    return 0;
+}</code></pre><p id="c3d3392e-8657-4777-be2e-da960d750676" class="">也可以進行多筆輸出，如下:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="b61e137f-c078-420c-ab23-e403d864cbfa" class="code"><code class="language-C++">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; &quot;Line 1&quot;;
+    cout &lt;&lt; &quot;Line 2&quot;;
+    cout &lt;&lt; &quot;Line 3&quot;;
+    cout &lt;&lt; &quot;Line 4&quot;;
+    return 0;
+}</code></pre><p id="ae438a80-5681-4fa4-82b0-e134cb86372d" class="">或者</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="69f41f5b-a162-4ecc-a8da-5f55416697ff" class="code"><code class="language-C++">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; &quot;Line 1&quot; &lt;&lt; &quot;Line 2&quot; &lt;&lt; &quot;Line 3&quot; &lt;&lt; &quot;Line 4&quot;;
+    return 0;
+}</code></pre><h3 id="b5fb7e5d-20c2-462e-bbc4-9bca0970eabf" class="">1.5.1.2. 引號的意義</h3><p id="62ca5202-51b3-4869-ad6f-d384910a6aa2" class="">在文字中，我們使用單引號 <code>&#x27; &#x27;</code> 或雙引號 <code>&quot; &quot;</code> 來分別表示字元(char)跟字串(string)。單引號用於表示單一字元，例如 <code>&#x27;A&#x27;</code> 或 <code>&#x27;5&#x27;</code>。雙引號用於表示字串，例如 <code>&quot;Hello, World!&quot;</code>, <code>&quot;apple&quot;</code>。</p><h2 id="0e5a8a46-9224-4b18-815b-9f6a611c4213" class="">1.6. 註解</h2><p id="2aacf381-d811-470a-8504-03957beed87b" class="">在 C++ 中，註解(comments)是寫給人看的，我們一般會在需要使用註解那行前面加上 <code>//</code>，或是如果想要包住好幾行可以用 <code>/*</code>,  <code>*/</code>。主要是讓其他人能讀懂我們的 code，電腦在編譯的時候會忽略。</p><figure id="a1d5d5d9-ceb2-4850-bc0c-1afcf701f402" class="image"><a href="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%208.png"><img style="width:336px" src="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%208.png"/></a></figure><p id="b54e00c3-7065-4d5a-a6e1-03b5b5b29a17" class="">軟體工程師在寫程式的時候常常會寫一些註解，除了在寫 code 的思緒會比較清楚外，對於其他人在閱讀時也更容易理解。</p><h2 id="dbbaf7a6-362e-49f8-a919-6bd66cecdfbe" class="">1.7. 補充： C++ 的 code format </h2><p id="725642f4-94fe-4da3-a21b-ddfc9c63b65f" class=""><strong>1.7.1. 什麼是 code format(代碼格式)？</strong></p><p id="39000298-e0bd-4cf5-88ee-e87657d941f1" class="">code format 分兩個部分: 縮排(Indentation)與空格(spacing)。縮排是指將程式碼的每一層結構向右移動一點，以使程式的邏輯結構更加清晰易讀，而空格也是差不多的概念。</p><p id="b7027f02-7936-4734-b06f-7962a3f5e219" class=""><strong>1.7.2. 為什麼需要縮排和空格？</strong></p><p id="50f82224-21ed-48da-a26f-76192f96129e" class="">縮排有助於區分不同的程式區塊，使程式的邏輯結構更容易理解。就像數學公式中，括號的使用可以幫助我們理解運算優先順序一樣。好的程式縮排也有助於你抓錯，別人看的時候也會更容易理解。</p><p id="b6928c53-36fa-4f75-bb41-803d5fde7869" class=""><strong>1.7.3. 如何保有好的 code format？</strong></p><p id="e074a262-5c31-4661-8d26-9eff3358040e" class="">在 C++ 中</p><ol type="1" id="cd05b87e-e03e-4733-a179-0ce883cd01c6" class="numbered-list" start="1"><li>通常使用 Tab 進行縮排。也就是在每一行前面加上一個 Tab，例如剛剛的 <code>cout</code> 之前。</li></ol><ol type="1" id="e550b049-c83c-44a0-8544-c660e703b55c" class="numbered-list" start="2"><li>在操作符號周圍留有空格，例如剛剛的 <code>cout</code> 與 <code>&lt;&lt;</code> 之間我們加上空格。</li></ol><figure id="cf4abb55-3b70-4506-8d56-b3790e214b66" class="image"><a href="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%209.png"><img style="width:480px" src="%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80%E5%88%9D%E6%8E%A2%2009e59c6bc83e41deb54dea738fbbbd94/Untitled%209.png"/></a></figure><p id="51b9620e-f598-428c-b50d-d003bf509198" class="">在 Google 的標準程式碼風格就是 K&amp;D，有興趣的可以上網搜尋。其實不用特意學，最好的方式就是參考別人的程式，進而從中學習即可。</p><h2 id="448d8ac2-24e3-441b-88ad-43946972923c" class="">1.8. 小練習</h2><h3 id="cb146de4-775f-4232-8058-cdd89466817b" class="">1.8.1. <strong>小練習 Q1. 選擇題</strong></h3><hr id="be21dac1-c541-49c9-bb04-81c1203193bc"/><p id="42bb07e0-6149-4b5f-8458-b144582869cc" class=""><strong>關於 C++，下列敘述何者有誤 ?</strong></p><p id="59d7abd9-f191-41c7-b8ef-5805a61bd34d" class="">A. CodeBlocks 是我們的 IDE</p><p id="fca43a8e-c8f1-4744-9ee6-8ce605ad5a36" class="">B. 註解一行，需在該行前面加上「//」</p><p id="336c71fc-88e6-4ee2-bb9d-6cfbb5ad894b" class="">C. 區塊中每一行結束需加上「.」符號</p><p id="58bcc3b7-c2b2-4753-aef4-79fdee65a77e" class="">D. 區塊是左大括號與右大括號所包夾起來的範圍</p><h3 id="19ef5670-defa-42bf-b132-a46b74b09a21" class="">1.8.2. <strong>小練習 Q2. 實作題</strong></h3><hr id="ef5e582c-8d0b-4c23-97f8-16f486b6ee80"/><p id="71e245d5-8e46-4f71-a51d-1398afc49922" class="">嘗試輸出以下資料:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="0820d0f5-50cb-4344-b7ff-ae874b7062be" class="code"><code class="language-Plain Text">This is Line1.
+This is Line2.</code></pre><p id="1c25824b-7171-40e3-8de5-c76eca031e3d" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
