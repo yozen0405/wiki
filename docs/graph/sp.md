@@ -168,126 +168,126 @@
 		??? note "code"
 			```cpp linenums="1"
 			#include <bits/stdc++.h>
-            #define int long long
-            #define pii pair<int, int>
-            #define pb push_back
-            #define mk make_pair
-            #define F first
-            #define S second
-            #define ALL(x) x.begin(), x.end()
-
-            using namespace std;
-
-            const int INF = 2e18;
-            const int maxn = 3e5 + 5;
-            const int M = 1e9 + 7;
-            const double EPS = 1e-8;
-
-            struct Graph {
-                vector<vector<pii>> G;
-                vector<int> source;
-                vector<int> dis;
-                vector<int> par;
-                int n;
-
-                void init(int _n) {
-                    n = _n;
-                    G.resize(n);
-                }
-
-                void add_edge(int u, int v, int w) {
-                    G[u].pb({v, w});
-                }
-
-                void add_source(int x) {
-                    source.pb(x);
-                }
-
-                void dijkstra() {
-                    dis = vector<int>(n, INF);
-                    par = vector<int>(n);
-                    priority_queue<pii, vector<pii>, greater<pii>> pq;
-                    for (auto s : source) {
-                        pq.push({0, s});
-                        dis[s] = 0;
-                        par[s] = s;
-                    }
-
-                    while (pq.size()) {
-                        auto [dis_u, u] = pq.top();
-                        pq.pop();
-
-                        if (dis_u > dis[u]) continue;
-                        dis[u] = dis_u;
-
-                        for (auto [v, w] : G[u]) {
-                            if (dis[u] + w < dis[v]) {
-                                dis[v] = dis[u] + w;
-                                par[v] = par[u];
-                                pq.push({dis[v], v});
-                            }
-                        }
-                    }
-                }
-
-                bool check(int D) {
-                    for (int i = 0; i < n; i++) {
-                        for (auto [v, w] : G[i]) {
-                            if (par[i] == par[v]) continue;
-                            int x = D - dis[i] - dis[v] - w;
-                            if (x >= 0) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                }
-            } g;
-
-            int n, m, k;
-
-            void init() {
-                cin >> n >> m >> k;
-                g.init(n);
-                for (int i = 0; i < m; i++) {
-                    int u, v, w;
-                    cin >> u >> v >> w;
-                    u--, v--;
-                    g.add_edge(u, v, w);
-                    g.add_edge(v, u, w);
-                }
-                for (int i = 0; i < k; i++) {
-                    int u;
-                    cin >> u;
-                    u--;
-                    g.add_source(u);
-                }
-            }
-
-            void work() {
-                g.dijkstra();
-                int l = 0, r = INF;
-                while (l < r) {
-                    int mid = (l + r) / 2;
-                    if (g.check(mid)) {
-                        r = mid;
-                    } else {
-                        l = mid + 1;
-                    }
-                }
-                cout << l << "\n";
-            }
-
-            signed main() {
-                // ios::sync_with_stdio(0);
-                // cin.tie(0);
-                int t = 1;
-                // cin >> t;
-                while (t--) {
-                    init();
-                    work();
-                }
-            }
+	        #define int long long
+	        #define pii pair<int, int>
+	        #define pb push_back
+	        #define mk make_pair
+	        #define F first
+	        #define S second
+	        #define ALL(x) x.begin(), x.end()
+	
+	        using namespace std;
+	
+	        const int INF = 2e18;
+	        const int maxn = 3e5 + 5;
+	        const int M = 1e9 + 7;
+	        const double EPS = 1e-8;
+	
+	        struct Graph {
+	            vector<vector<pii>> G;
+	            vector<int> source;
+	            vector<int> dis;
+	            vector<int> par;
+	            int n;
+	
+	            void init(int _n) {
+	                n = _n;
+	                G.resize(n);
+	            }
+	
+	            void add_edge(int u, int v, int w) {
+	                G[u].pb({v, w});
+	            }
+	
+	            void add_source(int x) {
+	                source.pb(x);
+	            }
+	
+	            void dijkstra() {
+	                dis = vector<int>(n, INF);
+	                par = vector<int>(n);
+	                priority_queue<pii, vector<pii>, greater<pii>> pq;
+	                for (auto s : source) {
+	                    pq.push({0, s});
+	                    dis[s] = 0;
+	                    par[s] = s;
+	                }
+	
+	                while (pq.size()) {
+	                    auto [dis_u, u] = pq.top();
+	                    pq.pop();
+	
+	                    if (dis_u > dis[u]) continue;
+	                    dis[u] = dis_u;
+	
+	                    for (auto [v, w] : G[u]) {
+	                        if (dis[u] + w < dis[v]) {
+	                            dis[v] = dis[u] + w;
+	                            par[v] = par[u];
+	                            pq.push({dis[v], v});
+	                        }
+	                    }
+	                }
+	            }
+	
+	            bool check(int D) {
+	                for (int i = 0; i < n; i++) {
+	                    for (auto [v, w] : G[i]) {
+	                        if (par[i] == par[v]) continue;
+	                        int x = D - dis[i] - dis[v] - w;
+	                        if (x >= 0) {
+	                            return true;
+	                        }
+	                    }
+	                }
+	                return false;
+	            }
+	        } g;
+	
+	        int n, m, k;
+	
+	        void init() {
+	            cin >> n >> m >> k;
+	            g.init(n);
+	            for (int i = 0; i < m; i++) {
+	                int u, v, w;
+	                cin >> u >> v >> w;
+	                u--, v--;
+	                g.add_edge(u, v, w);
+	                g.add_edge(v, u, w);
+	            }
+	            for (int i = 0; i < k; i++) {
+	                int u;
+	                cin >> u;
+	                u--;
+	                g.add_source(u);
+	            }
+	        }
+	
+	        void work() {
+	            g.dijkstra();
+	            int l = 0, r = INF;
+	            while (l < r) {
+	                int mid = (l + r) / 2;
+	                if (g.check(mid)) {
+	                    r = mid;
+	                } else {
+	                    l = mid + 1;
+	                }
+	            }
+	            cout << l << "\n";
+	        }
+	
+	        signed main() {
+	            // ios::sync_with_stdio(0);
+	            // cin.tie(0);
+	            int t = 1;
+	            // cin >> t;
+	            while (t--) {
+	                init();
+	                work();
+	            }
+	        }
 			```
 		
 	    ---
@@ -301,151 +301,151 @@
 	    ??? note "code"
 	    	```cpp linenums="1"
 	    	#include <bits/stdc++.h>
-            #define int long long
-            #define pii pair<int, int>
-            #define pb push_back
-            #define mk make_pair
-            #define F first
-            #define S second
-            #define ALL(x) x.begin(), x.end()
-
-            using namespace std;
-
-            const int INF = 2e18;
-            const int maxn = 3e5 + 5;
-            const int M = 1e9 + 7;
-            const double EPS = 1e-8;
-
-            struct Graph {
-                vector<vector<pii>> G;
-                vector<int> source;
-                vector<int> f;
-                vector<int> parf;
-                vector<int> g;
-                vector<int> parg;
-                int n;
-
-                void init(int _n) {
-                    n = _n;
-                    G.resize(n);
-                }
-
-                void add_edge(int u, int v, int w) {
-                    G[u].pb({v, w});
-                }
-
-                void add_source(int x) {
-                    source.pb(x);
-                }
-
-                void dijkstra() {
-                    f = vector<int>(n, INF);
-                    parf = vector<int>(n);
-                    priority_queue<pii, vector<pii>, greater<pii>> pq;
-                    for (auto s : source) {
-                        pq.push({0, s});
-                        f[s] = 0;
-                        parf[s] = s;
-                    }
-
-                    while (pq.size()) {
-                        auto [dis_u, u] = pq.top();
-                        pq.pop();
-
-                        if (dis_u > f[u]) continue;
-                        f[u] = dis_u;
-
-                        for (auto [v, w] : G[u]) {
-                            if (f[u] + w < f[v]) {
-                                f[v] = f[u] + w;
-                                parf[v] = parf[u];
-                                pq.push({f[v], v});
-                            }
-                        }
-                    }
-                }
-
-                int dijkstra2() {
-                    g = vector<int>(n, INF);
-                    parg = vector<int>(n, -1);
-                    priority_queue<pii, vector<pii>, greater<pii>> pq;
-
-                    for (int i = 0; i < n; i++) {
-                        for (auto [v, w] : G[i]) {
-                            if (parf[i] == parf[v]) continue;
-                            if (f[i] + w < g[v]) {
-                                g[v] = f[i] + w;
-                                parg[v] = parf[i];
-                                pq.push({g[v], v});
-                            }
-                        }
-                    }
-
-                    while (pq.size()) {
-                        auto [dis_u, u] = pq.top();
-                        pq.pop();
-
-                        if (dis_u > g[u]) continue;
-                        g[u] = dis_u;
-
-                        for (auto [v, w] : G[u]) {
-                            if (parg[u] == parf[v]) continue;
-                            if (g[u] + w < g[v]) {
-                                g[v] = g[u] + w;
-                                parg[v] = parg[u];
-                                pq.push({g[v], v});
-                            }
-                        }
-                    }
-
-                    int ans = INF;
-                    for (int i = 0; i < n; i++) {
-                        if (parg[i] == -1) continue;
-                        if (parf[i] == parg[i]) continue;
-                        ans = min(ans, f[i] + g[i]);
-                    }
-
-                    return ans;
-                }
-            } g;
-
-            int n, m, k;
-
-            void init() {
-                cin >> n >> m >> k;
-                g.init(n);
-
-                for (int i = 0; i < m; i++) {
-                    int u, v, w;
-                    cin >> u >> v >> w;
-                    u--, v--;
-                    g.add_edge(u, v, w);
-                    g.add_edge(v, u, w);
-                }
-
-                for (int i = 0; i < k; i++) {
-                    int u;
-                    cin >> u;
-                    u--;
-                    g.add_source(u);
-                }
-            }
-
-            void work() {
-                g.dijkstra();
-                cout << g.dijkstra2() << "\n";
-            }
-
-            signed main() {
-                // ios::sync_with_stdio(0);
-                // cin.tie(0);
-                int t = 1;
-                // cin >> t;
-                while (t--) {
-                    init();
-                    work();
-                }
-            }
+	        #define int long long
+	        #define pii pair<int, int>
+	        #define pb push_back
+	        #define mk make_pair
+	        #define F first
+	        #define S second
+	        #define ALL(x) x.begin(), x.end()
+	
+	        using namespace std;
+	
+	        const int INF = 2e18;
+	        const int maxn = 3e5 + 5;
+	        const int M = 1e9 + 7;
+	        const double EPS = 1e-8;
+	
+	        struct Graph {
+	            vector<vector<pii>> G;
+	            vector<int> source;
+	            vector<int> f;
+	            vector<int> parf;
+	            vector<int> g;
+	            vector<int> parg;
+	            int n;
+	
+	            void init(int _n) {
+	                n = _n;
+	                G.resize(n);
+	            }
+	
+	            void add_edge(int u, int v, int w) {
+	                G[u].pb({v, w});
+	            }
+	
+	            void add_source(int x) {
+	                source.pb(x);
+	            }
+	
+	            void dijkstra() {
+	                f = vector<int>(n, INF);
+	                parf = vector<int>(n);
+	                priority_queue<pii, vector<pii>, greater<pii>> pq;
+	                for (auto s : source) {
+	                    pq.push({0, s});
+	                    f[s] = 0;
+	                    parf[s] = s;
+	                }
+	
+	                while (pq.size()) {
+	                    auto [dis_u, u] = pq.top();
+	                    pq.pop();
+	
+	                    if (dis_u > f[u]) continue;
+	                    f[u] = dis_u;
+	
+	                    for (auto [v, w] : G[u]) {
+	                        if (f[u] + w < f[v]) {
+	                            f[v] = f[u] + w;
+	                            parf[v] = parf[u];
+	                            pq.push({f[v], v});
+	                        }
+	                    }
+	                }
+	            }
+	
+	            int dijkstra2() {
+	                g = vector<int>(n, INF);
+	                parg = vector<int>(n, -1);
+	                priority_queue<pii, vector<pii>, greater<pii>> pq;
+	
+	                for (int i = 0; i < n; i++) {
+	                    for (auto [v, w] : G[i]) {
+	                        if (parf[i] == parf[v]) continue;
+	                        if (f[i] + w < g[v]) {
+	                            g[v] = f[i] + w;
+	                            parg[v] = parf[i];
+	                            pq.push({g[v], v});
+	                        }
+	                    }
+	                }
+	
+	                while (pq.size()) {
+	                    auto [dis_u, u] = pq.top();
+	                    pq.pop();
+	
+	                    if (dis_u > g[u]) continue;
+	                    g[u] = dis_u;
+	
+	                    for (auto [v, w] : G[u]) {
+	                        if (parg[u] == parf[v]) continue;
+	                        if (g[u] + w < g[v]) {
+	                            g[v] = g[u] + w;
+	                            parg[v] = parg[u];
+	                            pq.push({g[v], v});
+	                        }
+	                    }
+	                }
+	
+	                int ans = INF;
+	                for (int i = 0; i < n; i++) {
+	                    if (parg[i] == -1) continue;
+	                    if (parf[i] == parg[i]) continue;
+	                    ans = min(ans, f[i] + g[i]);
+	                }
+	
+	                return ans;
+	            }
+	        } g;
+	
+	        int n, m, k;
+	
+	        void init() {
+	            cin >> n >> m >> k;
+	            g.init(n);
+	
+	            for (int i = 0; i < m; i++) {
+	                int u, v, w;
+	                cin >> u >> v >> w;
+	                u--, v--;
+	                g.add_edge(u, v, w);
+	                g.add_edge(v, u, w);
+	            }
+	
+	            for (int i = 0; i < k; i++) {
+	                int u;
+	                cin >> u;
+	                u--;
+	                g.add_source(u);
+	            }
+	        }
+	
+	        void work() {
+	            g.dijkstra();
+	            cout << g.dijkstra2() << "\n";
+	        }
+	
+	        signed main() {
+	            // ios::sync_with_stdio(0);
+	            // cin.tie(0);
+	            int t = 1;
+	            // cin >> t;
+	            while (t--) {
+	                init();
+	                work();
+	            }
+	        }
 	        ```
 
 
@@ -612,19 +612,19 @@
         #define F first
         #define S second
         #define ALL(x) x.begin(), x.end()
-
+    
         using namespace std;
-
+    
         const int INF = 2e18;
         const int maxn = 3e5 + 5;
         const int M = 1e9 + 7;
-
+    
         int ans;
-
+    
         struct Edge {
             int u, v, w, id;
         };
-
+    
         struct Graph {
             int n, m, s;
             vector<vector<Edge>> G;
@@ -633,7 +633,7 @@
             vector<int> dis;
             vector<int> on_DAG;
             vector<int> in;
-
+    
             Graph(int _n, int _m) {
                 n = _n, m = _m;
                 dis = vector<int>(n, INF);
@@ -642,31 +642,31 @@
                 G.resize(n);
                 D.resize(n);
             }
-
+    
             void add_edge(int u, int v, int id) {
                 int w = 1;
                 G[u].pb({u, v, w, id});
                 G[v].pb({v, u, w, id});
                 edges.pb({u, v, w, id});
             }
-
+    
             void dijkstra() {
                 priority_queue<pii, vector<pii>, greater<pii>> pq;
                 pq.push({0, s});
-
+    
                 while (pq.size()) {
                     auto [x, u] = pq.top();
                     pq.pop();
-
+    
                     if (dis[u] != INF) continue;
                     dis[u] = x;
-
+    
                     for (auto [u, v, w, id] : G[u]) {
                         pq.push({w + dis[u], v});
                     }
                 }
             }
-
+    
             void build_DAG() {
                 for (int i = 0; i < n; i++) {
                     for (auto [u, v, w, id] : G[i]) {
@@ -679,20 +679,20 @@
                     }
                 }
             }
-
+    
             void del_edge(int eid) {
                 if (on_DAG[eid] == false) return;
-
+    
                 queue<int> q;
                 in[edges[eid].v]--;
                 on_DAG[eid] = false;
                 if (in[edges[eid].v] == 0) q.push(edges[eid].v);
-
+    
                 while (q.size()) {
                     int u = q.front();
                     q.pop();
                     ans++;
-
+    
                     for (auto [u, v, w, id] : D[u]) {
                         if (on_DAG[id] == false) continue;
                         in[v]--;
@@ -704,12 +704,12 @@
                 }
             }
         };
-
+    
         void work() {
             int n, m, q, s;
             cin >> n >> m >> q;
             Graph g(n, m);
-
+    
             int u, v;
             for (int i = 0; i < m; i++) {
                 cin >> u >> v;
@@ -717,20 +717,20 @@
                 g.add_edge(u, v, i);
             }
             g.s = 0;
-
+    
             g.dijkstra();
             g.build_DAG();
-
+    
             while (q--) {
                 int eid;
                 cin >> eid;
                 eid--;
                 g.del_edge(eid);
-
+    
                 cout << ans << "\n";
             }
         }
-
+    
         signed main() {
             ios::sync_with_stdio(0);
             cin.tie(0);
@@ -740,7 +740,7 @@
                 work();
             }
         }
-
+    
         /*
         4 4 2
         1 2
@@ -1083,10 +1083,6 @@
 
 ### 建圖/分層
 
-第一種實作方法是直接先建立完新的圖再跑 dijkstra，id[k][u] = cnt++
-
-第二種實作方法是在跑 dijkstra 的時候直接看要去哪一個點，將距離直接存在 dis[k][u]，直接用 pii (k, u) 當點下去跑
-
 ???+note "[LOJ #3964. 「APIO2023」赛博乐园](https://loj.ac/p/3964)"
 	給一張 $n$ 點 $m$ 無向圖，邊帶權，為 $c[i]$，一開始在點 $0$，你要去點 $H$
     
@@ -1159,7 +1155,7 @@
             vector<double> dis;
             vector<int> vis;
     
-            void init (int _n, int _k) {
+            void init(int _n, int _k) {
                 n = _n, K = _k;
                 id.resize (K + 1);
                 cnt = 0;
@@ -1173,21 +1169,21 @@
                         id[i][j] = cnt++; // id[k][u]
                     }
                 }
-                G.resize (cnt);
+                G.resize(cnt);
                 dis = vector<double>(cnt, INF);
                 vis = vector<int>(cnt);
             }
     
-            void add_edge (int u, int uk, int v, int vk, double w) {
+            void add_edge(int u, int uk, int v, int vk, double w) {
                 int id1 = id[uk][u];
                 int id2 = id[vk][v];
     
-                G[id1].pb ({id2, w});
+                G[id1].pb({id2, w});
             }
     
-            void dijkstra (int s) {
+            void dijkstra(int s) {
                 priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
-                pq.push ({0, id[0][s]}); // cyberland 為起點
+                pq.push({0, id[0][s]}); // cyberland 為起點
                 dis[id[0][s]] = 0;
     
                 while (pq.size ()) {
@@ -1202,17 +1198,17 @@
                         if ((v % n) == (s % n) && (v / n) != 0) continue;
                         if (dis[v] > dis[u] + w) {
                             dis[v] = dis[u] + w;
-                            pq.push ({dis[v], v});
+                            pq.push({dis[v], v});
                         } 
                     }
                 }   
             }
     
-            double cal () {
+            double ca () {
                 double ans = INF;
                 for (int i = 0; i < K + 1; i++) {
                     int u = id[i][0];
-                    ans = min (ans, dis[u]);
+                    ans = min(ans, dis[u]);
                 }
                 if (ans == INF) return -1;
     
@@ -1233,7 +1229,7 @@
             vector<vector<pii>> G(N);
             for (int i = 0; i < M; i++) {
                 int u = x[i], v = y[i], w = c[i];
-                G[u].pb ({v, w}); G[v].pb ({u, w});
+                G[u].pb ({v, w}); G[v].pb({u, w});
             }
             K++;
     
@@ -1262,7 +1258,7 @@
                 cnt *= 0.5;
                 for (int i = 0; i < N; i++) {
                     for (auto [v, w] : G[i]) {
-                        if (arr[i] == 2) g.add_edge (i, k, v, k + 1, (double) w * cnt);
+                        if (arr[i] == 2) g.add_edge(i, k, v, k + 1, (double) w * cnt);
                     }
                 }
             }
@@ -1487,6 +1483,24 @@
 		枚舉 $k=1\ldots n$，對於第 $k$ 層拉出來求最小的 $dis_k$ 
 		
 		$$ans = \min\limits_{k=1\ldots n} \{dis_k\times k\}$$
+
+???+note "[2023 全國賽模擬賽 pI. 交通優惠券 (voucher)](https://codeforces.com/gym/104830/attachments/download/23302/zh_TW.pdf#page=26)"
+    給一張 n 點 m 邊的無向圖，邊有正權，有兩個特殊點 a, b，在經過特殊點後可將之後經過的一條邊免費，問 s 到 t 的最短路徑長度
+    
+    $n \le 3 \times 10^5, m \le 5 \times 10^5$
+    
+    ??? note "思路"
+    	考慮只有一個特殊點時，有三種情況:
+    	
+        1. 還沒走到特殊點
+        2. 走到特殊點，還沒有使用優惠卷
+        3. 使用完優惠卷
+    
+    	我們可以建立三張圖，分別代表以上三種 case。將第一張圖的特殊點連一條邊到第二張圖的特殊點，代表已經可以使用優惠券了，再將第二張圖的每一個點連到第三張圖周圍的點，邊權為 0，走過去代表使用完了優惠券。
+    	
+    	對於兩個特殊點的情況，我們定義好狀態 (x, y) 為經過 x 個特殊點，使用掉 y 個優惠卷。我們就用 (0, 0), (1, 0), (1, 1), (2, 0), (2, 1), (2, 2) 這幾個狀態來建圖即可
+
+
 
 ???+note "[CSES - flight discount](https://cses.fi/problemset/task/1195)"
 	給一張 $n$ 點 $m$ 邊的無向圖，邊有權重，可將其中 $k$ 條邊以半價計算，求 $1\to n$ 的最短路
@@ -1929,17 +1943,17 @@
 	        vector<vector<pii>> G;
 	        int n = 0;
 	
-	        int add_node () {
+	        int add_node() {
 	            n++;
 	            G.pb ({});
 	            return n - 1;
 	        }
 	
-	        void add_edge (int u, int v, int w) {
-	            G[u].pb ({v, w});
+	        void add_edge(int u, int v, int w) {
+	            G[u].pb({v, w});
 	        }
 	
-	        int dijkstra (int s, int t) {
+	        int dijkstra(int s, int t) {
 	            vector<int> dis (n, INF);
 	            priority_queue<pii, vector<pii>, greater<pii>> pq;
 	            pq.push ({0, s});

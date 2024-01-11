@@ -288,7 +288,7 @@
 	
 	??? note "思路"
 		我們先固定一個維度，使其具有單調性，這樣就只要著重於處理另一個維度。二分搜後，我們先將 $a$ 大到小 sort，假設目前二分搜的 threshold 為 $t$，則 i 可以配的就是符合 $b_j\le t - a_i$，那這時候我們就要來思考要怎麼取最好，我們發現 $t-a_i$ 只會單調遞增，所以能取的 $b_j$ 之後只會越來越多，那麼這時我們就挑 $b_j\le t - a_i$ 中 $a_j$ 最大的，因為這時我們才能有效的使用 $a_i$ 來覆蓋 $a_j$ 的貢獻。
-		
+
 ???+note "法里西數列 [CS Academy - Farey Sequence](https://csacademy.com/contest/archive/task/farey_sequence/statement/)"
     給 $n$，序列 $F_n$ 舉例來說如下 :
 
@@ -697,7 +697,7 @@
 		一樣枚舉 row $l,r$，將他壓成一維的問題，我們當然可以去二分搜，但是會 TLE。其實就是[這題](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/)，具體做法可參考[這篇題解](https://blog.51cto.com/u_15003301/6330063)。觀察到若一個點 $i$ 的 prefix sum 若比 $i-1$ 的 prefix sum 還小，那對於後面的肯定選 $i$ 比較好。還有，對於一個 $i$ 若已經能跟 $j$ 配，那 $j$ 之後都不用考慮了，所以我們可以用單調隊列維護，將已經能配地給 pop 掉
 		
 	??? note "code"
-		```cpp 
+		```cpp linenums="1"
 		#include <bits/stdc++.h>
 	    #define int long long
 	    #define F first
@@ -859,6 +859,96 @@
 	
 	$n\le 2800$
 
+???+note "[2023 全國賽模擬賽 pG. 吃午餐 (lunch)](https://codeforces.com/gym/104830/attachments/download/23302/zh_TW.pdf#page=19)"
+	給兩個長度為 n 的序列 a, b，將兩兩分成一組，定義 cost 為每組的 max(a[i], a[j]) + max(b[i], b[j]) 取 max，問 cost 最小是多少
+	
+	$n \le 10^5, 1 \le a, b \le 10^8$
+	
+	??? note "思路"
+		二分搜 thresthold t，然後我們考慮 check(t)。我們規定 i 是從 a 大到小來取，那問題就變成我們要怎麼取 j。可以發現目前唯一有關係的就是 b 了，因為 t - a[i] 只會越來越大，能取的 b[j] 自然也會變多，所以我們當前取 b[j] <= t - a[i] 最大的 b[j] 即是最好的。
+		
+???+note "[POI 2016 Korale](https://www.luogu.com.cn/problem/P5967)"
+	給一個長度為 n 的序列 $a_1, \ldots ,a_n$，問第 k 小的方案價值總和，以及方案的集合，如果價值總和相同的以 index 串起來的字典序小到大排序
+
+	$n\le 10^6, 1\le k\le 10^6, 1\le a_i\le 10^9$
+	
+	??? note "思路"
+		這類型題目的關鍵字是[Fracturing Search](https://usaco.guide/adv/fracturing-search?lang=cpp)。
+		
+		**【問題一: 方案的價值總和】**
+		
+		注意到 $k \le 10^6$，所以我們可以暴力的建立方案，因為我們目前不處理字典序，所以可以先將 a 小到大 sort(我叫做 b)。這時候有兩種做法:
+		
+		**<u>作法1 小根堆</u>:**
+		
+		以 (sum, i) 表示前 i 個數中，選出若干數(必選第i個數)，且價值和為 sum。我們可以利用 heap 不斷地取出最小值，並把 
+		
+		- (sum + a[i + 1], i + 1)
+		- (sum + a[i + 1] - a[i], i + 1)
+
+		加入到 heap 中，這種方法可以將所有情況不重不漏遍歷且具有單調性。因為取到 k 個元素後就會停止，所以複雜度為 $O(k \log n)$。
+		
+		**<u>作法2 值域二分搜</u>:**
+		
+		我們暴力的去遞迴枚舉各種方案，取的時候從重量最小的開始考慮要不要取，當方案有 k 個的時候就停下來。複雜度為 $O(k \log n)$。
+		
+		```cpp linenums="1"
+		void dfs(int now, int sum) {
+            cnt++;
+            if (cnt >= k) return;
+            for (int i = now; i <= n; i++) {
+                if (b[i] <= sum) {
+                    dfs(i + 1, sum - b[i]);
+                    if (cnt > k) return;
+                } else {
+                    break;
+                }       
+            }
+        }
+
+        bool check(int x) {
+            cnt = 0;
+            dfs(1, x);
+            return cnt >= k;
+        }
+
+        int l = 0, r = total_sum;
+        while (l + 1 < r) {
+            int mid = (l + r) / 2;
+            if (check(mid)) {
+                r = mid;
+            } else {
+                l = mid;
+            }
+        }
+        ```
+		
+		**【問題二: 方案的集合】**
+		
+		跟上面類似，只是我們目前是用 a 這個未排序的陣列進行遞迴枚舉，但要怎麼保證每次的方案都是字典序最小呢? 假設我們目前枚舉完 [1, i]，價值剩餘 sum，我們要往下一步拓展時我們就選擇 i 右邊第一個比 sum 小的元素加入當前的集合，這樣就可以保證字典序最小，複雜度為 $O(k \log n)$
+		
+		```cpp linenums="1"
+		void cnt_ans(int now, int sum) {
+            if (!sum) {
+                cnt--;
+                if (!cnt) {
+                    for (int i = 1; i <= top; i++) {
+                        cout << stk[i] << '\n';
+                    }
+                    exit(0);
+                }
+                return;
+            }
+            for (int i = now + 1; i <= n; i++) {
+                i = seg.query(1, n, 1, i, sum);  // query i 右邊第一個比 sum 小的元素
+                if (!i) return; // i 右邊不存在比 sum 小的
+                stk[++top] = i; // 紀錄答案
+                cnt_ans(i, sum - a[i]);
+                top--;
+            }
+        }
+        ```
+	
 ## 細節
 
 - check(x) 的 x 太大的時候，有些情況會造成 cnt overflow
