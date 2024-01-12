@@ -155,6 +155,7 @@ nav:
     - 搜索算法:
       - 二分搜: 'search/binary_search.md'
       - 雙指針: 'search/two_pointer.md'
+      - Fracturing Search: 'search/fracturing_search.md'
     - 資料結構:
       - 概述: 'ds/index.md'
       - 基礎資料結構:
