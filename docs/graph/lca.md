@@ -305,6 +305,26 @@
 	    }
 		```
 
+???+note "[USACO 2013 OPEN Luxury River Cruise S](https://www.luogu.com.cn/problem/P3083)"
+	給一張 n 點的圖，每個點有兩個出邊。給定一條長度為 m 的指令，從位置 1 出發按照指令移動 k 輪，求最終位置
+	
+	??? note "思路"
+		一道模擬題，我們來想怎麼優化。因為指令是重複的，所以我們可以跑完一輪後，用倍增數組求解，類似 USACO - Swapity Swapity Swap。
+		
+		令 dp(i, j) 表示以 i 為起點將操作序列進行 $2^j$ 次後，Bessie 所停留在的點。用倍增下去轉移就好。
+		
+		最後尋找答案時，將 k 二進制拆分，利用上面 jump 的方法求解即可
+		
+???+note "[USACO 2020 FEB Swapity Swapity Swap S](https://www.luogu.com.cn/problem/P6148)"
+	有 n 頭牛編號 1...n，每一個長度為 m 的方案 $(l_1,r_1),\ldots ,(l_m, r_m)$，代表依序將 $l_i$ 與 $r_i$ swap。讓她們重複這個方案 k 回合，然後依序輸出從左到右每頭牛的編號
+	
+	$n\le 10^5, m\le 100$
+	
+	??? note "思路"
+		令 dp(i, j) 表示以 i 這個位置在方案進行 $2^j$ 回合後，會到哪個位置。
+		
+		先用 O(nm) 的時間，跑個一回合預處理 dp(i, 0) 即可利用倍增法求解。
+		
 ## 時間標記
 
 對於每個點，我們開兩個陣列 in 與 out 來記錄每個點進入 dfs 時和結束 dfs 時的時間點。當 u 是 v 的祖先，代表我們會先進入 u，進入 v，再從 v 出去，再從 u 出去，即 in[u] ≤ in[v] ≤ out[v] ≤ out[u]

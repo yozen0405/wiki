@@ -292,6 +292,16 @@ void update(queue d, map cur, map other) {}
 	    }
 		```
 
+???+note "[2023 全國賽 pE. 迷宮鑰匙圈 (Maze)](https://sorahisa-rank.github.io/nhspc-fin/2023/problems.pdf#page=19)"
+	有一個 n * m 的二維迷宮，給定若干顆彈珠的起始位置，問至少需要將迷宮整個向左或向右旋轉幾次才能讓每顆彈珠都掉出迷宮
+	
+	$n, m\le 15,$ 彈珠數量介於 1 ~ 3 顆
+	
+	??? note "思路"
+		因為迷宮大小 15 * 15，所以最多 $(15\times 15 + 1)^3 \simeq 10^7$ 種不同狀態。我們可以利用狀態搜索，也就是像八位數碼問題，建圖後 BFS 求最短路徑。
+	
+	至於如何快速判斷左轉右轉後鋼珠會移動到哪我們可以用預處理的方式得到。記得在狀態紀錄時也要處理只剩下一顆或兩顆球的狀況，屬於較為麻煩的實作題。
+	
 ## 參考資料
 
 - <https://leetcode.cn/problems/open-the-lock/solutions/843986/gong-shui-san-xie-yi-ti-shuang-jie-shuan-wyr9/>

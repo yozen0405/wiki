@@ -42,31 +42,31 @@
 		??? code "check function 實作"
 	        ```cpp linenums="1"
 	        // 檢查只能用 degree <= x 的是否可以達成
-            bool topo(int x) {
-                queue<int> q;
-                vector<bool> vis(n + 1);
-
-                for (int i = 1; i <= n; i++) {
-                    if (deg[i] <= x) q.push(i);
-                }
-                while (q.size()) {
-                    int u = q.top();
-                    q.pop();
-                    vis[u] = true;
-
-                    for (auto v : G[u]) {
-                        if (vis[v]) continue;
-
-                        deg[v]--;
-                        if (deg[v] <= x) q.push(v);
-                    }
-                }
-
-                for (int i = 1; i <= n; i++) {
-                    if (vis[i] == false) return false;
-                }
-                return true;
-            }
+	        bool topo(int x) {
+	            queue<int> q;
+	            vector<bool> vis(n + 1);
+	
+	            for (int i = 1; i <= n; i++) {
+	                if (deg[i] <= x) q.push(i);
+	            }
+	            while (q.size()) {
+	                int u = q.top();
+	                q.pop();
+	                vis[u] = true;
+	
+	                for (auto v : G[u]) {
+	                    if (vis[v]) continue;
+	
+	                    deg[v]--;
+	                    if (deg[v] <= x) q.push(v);
+	                }
+	            }
+	
+	            for (int i = 1; i <= n; i++) {
+	                if (vis[i] == false) return false;
+	            }
+	            return true;
+	        }
 	        ```
 		
 		複雜度 : $O((n+m)\log n)$
@@ -263,118 +263,123 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 5e3 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, m;
+	    vector<int> G[maxn];
+	    vector<int> V[maxn];
+	    int in[maxn], vis[maxn], par[maxn], sz[maxn];
+	
+	    void dsu_init() {
+	        for (int i = 1; i <= n; i++) {
+	            par[i] = i;
+	            sz[i] = 1;
+	        }
+	    }
+	
+	    int find(int x) {
+	        if (par[x] == x)
+	            return x;
+	        else
+	            return par[x] = find(par[x]);
+	    }
+	
+	    void merge(int a, int b) {
+	        int x = find(a), y = find(b);
+	        if (x == y) return;
+	        par[x] = y;
+	        sz[y] += sz[x];
+	        sz[x] = 0;
+	    }
+	
+	    void init() {
+	        cin >> n >> m;
+	        int u, v;
+	        for (int i = 0; i < m; i++) {
+	            cin >> u >> v;
+	            G[u].pb(v);
+	            G[v].pb(u);
+	            in[u]++, in[v]++;
+	        }
+	    }
+	
+	    void topo() {
+	        for (int i = 1; i <= n; i++) {
+	            // 刪除 deg[u] <= i 的點
+	            queue<int> q;
+	            for (int j = 1; j <= n; j++) {
+	                if (!vis[j] && in[j] == i) {
+	                    q.push(j);
+	                    vis[j] = 1;
+	                }
+	            }
+	
+	            while (q.size()) {
+	                int u = q.front();
+	                q.pop();
+	                V[i].pb(u);
+	
+	                for (auto v : G[u]) {
+	                    in[v]--;
+	                    if (vis[v]) continue;
+	
+	                    if (in[v] <= i) {
+	                        q.push(v);
+	                        vis[v] = 1;
+	                    }
+	                }
+	            }
+	        }
+	    }
+	
+	    void solve() {
+	        topo();
+	        dsu_init();
+	        memset(vis, 0, sizeof vis);
+	        int ans = 0;
+	        for (int i = n; i >= 1; i--) {
+	            for (auto u : V[i]) {
+	                vis[u] = 1;
+	                for (auto v : G[u]) {
+	                    if (!vis[v]) continue;
+	                    merge(u, v);
+	                }
+	            }
+	            for (int u = 1; u <= n; u++) {
+	                if (par[u] == u && vis[u]) {
+	                    ans = max(ans, sz[u] * i);
+	                }
+	            }
+	        }
+	
+	        cout << ans << "\n";
+	    }
+	
+	    signed main() {
+	        // ios::sync_with_stdio(0);
+	        // cin.tie(0);
+	        int t = 1;
+	        // cin >> t;
+	        while (t--) {
+	            init();
+	            solve();
+	        }
+	    }
+	    ```
 
-        using namespace std;
 
-        const int INF = 2e18;
-        const int maxn = 5e3 + 5;
-        const int M = 1e9 + 7;
 
-        int n, m;
-        vector<int> G[maxn];
-        vector<int> V[maxn];
-        int in[maxn], vis[maxn], par[maxn], sz[maxn];
 
-        void dsu_init() {
-            for (int i = 1; i <= n; i++) {
-                par[i] = i;
-                sz[i] = 1;
-            }
-        }
 
-        int find(int x) {
-            if (par[x] == x)
-                return x;
-            else
-                return par[x] = find(par[x]);
-        }
-
-        void merge(int a, int b) {
-            int x = find(a), y = find(b);
-            if (x == y) return;
-            par[x] = y;
-            sz[y] += sz[x];
-            sz[x] = 0;
-        }
-
-        void init() {
-            cin >> n >> m;
-            int u, v;
-            for (int i = 0; i < m; i++) {
-                cin >> u >> v;
-                G[u].pb(v);
-                G[v].pb(u);
-                in[u]++, in[v]++;
-            }
-        }
-
-        void topo() {
-            for (int i = 1; i <= n; i++) {
-                // 刪除 deg[u] <= i 的點
-                queue<int> q;
-                for (int j = 1; j <= n; j++) {
-                    if (!vis[j] && in[j] == i) {
-                        q.push(j);
-                        vis[j] = 1;
-                    }
-                }
-
-                while (q.size()) {
-                    int u = q.front();
-                    q.pop();
-                    V[i].pb(u);
-
-                    for (auto v : G[u]) {
-                        in[v]--;
-                        if (vis[v]) continue;
-
-                        if (in[v] <= i) {
-                            q.push(v);
-                            vis[v] = 1;
-                        }
-                    }
-                }
-            }
-        }
-
-        void solve() {
-            topo();
-            dsu_init();
-            memset(vis, 0, sizeof vis);
-            int ans = 0;
-            for (int i = n; i >= 1; i--) {
-                for (auto u : V[i]) {
-                    vis[u] = 1;
-                    for (auto v : G[u]) {
-                        if (!vis[v]) continue;
-                        merge(u, v);
-                    }
-                }
-                for (int u = 1; u <= n; u++) {
-                    if (par[u] == u && vis[u]) {
-                        ans = max(ans, sz[u] * i);
-                    }
-                }
-            }
-
-            cout << ans << "\n";
-        }
-
-        signed main() {
-            // ios::sync_with_stdio(0);
-            // cin.tie(0);
-            int t = 1;
-            // cin >> t;
-            while (t--) {
-                init();
-                solve();
-            }
-        }
-        ```

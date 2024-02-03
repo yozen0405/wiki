@@ -634,107 +634,107 @@
 		我們想辦法利用線段樹來快速查詢最大值，但瓶頸在於後面的 cost 沒辦法很快地計算。不過可以觀察到實際上在 cost(l, r) 就是 l, ..., r 裡面 a[i] 最小的那一項，若故固定 r，則 l = 1...r 會發現貢獻 cost(l, r) 的 a[i] 只會單調遞增（下圖就是一個例子），所以我們可以用一個單調隊列維護，複雜度 $O(n \log n)$
 		
 		<figure markdown>
-          ![Image title](./images/32.png){ width="400" }
-        </figure>
+	      ![Image title](./images/32.png){ width="400" }
+	    </figure>
 		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pb push_back
-        #define mk make_pair
-        #define pii pair<int, int>
-        using namespace std;
-
-        const int INF = 9e18;
-        const int maxn = 3e5 + 5;
-        int a[maxn], w[maxn], stk[maxn], dp[maxn];
-        int n;
-
-        struct seg {
-            int mx, tag;
-            seg *lch, *rch;
-            seg() {
-                tag = 0;
-                mx = 0;
-                lch = rch = nullptr;
-            }
-            void push() {
-                if (tag) {
-                    lch->mx += tag;
-                    rch->mx += tag;
-                    lch->tag = tag;
-                    rch->tag = tag;
-                    tag = 0;
-                }
-            }
-            void modify(int l, int r, int mL, int mR, int val) {
-                if (mL <= l && r <= mR) {
-                    mx += val, tag += val;
-                    return;
-                }
-                int mid = (l + r) >> 1;
-                if (!lch) lch = new seg();
-                if (!rch) rch = new seg();
-                push();
-                if (mL <= mid) {
-                    lch->modify(l, mid, mL, mR, val);
-                }
-                if (mid + 1 <= mR) {
-                    rch->modify(mid + 1, r, mL, mR, val);
-                }
-                mx = max(lch->mx, rch->mx);
-            }
-            int query(int l, int r, int qL, int qR) {
-                if (qL <= l && r <= qR) {
-                    return mx;
-                }
-                int mid = (l + r) >> 1;
-                if (!lch) lch = new seg();
-                if (!rch) rch = new seg();
-                push();
-                int ret = -INF;
-                if (qL <= mid) {
-                    ret = max(ret, lch->query(l, mid, qL, qR));
-                }
-                if (mid + 1 <= qR) {
-                    ret = max(ret, rch->query(mid + 1, r, qL, qR));
-                }
-                return ret;
-            }
-        };
-
-        void init() {
-            cin >> n;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-            }
-            for (int i = 1; i <= n; i++) {
-                cin >> w[i];
-            }
-        }
-
-        void solve() {
-            seg *rt = new seg();
-            a[0] = -INF;
-            int top = 1;
-            for (int i = 1; i <= n; i++) {
-                while (top && a[stk[top - 1]] >= a[i]) {
-                    rt->modify(0, n, stk[top - 2], stk[top - 1] - 1, -w[stk[top - 1]]);
-                    top--;
-                }
-                rt->modify(0, n, stk[top - 1], i - 1, w[i]);
-                dp[i] = rt->query(0, n, 0, i - 1);
-                rt->modify(0, n, i, i, dp[i]);
-                stk[top++] = i;
-            }
-            cout << dp[n] << "\n";
-        }
-
-        signed main() {
-            init();
-            solve();
-        }
+	    #define int long long
+	    #define pb push_back
+	    #define mk make_pair
+	    #define pii pair<int, int>
+	    using namespace std;
+	
+	    const int INF = 9e18;
+	    const int maxn = 3e5 + 5;
+	    int a[maxn], w[maxn], stk[maxn], dp[maxn];
+	    int n;
+	
+	    struct seg {
+	        int mx, tag;
+	        seg *lch, *rch;
+	        seg() {
+	            tag = 0;
+	            mx = 0;
+	            lch = rch = nullptr;
+	        }
+	        void push() {
+	            if (tag) {
+	                lch->mx += tag;
+	                rch->mx += tag;
+	                lch->tag = tag;
+	                rch->tag = tag;
+	                tag = 0;
+	            }
+	        }
+	        void modify(int l, int r, int mL, int mR, int val) {
+	            if (mL <= l && r <= mR) {
+	                mx += val, tag += val;
+	                return;
+	            }
+	            int mid = (l + r) >> 1;
+	            if (!lch) lch = new seg();
+	            if (!rch) rch = new seg();
+	            push();
+	            if (mL <= mid) {
+	                lch->modify(l, mid, mL, mR, val);
+	            }
+	            if (mid + 1 <= mR) {
+	                rch->modify(mid + 1, r, mL, mR, val);
+	            }
+	            mx = max(lch->mx, rch->mx);
+	        }
+	        int query(int l, int r, int qL, int qR) {
+	            if (qL <= l && r <= qR) {
+	                return mx;
+	            }
+	            int mid = (l + r) >> 1;
+	            if (!lch) lch = new seg();
+	            if (!rch) rch = new seg();
+	            push();
+	            int ret = -INF;
+	            if (qL <= mid) {
+	                ret = max(ret, lch->query(l, mid, qL, qR));
+	            }
+	            if (mid + 1 <= qR) {
+	                ret = max(ret, rch->query(mid + 1, r, qL, qR));
+	            }
+	            return ret;
+	        }
+	    };
+	
+	    void init() {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            cin >> w[i];
+	        }
+	    }
+	
+	    void solve() {
+	        seg *rt = new seg();
+	        a[0] = -INF;
+	        int top = 1;
+	        for (int i = 1; i <= n; i++) {
+	            while (top && a[stk[top - 1]] >= a[i]) {
+	                rt->modify(0, n, stk[top - 2], stk[top - 1] - 1, -w[stk[top - 1]]);
+	                top--;
+	            }
+	            rt->modify(0, n, stk[top - 1], i - 1, w[i]);
+	            dp[i] = rt->query(0, n, 0, i - 1);
+	            rt->modify(0, n, i, i, dp[i]);
+	            stk[top++] = i;
+	        }
+	        cout << dp[n] << "\n";
+	    }
+	
+	    signed main() {
+	        init();
+	        solve();
+	    }
 	    ```
 
 ???+note "[2019 全國賽 pG. 隔離採礦](https://judge.tcirc.tw/ShowProblem?problemid=d088)"	
@@ -1428,4 +1428,64 @@
 	        cout << ans << '\n';
 	    }
 	    ```
+	    
+???+note "[CF 1913 D. Array Collapse](https://www.luogu.com.cn/problem/CF1913D)"
+	給一個序列 $p_1,\ldots ,p_n$，保證序列元素互不相同。可以對其做若干次操作（可以為 0 次），每次操作選取一個區間，刪除最小值以外的其他元素。求最終操作後有多少種可能的序列 ?
+	
+	$n\le 3\times 10^5, 1\le p_i\le 10^9$
+	
+	??? note "思路"
+		這種題目我們一般會想用組合或是 dp 來做，我們先來觀察一些性質。
+	
+		觀察到要刪掉某個區間 $a_i,\ldots ,a_j$，一定是 $a_{i-1}$ 或 $a_{j+1}$ 刪掉的，也就是 $a_{i-1}$ 或是 $a_{j+1}$ 是最小值。
+
+		<figure markdown>
+          ![Image title](./images/41.png){ width="400" }
+        </figure>
+        
+        我們嘗試令 dp[i] 表示以 i 結尾的方法數。觀察以上例子，以藍色的點來說，能轉移的點就是紅色，因為 p[i] 比他們小，能刪掉他們，那考慮前面的去刪掉後面的話呢? 那我們會得到橘色的點也可以轉移到 dp[i]。可以發現紅色的點一定是連續的，而橘色的點如果有很多個的話會不一定連續，但一定是由小到大，因為這樣前面的才能刪掉後面的，所以這讓我們想到可以用單調 stack 來維護，所以稍微列一下，當 j 可以轉移到 i 時:
+        
+        - a[i] < a[j]: 可行的 j 是在 i 前面一段連續的區間
+
+		- a[i] > a[j]: j 是在由小到大的單調 stack 裡面的節點
+
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        const int N = 3e5 + 5, p = 998244353;
+        int n, m, a[N], dp[N], s[N], stk[N];
+
+        void solve() {
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+            }
+            int sum = 0, top = 0; // sum 紀錄單調 stack 內的元素 dp 值之和
+            for (int i = 1; i <= n; i++) {
+                while (top && a[stk[top]] > a[i]) {
+                    sum = (sum - dp[stk[top]] + p) % p;
+                    // 被 pop 掉, 就要從 sum 裡扣除貢獻
+                    top--;
+                }
+                dp[i] = (sum + s[i - 1] - s[stk[top]] + (top == 0) + p) % p;
+                // sum: 單調 stack 的貢獻, s[i - 1] - s[stk[top]]: 比 a[i] 大的貢獻
+                // top == 0: 單調 stack 為空時, 代表 i 可做開頭, 因為是最小
+                s[i] = (s[i - 1] + dp[i]) % p; // 前綴和
+                stk[++top] = i;
+                sum = (sum + dp[i]) % p;
+            }
+            cout << sum << '\n';
+        }
+
+        signed main() {
+            int t;
+            cin >> t;
+            while (t--) {
+                solve();
+            }
+        }
+        ```
 

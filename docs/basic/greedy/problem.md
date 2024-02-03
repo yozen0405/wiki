@@ -759,6 +759,47 @@
 	    }
 	    ```
 
+???+note "[USACO 2013 FEB Taxi G](https://www.luogu.com.cn/problem/P3076)"
+	有 n 個人要搭車，第 i 個人要從 s[i] 搭到 t[i]。有一台出租車從 0 要開到 m，到途中須把 n 個人都載完，且一次只能載一個人，問最小路程
+	
+	$n\le 10^5, m\le 10^9$
+	
+	??? note "思路"
+		我們可以將這個路程分成「有載人的路程」與「空載的路程」。有載人的路程自然就是 $\sum |s_i - t_i|$ 而空載的路程就是當載完一個人後，我們要前往下一個載人的地方所以必然是一個 t[i] 到一個 s[j]。而我們使這兩個數組依序各自排序好後配對就會得到最小的結果。另外，0 跟 m 也可以視為一個終點與起點，這樣計算結果比較方便。
+		
+		那為什麼排序相減就最小呢？因為任意交換同數組 (s[i], t[j]) 必會使結果增大 
+		
+		<figure markdown>
+          ![Image title](./images/18.png){ width="400" }
+        </figure>
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        const int maxn = 1e5 + 5;
+        int n, m;
+        int ans, s[maxn], t[maxn];
+
+        signed main() {
+            cin >> n >> m;
+            for (int i = 1; i <= n; i++) {
+                cin >> s[i] >> t[i];
+                ans += abs(s[i] - t[i]);
+            }
+            s[0] = m;
+            t[0] = 0;
+            sort(s, s + n + 1);
+            sort(t, t + n + 1);
+            for (int i = 0; i <= n; i++)
+                ans += abs(s[i] - t[i]);
+            cout << ans << '\n';
+            return 0;
+        }
+        ```
+		
 ---
 
 ## 參考資料

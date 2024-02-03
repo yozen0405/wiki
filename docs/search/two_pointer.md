@@ -1,8 +1,7 @@
-- CF EDU
-
 ???+note "[CSES - Sum of Two Values](https://cses.fi/problemset/task/1640)"
 	給一個長度為 n 的序列 $a_1, \ldots ,a_n$，以及數字 x，問這 n 個數字中哪兩個數字和為 x，輸出任何一組解
 	
+
 	$n\le 2\times 10^5, 1\le x,a_i\le 10^9$
 	
 	??? note "思路"
@@ -11,30 +10,30 @@
 	??? note "code"
 		```cpp linenums="1"
 		void solve() {
-            vector<pair<int, int>> v;
-            int n, x;
-            cin >> n >> x;
-            for (int i = 1; i <= n; i++) {
-                int x;
-                cin >> x;
-                v.push_back({x, i});
-            }
-            sort(v.begin(), v.end());
-            int l = 0, r = n - 1;
-            while (r > l) {
-                if (v[l].first + v[r].first > x) {
-                    r--;
-                } else if (v[l].first + v[r].first < x) {
-                    l++;
-                } else {
-                    cout << v[l].S << ' ' << v[r].S << endl;
-                    exit(0);
-                }
-            }
-            cout << "IMPOSSIBLE\n";
-        }
-        ```
-		
+	        vector<pair<int, int>> v;
+	        int n, x;
+	        cin >> n >> x;
+	        for (int i = 1; i <= n; i++) {
+	            int x;
+	            cin >> x;
+	            v.push_back({x, i});
+	        }
+	        sort(v.begin(), v.end());
+	        int l = 0, r = n - 1;
+	        while (r > l) {
+	            if (v[l].first + v[r].first > x) {
+	                r--;
+	            } else if (v[l].first + v[r].first < x) {
+	                l++;
+	            } else {
+	                cout << v[l].S << ' ' << v[r].S << endl;
+	                exit(0);
+	            }
+	        }
+	        cout << "IMPOSSIBLE\n";
+	    }
+	    ```
+
 ???+note "[CSES - Sum of Three Values](https://cses.fi/problemset/task/1641)"
 	給一個長度為 n 的序列 $a_1, \ldots ,a_n$，以及數字 x，問這 n 個數字中哪三個數字和為 x，輸出任何一組解
 	
@@ -42,7 +41,7 @@
 	
 	??? note "思路"
 		枚舉第一項，後續套用 Sum of Two Values
-		
+
 ???+note "Sum of Two values 變化"
 	給一個長度為 n 的序列 $a_1, \ldots ,a_n$，以及數字 x，問有幾組 (i, j) 使 $a_i+a_j=x$
 	
@@ -63,7 +62,7 @@
 			}
 		}
 		```
-	
+
 ???+note "[USACO 2021 December Contest, Silver Problem 2. Connecting Two Barns](https://www.usaco.org/index.php?page=viewproblem2&cpid=1159)"
 	給 $n$ 點 $m$ 邊，點邊號 $1\ldots n$，可以額外建最多兩條邊，在點 $i,j$ 之間建邊花費 $(i-j)^2$，問最小花費使點 $1$ 跟點 $n$ 連通
 	
@@ -166,3 +165,53 @@
 	        return 0;
 	    }
 	    ```
+	    
+???+note "[USACO 2013 JAN Cow Lineup G](https://www.luogu.com.cn/problem/P3069)"
+	有 n 頭牛排成一列，其中第 i 個的品種是 a[i]。只能刪掉至多 k 種品種的情況下，問品種相同的連續段的最大長度
+	
+	$n\le 10^5, a_i \le 10^9$
+	
+	??? note "思路"
+		可以把題目看成: 對於每個有 k + 1 種品種的 subarray，問同種種類最多可以是多少。
+		
+		最暴力的想法就是枚舉右界 r，然後暴力的找到 l 使 [l, r] 恰有 k + 1 種品種，用 r 的品種來更新答案。但我們可以發現，這種 subarray 具有單調性，我們可以用 two pointer 維護，詳見代碼。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <iostream>
+        #include <map>
+
+        using namespace std;
+
+        const int N = 100005;
+
+        int a[N];
+
+        int main() {
+            int n, k;
+            cin >> n >> k;
+
+            for (int i = 1; i <= n; ++i) {
+                cin >> a[i];
+            }
+
+            map<int, int> mp;
+            int ans = 0;
+            int l = 1;
+            for (int r = 1; r <= n; ++r) {
+                ++mp[a[r]];
+
+                while (mp.size() > k + 1) {
+                    --mp[a[l]];
+                    if (mp[a[l]] == 0) {
+                        mp.erase(a[l]);
+                    }
+                    ++l;
+                }
+
+                ans = max(ans, mp[a[r]]);
+            }
+
+            cout << ans;
+        }
+		```
