@@ -782,6 +782,12 @@ $$
 		
 		枚舉第一個點 i，再枚舉其他點 j，將 (key, value) = (i 跟 j 的斜率, j) 加入 map 中，看可能的斜率中字典序最小的那個即可
 
+延伸主體: 
+
+- <https://codeforces.com/blog/entry/121537>
+
+- <https://blog.51cto.com/u_15707419/5442937>
+
 ## 最近點對問題
 
 ### 分治
@@ -829,12 +835,12 @@ for r = 1...n:
     using namespace std;
 
     const int INF = 9e18;
-
+    
     int dis(pii a, pii b) {
         int x = a.x - b.x, y = a.y - b.y;
         return x * x + y * y;
     }
-
+    
     signed main() {
         int n;
         cin >> n;

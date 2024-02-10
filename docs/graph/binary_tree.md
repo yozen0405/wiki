@@ -86,25 +86,29 @@
 	??? note "code"
 		```cpp linenums="1"
 		void dfs(string A, string B) {  // string A : 前序字串, string B : 中序字串
-            int n = A.size();
-            if (n == 0) return;                                   // 如果 A 為空，表示已經達到葉子節點，遞迴終止條件。
-            char x = A[0];                                        // 取出前序字串的第一個字元，即當前子樹的根節點。
-            int pivot = find(B.begin(), B.end(), x) - B.begin();  // 找到 x 在 B 的哪個 index
-            // 處理左子樹
-            int lenL = pivot;
-            // 左子樹的長度
-            string A_left = A.substr(1, lenL);  // 從前序字串中截取左子樹部分
-            string B_left = B.substr(0, lenL);  // 從中序字串中截取左子樹部分
-            dfs(A_left, B_left);                // 遞迴輸出左子樹
-            // 處理右子樹
-
-            int lenR = n - lenL - 1;                    // 右子樹的長度
-            string A_right = A.substr(lenL + 1, lenR);  // 從前序字串中截取右子樹部分
-            string B_right = B.substr(lenL + 1, lenR);  // 從中序字串中截取右子樹部分
-            dfs(A_right, B_right);                      // 遞迴輸出右子樹
-            cout << x;
-            // 輸出根節點
-        }
-        ```
+	        int n = A.size();
+	        if (n == 0) return;                                   // 如果 A 為空，表示已經達到葉子節點，遞迴終止條件。
+	        char x = A[0];                                        // 取出前序字串的第一個字元，即當前子樹的根節點。
+	        int pivot = find(B.begin(), B.end(), x) - B.begin();  // 找到 x 在 B 的哪個 index
+	        // 處理左子樹
+	        int lenL = pivot;
+	        // 左子樹的長度
+	        string A_left = A.substr(1, lenL);  // 從前序字串中截取左子樹部分
+	        string B_left = B.substr(0, lenL);  // 從中序字串中截取左子樹部分
+	        dfs(A_left, B_left);                // 遞迴輸出左子樹
+	        // 處理右子樹
+	
+	        int lenR = n - lenL - 1;                    // 右子樹的長度
+	        string A_right = A.substr(lenL + 1, lenR);  // 從前序字串中截取右子樹部分
+	        string B_right = B.substr(lenL + 1, lenR);  // 從中序字串中截取右子樹部分
+	        dfs(A_right, B_right);                      // 遞迴輸出右子樹
+	        cout << x;
+	        // 輸出根節點
+	    }
+	    ```
 
 ## Binary Tree 性質
+
+- 每個 node 最多只能有 2 個 child node
+- Level i 最大節點數： 2^(i-1), i>0，如level 3的Node數最多為 2^(3-1) = 4，如上圖之 DEFG
+- Depth k 最大 node 數： 2^k -1, k>0，如上上面 depth 4的數最大可能的Node數量為 2^4 -1 ＝15

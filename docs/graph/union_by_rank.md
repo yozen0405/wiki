@@ -18,9 +18,9 @@
     - $\text{Query}(u,k):$ 問 $u$ 所在的連通塊第 $k$ 小的編號是多少
     
     $n,m\le 10^5, q\le 3\times 10^5$
-	
-	??? note "思路"
-		在啟發式合併時順便維護 Set 即可
+    
+    ??? note "思路"
+    	在啟發式合併時順便維護 Set 即可
 
 ???+note "[Codeforces EDU-DSU Step1-C. Experience](https://codeforces.com/edu/course/2/lesson/7/1/practice/contest/289390/problem/C)"
 
@@ -31,9 +31,9 @@
     - $\text{get}(x):$ 問 $x$ 的數字是多少
     
     $n,q\le 2\times 10^5$
-	
-	??? note "思路"
-		每個集合都維護一個懶標。使用啟發式合併的想法，每次 merge 的時候暴力的將比較小的集合的每一樣都加上該集合的懶標，問 get(x) 的時候，直接輸出懶標 + x 上面的數字即可
+    
+    ??? note "思路"
+    	每個集合都維護一個懶標。使用啟發式合併的想法，每次 merge 的時候暴力的將比較小的集合的每一樣都加上該集合的懶標，問 get(x) 的時候，直接輸出懶標 + x 上面的數字即可
 
 ## 樹上啟發式合併
 
@@ -324,3 +324,68 @@
 		開兩個 set 分別維護子樹內的資訊以及子樹外的資訊，使用啟發式合併，複雜度 $O(n\log^2 n)$
 		
 		> 參考自 : <https://www.luogu.com.cn/blog/KnownError/solution-cf1805e>
+
+???+note "[USACO22DEC Making Friends P](https://www.luogu.com.cn/problem/P8907)"
+	給一張 n 點 m 邊的圖，第 i 天 i 點消失，i 點周圍的倆倆互相連邊。問有多少種新的邊產生
+
+	$n, m \le 2 \times 10^5$
+	
+	??? note "思路"
+		最暴力的想法，刪掉一個點直接暴力模擬，該連邊的全都一個個連上，很明顯，這個複雜度是 O(n^3) 的。
+		
+        考慮優化，我們發現，在暴力連邊時，慢慢的，很多很多邊已經連好了，如果我們大費周章去操作連過的邊，將會浪費大量的時間。觀察到整道題的處理有順序，從小到大，那我們思考能不能找到一個點先**暫時**記錄下以後要連的邊，然後隨著操作的進行，每條邊都慢慢連好了。
+        
+        那就是目前與 i 相連的點中編號最小的點 j，我們把與 i 相連的點都向它連邊，完全圖就可以一步步連好了。考慮正確性，首先，在與 i 相連的點中，最先處理到的肯定是 j，這時，比 j 小的點都已經去旅遊了，比 j 大的點都還在，也都記錄下來了。
+		
+		【具體實現】:
+
+        我們使用 set，因為方便合併，求最小點也快，還可以防止有重邊。我們發現只有 i 連向比自己編號大的點才可能被算貢獻，所以 set 只記錄比自己大的點，比自己小的點都會在自己之前被刪掉，沒有貢獻。合併的時候，採用啟發式合併，兩個中小的那個 set 併入大的 set 裡面，複雜度多個 $\log n$，總複雜度 $O(n\log^2 n)$。答案計算只需要累加目前 i 點的邊數減去一開始的，求變化量就好了。
+        
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        typedef long long ll;
+        using namespace std;
+
+        const int N = 2e5 + 5;
+        int n, m, x, y, org[N], p;
+        set<int> G[N];
+        ll s;
+
+        void merge(int x, int y) {
+            if (G[x].size() < G[y].size())
+                swap(G[x], G[y]);
+            while (G[y].size()) {
+                G[x].insert(*G[y].begin());
+                G[y].erase(G[y].begin());
+            }
+            return;
+        }
+
+        int main() {
+            cin >> n >> m;
+            for (int i = 1; i <= m; ++i) {
+                cin >> x >> y;
+                if (x > y) {
+                    swap(x, y);
+                }
+                G[x].insert(y);
+            }
+            for (int i = 1; i <= n; ++i)
+                org[i] = G[i].size();
+            for (int i = 1; i <= n; ++i) {
+                if (!G[i].size())
+                    continue;
+                while (*G[i].begin() <= i)  // 刪除已刪掉的點
+                    G[i].erase(G[i].begin());
+                s = s + G[i].size() - org[i];
+                if (G[i].size() <= 1)
+                    continue;
+                p = *G[i].begin();
+                G[i].erase(G[i].begin());  // 不要加入自己
+                merge(p, i);               
+            }
+            cout << s << '\n';
+            return 0;
+        }
+    	```

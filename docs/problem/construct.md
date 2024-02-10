@@ -62,16 +62,34 @@
             }
         }
         ```
-        
+
 ???+note "[2022 TOI pD. 2022](https://tioj.ck.tp.edu.tw/problems/2249)"
 	給你兩個正整數 $x, y$，定義一個「好的數字」：
 
     - 只由 $0$ 和 $2$ 組成，恰有 $x$ 個 $0$ 和 $y$ 個 $2$
-
+    
     - 是 $22$ 的倍數
-
+    
     - 可以有 leading zeroes
     
     請問第二大和第二小的「好的數字」？
-
+    
     $x,y \le 100000$
+    
+???+note "<a href="/wiki/problem/images/2024_toi_mock_0_pE.pdf" target="_blank">2024 TOI 模擬賽 測試 pE. 孤獨的吉姆</a>"
+	給一個長度為 n 的序列 a，將其 reorder 使 $\min \limits_{i=2\ldots n} \{ a_i - a_{i - 1}\}$ 盡量大。輸出 reorder 後的 a。
+	
+	$n\le 2\times 10^5, -10^9\le a_i\le 10^9$
+	
+	??? note "思路"
+		打表觀察。
+		
+		【subtask 1 - n 是偶數】:
+		
+		假設 $a_1, \ldots ,a_n$ 已經排序好，那答案就是 $a_{\frac{n}{2}+1}, a_1,a_{\frac{n}{2}+2}, a_2,a_{\frac{n}{2}+3}, a_3,\ldots,a_n,a_{n/2}$。也就是每一項跟他後面 n/2 的那一項一組。
+		
+		之所以會想到要這樣構造，是因為我們會想要讓在重新排列後的相鄰兩個數字，在原來排序好的數列裡距離最近的那兩個盡可能遠，而這樣構造就能使得此重新排列裡相鄰兩個數字在排序好的數列裡編號差至少都達到 n/2。
+		
+		
+		> 參考: <https://hackmd.io/@aacp/aatoi2024_pre>
+        

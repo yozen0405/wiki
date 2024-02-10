@@ -180,7 +180,7 @@
 	        return cnt <= k;
 	    }
 	
-	    void solve () {
+	    void solve() {
 	    	k--;
 	        for (int i = 1; i <= n; i++) {
 	            cin >> a[i];
@@ -196,7 +196,7 @@
 	        cout << l << "\n";
 	    }
 	
-	    signed main () {
+	    signed main() {
 	        while (cin >> n >> k) {
 	            if(n == 0 && k == 0) break;
 	            solve();

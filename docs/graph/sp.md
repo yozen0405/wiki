@@ -66,14 +66,12 @@
     
     類似的技巧也應用在 [TIOJ 1915](https://tioj.ck.tp.edu.tw/problems/1915), [2023 一模 pD](/wiki/graph/SP/#_2)
 
+??? note "為何 dijkstra 不能在有負邊的圖上跑 ?"
+
 ### 練習
 
 ???+note "來回 [zerojudge g733. 110北二4.漫遊高譚市](https://zerojudge.tw/ShowProblem?problemid=g733)"
-	給 $n$ 點 $m$ 邊有向圖，邊帶權
-	
-	另外額外有 $k$ 條無向帶權邊，至多只能走一條這種邊
-	
-	問 $s\to t$ 的最短路
+	給 $n$ 點 $m$ 邊有向圖，邊帶權，另外額外有 $k$ 條無向帶權邊，至多只能走一條這種邊。問 $s\to t$ 的最短路
 	
 	$n\le 10^4,m+k\le 10^5$
 	
@@ -98,9 +96,7 @@
 		吃 ADD 的話 起點 &rarr; ADD &rarr; 終點 做兩張圖 dijkstra 即可
 
 ???+note "n 平方"
-	給定 $n$ 個點，第 $i$ 點在 $(x_i,y_i)$，從 $i\to j$ 花費 $(x_i - x_j)^2 + (y_i - y_j)^2$
-	
-	問從 $s\to t$ 的最小花費
+	給定 $n$ 個點，第 $i$ 點在 $(x_i,y_i)$，從 $i\to j$ 花費 $(x_i - x_j)^2 + (y_i - y_j)^2$。問從 $s\to t$ 的最小花費
 
 ???+note "字典序 [TIOJ 1572.最短路線問題(Path)](https://tioj.ck.tp.edu.tw/problems/1572)"
 	給一張 $n$ 點 $m$ 邊無向圖，邊權皆為 $1$，輸出 $s\to t$ 的字典序最小的最短路徑
@@ -752,14 +748,10 @@
         */
         ```
 
-???+note "[CSA Chromatic Number](https://csacademy.com/contest/archive/task/chromatic-number)"
-	給一張 $N$ 點 $M$ 邊的圖，邊有邊權，請選擇 $K$ 個特殊點，使 $1\to N$ 的最短路徑中有最多的特殊點
+???+note "[CS Academy - Chromatic Number](https://csacademy.com/contest/archive/task/chromatic-number)"
+	給一張 $n$ 點 $m$ 邊的圖，邊有邊權，請選擇 $k$ 個特殊點，使 $1\to n$ 有經過這 $k$ 個特殊點的最短路徑越多越好，輸出最多能有幾條這樣的路徑以及選法有幾種
 	
-	輸出最多能有幾條這樣的路徑以及最佳的選擇方式有幾種
-	
-	- $N\le 300$
-	
-	- $M\le \frac{N(N-1)}{2}$
+	$n\le 300, m\le \frac{n(n-1)}{2}$
 	
 	??? note "思路"
 		> 建圖
@@ -784,136 +776,134 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	
-	    using namespace std;
-	    using PQ = priority_queue<int, vector<int>, greater<int>>;
-	
-	    const int INF = 2e18;
-	    const int maxn = 300 + 5;
-	    const int M = 1e9 + 7;
-	
-	    int n, m, K;
-	    int dis[maxn][maxn];
-	    int cnt[maxn][maxn];
-	    pii dp[maxn][maxn];
-	
-	    void floyd () {
-	        for (int k = 1; k <= n; k++) {
-	            for (int i = 1; i <= n; i++) {
-	                for (int j = 1; j <= n; j++) {
-	                    if (dis[i][j] == dis[i][k] + dis[k][j]) {
-	                        cnt[i][j] += cnt[i][k] * cnt[k][j];
-	                    }
-	                    else if (dis[i][j] > dis[i][k] + dis[k][j]) {
-	                        dis[i][j] = dis[i][k] + dis[k][j];
-	                        cnt[i][j] = cnt[i][k] * cnt[k][j];
-	                    }
-	                }
-	            }
-	        }
-	    }
-	
-	    void init () {
-	        cin >> n >> m >> K;
-	        int u, v, w;
-	
-	        for (int i = 1; i <= n; i++) {
-	            for (int j = 1; j <= n; j++) {
-	                dis[i][j] = INF;
-	            }
-	            dis[i][i] = 0;
-	        }
-	
-	        for (int i = 1; i <= m; i++) {
-	            cin >> u >> v >> w;
-	            dis[u][v] = dis[v][u] = min (w, dis[u][v]);
-	            cnt[u][v] = cnt[v][u] = 1;
-	        }
-	    }
-	
-	    void solve () {
-	        floyd ();
-	
-	        vector<pii> ord;
-	        for (int i = 1; i <= n; i++) {
-	            ord.pb ({dis[1][i], i});
-	            cnt[i][i] = 1;
-	        }
-	        sort (ALL(ord)); // sort by distance
-	
-	        // dp init
-	        for (int i = 0; i < n; i++) {
-	            int u = ord[i].S;
-	            if (dis[1][u] + dis[u][n] != dis[1][n]) continue;
-	            dp[u][1] = {cnt[1][u], 1};
-	        }
-	
-	        // (v -> u) 一定是 v 先被走到再來才是 u，距離是一種可以判斷先後的好方法
-	        for (int i = 0; i < ord.size (); i++) {
-	            int u = ord[i].S;
-	            if (dis[1][u] + dis[u][n] != dis[1][n]) continue; // check u
-	
-	            for (int j = 0; j < i; j++) {
-	                int v = ord[j].S;
-	                if (dis[1][v] + dis[v][u] + dis[u][n] != dis[1][n]) 
-	                    continue; // check v
-	
-	                for (int k = 2; k <= K; k++) {
-	                    pii tmp;
-	                    tmp.F = dp[v][k - 1].F * cnt[v][u];
-	                    tmp.S = dp[v][k - 1].S;
-	
-	                    if (tmp.F > dp[u][k].F)
-	                        dp[u][k] = tmp;
-	                    else if (tmp.F == dp[u][k].F) {
-	                        dp[u][k].S += tmp.S;
-	
-	                        if (dp[u][k].S >= M)
-	                            dp[u][k].S -= M;
-	                    }
-	                }
-	            }
-	        } 
-	
-	        pii res = {0, 0};
-	        // 以 u 結尾，還缺少到 u -> n 這段，補起來
-	        // 可是 n 結尾上面有算過了阿? 不一定會以 n 結尾 但最短路可延續至 n
-	        for (int i = 1; i <= n; i++) {
-	            if (dis[1][i] + dis[i][n] != dis[1][n])
-	                continue;
-	
-	            dp[i][K].F *= cnt[i][n];
-	
-	            if (dp[i][K].F > res.F)
-	                res = dp[i][K];
-	            else if (dp[i][K].F == res.F) {
-	                res.S += dp[i][K].S;
-	
-	                if (res.S >= M)
-	                    res.S -= M;
-	            }
-	        }
-	
-	        cout << res.F << " " << res.S << "\n";
-	    } 
-	
-	    signed main() {
-	        // ios::sync_with_stdio(0);
-	        // cin.tie(0);
-	        int t = 1;
-	        //cin >> t;
-	        while (t--) {
-	            init();
-	            solve();
-	        }
-	    } 
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 300 + 5;
+        const int M = 1e9 + 7;
+
+        int n, m, K;
+        int dis[maxn][maxn];
+        int cnt[maxn][maxn];
+        pii dp[maxn][maxn];
+
+        void floyd() {
+            for (int k = 1; k <= n; k++) {
+                for (int i = 1; i <= n; i++) {
+                    for (int j = 1; j <= n; j++) {
+                        if (dis[i][j] == dis[i][k] + dis[k][j]) {
+                            cnt[i][j] += cnt[i][k] * cnt[k][j];
+                        } else if (dis[i][j] > dis[i][k] + dis[k][j]) {
+                            dis[i][j] = dis[i][k] + dis[k][j];
+                            cnt[i][j] = cnt[i][k] * cnt[k][j];
+                        }
+                    }
+                }
+            }
+        }
+
+        void init() {
+            cin >> n >> m >> K;
+            int u, v, w;
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    dis[i][j] = INF;
+                }
+                dis[i][i] = 0;
+            }
+
+            for (int i = 1; i <= m; i++) {
+                cin >> u >> v >> w;
+                dis[u][v] = dis[v][u] = min(w, dis[u][v]);
+                cnt[u][v] = cnt[v][u] = 1;
+            }
+        }
+
+        void solve() {
+            floyd();
+
+            vector<pii> ord;
+            for (int i = 1; i <= n; i++) {
+                ord.pb({dis[1][i], i});
+                cnt[i][i] = 1;
+            }
+            sort(ALL(ord));  // sort by distance
+
+            // dp init
+            for (int i = 0; i < n; i++) {
+                int u = ord[i].S;
+                if (dis[1][u] + dis[u][n] != dis[1][n]) continue;
+                dp[u][1] = {cnt[1][u], 1};
+            }
+
+            // (v -> u) 一定是 v 先被走到再來才是 u，距離是一種可以判斷先後的好方法
+            for (int i = 0; i < ord.size(); i++) {
+                int u = ord[i].S;
+                if (dis[1][u] + dis[u][n] != dis[1][n]) continue;  // check u
+
+                for (int j = 0; j < i; j++) {
+                    int v = ord[j].S;
+                    if (dis[1][v] + dis[v][u] + dis[u][n] != dis[1][n])
+                        continue;  // check v
+
+                    for (int k = 2; k <= K; k++) {
+                        pii tmp;
+                        tmp.F = dp[v][k - 1].F * cnt[v][u];
+                        tmp.S = dp[v][k - 1].S;
+
+                        if (tmp.F > dp[u][k].F)
+                            dp[u][k] = tmp;
+                        else if (tmp.F == dp[u][k].F) {
+                            dp[u][k].S += tmp.S;
+
+                            if (dp[u][k].S >= M)
+                                dp[u][k].S -= M;
+                        }
+                    }
+                }
+            }
+
+            pii res = {0, 0};
+            // 以 u 結尾，還缺少到 u -> n 這段，補起來
+            // 可是 n 結尾上面有算過了阿? 不一定會以 n 結尾 但最短路可延續至 n
+            for (int i = 1; i <= n; i++) {
+                if (dis[1][i] + dis[i][n] != dis[1][n])
+                    continue;
+
+                dp[i][K].F *= cnt[i][n];
+
+                if (dp[i][K].F > res.F)
+                    res = dp[i][K];
+                else if (dp[i][K].F == res.F) {
+                    res.S += dp[i][K].S;
+
+                    if (res.S >= M)
+                        res.S -= M;
+                }
+            }
+
+            cout << res.F << " " << res.S << "\n";
+        }
+
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            // cin >> t;
+            while (t--) {
+                init();
+                solve();
+            }
+        }
 	    ```
 
 ???+note "[CSES - Visiting Cities](https://cses.fi/problemset/task/1203)"

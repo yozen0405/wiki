@@ -199,6 +199,7 @@ nav:
       - 並查集: 'graph/dsu.md'
       - MST: 'graph/mst.md'
       - 最短路: 'graph/sp.md'
+      - Topological Sorting: 'graph/topo_sort.md'
       - 進階圖論:
         - 連通元件圖論: 'graph/connected_component.md'
         - 網路流: 'graph/flow.md'

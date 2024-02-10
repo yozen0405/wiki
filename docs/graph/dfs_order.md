@@ -1,13 +1,7 @@
 ## 利用 dfs 序
 
-- [CF 1065F](https://codeforces.com/problemset/problem/1065/F)
-
 ???+note "[CSES - Network Renovation](https://cses.fi/problemset/task/1704)"
-	給一顆 $n$ 個點的樹，你要加一些邊使不管斷任何一條邊斷掉整張圖還是連通的
-	
-	也就是使圖上沒有邊是 bridge (雙連通)
-	
-	問最少斷幾條邊，並且輸出任意一組解
+	給一顆 $n$ 個點的樹，問最少加幾條邊可使圖上沒有邊是 bridge (雙連通)
 	
 	$n\le 10^5$
 	
@@ -143,14 +137,14 @@
 			dfs (last);
 		}
 		```
-		
+
 ???+note "[CF 1528 C. Trees of Tranquility](https://codeforces.com/problemset/problem/1528/C)"
 	給出兩棵 root 為 1 的樹，分別稱為 A 樹和 B 樹，現在透過兩棵樹可以構造出一個無向圖，當且僅當點對 (u, v) 同時滿足下列兩個條件時，可在圖中建邊： 
 
     - 在 A 樹中，u 是 v 的祖先或 u 是 v 的祖先
-
+    
     - 在 B 樹中，u 不能是 v 的祖先同時 u 不能是 v 的祖先
-
+    
     問構造出的無向圖的 maximum clique 的大小是多少
     
     $2\le n\le 3\times 10^5$
@@ -163,8 +157,8 @@
     	- 若有一個更大的 interval [tl, tr] 包含 [l, r]，將 [tl, tr] erase，insert [l, r]
     	
     	- 若 [l, r] 包含了一個 interval [tl, tr]，不做任何動作最好
+    
+    	當 dfs 回溯的時候再將 insert 的 erase 掉，有 erase 的 insert 回去即可
 
-		當 dfs 回溯的時候再將 insert 的 erase 掉，有 erase 的 insert 回去即可
-    	
 
 

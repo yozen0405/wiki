@@ -10,7 +10,16 @@
     
     ??? note "思路"
     	跟區間除法一樣 mx > 0 再跟新，區間和就用線段樹的 pull 維護就好了
-
+    	
+??? info "記憶體空間: 4n"
+	假設當前線段樹為 full binary tree，那麼節點數量就是 n + n/2 + n/4 + … + 1 = 2n - 1。可是當某些情況線段樹會往下多遞迴一層，例如下面這個 case
+	
+	<figure markdown>
+      ![Image title](./images/20.png){ width="400" }
+    </figure>
+    
+    這時就會是為多一層的 full binary tree，節點數量為 2n + n + n/2 + n/4 + … + 1 = 4n - 1。
+	
 ## 括號
 
 ### 合法定義
@@ -128,9 +137,9 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
     #define ALL(x) x.begin(), x.end()
 
     using namespace std;
-
+    
     const int INF = 2e18;
-
+    
     struct Node {
         int l, r;
         Node *lc = nullptr;
@@ -138,9 +147,9 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
         int cnt;
         int mn;
         int add = 0;
-
+    
         Node(int l, int r) : l(l), r(r) {}
-
+    
         void pull() {
             mn = min(lc->mn, rc->mn);
             cnt = 0;
@@ -151,7 +160,7 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
                 cnt += rc->cnt;
             }
         }
-
+    
         void push() {
             if (add) {
                 lc->mn += add;
@@ -162,23 +171,23 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
             }
         }
     };
-
+    
     struct OP {
         int x, y1, y2, val;
-
+    
         bool operator<(const OP &rhs) const {
             return x < rhs.x;
         }
     };
-
+    
     int n;
     vector<int> sortedY; 
     vector<OP> op;
-
+    
     // {1, 8, 9, 10}
     // i 維護 i~i+1
     // lb(i), lb(i - 1)
-
+    
     Node* build(int l, int r) {
         Node* root = new Node(l, r);
         if (l == r) {
@@ -189,11 +198,11 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
         int mid = (l + r) / 2;
         root->lc = build(l, mid);
         root->rc = build(mid + 1, r);
-
+    
         root->pull();
         return root;
     }
-
+    
     void modify(Node* root, int ml, int mr, int val) {
         if (ml <= root->l && root->r <= mr) {
             root->mn += val;
@@ -205,11 +214,11 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
         }
         root->push();
         modify(root->lc, ml, mr, val);
-
+    
         modify(root->rc, ml, mr, val);
         root->pull();
     }
-
+    
     void init() {
         cin >> n;
         for (int i = 0; i < n; i++) {
@@ -224,7 +233,7 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
         sortedY.resize(unique(ALL(sortedY)) - sortedY.begin());
         sort(ALL(op));
     }
-
+    
     void solve() {
         int range = sortedY.back() - sortedY.front();
         Node* root = build(0, sortedY.size() - 2);
@@ -232,24 +241,24 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
         for (auto [x, y1, y2, val] : op) {
             int yl = lower_bound(ALL(sortedY), y1) - sortedY.begin();
             int yr = lower_bound(ALL(sortedY), y2) - sortedY.begin() - 1;
-
+    
             if (lastX != INF && x != lastX) {
                 int dy = (root->mn == 0) ? (range - root->cnt) : range;
                 ans += (x - lastX) * dy;
             }
-
+    
             modify(root, yl, yr, val);
             lastX = x;
         }
         cout << ans << '\n';
     }
-
+    
     signed main() {
         init();
         solve();
     } 
     ```
-	
+
 ???+note "[2021 全國賽 pF. 歡樂外送點](https://tioj.ck.tp.edu.tw/problems/2228)" 
 	給 $n$ 個菱形，中心點為 $(x_i, y_i)$，半徑為 $r_i$，權值為 $w_i$。問所有格子點的上被覆蓋到的權值總和最大值
 	
