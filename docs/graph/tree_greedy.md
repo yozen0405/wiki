@@ -4,24 +4,16 @@
 ## TOI 2022 pC
 
 ???+note "[TOI 2022 pC](https://tioj.ck.tp.edu.tw/problems/2248)"
-	給定一顆 $n$ 個點邊有權重的樹，$w_{i}$ 代表第 $i$ 個點一開始有幾台車
-	
-	每條邊有權重 $d_i$ 代表通過這條邊的距離為 $d_{i}$
+	給定一顆 $n$ 個點邊有權重的樹，第 $i$ 個點有 $w_{i}$ 台車，第 $i$ 條邊的距離為 $d_i$。如果要讓每個點車子數量最後皆為 $k$，最小總調度成本為多少？
 	
 	$$調度成本 = 調度數量 \times 調度距離$$
-	
-	如果要讓每個點車子數量最後皆為 $k$，最小總調度成本為多少？
 	
 	$1 \leq n \leq 10^{5},\sum w_i = n\times k$
 	
 	??? note "思路"
-		一樣我們先考慮 leaf，leaf 只能從父親節點的方向將車送過來，或將多餘的送回去
-		
-		如果不夠，我們可以先跟父親節點借，將父親節點的 $w_i-=k$
-		
-		如果太多，我們可以送給父親節點，將父親節點的 $w_i+=k$
+		一樣我們先考慮 leaf，leaf 只能從父親節點的方向將車送過來，或將多餘的送回去。如果不夠，我們可以先跟父親節點借，將父親節點的 $w_i-=k$；如果太多，我們可以送給父親節點，將父親節點的 $w_i+=k$。
 	
-		一旦 leaf 調整好至 $k$ 台車，因為不會有車要送過來，或自己有車要送出去，所以可以將 leaf 刪除
+		一旦 leaf 調整好至 $k$ 台車，因為不會有車要送過來，或自己有車要送出去，所以可以將 leaf 刪除。
 		
 	??? note "code"
 		```cpp linenums="1"
@@ -214,7 +206,7 @@
 	    long long ans;
 		
 		// 找樹重心
-	    void find (int u = 0, int par = -1) {
+	    void find(int u = 0, int par = -1) {
 	        s[u] = 1;
 	        int w = 0;
 	        for (auto v : G[u]) {
@@ -233,7 +225,7 @@
 	        }
 	    }
 	
-	    void dfs (int u = 0, int p = -1) {
+	    void dfs(int u = 0, int p = -1) {
 	        ord[u] = dt;
 	        ds[dt++] = u; // dfs 序
 	        s[u] = 1;
@@ -257,8 +249,8 @@
 	            G[v].push_back(u);
 	        }
 	
-	        find (); 
-	        dfs (C);
+	        find(); 
+	        dfs(C);
 	
 	        cout << 2 * ans << "\n";
 	        for (int i = 0; i < n; i++)
@@ -640,104 +632,78 @@
 		
 	??? note "code"
 		```cpp linenums="1"
-		#pragma GCC optimize("O3,unroll-loops")
-	    #pragma GCC target("avx,popcnt,sse4,abm")
-	    #include <bits/stdc++.h>
-	    using namespace std;
-	
-	    #ifdef WAIMAI
-	    #define debug(HEHE...) cout << "[" << #HEHE << "] : ", dout(HEHE)
-	    void dout() {cout << '\n';}
-	    template<typename T, typename...U>
-	    void dout(T t, U...u) {cout << t << (sizeof...(u) ? ", " : ""), dout(u...);}
-	    #else
-	    #define debug(...) 7122
-	    #endif
-	
-	    //#define int long long
-	    #define ll long long
-	    #define Waimai ios::sync_with_stdio(false), cin.tie(0)
-	    #define FOR(x,a,b) for (int x = a, I = b; x <= I; x++)
-	    #define pb emplace_back
-	    #define F first
-	    #define S second
-	
-	    const int SIZE = 2e5 + 5;
-	    const int TSIZ = 20 * SIZE;
-	
-	    int n, q, sum;
-	    ll ans;
-	    int a[SIZE];
-	    int siz, cnt[TSIZ], to[TSIZ][2], e[TSIZ];
-	    // siz : stamp, cnt[] : 子樹大小總和
-	    // to[][0/1] : 紀錄 01Trie 每個點的編號
-	    // e[] : Trie 上的某個點上有幾個數字
-	
-	    void ins(string s, int add) {
-	        int pos = 0;
-	        cnt[0] += add;
-	        sum += add * ((int)s.size());
-	        for (char c : s) {
-	            int b = c - '0';
-	            if (!to[pos][b]) to[pos][b] = ++siz;
-	            pos = to[pos][b];
-	            cnt[pos] += add;
-	        }
-	        e[pos] += add;
-	    }
-	
-	    int que() {
-	        int re = sum;
-	        int pos = 0, dep = 0, all = 2 * n;
-	        for (int i = 20; i >= 0 && all; i--) {
-	            dep++;
-	            int c0 = to[pos][0] ? cnt[to[pos][0]] : 0;
-	            int c1 = to[pos][1] ? cnt[to[pos][1]] : 0;
-	            int ce = e[pos];
-	            int mn = min({c0 + ce, c1 + ce, all / 2});
-	            re -= 2 * (dep - 1) * mn;
-	            all -= 2 * mn; 
-	            if (c0 <= c1) pos = to[pos][1];
-	            else pos = to[pos][0];
-	            if (!pos) return re;
-	        }
-	        return re;
-	    }
-	
-	    string f(int x) {
-	        string t;
-	        while (x) {
-	            if (x & 1) t += "1";
-	            else t += "0";
-	            x >>= 1;
-	        }
-	        reverse(t.begin(), t.end());
-	        return t;
-	    }
-	
-	    void solve() {
-	        cin >> n;
-	        FOR (i, 1, 2 * n) {
-	            cin >> a[i];
-	            ins(f(a[i]), 1);
-	        }
-	        cin >> q;
-	        while (q--) {
-	            int p, x;
-	            cin >> p >> x;
-	            ins(f(a[p]), -1);
-	            a[p] = x;
-	            ins(f(a[p]), 1);
-	            cout << que() << '\n';
-	        }
-	    }
-	
-	    int32_t main() {
-	        //Waimai;
-	        int tt = 1;
-	        //cin >> tt;
-	        while (tt--) solve();
-	    }
+		#include <bits/stdc++.h>
+        using namespace std;
+
+        const int SIZE = 2e5 + 5;
+        const int TSIZ = 20 * SIZE;
+
+        int n, q, sum;
+        long long ans;
+        int a[SIZE];
+        int siz, cnt[TSIZ], to[TSIZ][2], e[TSIZ];
+        // siz : stamp, cnt[] : 子樹大小總和
+        // to[][0/1] : 紀錄 01Trie 每個點的編號
+        // e[] : Trie 上的某個點上有幾個數字
+
+        void ins(string s, int add) {
+            int pos = 0;
+            cnt[0] += add;
+            sum += add * ((int)s.size());
+            for (char c : s) {
+                int b = c - '0';
+                if (!to[pos][b]) to[pos][b] = ++siz;
+                pos = to[pos][b];
+                cnt[pos] += add;
+            }
+            e[pos] += add;
+        }
+
+        int que() {
+            int re = sum;
+            int pos = 0, dep = 0, all = 2 * n;
+            for (int i = 20; i >= 0 && all; i--) {
+                dep++;
+                int c0 = to[pos][0] ? cnt[to[pos][0]] : 0;
+                int c1 = to[pos][1] ? cnt[to[pos][1]] : 0;
+                int ce = e[pos];
+                int mn = min({c0 + ce, c1 + ce, all / 2});
+                re -= 2 * (dep - 1) * mn;
+                all -= 2 * mn; 
+                if (c0 <= c1) pos = to[pos][1];
+                else pos = to[pos][0];
+                if (!pos) return re;
+            }
+            return re;
+        }
+
+        string f(int x) {
+            string t;
+            while (x) {
+                if (x & 1) t += "1";
+                else t += "0";
+                x >>= 1;
+            }
+            reverse(t.begin(), t.end());
+            return t;
+        }
+
+        signed main() {
+            cin >> n;
+            for (int i = 1; i <= 2 * n; i++) {
+                cin >> a[i];
+                ins(f(a[i]), 1);
+            }
+            cin >> q;
+            while (q--) {
+                int p, x;
+                cin >> p >> x;
+                ins(f(a[p]), -1);
+                a[p] = x;
+                ins(f(a[p]), 1);
+                cout << que() << '\n';
+            }
+        }
 		```
 
 ### 題目2
@@ -765,3 +731,108 @@
         </figure>
         
         Tree 的 case 考慮樹鏈剖分，將一次 add 變成在 $\log n$ 條 path 的 case 即可，複雜度 $O(q\log ^2 n)$
+        
+???+note "[CF 1919 D. 01 Tree](https://www.luogu.com.cn/problem/CF1919D)"
+	給你一顆完全二元樹，與兒子相連的兩條邊權恰好一個是 0，一個是 1。目前不知道樹的形態。但已知，依照 dfs 序，葉子結點的權重恰好是長度為 n 的序列 a。權重定義為 root 到 node 的邊權總和。
+	
+	$n\le 2\times 10^5, 0 \le a_i \le n - 1$
+	
+	??? note "思路"
+		【轉化題意】
+		
+		樹真的比較抽象。發現，你可以按照這樣的方法來嘗試解構一顆完全二元樹：找到兩個兄弟葉子節點，刪除它們。此時它們的父親變成葉子結點。由於是一顆完全二元樹，每次一定能找到兩個葉子兄弟節點，知道只剩下一個點。
+		
+		【題目的性質】
+		
+		題目中的樹還有一個特點，就是兄弟節點的深度差為 $1$。 結合兩個特點，反映在序列上就是：每次選擇 $a_i$，滿足 $|a_i - a_{i+1}| = 1$，刪除 $a_i$ 和 $a_{i+1}$（兄弟葉子結點），然後在這個位置加入 $\min(a_i, a_{i+1})$（父親節點）。
+		
+		問題簡化為：每次選擇一個位置，滿足存在相鄰的位置權值比它小 1，然後刪除它，最終能否得到 $a = [0]$。
+		
+		【作法分析】
+		
+		可以發現，序列的最大值**只能被其它元素刪掉**。這意味著我們可以貪心地刪除所有序列最大值。如果有元素不能被刪掉，那麼一定不合法。刪除的一個比較簡單的寫法是，注意到一個最大值連續段，只要某個端點能被刪除，就可以全被刪除；否則，是刪不掉的。如果我們刪完了序列最大值，問題就變成了子問題，同樣地解決就好了。至於刪點，可以用鍊錶（用 set 模擬）。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <iostream>
+        #include <list>
+        #include <vector>
+        using namespace std;
+
+        vector<list<int>::iterator> v[200005];
+
+        bool solve() {
+            int n;
+            list<int> a;
+            cin >> n;
+            for (int i = 0; i < n; i++) {
+                v[i].clear();
+            }
+            for (int i = 0, x; i < n; i++) {
+                cin >> x;
+                a.push_back(x);
+                v[x].push_back(--a.end());
+            }
+            for (int i = n - 1; i >= 1; i--) {
+                for (auto &it : v[i]) {
+                    if ((it != a.begin() && *prev(it) == i - 1) || (it != --a.end() && *next(it) == i - 1)) {
+                        a.erase(it);
+                        it = a.end();
+                    } else if (it == --a.end() || *next(it) != i) {
+                        return false;
+                    }
+                }
+                for (auto &it : v[i]) {
+                    if (it != a.end()) {
+                        a.erase(it);
+                    }
+                }
+            }
+            return a.size() == 1 && a.back() == 0;
+        }
+
+        signed main() {
+            ios::sync_with_stdio(false);
+            cin.tie(0), cout.tie(0);
+            int t;
+            cin >> t;
+            while (t--) {
+                cout << (solve() ? "Yes\n" : "No\n");
+            }
+            return 0;
+        }
+        ```
+        
+???+note "[TOI 2023 三模 p3. 最穩定的薪水 (Salary)](https://drive.google.com/file/d/1N5fByr6BaZSbs63N8JggtMqwzCiWkHME/view)"
+	給一棵 $n$ 個點的樹，第 $i$ 個節點可能有兩種狀況：**已開發**或**未開發**，對**已開發**的城市，薪水為 $x_i$，而對於**未開發**的城市，薪水一開始為 $x_i = 0$，而這些城市會不斷的（同時或不同時）調漲員工薪水，對這些城市而言，定義 $N(i)$ 是該點的鄰居集合而 $c_i$ 為加碼的常數，那這次薪水的調漲將會是
+
+    $$x_i \leftarrow \max\left\{x_i, c_i + \frac 1 {|N(i)|}\sum_{j\in N(i)}x_j\right\}$$
+
+    已知在任意次的調整後所有城市的薪資都會達到一個固定的數值，對所有**未開發**的城市輸出這個最終固定的 $x_i$
+
+    $1 \leq n \leq 10^6, 0 \leq,$ 初始的 $x_i,c_i \leq 10^6$
+     
+    ??? note "思路"
+    	$x_i$ 跟 $x_i$ 取 max 那裏其實可以省略不用看，因為經過調整後一定不會變小。我們定義一個城市固定的變量是 $c_i$ 而會變動的是 $d_i$。
+    	
+    	可以發現，目前連任意一個節點的 $d_i$ 都很難求出，所以我們考慮從最簡單的葉節點下手。我們嘗試直接去將葉節點的 $d_i$ 求出來，但發現他會用到他 parent 的 $d_i$ 值，而他 parent 的 $d_i$ 也會需要用到 parent 的 $d_i$，所以無法直接求出。
+    	
+    	<figure markdown>
+          ![Image title](./images/138.png){ width="250" }
+        </figure>
+        
+        但這給我們一個啟發，我們雖然不能直接靠葉節點求出來，但我們可以將問題縮小，如下圖。我們將葉節點用他的 parent 的 $d_i$ 來表示，並把他代入到 parent 的值中。
+        
+        <figure markdown>
+          ![Image title](./images/139.png){ width="500" }
+          <figcaption>$d_2$ 實上還可以將其化簡，見右邊的過程</figcaption>
+        </figure>
+        
+        再來就是子問題。最後，推到 root 的時候，因為 root **沒有 parent** 的干擾，以至於他的 $d_i$ 可以直接求出來，因為只剩下一堆已知的數值的 $c_i$。由此，我們可以再從 root 逆推回去，依序由上而下將所有點的 $d_i$ 求出來，即解決這題。
+        
+        <figure markdown>
+          ![Image title](./images/140.png){ width="500" }
+          <figcaption>假設 5 這個節點是已開發的（讓讀者知道已開發的點的情況）</figcaption>
+        </figure>
+    
+     	

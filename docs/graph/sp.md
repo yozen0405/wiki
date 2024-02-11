@@ -1,6 +1,6 @@
 ## dijkstra
 
-單源點最短路徑
+:arrow_forward: 單源點最短路徑
 
 考慮不帶權的單點源最短路，我們用BFS維護一個 queue，每次處理一個點時最短路徑大小已知，因此只需要拿該點去**更新其他點一次**在**沒有負邊**的假設下，dijkstra 就像是有帶權的BFS。
 
@@ -13,7 +13,7 @@
 
 ??? note "算法實作1（稍慢）"
     ```cpp linenums="1"
-    vector<int> dijkstra (int start) {
+    vector<int> dijkstra(int start) {
         vector<int> dis(n + 1, INF);
         priority_queue<pii, vector<pii>, greater<pii>> pq;
         pq.push({0, start});
@@ -32,7 +32,7 @@
     
 ??? note "算法實作2（稍快）"
     ```cpp linenums="1"
-    vector<int> dijkstra (int start) {
+    vector<int> dijkstra(int start) {
         vector<int> dis(n + 1, INF);
         priority_queue<pii, vector<pii>, greater<pii>> pq;
         pq.push({0, start});
@@ -62,11 +62,18 @@
     
     - get_value() 得到當前最小的 distance (相當於 pq.top())
     
-    因為 distance 具有單調性，故 threshold 只會遞增
-    
-    類似的技巧也應用在 [TIOJ 1915](https://tioj.ck.tp.edu.tw/problems/1915), [2023 一模 pD](/wiki/graph/SP/#_2)
+    因為 distance 具有單調性，故 threshold 只會遞增。類似的技巧也應用在 [TIOJ 1915](https://tioj.ck.tp.edu.tw/problems/1915), [2023 一模 pD](/wiki/graph/SP/#_2)
 
 ??? note "為何 dijkstra 不能在有負邊的圖上跑 ?"
+	簡單來說就是因為單調性。
+	
+	<figure markdown>
+	  ![Image title](./images/141.png){ width="400" }
+	</figure>
+	
+	舉例來說，現在要算出 A 到 D 的最短路徑，Dijkstra 首先 relax B, C，B 最短，然後把 B 的出邊進行鬆弛，B 被標記為處理過，然後再次選出 C，對 C 的出邊進行 relax，此時 B 雖然進行了鬆弛，但是前面已經被標記處理過了，所以最後算出來的最短路徑為 35，但是實際上最短路徑為 33。
+	
+	因為 Dijkstra 是這樣假設的：對於處理過的結點，{==沒有前往該結點的更短路徑==}，這種假設僅僅在{==沒有負權邊時==}才能成立。
 
 ### 練習
 
@@ -76,17 +83,10 @@
 	$n\le 10^4,m+k\le 10^5$
 	
 	??? note "思路"
-		- 給定起點 $s$, 對於每個點 $u$ 找 $dis(s \rightarrow u) + dis(u \rightarrow v)$
-		- 正反各做一次，也就是把正圖跟反圖都各做一次 $\texttt{dijkstra}$ 起點都是 $\texttt{s}$
+		對於每個點 $u$ 找 $dis(s \rightarrow u) + dis(u \rightarrow v)$。正反各做一次，也就是把正圖跟反圖都各做一次 dijkstra。
 
 ???+note "[2021 南一中校內複賽 pC 為美好的地牢獻上爆擊](https://toj.tfcis.org/oj/pro/636/)"
-	給一個 $n \times m$ 的棋盤，在某一個格子有一個 ADD 道具，其他每個格子都有一隻魔物攻擊力是 $w_{i,j}$
-	
-	你要從左上角走到右下角，如果經過的格子有魔物，那你會受到 $w_{i,j}$ 點的傷害，並把那隻魔物打倒，第二次經過這個格子就不會再遇到魔物了
-	
-	在經過 ADD 道具之後，每次你受到的傷害都會減少(但不會回血)
-	
-	求你最少要承受多少傷害
+	給一個 $n \times m$ 的棋盤，在某一個格子有一個 ADD 道具，其他每個格子都有一隻魔物攻擊力是 $w_{i,j}$。你要從左上角走到右下角，如果經過的格子有魔物，那你會受到 $w_{i,j}$ 點的傷害，並把那隻魔物打倒，第二次經過這個格子就不會再遇到魔物了。在經過 ADD 道具之後，每次你受到的傷害都會減少(但不會回血)，求你最少要承受多少傷害
 	
 	$n,m\le 10^3$
 	
@@ -104,26 +104,84 @@
 	$n,m\le 10^6$
 	
 	??? note "思路"
-		從終點做回來，建立最短路徑tree，將 tree 邊反向，從起點每次 greedy 走最小的回來
-
-???+note "字典序樹 [洛谷 [FJOI2014]最短路径树问题](https://www.luogu.com.cn/problem/P2993)"
-	給一張 $n$ 點 $m$ 邊無向圖，邊帶權，起點為 $1$
+		從終點做回來，建立最短路徑 DAG，將 DAG 的邊反向，從起點每次 greedy 走最小的點直到抵達終點
+		
+???+note "最短平均路 [CF EDU B. Minimum Average Path](https://codeforces.com/edu/course/2/lesson/6/4/practice/contest/285069/problem/B)"
+	給定一個 $n$ 點 $m$ 邊的 DAG，邊帶權，問從 $1\to n$ 的 path 上權重的平均最小可以是多少
 	
-	先求出一顆最短路徑樹，滿足經過的節點序列是字典序最小的
-	
-	在樹上求包含 $k$ 個點的最長路徑，求包含 $k$ 個點的最長路有幾條
-	
-	$n\le 3\times 10^4,m\le 6\times 10^4,k\le n$
+	$n\le 10^5,m\le 10^5$
 	
 	??? note "思路"
-		這個最短路徑樹，首先可以通過 Dijkstra 跑出最短路徑 DAG，然後在 DAG 上用dfs 每次 greedy 走最小的點即可求出字典序最小的樹
+		跟上面最大平均區間一樣，我們去二分搜平均值 $x$，將邊權都 $-x$，看有沒有一條 path 的總和 $\le 0$。我們可以令 $dp[i]=$ 走到點 $i$ 的最小權值是多少，$dp[v]=\min \{dp[u]+w \}$ 
 		
-		剩下的 HLD
-		
-		https://www.cnblogs.com/wyb-sen/p/15178332.html
-
-???+note "最短平均路"
+	??? note "code"
+		```cpp 
+		#include <bits/stdc++.h>
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
 	
+	    using namespace std;
+	
+	    const double INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    int n, m;
+	    double dp[maxn];
+	    int par[maxn];
+	    vector<pii> G[maxn];
+	
+	    bool check(double x) {
+	        fill(dp, dp + n + 1, INF);
+	        fill(par, par + n + 1, -1);
+	        dp[1] = 0;
+	        for (int i = 1; i <= n; i++) {
+	            for (auto [v, w] : G[i]) {
+	                double val = (double)dp[i] + w - x;
+	                if (dp[v] > val) {
+	                    dp[v] = val;
+	                    par[v] = i;
+	                }
+	            }
+	        }
+	        return dp[n] <= 0;
+	    }
+	
+	    signed main() {
+	        cin >> n >> m;
+	        for (int i = 1; i <= m; i++) {
+	            int u, v, w;
+	            cin >> u >> v >> w;
+	            G[u].pb({v, w});
+	        }
+	
+	        double l = 0, r = 105;
+	        for (int i = 0; i < 100; i++) {
+	            double mid = (l + r) / 2;
+	            if (check(mid)) r = mid;
+	            else l = mid;
+	        }
+	        check(l);
+	
+	        stack<int> stk;
+	        int x = n;
+	        stk.push(x);
+	        while (par[x] != -1) {
+	            x = par[x];
+	            stk.push(x);
+	        }
+	        cout << stk.size() - 1 << '\n';
+	        while (stk.size()) {
+	            cout << stk.top() << ' ';
+	            stk.pop();
+	        }
+	    } 
+	    ```
 
 ### 多源點 dijkstra
 
@@ -474,15 +532,10 @@
 這邊帶一個相關的題目
 
 ???+note "[LOJ #3255. 「JOI 2020 Final」奥运公交](https://loj.ac/p/3255)"
-    给 $n$ 點 $m$ 邊的有向圖
-    
-    每個邊 ($u_i,v_i,c_i,d_i$) 代表邊連接 $(u_i,v_i)$，邊權是 $c_i$
-    
-    你最多可以翻轉一條邊，翻轉代價是該條邊的 $d_i$
-    
-    求從 $1$ 走到 $n$ 再走回 $1$ 的最小 cost
+    给 $n$ 點 $m$ 邊的有向圖，每條邊 $(u_i,v_i)$ 有邊權 $c_i$。你最多可以翻轉一條邊，翻轉代價是該條邊的 $d_i$，問從 $1$ 走到 $n$ 再走回 $1$ 的最小 cost
     
     $n \leq 200,m \leq 5 \times 10^4$
+    
     ??? note "思路"
     	- 若翻轉的邊在 shortest path tree 上
     		- 因為邊被刪掉了，整顆 tree 就要重算
@@ -510,7 +563,7 @@
 
 ??? note "實作"
 	```cpp linenums="1"
-	void build_DAG() {
+	void build_dag() {
         for (int u = 1; u <= n; u++) {
             for (auto [v, w] : G[u]) {
                 if (dis[v] == dis[u] + w) {
@@ -523,9 +576,7 @@
     ```
 	
 ???+note "[LOJ #2350. 「JOI 2018 Final」月票购买](https://loj.ac/p/2350)"
-	給一張 $n$ 點 $m$ 邊帶權無圖，從 $s$ 到 $t$ 選一條**最短路徑**，將其邊權都設為 $0$
-	
-	問 $u$ 到 $v$ 的最短路徑最小可以是多少
+	給一張 $n$ 點 $m$ 邊帶權無圖，從 $s$ 到 $t$ 選一條**最短路徑**，將其邊權都設為 $0$。問 $u$ 到 $v$ 的最短路徑最小可以是多少
 	
 	$n\le 10^5,m\le 2\times 10^5$
 	
@@ -544,17 +595,17 @@
 	
 	??? note "code"
 		```cpp linenums="1"
-		void dfs (int u) {
+		void dfs(int u) {
 	        if (vis[u]) return;
 	        vis[u] = 1;
 	        f[u] = dV[u], g[u] = dU[u];
 	        for (int i = head[u]; i; i = edge[i].next) {
 	            int v = edge[i].to;
 	            if (dS[u] + dT[v] + edge[i].len > dS[T]) continue;
-	            dfs (v);
-	            f[u] = min (f[u], f[v]), g[u] = min (g[u], g[v]);
+	            dfs(v);
+	            f[u] = min(f[u], f[v]), g[u] = min(g[u], g[v]);
 	        }
-	        ans = min ({ans, f[u] + dU[u], g[u] + dV[u]});
+	        ans = min({ans, f[u] + dU[u], g[u] + dV[u]});
 	    }
 	    ```
 
@@ -588,15 +639,7 @@
             ```
     
     ??? note "思路"
-    	一樣先建立 shortest path DAG
-    	
-    	刪邊時類似 topo sort
-    	
-    	假如現在刪掉 $(u,v)$ 這條邊，若 $in_v=0$ 就可以將變大傳遞給 $v$ 後面的點
-    
-        由於每條邊邊權增加後就不可能出現在shortest path DAG，所以每條邊只需刪除一次故
-        
-        複雜度 $O(n+m)$
+    	一樣先建立 shortest path DAG，刪邊時類似 topo sort。假如現在刪掉 $(u,v)$ 這條邊，若 $in_v=0$ 就可以將變大傳遞給 $v$ 後面的點，由於每條邊邊權增加後就不可能出現在shortest path DAG，所以每條邊只需刪除一次故複雜度 $O(n+m)$。
     
     ??? note "code"
     	```cpp linenums="1"
@@ -776,157 +819,6 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 300 + 5;
-        const int M = 1e9 + 7;
-
-        int n, m, K;
-        int dis[maxn][maxn];
-        int cnt[maxn][maxn];
-        pii dp[maxn][maxn];
-
-        void floyd() {
-            for (int k = 1; k <= n; k++) {
-                for (int i = 1; i <= n; i++) {
-                    for (int j = 1; j <= n; j++) {
-                        if (dis[i][j] == dis[i][k] + dis[k][j]) {
-                            cnt[i][j] += cnt[i][k] * cnt[k][j];
-                        } else if (dis[i][j] > dis[i][k] + dis[k][j]) {
-                            dis[i][j] = dis[i][k] + dis[k][j];
-                            cnt[i][j] = cnt[i][k] * cnt[k][j];
-                        }
-                    }
-                }
-            }
-        }
-
-        void init() {
-            cin >> n >> m >> K;
-            int u, v, w;
-
-            for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= n; j++) {
-                    dis[i][j] = INF;
-                }
-                dis[i][i] = 0;
-            }
-
-            for (int i = 1; i <= m; i++) {
-                cin >> u >> v >> w;
-                dis[u][v] = dis[v][u] = min(w, dis[u][v]);
-                cnt[u][v] = cnt[v][u] = 1;
-            }
-        }
-
-        void solve() {
-            floyd();
-
-            vector<pii> ord;
-            for (int i = 1; i <= n; i++) {
-                ord.pb({dis[1][i], i});
-                cnt[i][i] = 1;
-            }
-            sort(ALL(ord));  // sort by distance
-
-            // dp init
-            for (int i = 0; i < n; i++) {
-                int u = ord[i].S;
-                if (dis[1][u] + dis[u][n] != dis[1][n]) continue;
-                dp[u][1] = {cnt[1][u], 1};
-            }
-
-            // (v -> u) 一定是 v 先被走到再來才是 u，距離是一種可以判斷先後的好方法
-            for (int i = 0; i < ord.size(); i++) {
-                int u = ord[i].S;
-                if (dis[1][u] + dis[u][n] != dis[1][n]) continue;  // check u
-
-                for (int j = 0; j < i; j++) {
-                    int v = ord[j].S;
-                    if (dis[1][v] + dis[v][u] + dis[u][n] != dis[1][n])
-                        continue;  // check v
-
-                    for (int k = 2; k <= K; k++) {
-                        pii tmp;
-                        tmp.F = dp[v][k - 1].F * cnt[v][u];
-                        tmp.S = dp[v][k - 1].S;
-
-                        if (tmp.F > dp[u][k].F)
-                            dp[u][k] = tmp;
-                        else if (tmp.F == dp[u][k].F) {
-                            dp[u][k].S += tmp.S;
-
-                            if (dp[u][k].S >= M)
-                                dp[u][k].S -= M;
-                        }
-                    }
-                }
-            }
-
-            pii res = {0, 0};
-            // 以 u 結尾，還缺少到 u -> n 這段，補起來
-            // 可是 n 結尾上面有算過了阿? 不一定會以 n 結尾 但最短路可延續至 n
-            for (int i = 1; i <= n; i++) {
-                if (dis[1][i] + dis[i][n] != dis[1][n])
-                    continue;
-
-                dp[i][K].F *= cnt[i][n];
-
-                if (dp[i][K].F > res.F)
-                    res = dp[i][K];
-                else if (dp[i][K].F == res.F) {
-                    res.S += dp[i][K].S;
-
-                    if (res.S >= M)
-                        res.S -= M;
-                }
-            }
-
-            cout << res.F << " " << res.S << "\n";
-        }
-
-        signed main() {
-            // ios::sync_with_stdio(0);
-            // cin.tie(0);
-            int t = 1;
-            // cin >> t;
-            while (t--) {
-                init();
-                solve();
-            }
-        }
-	    ```
-
-???+note "[CSES - Visiting Cities](https://cses.fi/problemset/task/1203)"
-
-	給 $n$ 點 $m$ 邊正權有向圖，從 $1\to n$ 判斷每個邊
-	
-	- 是否在每個最短路徑上
-	
-	$n\le 10^5, m\le 2\times 10^5$
-	
-	??? note "思路"
-	
-		建立 shotest path DAG，進行 DAG DP
-		
-		$dp(1 \to u):$ $1\to u$ 是最短路的路徑方法數
-		
-		$dp(u \to n):$ $u\to n$ 是最短路的路徑方法數
-		
-		判斷 $dp(1 \to u)\times dp(v\to n)==dp(s\to t)$
-		
-	??? note "code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
 	    #define int long long
 	    #define pii pair<int, int>
 	    #define pb push_back
@@ -936,117 +828,246 @@
 	    #define ALL(x) x.begin(), x.end()
 	
 	    using namespace std;
-	    using PQ = priority_queue<int, vector<int>, greater<int>>;
 	
 	    const int INF = 2e18;
-	    const int maxn = 3e5 + 5;
-	    const int M = 2147483647;
+	    const int maxn = 300 + 5;
+	    const int M = 1e9 + 7;
 	
-	    int n, m;
-	    vector<pii> G[maxn];
-	    vector<pii> R[maxn];
-	    vector<int> D[maxn];
-	    vector<int> P[maxn];
-	    int in[maxn], rv[maxn];
+	    int n, m, K;
+	    int dis[maxn][maxn];
+	    int cnt[maxn][maxn];
+	    pii dp[maxn][maxn];
 	
-	    vector<int> dijkstra (int source, vector<pii> *G) {
-	        vector<int> dis(n + 1, INF);
-	        priority_queue <pii, vector<pii>, greater<pii>> pq;
-	
-	        pq.push ({0, source});
-	        while (pq.size()) {
-	            auto [x, u] = pq.top();
-	            pq.pop();
-	
-	            if (dis[u] != INF) continue;
-	            dis[u] = x;
-	
-	            for (auto [v, w] : G[u]) {
-	                pq.push ({x + w, v});
-	            }
-	        }
-	        return dis;
-	    }
-	
-	    void build (vector<int> &dis) {
-	        for (int i = 1; i <= n; i++) {
-	            for (auto [v, w] : G[i]) {
-	                if (dis[v] == dis[i] + w) {
-	                    D[i].push_back(v);
-	                    P[v].pb(i);
-	                    in[v]++;
-	                    rv[i]++;
+	    void floyd() {
+	        for (int k = 1; k <= n; k++) {
+	            for (int i = 1; i <= n; i++) {
+	                for (int j = 1; j <= n; j++) {
+	                    if (dis[i][j] == dis[i][k] + dis[k][j]) {
+	                        cnt[i][j] += cnt[i][k] * cnt[k][j];
+	                    } else if (dis[i][j] > dis[i][k] + dis[k][j]) {
+	                        dis[i][j] = dis[i][k] + dis[k][j];
+	                        cnt[i][j] = cnt[i][k] * cnt[k][j];
+	                    }
 	                }
 	            }
 	        }
 	    }
 	
-	    vector<int> topo (int source, int *in, vector<int> *D) {
-	        queue<int> q;
-	        vector<int> inn(n + 1);
-	        vector<int> dp(n + 1);
-	        dp[source] = 1;
+	    void init() {
+	        cin >> n >> m >> K;
+	        int u, v, w;
 	
 	        for (int i = 1; i <= n; i++) {
-	            if (in[i] == 0) q.push (i);
-	            inn[i] = in[i];
-	        }
-	
-	        while (q.size()) {
-	            int u = q.front();
-	            q.pop();
-	
-	            for (auto v : D[u]) {
-	                dp[v] = (dp[v] + dp[u]) % M;
-	                inn[v]--;
-	                if (inn[v] == 0) q.push (v);
+	            for (int j = 1; j <= n; j++) {
+	                dis[i][j] = INF;
 	            }
+	            dis[i][i] = 0;
 	        }
 	
-	        return dp;
-	    }
-	
-	    void init () {
-	        cin >> n >> m;
-	        int u, v, w;
-	        for (int i = 0; i < m; i++) {
+	        for (int i = 1; i <= m; i++) {
 	            cin >> u >> v >> w;
-	            G[u].pb({v, w});
-	            R[v].pb({u, w});
+	            dis[u][v] = dis[v][u] = min(w, dis[u][v]);
+	            cnt[u][v] = cnt[v][u] = 1;
 	        }
 	    }
 	
 	    void solve() {
-	        vector<int> dis = dijkstra (1, G);
-	        vector<int> rev = dijkstra (n, R);
-	        build (dis);
+	        floyd();
 	
-	        vector<int> dp1 = topo (1, in, D);
-	        vector<int> dp2 = topo (n, rv, P);
-	
-	        int tot = dp1[n];
-	        vector<int> res;
+	        vector<pii> ord;
 	        for (int i = 1; i <= n; i++) {
-	            int cur = (dp1[i] * dp2[i]) % M;
-	            if (cur == tot) {
-	                res.pb(i);
+	            ord.pb({dis[1][i], i});
+	            cnt[i][i] = 1;
+	        }
+	        sort(ALL(ord));  // sort by distance
+	
+	        // dp init
+	        for (int i = 0; i < n; i++) {
+	            int u = ord[i].S;
+	            if (dis[1][u] + dis[u][n] != dis[1][n]) continue;
+	            dp[u][1] = {cnt[1][u], 1};
+	        }
+	
+	        // (v -> u) 一定是 v 先被走到再來才是 u，距離是一種可以判斷先後的好方法
+	        for (int i = 0; i < ord.size(); i++) {
+	            int u = ord[i].S;
+	            if (dis[1][u] + dis[u][n] != dis[1][n]) continue;  // check u
+	
+	            for (int j = 0; j < i; j++) {
+	                int v = ord[j].S;
+	                if (dis[1][v] + dis[v][u] + dis[u][n] != dis[1][n])
+	                    continue;  // check v
+	
+	                for (int k = 2; k <= K; k++) {
+	                    pii tmp;
+	                    tmp.F = dp[v][k - 1].F * cnt[v][u];
+	                    tmp.S = dp[v][k - 1].S;
+	
+	                    if (tmp.F > dp[u][k].F)
+	                        dp[u][k] = tmp;
+	                    else if (tmp.F == dp[u][k].F) {
+	                        dp[u][k].S += tmp.S;
+	
+	                        if (dp[u][k].S >= M)
+	                            dp[u][k].S -= M;
+	                    }
+	                }
 	            }
 	        }
 	
-	        cout << res.size() << "\n";
-	        for (int i = 0; i < res.size(); i++) cout << res[i] << " ";
-	    } 
+	        pii res = {0, 0};
+	        // 以 u 結尾，還缺少到 u -> n 這段，補起來
+	        // 可是 n 結尾上面有算過了阿? 不一定會以 n 結尾 但最短路可延續至 n
+	        for (int i = 1; i <= n; i++) {
+	            if (dis[1][i] + dis[i][n] != dis[1][n])
+	                continue;
+	
+	            dp[i][K].F *= cnt[i][n];
+	
+	            if (dp[i][K].F > res.F)
+	                res = dp[i][K];
+	            else if (dp[i][K].F == res.F) {
+	                res.S += dp[i][K].S;
+	
+	                if (res.S >= M)
+	                    res.S -= M;
+	            }
+	        }
+	
+	        cout << res.F << " " << res.S << "\n";
+	    }
 	
 	    signed main() {
 	        // ios::sync_with_stdio(0);
 	        // cin.tie(0);
 	        int t = 1;
-	        //cin >> t;
+	        // cin >> t;
 	        while (t--) {
 	            init();
 	            solve();
 	        }
-	    } 
+	    }
+	    ```
+
+???+note "[CSES - Visiting Cities](https://cses.fi/problemset/task/1203)"
+
+	給 $n$ 點 $m$ 邊正權有向圖，從 $1\to n$ 判斷每個邊是否在每個最短路徑上
+	
+	$n\le 10^5, m\le 2\times 10^5$
+	
+	??? note "思路"
+		建立 shotest path DAG，進行 DAG DP:
+		
+		- $dp(1 \to u):$ $1\to u$ 是最短路的路徑方法數
+		
+		- $dp(u \to n):$ $u\to n$ 是最短路的路徑方法數
+		
+		判斷 $dp(1 \to u)\times dp(v\to n)==dp(s\to t)$，是話就是在最短路徑上
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int MAXN = 3e5 + 5;
+        const int M = 2147483647;
+        int n, m;
+        vector<pii> G[MAXN];
+        vector<pii> R[MAXN];
+        vector<int> D[MAXN];
+        vector<int> P[MAXN];
+        int in[MAXN], rv[MAXN];
+
+        vector<int> dijkstra(int source, vector<pii> *G) {
+            vector<int> dis(n + 1, INF);
+            priority_queue<pii, vector<pii>, greater<pii>> pq;
+
+            pq.push({0, source});
+            while (pq.size()) {
+                auto [x, u] = pq.top();
+                pq.pop();
+
+                if (dis[u] != INF) continue;
+                dis[u] = x;
+
+                for (auto [v, w] : G[u]) {
+                    pq.push({x + w, v});
+                }
+            }
+            return dis;
+        }
+
+        void build(vector<int> &dis) {
+            for (int i = 1; i <= n; i++) {
+                for (auto [v, w] : G[i]) {
+                    if (dis[v] == dis[i] + w) {
+                        D[i].push_back(v);
+                        P[v].push_back(i);
+                        in[v]++;
+                        rv[i]++;
+                    }
+                }
+            }
+        }
+
+        vector<int> topo(int source, int *in, vector<int> *D) {
+            queue<int> q;
+            vector<int> inn(n + 1);
+            vector<int> dp(n + 1);
+            dp[source] = 1;
+
+            for (int i = 1; i <= n; i++) {
+                if (in[i] == 0) q.push(i);
+                inn[i] = in[i];
+            }
+
+            while (q.size()) {
+                int u = q.front();
+                q.pop();
+
+                for (auto v : D[u]) {
+                    dp[v] = (dp[v] + dp[u]) % M;
+                    inn[v]--;
+                    if (inn[v] == 0) q.push(v);
+                }
+            }
+
+            return dp;
+        }
+
+        signed main() {
+            cin >> n >> m;
+            int u, v, w;
+            for (int i = 0; i < m; i++) {
+                cin >> u >> v >> w;
+                G[u].push_back({v, w});
+                R[v].push_back({u, w});
+            }
+            vector<int> dis = dijkstra(1, G);
+            vector<int> rev = dijkstra(n, R);
+            build(dis);
+
+            vector<int> dp1 = topo(1, in, D);
+            vector<int> dp2 = topo(n, rv, P);
+
+            int tot = dp1[n];
+            vector<int> res;
+            for (int i = 1; i <= n; i++) {
+                int cur = (dp1[i] * dp2[i]) % M;
+                if (cur == tot) {
+                    res.push_back(i);
+                }
+            }
+
+            cout << res.size() << "\n";
+            for (int i = 0; i < res.size(); i++) {
+                cout << res[i] << " ";
+            }
+        }
 	    ```
 
 ???+note "CSES - Visiting Cities 變化"
@@ -1074,9 +1095,7 @@
 ### 建圖/分層
 
 ???+note "[LOJ #3964. 「APIO2023」赛博乐园](https://loj.ac/p/3964)"
-	給一張 $n$ 點 $m$ 無向圖，邊帶權，為 $c[i]$，一開始在點 $0$，你要去點 $H$
-    
-    每個點有一個能力 $arr[i]$
+	給一張 $n$ 點 $m$ 無向圖，邊帶權，為 $c[i]$，一開始在點 $0$，你要去點 $t$。每個點有一個能力 $arr[i]$
     
     - $arr[i] = 0$，可讓當前已走的距離設為 $0$
     
@@ -1084,18 +1103,12 @@
     
     - $arr[i] = 2$，可讓當前已走的距離除以 $2$ 
     
-    除了點 $H$ 外，所有點都可以重複走，只要走到點就可使用 $arr[i]$
+    除了點 $t$ 外，所有點都可以重複走，只要走到點就可使用 $arr[i]$，「除以 $2$ 」的能力總共只能使用 $k$ 次。只要抵達 $t$ 點就代表走到終點，問抵達 $t$ 點的最短距離
     
-    「除以 $2$ 」的能力總共只能使用 $K$ 次
-    
-    只要抵達 $H$ 點就代表走到終點，問抵達 $H$ 點的最短距離
-    
-    $N,M\le 10^5,K\le 10^6,c[i]\le 10^9$
+    $n, m\le 10^5,k\le 10^6,c[i]\le 10^9$
     
     ??? note "思路"
-    	我們可以將題目的圖反著做，即從點 $H$ 開始，跑回點 $0$
-    	
-    	這樣就可以建立分層圖
+    	我們可以將題目的圖反著做，即從點 $t$ 開始，跑回點 $0$，這樣就可以建立分層圖
     	
     	- 原先遇到能力為 $0$ 的點，會把當前距離設置為 $0$
     		- 那麼現在遇到能力為 $0$ 的點，相當於讓之後走過的所有邊權都變成 $0$
@@ -1103,29 +1116,24 @@
     	- 原先遇到能力為 $2$ 的點，會把當前距離減半
     		- 那麼現在遇到能力為 $2$ 的點，相當於讓之後走過的所有邊權都變成原來的一半
     	
-    	第 $k$ 層為當前已使用「除以 $2$ 」的能力 $k$ 次
-    	
-    	我們發現，直接讓第 $k$ 層上 $u$ 和 $v$ 之間的邊權為原圖上 $u$ 和 $v$ 之間邊權的 $\displaystyle \frac{1}{2^k}$ ，就能滿足能力為 $2$ 的點。
+    	第 $k$ 層為當前已使用「除以 $2$ 」的能力 $k$ 次。我們發現，直接讓第 $k$ 層上 $u$ 和 $v$ 之間的邊權為原圖上 $u$ 和 $v$ 之間邊權的 $\displaystyle \frac{1}{2^k}$ ，就能滿足能力為 $2$ 的點。
     	
     	至於能力為 $0$ 的點，我們可以新建一層 $K+1$ 層，讓這一層內 $u$ 和 $v$ 之間的邊權都改成 $0$。然後讓所有 $arr[v]=0$ 的 node$(k,v)$ 直接建立單向邊到 $K+1$ 層即可。
     	
-    	- Node (u, k) -> Node (v, k) 1/2^k
+    	- Node (u, k) → Node (v, k) 1/2^k
     	
-        - Node (u, k) -> Node (v, k) 0 if (k=K+1)
+        - Node (u, k) → Node (v, k) 0 if (k=K+1)
         
-        - Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
+        - Node (u, k) → Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
         
-        - Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
+        - Node (u, k) → Node (u, K+1) 0 if arr[u]=0 
     	
-    	我們發現，事實上用一些次優惠政策之後，最短路會變的很低，遠遠低於精度
-    
-    	具體來說，本題中最短路最大不超過邊數乘邊權最大值，即 $10^5\times 10^9=10^{14}$
-    	
-    	只需讓這個數除以 $70$ 次 $2$ 就可以掉到 $10^{−7}$ 以下（$8\times 10^{−8}$）
+    	我們發現，事實上用一些次優惠政策之後，最短路會變的很低，遠遠低於精度。具體來說，本題中最短路最大不超過邊數乘邊權最大值，即 $10^5\times 10^9=10^{14}$，只需讓這個數除以 $70$ 次 $2$ 就可以掉到 $10^{−7}$ 以下（$8\times 10^{−8}$）
     	
     ??? note "code"
     	```cpp linenums="1"
     	#include <bits/stdc++.h>
+
         #include "cyberland.h"
         #define pii pair<int, double>
         #define pb push_back
@@ -1133,112 +1141,113 @@
         #define F first
         #define S second
         #define ALL(x) x.begin(), x.end()
-    
+
         using namespace std;
-    
+
         const double INF = 1000000000000000.00;
-    
+
         struct Graph {
             int n, K, cnt;
             vector<vector<pii>> G;
             vector<vector<int>> id;
             vector<double> dis;
             vector<int> vis;
-    
+
             void init(int _n, int _k) {
                 n = _n, K = _k;
-                id.resize (K + 1);
+                id.resize(K + 1);
                 cnt = 0;
-    
+
                 // (id + 1) % n == 0 -> cyberland
                 // k != 0
                 // id / n -> k
                 for (int i = 0; i < K + 1; i++) {
-                    id[i].resize (n);
+                    id[i].resize(n);
                     for (int j = 0; j < n; j++) {
-                        id[i][j] = cnt++; // id[k][u]
+                        id[i][j] = cnt++;  // id[k][u]
                     }
                 }
                 G.resize(cnt);
                 dis = vector<double>(cnt, INF);
                 vis = vector<int>(cnt);
             }
-    
+
             void add_edge(int u, int uk, int v, int vk, double w) {
                 int id1 = id[uk][u];
                 int id2 = id[vk][v];
-    
+
                 G[id1].pb({id2, w});
             }
-    
+
             void dijkstra(int s) {
                 priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
-                pq.push({0, id[0][s]}); // cyberland 為起點
+                pq.push({0, id[0][s]});  // cyberland 為起點
                 dis[id[0][s]] = 0;
-    
-                while (pq.size ()) {
-    
-                    auto [dis_u, u] = pq.top (); pq.pop ();
-    
+
+                while (pq.size()) {
+                    auto [dis_u, u] = pq.top();
+                    pq.pop();
+
                     if ((u % n) == (s % n) && (u / n) != 0) continue;
-                    if (vis[u]) continue; 
+                    if (vis[u]) continue;
                     vis[u] = 1;
-    
+
                     for (auto [v, w] : G[u]) {
                         if ((v % n) == (s % n) && (v / n) != 0) continue;
                         if (dis[v] > dis[u] + w) {
                             dis[v] = dis[u] + w;
                             pq.push({dis[v], v});
-                        } 
+                        }
                     }
-                }   
+                }
             }
-    
-            double ca () {
+
+            double cal() {
                 double ans = INF;
                 for (int i = 0; i < K + 1; i++) {
                     int u = id[i][0];
                     ans = min(ans, dis[u]);
                 }
                 if (ans == INF) return -1;
-    
+
                 return ans;
             }
         };
-    
+
         /*
         cyberland 不能去 relax 別人
         Node (u, k) -> Node (v, k) 1/2^k
         Node (u, k) -> Node (v, k) 0 if (k=K+1)
         Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
-        Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
+        Node (u, k) -> Node (u, K+1) 0 if arr[u]=0
         */
-    
+
         double solve(int N, int M, int K, int H, vector<int> x, vector<int> y, vector<int> c, vector<int> arr) {
-            K = min (K, 70);
+            K = min(K, 70);
             vector<vector<pii>> G(N);
             for (int i = 0; i < M; i++) {
                 int u = x[i], v = y[i], w = c[i];
-                G[u].pb ({v, w}); G[v].pb({u, w});
+                G[u].pb({v, w});
+                G[v].pb({u, w});
             }
             K++;
-    
+
             Graph g;
-            g.init (N, K);
-    
+            g.init(N, K);
+
             double cnt = 1;
             for (int k = 0; k < K + 1; k++) {
                 if (k == K) {
                     for (int i = 0; i < N; i++) {
                         for (auto [v, w] : G[i]) {
-                            g.add_edge (i, k, v, k, 0);
+                            g.add_edge(i, k, v, k, 0);
                         }
                     }
                     continue;
                 }
                 for (int i = 0; i < N; i++) {
                     for (auto [v, w] : G[i]) {
-                        g.add_edge (i, k, v, k, (double) w * cnt);
+                        g.add_edge(i, k, v, k, (double)w * cnt);
                     }
                 }
                 cnt *= 0.5;
@@ -1248,139 +1257,143 @@
                 cnt *= 0.5;
                 for (int i = 0; i < N; i++) {
                     for (auto [v, w] : G[i]) {
-                        if (arr[i] == 2) g.add_edge(i, k, v, k + 1, (double) w * cnt);
+                        if (arr[i] == 2) {
+                            g.add_edge(i, k, v, k + 1, (double)w * cnt);
+                            }
                     }
                 }
             }
             for (int k = 0; k < K; k++) {
                 for (int i = 0; i < N; i++) {
-                    if (arr[i] == 0) g.add_edge (i, k, i, K, 0);
+                    if (arr[i] == 0) {
+                        g.add_edge(i, k, i, K, 0);
+                    }
                 }
             }
-    
-            g.dijkstra (H);
-    
-            return g.cal ();
+
+            g.dijkstra(H);
+
+            return g.cal();
         }
         ```
     ??? note "full code"
     	```cpp linenums="1"
     	#include <bits/stdc++.h>
-        //#include "cyberland.h"
         #define pii pair<int, long double>
         #define pb push_back
         #define mk make_pair
         #define F first
         #define S second
         #define ALL(x) x.begin(), x.end()
-    
+
         using namespace std;
-    
+
         const long double INF = 1000000000000000.00;
         const int maxn = 3e5 + 5;
         const int M = 1e9 + 7;
-    
+
         struct Graph {
             int n, K, cnt;
             vector<vector<pii>> G;
             vector<vector<int>> id;
             vector<double> dis;
             vector<int> vis;
-    
-            void init (int _n, int _k) {
+
+            void init(int _n, int _k) {
                 n = _n, K = _k;
-                id.resize (K + 1);
+                id.resize(K + 1);
                 cnt = 0;
-    
+
                 // (id + 1) % n == 0 -> cyberland
                 // k != 0
                 // id / n -> k
                 for (int i = 0; i < K + 1; i++) {
-                    id[i].resize (n);
+                    id[i].resize(n);
                     for (int j = 0; j < n; j++) {
-                        id[i][j] = cnt++; // id[k][u]
+                        id[i][j] = cnt++;  // id[k][u]
                     }
                 }
-                G.resize (cnt);
+                G.resize(cnt);
                 dis = vector<double>(cnt, INF);
                 vis = vector<int>(cnt);
             }
-    
-            void add_edge (int u, int uk, int v, int vk, double w) {
+
+            void add_edge(int u, int uk, int v, int vk, double w) {
                 int id1 = id[uk][u];
                 int id2 = id[vk][v];
-    
-                G[id1].pb ({id2, w});
+
+                G[id1].pb({id2, w});
             }
-    
-            void dijkstra (int s) {
+
+            void dijkstra(int s) {
                 priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
-                pq.push ({0, id[0][s]}); // cyberland 為起點
+                pq.push({0, id[0][s]});  // cyberland 為起點
                 dis[id[0][s]] = 0;
-    
-                while (pq.size ()) {
-    
-                    auto [dis_u, u] = pq.top (); pq.pop ();
-    
+
+                while (pq.size()) {
+                    auto [dis_u, u] = pq.top();
+                    pq.pop();
+
                     if ((u % n) == (s % n) && (u / n) != 0) continue;
-                    if (vis[u]) continue; 
+                    if (vis[u]) continue;
                     vis[u] = 1;
-    
+
                     for (auto [v, w] : G[u]) {
                         if ((v % n) == (s % n) && (v / n) != 0) continue;
                         if (dis[v] > dis[u] + w) {
                             dis[v] = dis[u] + w;
-                            pq.push ({dis[v], v});
-                        } 
+                            pq.push({dis[v], v});
+                        }
                     }
-                }   
+                }
             }
-    
-            double cal () {
+
+            double cal() {
                 double ans = INF;
                 for (int i = 0; i < K + 1; i++) {
                     int u = id[i][0];
-                    ans = min (ans, dis[u]);
+                    ans = min(ans, dis[u]);
                 }
                 if (ans == INF) return -1;
-    
+
                 return ans;
             }
         };
-    
+
         /*
         cyberland 不能去 relax 別人
         Node (u, k) -> Node (v, k) 1/2^k
         Node (u, k) -> Node (v, k) 0 if (k=K+1)
         Node (u, k) -> Node (v, k+1) w * 1/2^(k+1) if arr[u]=2
-        Node (u, k) -> Node (u, K+1) 0 if arr[u]=0 
+        Node (u, k) -> Node (u, K+1) 0 if arr[u]=0
         */
-    
+
         double solve(int N, int M, int K, int H, vector<int> x, vector<int> y, vector<int> c, vector<int> arr) {
-            K = min (K, 70);
+            K = min(K, 70);
             vector<vector<pii>> G(N);
             for (int i = 0; i < M; i++) {
                 int u = x[i], v = y[i], w = c[i];
-                G[u].pb ({v, w}); G[v].pb ({u, w});
+                G[u].pb({v, w});
+                G[v].pb({u, w});
             }
             K++;
-    
+
             Graph g;
-            g.init (N, K);
-    
+            g.init(N, K);
+
             double cnt = 1;
             for (int k = 0; k < K + 1; k++) {
                 if (k == K) {
                     for (int i = 0; i < N; i++) {
                         for (auto [v, w] : G[i]) {
-                            g.add_edge (i, k, v, k, 0);
+                            g.add_edge(i, k, v, k, 0);
                         }
                     }
                     continue;
                 }
                 for (int i = 0; i < N; i++) {
                     for (auto [v, w] : G[i]) {
-                        g.add_edge (i, k, v, k, (double) w * cnt);
+                        g.add_edge(i, k, v, k, (double)w * cnt);
                     }
                 }
                 cnt *= 0.5;
@@ -1390,34 +1403,33 @@
                 cnt *= 0.5;
                 for (int i = 0; i < N; i++) {
                     for (auto [v, w] : G[i]) {
-                        if (arr[i] == 2) g.add_edge (i, k, v, k + 1, (double) w * cnt);
+                        if (arr[i] == 2) g.add_edge(i, k, v, k + 1, (double)w * cnt);
                     }
                 }
             }
             for (int k = 0; k < K; k++) {
                 for (int i = 0; i < N; i++) {
-                    if (arr[i] == 0) g.add_edge (i, k, i, K, 0);
+                    if (arr[i] == 0) g.add_edge(i, k, i, K, 0);
                 }
             }
-    
-            g.dijkstra (H);
-    
-            return g.cal ();
-        }
-    
-        void init () {
-            int n, m, k, h;
-            cin >> n >> m >> k >> h;
-            vector<int> arr (n);
-            vector<int> x (n);
-            vector<int> y (n);
-            vector<int> c (n);
-            for (int i = 0; i < n; i++) cin >> arr[i];
-            for (int i = 0; i < m; i++) cin >> x[i] >> y[i] >> c[i];
-    
-            cout << fixed << setprecision (12) << solve (n, m, k, h, x, y, c, arr) << "\n";
+
+            g.dijkstra(H);
+
+            return g.cal();
         }
 
+        void init() {
+            int n, m, k, h;
+            cin >> n >> m >> k >> h;
+            vector<int> arr(n);
+            vector<int> x(n);
+            vector<int> y(n);
+            vector<int> c(n);
+            for (int i = 0; i < n; i++) cin >> arr[i];
+            for (int i = 0; i < m; i++) cin >> x[i] >> y[i] >> c[i];
+
+            cout << fixed << setprecision(12) << solve(n, m, k, h, x, y, c, arr) << "\n";
+        }
 
         signed main() {
             ios::sync_with_stdio(0);
@@ -1425,18 +1437,13 @@
             int t = 1;
             cin >> t;
             while (t--) {
-                init ();
-                // solve ();
+                init();
             }
         }
         ```
 
 ???+note "CSES - flight discount 變化"
-	輸入一個 $n$ 點 $m$ 邊的有向圖，每條邊都有權重 $w(u,v)$
-	
-	若連續走兩條邊 $a\to b\to c$，本來需花 $w(a,b)+w(b,c)$，使用優惠券可以將花費改成 $w(b,c)\times 2$，優惠券只能用 $k$ 次
-	
-	問 $1\to n$ 的最小花費
+	輸入一個 $n$ 點 $m$ 邊的有向圖，每條邊都有權重 $w(u,v)$。若連續走兩條邊 $a\to b\to c$，本來需花 $w(a,b)+w(b,c)$，使用優惠券可以將花費改成 $w(b,c)\times 2$，優惠券只能用 $k$ 次。問 $1\to n$ 的最小花費
 	
 	??? note "思路"
 		把圖複製 $k\times 2$ 層，三層三層一組，第 $k$ 層若原圖 $G$ 有邊 $(a,b,w_{a,b}),(b,c,w_{b,c})$ 就連接 $(a_k,b_{k+1},0),(b_{k+1},c_{k+2},2\times w_{b,c})$
@@ -1447,9 +1454,7 @@
 
 
 ???+note "[2021 附中模競 II 惡地之路](https://drive.google.com/file/d/1ISO-o4DrQmbuqVVAgxeVQEO3ifMvcy01/view)"
-	給一張 $n$ 點 $m$ 邊無向圖，令 $s$ 到節點 $i$ 走 $k$ 步的最短距離是 $d(i,k)$
-	
-	對於每個 $i$ 求 $\min \{ d(i,k) \times k \}$
+	給一張 $n$ 點 $m$ 邊無向圖，令 $s$ 到節點 $i$ 走 $k$ 步的最短距離是 $d(i,k)$，對於每個 $i$ 求 $\min \{ d(i,k) \times k \}$
 	
 	$n\le 2000,m\le 3\times 10^4$
 	
@@ -1507,13 +1512,11 @@
 		直接跑 Dijkstra，起點 $\texttt{node}(0, 1)$ 終點 $\texttt{node}(2, n)$
 
 ???+note "[2023 TOI 一模 pD.安逸旅行路線 (jaunt)](https://drive.google.com/file/d/1_sx9DvDSjpn0RCR280MKsS_FNfrr-iqy/view)"
-	有一張 $n$ 點 $m$ 邊有向圖，邊 $u \rightarrow v$ 的難度係數為 $d(u, v)$，代表如果 $u \rightarrow v$ 是路徑上的第 $k$ 條邊（1-based），則這條邊的辛苦程度是 $d(u, v)^k\mod P$，一條路徑的辛苦程度被定義為路徑上所有邊的最大辛苦程度
+	有一張 $n$ 點 $m$ 邊有向圖，邊 $u \rightarrow v$ 的難度係數為 $d(u, v)$，代表如果 $u \rightarrow v$ 是路徑上的第 $k$ 條邊（1-based），則這條邊的辛苦程度是 $d(u, v)^k\mod P$，一條路徑的辛苦程度被定義為路徑上所有邊的最大辛苦程度。
 
-	輸出 $s$ 到 $t$ 的所有路徑中，最小辛苦程度的值，若不存在請輸出 $-1$
+	輸出 $s$ 到 $t$ 的所有路徑中，最小辛苦程度的值，若不存在請輸出 $-1$。
 	
-	- $n\le 1000$
-	- $m\le 5000$
-	- $P\le 10^5$ 且 $P$ 是質數
+	$n\le 1000, m\le 5000, P\le 10^5$ 且 $P$ 是質數
 	
 	??? note "範測"
 	
@@ -1749,153 +1752,160 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	
-	    using namespace std;
-	
-	    const int INF = 2e18;
-	    const int maxn = 3e5 + 5;
-	    const int M = 1e9 + 7;
-	
-	    struct Graph {
-	        vector<vector<pii>> G;
-	        int n = 0;
-	
-	        int add_node () {
-	            n++;
-	            G.pb ({});
-	            return n - 1;
-	        }
-	
-	        void add_edge (int u, int v, int w) {
-	            G[u].pb ({v, w});
-	        }
-	
-	        int dijkstra (int s, int t) {
-	            vector<int> dis (n, INF);
-	            priority_queue<pii, vector<pii>, greater<pii>> pq;
-	            pq.push ({0, s});
-	            dis[s] = 0;
-	
-	            while (pq.size ()) {
-	                auto [dis_u, u] = pq.top(); pq.pop();
-	                if (dis[u] < dis_u) continue;
-	                dis[u] = dis_u;
-	
-	                for (auto [v, w] : G[u]) {
-	                    if (dis[v] > dis[u] + w) {
-	                        dis[v] = dis[u] + w;
-	                        pq.push ({dis[v], v});
-	                    }
-	                } 
-	            }
-	            return dis[t];
-	        }
-	    };
-	
-	    /*
-	    1. 特殊點向它們所在的行和列連雙向邊，花費都為 0
-	    2. 起點與終點向它所在的行列連邊
-	    3. 出現的行之間連雙向邊，花費為兩行之間的距離
-	    4. 出現的列之間連雙向邊，花費為兩列之間的距離
-	    5. 起點與終點連邊，邊權為 |x_s - x_t| + |y_s - y_t|
-	    */
-	    int n, m;
-	    pii s, t;
-	    vector<pii> special;
-	    vector<int> X, Y;
-	    int id_X[maxn], id_Y[maxn], id_Special[maxn];
-	    int id_start, id_end; 
-	
-	    void init () {
-	        cin >> n >> m;
-	        cin >> s.F >> s.S >> t.F >> t.S;
-	
-	        for (int i = 0; i < m; i++) {
-	            int x, y;
-	            cin >> x >> y;
-	            special.pb ({x, y});
-	            X.pb (x); Y.pb (y);
-	        }
-	        X.pb (s.F); X.pb (t.F);
-	        Y.pb (s.S); Y.pb (t.S);
-	    }
-	
-	    void work () {
-	        Graph g;
-	        sort (ALL (X)); X.resize (unique (ALL(X)) - X.begin());
-	        sort (ALL (Y)); Y.resize (unique (ALL(Y)) - Y.begin());
-	
-	        for (int i = 0; i < m; i++) {
-	            id_Special[i] = g.add_node ();
-	        }
-	
-	        map<int, int> mpx, mpy;
-	
-	        for (int i = 0; i < X.size (); i++) {
-	            id_X[i] = g.add_node ();
-	            mpx[X[i]] = id_X[i];
-	        }
-	
-	        for (int i = 0; i < Y.size (); i++) {
-	            id_Y[i] = g.add_node ();
-	            mpy[Y[i]] = id_Y[i];
-	        }
-	        id_start = g.add_node (); id_end = g.add_node ();
-	
-	        for (int i = 0; i < m; i++) {
-	            g.add_edge (id_Special[i], mpx[special[i].F], 0);
-	            g.add_edge (mpx[special[i].F], id_Special[i], 0);
-	        }
-	
-	        for (int i = 0; i < m; i++) {
-	            g.add_edge (id_Special[i], mpy[special[i].S], 0);
-	            g.add_edge (mpy[special[i].S], id_Special[i], 0);
-	        }
-	
-	        for (int i = 0; i < X.size (); i++) {
-	            if (i > 0) {
-	                g.add_edge (id_X[i], id_X[i - 1], X[i] - X[i - 1]);
-	                g.add_edge (id_X[i - 1], id_X[i], X[i] - X[i - 1]);
-	            }
-	        }
-	
-	        for (int i = 0; i < Y.size (); i++) {
-	            if (i > 0) {
-	                g.add_edge (id_Y[i], id_Y[i - 1], Y[i] - Y[i - 1]);
-	                g.add_edge (id_Y[i - 1], id_Y[i], Y[i] - Y[i - 1]);
-	            }
-	        }
-	
-	        g.add_edge (id_start, mpx[s.F], 0);
-	        g.add_edge (id_start, mpy[s.S], 0);
-	
-	        for (int i = 0; i < m; i++) {
-	            int cost = abs (special[i].F - t.F) + abs (special[i].S - t.S);
-	            g.add_edge (id_Special[i], id_end, cost);
-	        }
-	
-	        g.add_edge (id_start, id_end, abs (s.F - t.F) + abs (s.S - t.S));
-	
-	        cout << g.dijkstra (id_start, id_end) << "\n";
-	    } 
-	
-	    signed main() {
-	        // ios::sync_with_stdio(0);
-	        // cin.tie(0);
-	        int t = 1;
-	        //cin >> t;
-	        while (t--) {
-	            init();
-	            work();
-	        }
-	    } 
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int M = 1e9 + 7;
+
+        struct Graph {
+            vector<vector<pii>> G;
+            int n = 0;
+
+            int add_node() {
+                n++;
+                G.pb({});
+                return n - 1;
+            }
+
+            void add_edge(int u, int v, int w) {
+                G[u].pb({v, w});
+            }
+
+            int dijkstra(int s, int t) {
+                vector<int> dis(n, INF);
+                priority_queue<pii, vector<pii>, greater<pii>> pq;
+                pq.push({0, s});
+                dis[s] = 0;
+
+                while (pq.size()) {
+                    auto [dis_u, u] = pq.top();
+                    pq.pop();
+                    if (dis[u] < dis_u) continue;
+                    dis[u] = dis_u;
+
+                    for (auto [v, w] : G[u]) {
+                        if (dis[v] > dis[u] + w) {
+                            dis[v] = dis[u] + w;
+                            pq.push({dis[v], v});
+                        }
+                    }
+                }
+                return dis[t];
+            }
+        };
+
+        /*
+        1. 特殊點向它們所在的行和列連雙向邊，花費都為 0
+        2. 起點與終點向它所在的行列連邊
+        3. 出現的行之間連雙向邊，花費為兩行之間的距離
+        4. 出現的列之間連雙向邊，花費為兩列之間的距離
+        5. 起點與終點連邊，邊權為 |x_s - x_t| + |y_s - y_t|
+        */
+        int n, m;
+        pii s, t;
+        vector<pii> special;
+        vector<int> X, Y;
+        int id_X[maxn], id_Y[maxn], id_Special[maxn];
+        int id_start, id_end;
+
+        void init() {
+            cin >> n >> m;
+            cin >> s.F >> s.S >> t.F >> t.S;
+
+            for (int i = 0; i < m; i++) {
+                int x, y;
+                cin >> x >> y;
+                special.pb({x, y});
+                X.pb(x);
+                Y.pb(y);
+            }
+            X.pb(s.F);
+            X.pb(t.F);
+            Y.pb(s.S);
+            Y.pb(t.S);
+        }
+
+        void work() {
+            Graph g;
+            sort(ALL(X));
+            X.resize(unique(ALL(X)) - X.begin());
+            sort(ALL(Y));
+            Y.resize(unique(ALL(Y)) - Y.begin());
+
+            for (int i = 0; i < m; i++) {
+                id_Special[i] = g.add_node();
+            }
+
+            map<int, int> mpx, mpy;
+
+            for (int i = 0; i < X.size(); i++) {
+                id_X[i] = g.add_node();
+                mpx[X[i]] = id_X[i];
+            }
+
+            for (int i = 0; i < Y.size(); i++) {
+                id_Y[i] = g.add_node();
+                mpy[Y[i]] = id_Y[i];
+            }
+            id_start = g.add_node();
+            id_end = g.add_node();
+
+            for (int i = 0; i < m; i++) {
+                g.add_edge(id_Special[i], mpx[special[i].F], 0);
+                g.add_edge(mpx[special[i].F], id_Special[i], 0);
+            }
+
+            for (int i = 0; i < m; i++) {
+                g.add_edge(id_Special[i], mpy[special[i].S], 0);
+                g.add_edge(mpy[special[i].S], id_Special[i], 0);
+            }
+
+            for (int i = 0; i < X.size(); i++) {
+                if (i > 0) {
+                    g.add_edge(id_X[i], id_X[i - 1], X[i] - X[i - 1]);
+                    g.add_edge(id_X[i - 1], id_X[i], X[i] - X[i - 1]);
+                }
+            }
+
+            for (int i = 0; i < Y.size(); i++) {
+                if (i > 0) {
+                    g.add_edge(id_Y[i], id_Y[i - 1], Y[i] - Y[i - 1]);
+                    g.add_edge(id_Y[i - 1], id_Y[i], Y[i] - Y[i - 1]);
+                }
+            }
+
+            g.add_edge(id_start, mpx[s.F], 0);
+            g.add_edge(id_start, mpy[s.S], 0);
+
+            for (int i = 0; i < m; i++) {
+                int cost = abs(special[i].F - t.F) + abs(special[i].S - t.S);
+                g.add_edge(id_Special[i], id_end, cost);
+            }
+
+            g.add_edge(id_start, id_end, abs(s.F - t.F) + abs(s.S - t.S));
+
+            cout << g.dijkstra(id_start, id_end) << "\n";
+        }
+
+        signed main() {
+            // ios::sync_with_stdio(0);
+            // cin.tie(0);
+            int t = 1;
+            // cin >> t;
+            while (t--) {
+                init();
+                work();
+            }
+        }
 		```
 
 ???+note "[CF 1846 G. Rudolf and CodeVid-23](https://codeforces.com/contest/1846/problem/G)"
@@ -2026,11 +2036,7 @@
 ### 建立虛點
 
 ???+note "[LOJ #3471. [JOI 2021 Final] Robot](https://loj.ac/p/3471)"
-    給你一個張無向圖，邊有顏色 $C_i$
-    
-    目標從 $1$ 走到 $n$，想走 $u\rightarrow v$ 若且唯若 $u$ 的出邊只有 $u\rightarrow v$ 有該種顏色
-    
-    每條邊可花 $P_i$ 變顏色(只限變一次)，問最小花費
+    給你一個張無向圖，邊有顏色 $C_i$。目標從 $1$ 走到 $n$，想走 $u\rightarrow v$ 若且唯若 $u$ 的出邊只有 $u\rightarrow v$ 有該種顏色，每條邊可花 $P_i$ 變顏色(只限變一次)，問最小花費
     
     $n\le 10^5,m\le 2\times 10^5$
     
@@ -2121,12 +2127,8 @@
         }
         ```
 
-???+note "[USACO Gold 2021 January - Telephone](http://www.usaco.org/index.php?page=viewproblem2&cpid=1090)" 
-	給 $n,k$ 陣列跟 matrix $S$，每個點有一個權值 $b_i=1...k$
-	
-	$i$ 能走到 $j$ 當且僅當 $S_{b[i],b[j]}=1$，且 $\text{cost}=|i-j|$
-	
-	求從 $1\rightarrow n$ 最少要多少 $\text{cost}$
+???+note "[USACO Gold 2021 January - Telephone](https://www.luogu.com.cn/problem/P7297)" 
+	給 $n,k$ 陣列跟 matrix $S$，每個點有一個權值 $b_i=1...k$。$i$ 能走到 $j$ 當且僅當 $S_{b[i],b[j]}=1$，且 $\text{cost}=|i-j|$。求從 $1\rightarrow n$ 最少要多少 $\text{cost}$
 	
 	$n\le 5\times 10^4,k\le 50$
 	
@@ -2632,11 +2634,7 @@
 	    ```
 
 ???+note "[TIOJ 2204.交替路徑](https://tioj.ck.tp.edu.tw/contests/81/problems/2204)"
-	給一張 $n$ 點 $m$ 邊的簡單無向圖，每一條邊有兩個權重長度 $w_i$，顏色 $c_i$
-
-	定義「交替路徑」為沒有**相鄰**兩條邊有相同顏色的路徑(不一定是簡單路徑)
-	
-	求全點對最短「交替路徑」長
+	給一張 $n$ 點 $m$ 邊的簡單無向圖，每一條邊有兩個權重長度 $w_i$，顏色 $c_i$。定義「交替路徑」為沒有**相鄰**兩條邊有相同顏色的路徑(不一定是簡單路徑)。求全點對最短「交替路徑」長
 	
 	$n \le 500, m \le \frac{n(n-1)}{2}$
 	
@@ -2658,156 +2656,161 @@
 	??? note "code"
 		```cpp linenums="1"
 		#pragma GCC optimize("O3,unroll-loops")
-	    #include <bits/stdc++.h>
-	    #define int long long
-	    #define pii pair<int, int>
-	    #define pb push_back
-	    #define mk make_pair
-	    #define F first
-	    #define S second
-	    #define ALL(x) x.begin(), x.end()
-	
-	    using namespace std;
-	
-	    const int INF = 2e18;
-	    const int maxn = 3e5 + 5;
-	    const int mod2 = 5e8 + 4;
-	    const int M = 1e9 + 7;
-	
-	    int n, m;
-	
-	    struct Edge {
-	        int u, v, w, c;
-	    };
-	
-	    struct triple {
-	        int a, b, c;
-	    };
-	
-	    struct Node {
-	        int c1 = -1, c2 = -1, dis1 = INF, dis2 = INF, vis1, vis2;
-	        // c1, dis1 : 當前最短交替路徑的顏色, 長度
-	        // c1, dis1 : 當前與最短顏色不同的交替路徑的顏色, 長度
-	        // vis1, vis2 : 是否已經固定 (被拿來 relax 起他人)
-	        // c != -1, vis = 0 已入堆, 尚未固定
-	    };
-	
-	    struct Graph {
-	        vector<vector<Edge>> G;
-	
-	        void init () {
-	            vector<vector<Edge>>().swap (G);
-	            G.resize (n);
-	        }
-	
-	        void add_edge (int u, int v, int w, int c) {
-	            G[u].pb ({u, v, w, c});
-	            G[v].pb ({v, u, w, c});
-	        }
-	
-	        vector<int> dijkstra (int s) {
-	            vector<Node> node (n);
-	            node[s].c1 = 0; node[s].dis1 = 0;
-	
-	            auto sec = [&](int u, int dis, int c) {
-	                if (node[u].vis1 == 0) {
-	                    if (dis < node[u].dis1) {
-	                        if (c != node[u].c1) {
-	                            node[u].dis2 = node[u].dis1;
-	                            node[u].c2 = node[u].c1;
-	                        }
-	                        node[u].dis1 = dis;
-	                        node[u].c1 = c;
-	                        return;
-	                    }
-	                }
-	
-	                if (node[u].vis2 == 0) {
-	                    if (dis < node[u].dis2) {
-	                        if (c != node[u].c1) {
-	                            node[u].dis2 = dis;
-	                            node[u].c2 = c;
-	                        }
-	                    }
-	                }
-	            };
-	            auto find = [&]() {
-	                int u = -1, c, dis = INF, ord;
-	                for (int i = 0; i < n; i++) {
-	                    if (node[i].vis1 == 0 && node[i].c1 != -1) {
-	                        if (node[i].dis1 < dis) {
-	                            u = i, c = node[i].c1, dis = node[i].dis1;
-	                            ord = 1;
-	                        }
-	                    }
-	                    if (node[i].vis2 == 0 && node[i].c2 != -1) {
-	                        if (node[i].dis2 < dis) {
-	                            u = i, c = node[i].c2, dis = node[i].dis2;
-	                            ord = 2;
-	                        } 
-	                    }
-	                }
-	                if (u == -1) return (triple){-1, -1, -1};
-	
-	                if (ord == 1) node[u].vis1 = 1;
-	                else node[u].vis2 = 1;
-	
-	                return (triple){u, dis, c};
-	            };
-	
-	            for (int i = 1; i <= 2 * n - 1; i++) {
-	                auto [u, dis, c] = find ();
-	                if (u == -1) break;
-	
-	                for (auto [u, v, ew, ec] : G[u]) {
-	                    if (c != ec) sec (v, dis + ew, ec);
-	                }
-	            }
-	
-	            vector<int> dis (n);
-	            for (int i = 0; i < n; i++) {
-	                if (node[i].vis1 == 0) dis[i] = 0;
-	                else dis[i] = node[i].dis1;
-	            }
-	
-	            return dis;
-	        } 
-	    } G;
-	
-	    void init () {
-	        cin >> n >> m;
-	
-	        G.init ();
-	        int u, v, w, c;
-	        for (int i = 0; i < m; i++) {
-	            cin >> u >> v >> w >> c;
-	            u--, v--;
-	            G.add_edge (u, v, w, c);
-	        }
-	    }
-	
-	    void work () {
-	        int ans = 0;
-	        for (int i = 0; i < n; i++) {
-	            vector<int> dis = G.dijkstra (i);
-	            for (int j = 0; j < n; j++) {
-	                ans = (ans + ((i + j + 2) * dis[j]) % M) % M;
-	            }
-	        }
-	
-	        cout << (ans * mod2) % M << "\n";
-	    } 
-	
-	    signed main() {
-	        ios::sync_with_stdio(0);
-	        cin.tie(0);
-	        int t = 1;
-	        cin >> t;
-	        while (t--) {
-	            init();
-	            work();
-	        }
-	    } 
+        #include <bits/stdc++.h>
+        #define int long long
+        #define pii pair<int, int>
+        #define pb push_back
+        #define mk make_pair
+        #define F first
+        #define S second
+        #define ALL(x) x.begin(), x.end()
+
+        using namespace std;
+
+        const int INF = 2e18;
+        const int maxn = 3e5 + 5;
+        const int mod2 = 5e8 + 4;
+        const int M = 1e9 + 7;
+
+        int n, m;
+
+        struct Edge {
+            int u, v, w, c;
+        };
+
+        struct triple {
+            int a, b, c;
+        };
+
+        struct Node {
+            int c1 = -1, c2 = -1, dis1 = INF, dis2 = INF, vis1, vis2;
+            // c1, dis1 : 當前最短交替路徑的顏色, 長度
+            // c1, dis1 : 當前與最短顏色不同的交替路徑的顏色, 長度
+            // vis1, vis2 : 是否已經固定 (被拿來 relax 起他人)
+            // c != -1, vis = 0 已入堆, 尚未固定
+        };
+
+        struct Graph {
+            vector<vector<Edge>> G;
+
+            void init() {
+                vector<vector<Edge>>().swap(G);
+                G.resize(n);
+            }
+
+            void add_edge(int u, int v, int w, int c) {
+                G[u].pb({u, v, w, c});
+                G[v].pb({v, u, w, c});
+            }
+
+            vector<int> dijkstra(int s) {
+                vector<Node> node(n);
+                node[s].c1 = 0;
+                node[s].dis1 = 0;
+
+                auto sec = [&](int u, int dis, int c) {
+                    if (node[u].vis1 == 0) {
+                        if (dis < node[u].dis1) {
+                            if (c != node[u].c1) {
+                                node[u].dis2 = node[u].dis1;
+                                node[u].c2 = node[u].c1;
+                            }
+                            node[u].dis1 = dis;
+                            node[u].c1 = c;
+                            return;
+                        }
+                    }
+
+                    if (node[u].vis2 == 0) {
+                        if (dis < node[u].dis2) {
+                            if (c != node[u].c1) {
+                                node[u].dis2 = dis;
+                                node[u].c2 = c;
+                            }
+                        }
+                    }
+                };
+                auto find = [&]() {
+                    int u = -1, c, dis = INF, ord;
+                    for (int i = 0; i < n; i++) {
+                        if (node[i].vis1 == 0 && node[i].c1 != -1) {
+                            if (node[i].dis1 < dis) {
+                                u = i, c = node[i].c1, dis = node[i].dis1;
+                                ord = 1;
+                            }
+                        }
+                        if (node[i].vis2 == 0 && node[i].c2 != -1) {
+                            if (node[i].dis2 < dis) {
+                                u = i, c = node[i].c2, dis = node[i].dis2;
+                                ord = 2;
+                            }
+                        }
+                    }
+                    if (u == -1) return (triple){-1, -1, -1};
+
+                    if (ord == 1)
+                        node[u].vis1 = 1;
+                    else
+                        node[u].vis2 = 1;
+
+                    return (triple){u, dis, c};
+                };
+
+                for (int i = 1; i <= 2 * n - 1; i++) {
+                    auto [u, dis, c] = find();
+                    if (u == -1) break;
+
+                    for (auto [u, v, ew, ec] : G[u]) {
+                        if (c != ec) sec(v, dis + ew, ec);
+                    }
+                }
+
+                vector<int> dis(n);
+                for (int i = 0; i < n; i++) {
+                    if (node[i].vis1 == 0)
+                        dis[i] = 0;
+                    else
+                        dis[i] = node[i].dis1;
+                }
+
+                return dis;
+            }
+        } G;
+
+        void init() {
+            cin >> n >> m;
+
+            G.init();
+            int u, v, w, c;
+            for (int i = 0; i < m; i++) {
+                cin >> u >> v >> w >> c;
+                u--, v--;
+                G.add_edge(u, v, w, c);
+            }
+        }
+
+        void work() {
+            int ans = 0;
+            for (int i = 0; i < n; i++) {
+                vector<int> dis = G.dijkstra(i);
+                for (int j = 0; j < n; j++) {
+                    ans = (ans + ((i + j + 2) * dis[j]) % M) % M;
+                }
+            }
+
+            cout << (ans * mod2) % M << "\n";
+        }
+
+        signed main() {
+            ios::sync_with_stdio(0);
+            cin.tie(0);
+            int t = 1;
+            cin >> t;
+            while (t--) {
+                init();
+                work();
+            }
+        }
 	    ```
 
 ### K 短路
@@ -2824,7 +2827,7 @@
 
 ??? note "K 短路 code"
 	```cpp linenums="1"
-	void dijkstra (int s) {
+	void dijkstra(int s) {
         priority_queue<pii, vector<pii>, greater<pii>> pq; //{val,id}
         pq.push({0, s});
 
@@ -2832,8 +2835,8 @@
             int sum = pq.top().f, u = pq.top().s;
             pq.pop();
     
-            if (dis[u].size () >= k) continue;
-            dis[u].pb (sum);
+            if (dis[u].size() >= k) continue;
+            dis[u].pb(sum);
     
             for (auto [v, w] : G[u])
                 pq.push({sum + w, v});
