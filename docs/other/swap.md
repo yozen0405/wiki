@@ -1,3 +1,5 @@
+在 $n=20$ 的這種子題時，我們可以使用 bitmask dp。例如 dp(mask, i) 定義為已經放完了 mask 這個集合內的這些數字，而我最後放的是 $a_i$（才能得知順序）。例如當前的序列是 $a_1, a_2, a_3, a_4,a_5$，而當前轉移是 dp(\{1, 2, 4, 5\}, 2) = dp(\{1, 4, 5\}, 1) + 2，因為 $a_4, a_5$ 一開始在  $a_2$ 的後面，移到前面會產生貢獻。
+
 ## TOI 2019 p4
 
 ???+note "[TOI 2019 p4. 雲霄飛車 (rollercoaster)](https://sorahisa-rank.github.io/oi-toi/2019/problems.pdf#page=5) / [CSES - Pyramid Array](https://cses.fi/problemset/task/1747)"
@@ -87,91 +89,60 @@
 		假如現在 b 有兩項是 0，可以枚舉一個放前面的，一個放後面的，然後套用上面的作法。但觀察到其實不會發生在 a 是前、後，在 b 變後、前，若發生代表他們兩個互相 swap 了，將這個操作刪掉可以得到更佳解
 		
 		所以歸納一下，每次交換時，交換的兩個對象應該至少一個要是 b 裡面出現的元素，不然把這個操作拔掉依舊是一個合法解。所以在最佳解的情況下不會有交換不在  b 裡的兩個元素的情形，**剩下 b 裡沒有的元素應該依照原順序填入，之後就套上面的作法**
-		
+
 ## CSES Sorting Methods
 
 ???+note "[CSES - Sorting Methods](https://cses.fi/problemset/task/1162)"
 	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，以下有 4 種操作，問單獨使用每一種可讓陣列小到大 sort 的最小操作次數:
 
 	- swap 相鄰的兩個元素
-
+	
 	- swap 任意兩個元素
-
+	
 	- 刪掉一個元素，再把它插入到另外的位置
-
+	
 	- 刪掉一個元素，再把它插入到陣列的最前面
-
+	
 	$n\le 2\times 10^5$
 	
 	??? note "思路"
 		> sort1
-
-        ans = 逆序數對
-
-        ---
-        
-        > sort2
-
+	
+	    ans = 逆序數對
+	
+	    ---
+	    
+	    > sort2
+	
 		建邊 i → a[i]，答案為 n - cycle 數量
 		
 		---
 		
-        > sort 3
-
-        n - LIS
+	    > sort 3
+	
+	    n - LIS
 		
 		---
 		
-        > sort4
+	    > sort4
+	
+	    【觀察】: 如果 $x$ 動，那小於 $x$ 的數字全部都要動（因為 $x$ 已經到最前面了，後面比她小的數字都需移到他前面才可以）
+	    
+	    從 $n$ 找下來看他們的順序是否從 $n$ 往左看過去遞減，答案為 n - len
 
-        【觀察】: 如果 $x$ 動，那小於 $x$ 的數字全部都要動（因為 $x$ 已經到最前面了，後面比她小的數字都需移到他前面才可以）
-        
-        從 $n$ 找下來看他們的順序是否從 $n$ 往左看過去遞減，答案為 n - len
-		
 ## JOI 2019
-???+note "[JOI 2019 p3](https://loj.ac/p/3012)"
+???+note "[JOI 2019 p3 .有趣的家庭菜园 3](https://loj.ac/p/3012)"
 
-    給定一個陣列包含 $\texttt{R,W,G}$ 這三種字元
-    
-    每次可以 $\texttt{swap}$ 相鄰的，求使得一樣的字元不相鄰的最少交換次數
+    給定長度為 n 一個陣列包含 R, W, G 這三種字元，每次可以 swap 相鄰的元素，求使得一樣的字元不相鄰的最少交換次數
     
     $n\le 400$
     
     ??? note "思路"
-    	
-        > subtask: only R, G
+    	我們可以發現，同一個字元之間不會有貢獻，因為他們不會互相交換。所以我們可以只存當前每個字元所放的數量即可。dp(R, G, W) 代表R 目前放的數量, G 目前放的數量, W 目前放的數量，轉移的話就枚舉最後一個放哪種字元就好
         
-        - 觀察到 $\texttt{R}$ 跟 $\texttt{R}$ 不會去交換，$\texttt{G}$ 也不會跟自己交換
+        $$\texttt{dp(R,G,W)}=\begin{cases} \texttt{dp(R-1,G,W) + cost} \\ \texttt{dp(R,G-1,W) + cost} \\ \texttt{dp(R,G,W-1) + cost} \end{cases}$$
     
-        - 代表最終陣列一定長成 
-            - $\texttt{RGRGRGRG}$...
-            - $\texttt{GRGRGRGR}$...
-    
-        - 代表我們只要對於一個 $\texttt{R}$ 有多少個 $\texttt{G}$ 從我左邊變到右邊
-        - 逆敘數對
-            - 把最終陣列從左到右以 $1\sim n$ 編號
-            - 對於原本的陣列計算逆序數對即可
-    	
-    	---
-    	
-        > subtask: full
-        
-        - 從上面我們發現同一個字元之間不會有貢獻(不會交換)
-    
-        - 考慮經典的 bitmask $\texttt{dp(RGWGRW...)}$
-    
-        - 但沒有必要存自己跟自己的相對順序(沒有貢獻)
-    
-        - 所以可以把 bitmask 壓成 $\texttt{dp(R,G,W)}$
-            - 代表 dp (R 目前放的數量, G 目前放的數量, W 目前放的數量)
-    
-        - 轉移 $\texttt{dp(R,G,W)}=\begin{cases} \texttt{dp(R-1,G,W) + cost} \\ \texttt{dp(R,G-1,W) + cost} \\ \texttt{dp(R,G,W-1) + cost} \end{cases}$
-    
-        - 至於 cost 我們就預處理 $suf_R[j][i],suf_G[j][i],suf_W[j][i]$
-            - ex: $suf_R[j][i]=$ 前 $j$ 個 $\texttt{R}$ 有多少個在 index i 後面
-        - 假設目前是 $\texttt{R}$ 狀態是 $dp(i,j,k)$ 那
-            - 令 $idx = pos_R[i]$ (第 i 個 R 在原來陣列的 index)
-            - $cost=suf_G[j][idx]+suf_W[k][idx]$
+        至於 cost 我們就預處理 query(c, i, j) 代表前 j 個種類為 c 的字元有多少個在 index i 後面。例如目前放的字元是 R，他原本在陣列裡的位置是 idx，當前狀態是 dp(i, j, k)，cost 就會是 query(G, j, idx) + query(W, k, idx)。至於我們要怎麼預處理，我們只需要存 sum(c, i) 代表前 i 位有幾個字元 c 即可，對於字元 c 的貢獻即是在 query 時回傳 max(0, j - sum(c, i)) 就可以得到。
 
 
 ## USCAO Dance Mooves

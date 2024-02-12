@@ -854,10 +854,24 @@
 	    }
 		```
 
+???+note "面試題 - 毒藥查找"
+	1000 個瓶子中有一瓶毒藥，一隻老鼠吃到毒藥一周之內會死，如果要在一周之內檢測出有毒藥的一瓶，問至少需要幾隻老鼠？
+	
+	（微軟經典面試題）
+	
+	??? note "思路"
+		把瓶子從 0 到 999 依序編號，然後全部轉換為 10 位元二進位數。讓第一隻老鼠喝掉所有二進制數右起第一位是 1 的瓶子，讓第二隻老鼠喝掉所有二進制數右起第二位是 1 的瓶子，以此類推。一星期後，如果第一隻老鼠死了，就知道毒藥瓶子的二進制編號中，右起第一位是 1 ；如果第二隻老鼠沒死，就知道毒藥瓶子的二進制編號中，右起第二位是0 ⋯⋯每隻老鼠的死活都能確定出 10 位二進制數的其中一位，由此便可知道毒藥瓶的編號了。
+		
+		比如第 1, 5, 6, 8老鼠死亡，其他沒死，二進位是 0010110001，則代表第 177 瓶水有毒。
+	
 ???+note "[2020 全國賽 pG. 矩陣相乘](https://tioj.ck.tp.edu.tw/pmisc/nhspc109.pdf#page=25)"
 	給兩個 $n\times n$ 的矩陣 $A$ 與 $B$，已知 $C=A\times B$ 最多只有 $2n$ 個非零項，求 $C$
 	
 	$n\le 2800$
+	
+	??? note "思路"
+		對於一個區間 [l, r]，若 A[i] * sum(B[l...r]) ≠ 0，則毒藥
+在 [l, r] 中。其中 sum(B[l...r]) 可以靠預處理前綴和快速求出，所以只需要做 O(log n) 次內積極可
 
 ???+note "[2023 全國賽模擬賽 pG. 吃午餐 (lunch)](https://codeforces.com/gym/104830/attachments/download/23302/zh_TW.pdf#page=19)"
 	給兩個長度為 n 的序列 a, b，將兩兩分成一組，定義 cost 為每組的 max(a[i], a[j]) + max(b[i], b[j]) 取 max，問 cost 最小是多少
@@ -866,6 +880,62 @@
 	
 	??? note "思路"
 		二分搜 thresthold t，然後我們考慮 check(t)。我們規定 i 是從 a 大到小來取，那問題就變成我們要怎麼取 j。可以發現目前唯一有關係的就是 b 了，因為 t - a[i] 只會越來越大，能取的 b[j] 自然也會變多，所以我們當前取 b[j] <= t - a[i] 最大的 b[j] 即是最好的。
+
+???+note "[USACO 2011 MAR Brownie Slicing G](https://www.luogu.com.cn/problem/P3017)"
+	有一個 $n \times m$ 的矩陣，每一個點有一個點權 $a_{i,j}$。要求將這個矩陣先水平切 $r$ 刀，再將每一塊子矩形垂直切成 $c$ 刀。目標最大化所有子矩形總和的最小值，並輸出。
+	
+	$1\le r, c\le 500, a_{i,j}\le 4000$
+	
+	??? note "思路"
+		我們考慮二分每塊的總和最小值 t。至於如何 check(t)，也就是看每塊總和是否都能 >= t，我們枚舉 row，對於當前 column 解決一維的問題，也就是看當前 i 這個 column 到上個切點 j column，若 sum(i, j) >= t 那就切一刀。若此時切的刀數還是比 c 小那我們就再延伸一個 row 繼續解決剛剛的一維問題。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        using namespace std;
+
+        int n, m, r, c, ans, s[505][505];
+
+        bool check(int x) {
+            int row_cnt = 0, now = 0;                                              
+            for (int i = 1; i <= n; i++) {                                    
+                int col_cnt = 0, lst = 0;                                                     
+                for (int j = 1; j <= m; j++) {
+                    if (s[i][j] - s[i][lst] - s[now][j] + s[now][lst] >= x) {  
+                        col_cnt++;
+                        lst = j;
+                    }
+                }                     
+
+                if (col_cnt >= c) {
+                    row_cnt++;
+                    now = i;
+                }
+            }
+            return row_cnt >= r;
+        }
+
+        int main() {
+            cin >> n >> m >> r >> c;
+            for (int i = 1; i <= n; ++i) {
+                for (int j = 1, x; j <= m; ++j) {
+                    cin >> x;
+                    s[i][j] = s[i - 1][j] + s[i][j - 1] - s[i - 1][j - 1] + x;
+                }
+            }
+            int l = 0, r = s[n][m]; 
+            while (r - l > 1) {
+                int mid = l + (r - l) / 2;
+                if (check(mid)) {
+                    l = mid;
+                } else {
+                    r = mid;
+                }
+            }
+            cout << l << endl;
+            return 0;
+        }
+		```
 
 ## 細節
 
@@ -887,4 +957,4 @@
 
 - <https://drive.google.com/file/d/1xxn2H5HSd5hl0573RWoKgJ_YdG3kNIu_/view>
 
-[^1]: 見此處<a href="/wiki/search/images/1.html" target="_blank">此處</a>
+[^1]: 見此處<a href="/wiki/search/images/二分常見問題.html" target="_blank">此處</a>

@@ -431,7 +431,7 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 
 ## LCS 轉 LIS
 
-???+note "LCS - 出現一次"
+???+note "[LCS - 出現一次](https://codeforces.com/gym/102951/problem/C)"
 	給兩個長度為 $n$ 的序列 $a,b$，求 LCS 長度
 	
 	$n\le 5\times 10^5,1\le a_i, b_i\le n,$ 同種數字出現在陣列 1 次
@@ -670,6 +670,12 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 		將問題轉換成「最多可以不改動幾個數」。若不動的相鄰兩項為 $i,j$ 其中 $(i<j)$，那必須滿足 $j-i \le a_j-a_i$，這樣中間才有辦法塞值域進去。
 		
 		我們將式子整理一下變成 $a_i - i \le a_j-j$，也就是在 $a_i'=a_i-i$ 上找最長非嚴格遞增子序列
+
+???+note "[LMIO 2019 - Rabbit Carrot](https://oj.uz/problem/view/LMIO19_triusis)"
+	有 $n$ 個柱子，從左到右高度分別為 $a_1, \ldots ,a_n$，從最左邊高度 $0$ 開始， 目標是跳到最後一個柱子。最多只能向上跳 $h$，向下跳無限制，問最少改動幾個柱子的高度才能達到目標。
+	
+	??? note "思路"
+		因為算有幾個要改我們還要去想要改成哪個高度比較好，問題相當複雜，不如反向思考，將問題轉換成「最多可以**不改動**幾個」。$i$ 要跳到 $j$ 上面，中間還有 $(j-i)$ 次機會可以爬高 $h$，所以我們列出 $a_j\le a_i+h\cdot (j - i)$。移向可得 $a_j-h\cdot j\le a_i -h\cdot i$，我們令 $a_i'=a_i-h\cdot i$，用 $a_i'$ 找最長非嚴格遞增子序列即可。
 
 ???+note "[CSES - Collecting Numbers II](https://cses.fi/problemset/task/2217)"
 	給一個 $1\ldots n$ permutation $a$，每輪可以從 $a$ 刪掉一個遞增的子序列，一一定要從 $1$ 取到 $n$。有 $q$ 筆操作如下 :
