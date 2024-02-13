@@ -46,9 +46,7 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
   ![Image title](./images/17.png){ width="400" }
 </figure>
 
-也就是我們需要一個 DS 去「回傳 $a_i < x$」的最大值
-
-這利用值域線段樹或 BIT，v$[x]$ 維護以 $x$ 結尾的最大 LIS 長度
+也就是我們需要一個 DS 去「回傳 $a_i < x$」的最大值。這利用值域線段樹或 BIT，v$[x]$ 維護以 $x$ 結尾的最大 LIS 長度。
 
 ## 變化
 
@@ -106,8 +104,10 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 ???+note "問題"
 	給一個長度為 $n$ 的陣列 $a_1, a_2 ,\ldots ,a_n$，輸出有幾個 LIS
     
+    $n\le 2\times 10^5$
+    
 	??? note "思路"
-		一樣是從後往前做，線段樹 v[x] 維護 (max length, cnt) 分別代表目前以 x 當開頭，lis 長度最大的，與有幾個
+		線段樹 v[x] 維護 (max length, cnt) 分別代表目前以 x 當開頭，lis 長度最大的，與有幾個
 
 ### 必經 LIS
 

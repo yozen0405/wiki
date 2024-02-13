@@ -754,7 +754,7 @@ $$
 ???+note "帶刪除背包 - 問方法數"
 	給一些物品，第 i 個物品的重量為 w[i]，分別輸出若刪除第 i 個物品，能湊到重量為 m 的**方案數**是多少
 	
-退背包就是從選購物品中刪除其中一個物品，問滿足所取能湊到重量為 j 的**方案數**。像一般背包一樣，退背包先普通 dp 以下，然後退去所選物品。設 f(i, j) 為只用前 i 件物品，不考慮刪除任何物品時，恰好裝滿容量為 j 的方法數，設 g(i, j) 為不考慮物品 i，恰好裝滿容量為 j 的方法數。f(i, j) 就用普通的 01 背包轉移即可，而 g(i, j) 在轉移時就要從 f(i, j) 扣掉「有選 i 個方法數」，如下:
+背包問題是**可逆的**。退背包就是從有選的物品中刪除其中一個物品，問滿足所取能湊到重量為 j 的**方案數**。像一般背包一樣，退背包先普通 dp 一下，然後退去所選物品。設 f(i, j) 為只用前 i 件物品，不考慮刪除任何物品時，恰好裝滿容量為 j 的方法數，設 g(i, j) 為不考慮物品 i，恰好裝滿容量為 j 的方法數。f(i, j) 就用普通的 01 背包轉移即可，而 g(i, j) 在轉移時就要從 f(i, j) 扣掉「有選 i 個方法數」，如下:
 
 <center>
 g(i, j) = f(i, j) - g(i, j - w[i])
@@ -855,7 +855,7 @@ g(i, j) = f(i, j) - g(i, j - w[i])
     	
     	參考自 : <https://blog.csdn.net/qq_50332374/article/details/124864380>
 
-???+note "[Atcoder abc321 F - #(subset sum = K) with Add and Erase](https://atcoder.jp/contests/abc321/tasks/abc321_f)"
+???+note "經典退背包例題 [Atcoder abc321 F - #(subset sum = K) with Add and Erase](https://atcoder.jp/contests/abc321/tasks/abc321_f)"
 	有 q 筆操作，第 i 次會新增一個物品或移除一個物品，體積為 w[i]，並回答:
 	
 	「用目前所剩的物品裝滿容量為 x 的背包，有幾種方法呢 ?」
@@ -865,7 +865,7 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 	??? note "思路"
 		新增物品 w: 也就是普通的背包 dp，我們枚舉 i 從大到小，然後將 dp(i) += dp(i - w)
 		
-		刪除物品 w: 也就是上面提到的退背包，我們枚舉 i 從小到大，然後將 dp(i) -= dp(i - w)
+		刪除物品 w: 也就是上面提到的退背包，我們其實可以不用真的去維護 g(i, j)，只要去枚舉 i 從小到大，然後將 dp(i) -= dp(i - w)，因為從小作到大的話 dp(i - w) 已經是不包含物品 i 的方法數了。
 		
 	??? note "code"
 		```cpp linenums="1"
@@ -902,6 +902,14 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 	    }
 	    ```
 
+???+note "資訊之芽 dpII - 可回溯換零錢問題"
+	有 n 種硬幣 c[1], c[2], …, c[n]，求對於所有長度 k 的區間，湊出 m 的方法數有幾種？
+	
+	要求 O(nm)
+	
+	??? note "思路"
+		同 Atcoder 那題的退背包，類似 two pointer 的方法維護即可。
+		
 ## 題目
 
 ???+note "[CF 19 B. Checkout Assistant](https://codeforces.com/contest/19/problem/B)"
@@ -1031,11 +1039,11 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 	給一個長度為 $n$ 的陣列 $a_1, \ldots ,a_n$，選一些 $a_i$，使得:
 	
 	- 有選的 $a_i$ 總和 $>$ $\sum a_i / 2$
-
+	
 	- 捨棄掉一個 $a_i$，剩餘有選的 $a_i$ 總和必須 $\le \sum a_i / 2$
-
+	
 	問有選的 $a_i$ 總和最大是多少
-
+	
 	$1\le n\le 300$
 	
 	??? note "思路"
@@ -1046,36 +1054,36 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-
-        using namespace std;
-
-        int a[305];
-        int dp[100005];
-
-        int main() {
-            int n;
-            cin >> n;
-            int sum = 0;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-                sum += a[i];
-            }
-            sort(a + 1, a + n + 1);
-            dp[0] = 1;
-            int ans = 0;
-            for (int i = n; i >= 1; i--) {
-                for (int j = sum; j >= a[i]; j--) {
-                    dp[j] |= dp[j - a[i]];
-                    if (dp[j - a[i]] == 0) continue;
-                    if (j - a[i] <= sum / 2 && j > sum / 2) {
-                        ans = max(ans, j);
-                    }
-                }
-            }
-            cout << ans << '\n';
-        }
-        ```
 	
+	    using namespace std;
+	
+	    int a[305];
+	    int dp[100005];
+	
+	    int main() {
+	        int n;
+	        cin >> n;
+	        int sum = 0;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	            sum += a[i];
+	        }
+	        sort(a + 1, a + n + 1);
+	        dp[0] = 1;
+	        int ans = 0;
+	        for (int i = n; i >= 1; i--) {
+	            for (int j = sum; j >= a[i]; j--) {
+	                dp[j] |= dp[j - a[i]];
+	                if (dp[j - a[i]] == 0) continue;
+	                if (j - a[i] <= sum / 2 && j > sum / 2) {
+	                    ans = max(ans, j);
+	                }
+	            }
+	        }
+	        cout << ans << '\n';
+	    }
+	    ```
+
 ???+note "[BOI 2019 Day2 p1. Tom's Kitchen](https://www.luogu.com.cn/problem/P6228)"
 	有 $n$ 個工作，$m$ 個工具，每個工作至少要用 $k$ 個不同的工具。第 $i$ 個工作所需的工具數量為 $a_i$，而第 $j$ 個工具有 $b_j$ 個，問有用到的工具裡面，剩下的總數最少是多少
 	
@@ -1086,15 +1094,16 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 		
 		1. 總數量 $\ge \sum a_i$
 		2. distinct 的數量 $\ge n\times k$（這樣就能滿足每個工作至少要用 $k$ 個不同的工具）
-
+	
 		這是一個背包的模型。設 $dp(i, j)$ 表示考慮前 $i$ 個工具，總數量為 $j$ 時，distinct 數量最大是多少。對於每個狀態，有兩種決策：
-
+	
 		1. 不選第 $i$ 個工具，$dp(i, j) = dp(i - 1, j)$
 		2. 選第 $i$ 個工具，$dp(i, j) = dp(i - 1, j - b_i)+\min\{n,b_i \}$
-
-		最終答案就是 $dp(m, j)\ge n \times k$ 且 $j\ge \sum a_i$ 的最小的 $j$
-		
 	
+		最終答案就是 $dp(m, j)\ge n \times k$ 且 $j\ge \sum a_i$ 的最小的 $j$
+
+
+​	
 ---
 
 - APCSC
