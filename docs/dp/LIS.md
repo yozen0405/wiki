@@ -17,7 +17,7 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 
 ??? note "code"
 	```cpp linenums="1"
-	vector<int> FindLIS(vector<int> &a) {
+	vector<int> find_lis(vector<int> &a) {
         int n = a.size();
         vector<int> dp(n);
         vector<int> v;
@@ -101,13 +101,219 @@ $$dp[i]=\max \limits_{j< i \texttt{ and }a_j<a_i} \{ dp[j] + 1 \}$$
 
 ### LIS 數量
 
-???+note "問題"
-	給一個長度為 $n$ 的陣列 $a_1, a_2 ,\ldots ,a_n$，輸出有幾個 LIS
+???+note "LIS 方法數 [LeetCode 673. Number of Longest Increasing Subsequence](https://leetcode.com/problems/number-of-longest-increasing-subsequence/description/)"
+	給一個長度為 $n$ 的陣列 $a_1, a_2 ,\ldots ,a_n$，LIS 有幾種選法
+    
+    $n\le 2\times 10^5$
+
+【暴力 O(n^2) 解】:
+
+跟 O(n^2) 的 LIS 解差不多，就是當長度一樣時方法數繼續累加；當長度更大時將方法數覆蓋過去。
+
+???+note "code"
+	```cpp linenums="1"
+	for (int i = 0; i < n; i++) {
+        for (int j = 0; j < i; j++) {
+            if (a[j] < a[i]) {
+                if (dp[j] + 1 == dp[i]) {
+                    cnt[i] += cnt[j];
+                } else if (dp[j] + 1 > dp[i]) {
+                    cnt[i] = cnt[j];
+                    dp[i] = dp[j] + 1;
+                }
+            }
+    }
+    ```
+
+【優化的第一種方法: 線段樹】
+
+使用值域線段樹，v[x] 維護 (max length, cnt) 分別代表目前以 x 這個值作為結尾得遞增序列長度最大是多少，並且總共有幾個。在 update(x, length, cnt) 的時候，如果要更新的長度與線段樹原本儲存的長度是一樣的，也就是 node[x].length = length，那就將 node[x].cnt += cnt；如果長度更大，也就是 node[x].length < length，那就將方法數直接覆蓋過去變成 cnt，node[x].cnt = cnt。
+
+【優化的第二種方法: 利用單調性】
+
+$f(i)$ 表示以 $a_i$ 為結尾，所能選取的最長的子序列的長度，而 $g(i)$ 表示以 $i$ 為結尾，在選取子序列為最長的情況下的方案數。我們首先用二分在 $O(n \log n)$ 構建出我們的 $f(i)$ 序列。對於 $g(i)$，我們列出他的轉移式
+
+<center>
+<span style="font-size: 18px;">
+g(i) = sum{ g(j) | j < i && a[j] < a[i] && f(j) = f(i) - 1}
+</span>
+</center>
+
+
+考慮單調性，對於 $j<i,f(j)=f(i)$，總有 $a_j \ge a_i$。即 $f(i)$ 相等的所有 $a_i$ 一定構成遞減的序列（非增序列）。這讓我們想到可以用 bucket 與指針來使用這個單調性維護。具體來，bucket[x] 是一個 vector，存的是 $f(i)=x$ 的 $a_i$，而因為根據剛剛的性質，bucket[x] 是遞減的，而我們會用來查找 v[x] 的數字也會是遞減的，所以我們可以用一個指針來維護當前算到的地方，答案就是指針之後的後綴總和。因為指針只會單調往右移，所以時間複雜度是 $O(n)$。
+
+<figure markdown>
+  ![Image title](./images/42.png){ width="600" }
+</figure>
+
+以這個例子來說，當跑到 i = 3, a[i] = 2 時當前的情況 bucket[1] = {3, 2, 1}，而 bucket[1] 的指針 pos[1] = 0，後綴和為 7。考慮到是 a[i] = 2 要接過來，所以我們必須將指針移到直到指到的數字比 2 小，所以 pos[1] = 2，後綴和就是 1。
+
+??? note "code"
+	```cpp linenums="1"
+	class Solution {
+    public:
+        vector<int> get_lis(vector<int>& a) {
+            int n = a.size();
+            vector<int> dp(n);
+            vector<int> v;
+            for (int i = 0; i < n; i++) {
+                if (v.empty() || v.back() < a[i]) {
+                    v.push_back(a[i]);
+                    dp[i] = v.size();
+                } else {
+                    auto pos = lower_bound(v.begin(), v.end(), a[i]);
+                    dp[i] = pos - v.begin() + 1;
+                    *pos = a[i];
+                }
+            }
+            return dp;
+        }
+        int findNumberOfLIS(vector<int>& a) {
+            int n = a.size();
+            vector<int> dp = get_lis(a);
+            vector<int> cnt(n + 1);
+            vector<int> pos(n + 1);
+            vector<vector<int>> bucket(n + 1);
+            vector<int> bucket_sum(n + 1);
+
+            for (int i = 0; i < n; i++) {
+                int len = dp[i];
+                if (len == 1) {
+                    cnt[i] = 1;
+                } else {
+                    while (pos[len - 1] < bucket[len - 1].size() && a[bucket[len - 1][pos[len - 1]]] >= a[i]) {
+                        bucket_sum[len - 1] -= cnt[bucket[len - 1][pos[len - 1]]];
+                        pos[len - 1]++;
+                    }
+                    cnt[i] = bucket_sum[len - 1];
+                }
+                bucket[len].push_back(i);
+                bucket_sum[len] += cnt[i];
+            }
+            int lis_len = *max_element(dp.begin(), dp.end());
+            int ans = 0;
+            for (int i = 0; i < n; i++) {
+                if (dp[i] == lis_len) {
+                    ans += cnt[i];
+                }
+            }
+            return ans;
+        }
+    };
+    ```
+
+???+note "LIS 不同的選法數"
+	給一個長度為 $n$ 的陣列 $a_1, a_2 ,\ldots ,a_n$，輸出有幾種**不同的** LIS
     
     $n\le 2\times 10^5$
     
-	??? note "思路"
-		線段樹 v[x] 維護 (max length, cnt) 分別代表目前以 x 當開頭，lis 長度最大的，與有幾個
+    ??? note "思路"
+    	[洛谷 P1108 低价购买](https://www.luogu.com.cn/problem/P1108) 是一個類似題，不過用 O(n^2) 即可通過，所以我們也先來想想 O(n^2) 的式子該怎麼列
+    	
+    	```cpp linenums="1" 
+    	for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (a[j] < a[i]) {
+                    if (dp[j] + 1 == dp[i]) {
+                        cnt[i] += cnt[j];
+                    } else if (dp[j] + 1 > dp[i]) {
+                        cnt[i] = cnt[j];
+                        dp[i] = dp[j] + 1;
+                    }
+                }
+            }
+            // 避免重複計算
+            for (int j = 0; j < i; j++) {
+                if (a[j] == a[i] && dp[j] == dp[i]) {
+                	cnt[j] = 0;
+                }
+            }
+        }
+        ```
+        
+        也就代表說同一種數字，我們只需要那種數字最後出現的地方紀錄他的方法數就好。對應到上面講的兩種做法，第一種方法在更新時就直接把原本的 cnt 給覆蓋過去；而第二種做法在把數字 push back 到 bucket 時直接檢查 bucket 是否含有同樣的數字，如果是的話就把前面的砍掉就好，這並不會影響指針所維護的單調性。
+
+???+note "練習題 [洛谷 P1108 低价购买](https://www.luogu.com.cn/problem/P1108)"
+	給一個長度為 $n$ 的陣列 $a_1, a_2 ,\ldots ,a_n$，輸出有幾種**不同的**最長下降子序列
+    
+    $n\le 5000$
+	
+    ??? note "code"
+    	```cpp linenums="1" hl_lines="42 43 44 45 46"
+    	#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        vector<int> get_lis(vector<int>& a) {
+            int n = a.size();
+            vector<int> dp(n);
+            vector<int> v;
+            for (int i = 0; i < n; i++) {
+                if (v.empty() || v.back() < a[i]) {
+                    v.push_back(a[i]);
+                    dp[i] = v.size();
+                } else {
+                    auto pos = lower_bound(v.begin(), v.end(), a[i]);
+                    dp[i] = pos - v.begin() + 1;
+                    *pos = a[i];
+                }
+            }
+            return dp;
+        }
+
+        void findNumberOfLIS(vector<int>& a) {
+            int n = a.size();
+            vector<int> dp = get_lis(a);
+            vector<int> cnt(n + 1);
+            vector<int> pos(n + 1);
+            vector<vector<int>> bucket(n + 1);
+            vector<int> bucket_sum(n + 1);
+
+            for (int i = 0; i < n; i++) {
+                int len = dp[i];
+                if (len == 1) {
+                    cnt[i] = 1;
+                } else {
+                    while (pos[len - 1] < bucket[len - 1].size() && a[bucket[len - 1][pos[len - 1]]] >= a[i]) {
+                        bucket_sum[len - 1] -= cnt[bucket[len - 1][pos[len - 1]]];
+                        pos[len - 1]++;
+                    }
+                    cnt[i] = bucket_sum[len - 1];
+                }
+                if (bucket[len].size() && a[bucket[len].back()] == a[i]) {
+                    bucket_sum[len] -= cnt[bucket[len].back()];
+                    cnt[bucket[len].back()] = 0;
+                    bucket[len].pop_back();
+                }
+                bucket[len].push_back(i);
+                bucket_sum[len] += cnt[i];
+            }
+            int lis_len = *max_element(dp.begin(), dp.end());
+            int ans = 0;
+            for (int i = 0; i < n; i++) {
+                if (dp[i] == lis_len) {
+                    ans += cnt[i];
+                }
+            }
+            cout << lis_len << ' ' << ans << '\n';
+        }
+
+        signed main() {
+            int n;
+            cin >> n;
+            vector<int> a(n);
+            for (int i = 0; i < n; i++) {
+                cin >> a[i];
+            }
+            int mx = *max_element(a.begin(), a.end());
+            for (int i = 0; i < n; i++) {
+            	// 題目要求最長下降子序列
+                a[i] = mx - a[i];
+            }
+            findNumberOfLIS(a);
+        }
+        ```
 
 ### 必經 LIS
 

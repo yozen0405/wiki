@@ -909,7 +909,7 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 	
 	??? note "思路"
 		同 Atcoder 那題的退背包，類似 two pointer 的方法維護即可。
-		
+
 ## 題目
 
 ???+note "[CF 19 B. Checkout Assistant](https://codeforces.com/contest/19/problem/B)"
@@ -1102,9 +1102,9 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 	
 		最終答案就是 $dp(m, j)\ge n \times k$ 且 $j\ge \sum a_i$ 的最小的 $j$
 
-
-​	
 ---
+
+## 參考資料
 
 - APCSC
 
