@@ -670,12 +670,7 @@
 		
 		【**Greedy 觀察性質, 後悔法: O(n log n)**】
 		
-		如果有辦法匹配（與 pq.top 的貢獻是正的），就將目前這項選為右括弧，並 push 到 heap 中。若沒辦法匹配，也 push 到 heap 中。
-		
-		1. 將前面配對的右括號反悔掉，改成目前這一項去做配對
-		2. 與前面未配對的節點做配對
-		
-		那麼要如何處理「不選」的貢獻呢，我們其實可以將有選的貢獻中加入 -a[i]，這樣就可以用扣得算了
+		我們其實可以用一個 max heap 來維護括號去配對，我們每次將當前向當作右括號，看與 heap 的頂端的和是否能產生正的貢獻，可以的話我們就將右括號的貢獻加上一個負號，並加入 heap 中，代表著之後可以將當前的右括號消除。否則我們就將當前項作為左括號的貢獻加入 heap 中。那麼要如何處理「不選」的貢獻呢? 我們其實可以先把答案加上 sum(a[i])，再將有選的貢獻中加入 -a[i]，這樣就只要處理有選的部份了。我們還要注意一點就是當某一項做了右括號後，又被更後面的右括號取代，我們還是可以用左括號的方式去選他，因為當時他只是因為做右括號產生貢獻才去選的，不代表他不能作左括號。不用怕做右括號的貢獻還沒 pop 出來，左括號的貢獻就已經先出來，因為同時在某一項又做左括號，又做右括號，貢獻一定是負的
 		
 		這邊提供一組範例
 		
@@ -686,6 +681,40 @@
 	    ```
 		
 		> 參考自 : [TOI 2021 Solutions - p3 pairing](https://omeletwithoutegg.github.io/2021/09/22/toi-2021-sols/)
+	
+	??? note "code"
+		```cpp linenums="1"
+		#pragma GCC optimize("Ofast")
+        #include <bits/stdc++.h>
+
+        using namespace std;
+        const int maxn = 100025;
+        template <typename T> using max_heap = priority_queue<T, vector<T>, less<T>>;
+        int a[maxn];
+        long long pre[maxn];
+        signed main() {
+            int n;
+            cin >> n;
+            for (int i = 1; i <= n; i++) cin >> a[i];
+            for (int i = 1; i <= n; i++) pre[i] = pre[i-1] + a[i];
+
+            max_heap<long long> pq;
+            long long ans = 0;
+            for (int i = 1; i <= n; i++) ans += max(a[i], 0);
+            for (int i = 1; i <= n; i++) {
+                long long lbraceValue = -pre[i-1] - max(a[i], 0);
+                long long rbraceValue = pre[i] - max(a[i], 0);
+                if (!pq.empty() && rbraceValue + pq.top() > 0) {
+                    ans += rbraceValue + pq.top(), pq.pop();
+                    pq.push(lbraceValue);
+                    pq.push(-rbraceValue);
+                } else {
+                    pq.push(lbraceValue);
+                }
+            }
+            cout << ans << '\n';
+        }
+        ```
 
 ???+note "[CF 1821 E. Rearrange Brackets](https://codeforces.com/contest/1821/problem/E)"
 	對於一個合法的括號序列，定義它的「cost」為進行若干次以下操作，將它清空的最小總代價: 選取兩個相鄰的左右括號刪除，並將代價加上原右括號右邊的括號數量。

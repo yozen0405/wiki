@@ -311,9 +311,67 @@
 	$1\le L, R\le 10^{18}$
 
 ???+note "[JOI 2014 Final 年轮蛋糕](https://loj.ac/p/2758)"
+	有一個環形蛋糕，共切成 $n$ 塊，第 $i$ 塊大小 $a_i$。將環形蛋糕分成三個區塊，問這三個區塊分別的大小總和最小值最大可以是多少
 	
+	$3\le n\le 10^5, 1\le a_i\le 10^9$
+	
+	??? note "思路"
+		
+        我們可以先二分 threshold t，然後在 check(t) 時，枚舉每個 i，當作其中一條分割線，用 lower_bound 找到下個分界線 j，再根據 j 來用 lower_bound 找到下個分界線 k，滿足  sum[i, j] <= t 和 sum[j + 1, k] <= t。
 
-## 其他
+        但我們其實可以用單調性做到 O(n) check。一樣是枚舉分界線 i，再用兩個指針 l, r 維護滿足 sum[l, i] <= t 和 sum[i + 1, r] <= t，其中 l 為 i 左邊滿足條件的最大 index，r 為滿足條件的最小 index，因為 l, r 都單調遞增，所以使用 two pointer 維護即可。
+
+        這樣就可以在 $O(n\log \sum a_i)$ 或 $O(n \log^2 \sum a_i)$ 的時間複雜度內解決該問題。
+        
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        using namespace std;
+        typedef long long ll;
+
+        ll n, sum;
+        int a[100005];
+
+        bool check(ll t) {
+            int l = 0, r = 0;
+            ll sum_l = 0, sum_r = 0;
+            for (int i = 0; i < n; ++i) {
+                sum_l += a[i]; // sum[l, i]
+                sum_r -= a[i]; // sum[i + 1, r]
+                while (l <= i && sum_l - a[l] >= t) {
+                    sum_l -= a[l];
+                    l++;
+                }
+                while (r <= n - 1 && sum_r < t) {
+                    sum_r += a[r];
+                    r++;
+                }
+                if (sum_r < t) return 0;
+                if (sum_l >= t && sum - sum_l - sum_r >= t) return 1;
+            }
+            return 0;
+        }
+
+        signed main() {
+            cin >> n;
+            for (int i = 0; i < n; ++i) {
+                cin >> a[i];
+                sum += a[i];
+            }
+            ll l = 0, r = sum;
+            while (r - l > 1) {
+                ll mid = l + r >> 1;
+                if (check(mid)) {
+                    l = mid;
+                } else {
+                    r = mid;
+                }
+            }
+            cout << l << '\n';
+        }
+        ```
+	
+## 題目
 
 ???+note "[CF 1853 C. Ntarsis' Set](https://codeforces.com/contest/1853/problem/C)"
 	給一個包含 $1,2,\ldots ,10^{1000}$ 所有數字的 Set $S$，每天從 $S$ **同時**移除第 $a_1,a_2,\ldots ,a_n$ 個數字，問 $k$ 天之後 $S$ 中最小的數字是多少
@@ -863,7 +921,7 @@
 		把瓶子從 0 到 999 依序編號，然後全部轉換為 10 位元二進位數。讓第一隻老鼠喝掉所有二進制數右起第一位是 1 的瓶子，讓第二隻老鼠喝掉所有二進制數右起第二位是 1 的瓶子，以此類推。一星期後，如果第一隻老鼠死了，就知道毒藥瓶子的二進制編號中，右起第一位是 1 ；如果第二隻老鼠沒死，就知道毒藥瓶子的二進制編號中，右起第二位是0 ⋯⋯每隻老鼠的死活都能確定出 10 位二進制數的其中一位，由此便可知道毒藥瓶的編號了。
 		
 		比如第 1, 5, 6, 8老鼠死亡，其他沒死，二進位是 0010110001，則代表第 177 瓶水有毒。
-	
+
 ???+note "[2020 全國賽 pG. 矩陣相乘](https://tioj.ck.tp.edu.tw/pmisc/nhspc109.pdf#page=25)"
 	給兩個 $n\times n$ 的矩陣 $A$ 與 $B$，已知 $C=A\times B$ 最多只有 $2n$ 個非零項，求 $C$
 	
@@ -892,49 +950,119 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        using namespace std;
+	    using namespace std;
+	
+	    int n, m, r, c, ans, s[505][505];
+	
+	    bool check(int x) {
+	        int row_cnt = 0, now = 0;                                              
+	        for (int i = 1; i <= n; i++) {                                    
+	            int col_cnt = 0, lst = 0;                                                     
+	            for (int j = 1; j <= m; j++) {
+	                if (s[i][j] - s[i][lst] - s[now][j] + s[now][lst] >= x) {  
+	                    col_cnt++;
+	                    lst = j;
+	                }
+	            }                     
+	
+	            if (col_cnt >= c) {
+	                row_cnt++;
+	                now = i;
+	            }
+	        }
+	        return row_cnt >= r;
+	    }
+	
+	    int main() {
+	        cin >> n >> m >> r >> c;
+	        for (int i = 1; i <= n; ++i) {
+	            for (int j = 1, x; j <= m; ++j) {
+	                cin >> x;
+	                s[i][j] = s[i - 1][j] + s[i][j - 1] - s[i - 1][j - 1] + x;
+	            }
+	        }
+	        int l = 0, r = s[n][m]; 
+	        while (r - l > 1) {
+	            int mid = l + (r - l) / 2;
+	            if (check(mid)) {
+	                l = mid;
+	            } else {
+	                r = mid;
+	            }
+	        }
+	        cout << l << endl;
+	        return 0;
+	    }
+		```
 
-        int n, m, r, c, ans, s[505][505];
-
-        bool check(int x) {
-            int row_cnt = 0, now = 0;                                              
-            for (int i = 1; i <= n; i++) {                                    
-                int col_cnt = 0, lst = 0;                                                     
-                for (int j = 1; j <= m; j++) {
-                    if (s[i][j] - s[i][lst] - s[now][j] + s[now][lst] >= x) {  
-                        col_cnt++;
-                        lst = j;
-                    }
-                }                     
-
-                if (col_cnt >= c) {
-                    row_cnt++;
-                    now = i;
-                }
-            }
-            return row_cnt >= r;
-        }
-
-        int main() {
-            cin >> n >> m >> r >> c;
-            for (int i = 1; i <= n; ++i) {
-                for (int j = 1, x; j <= m; ++j) {
-                    cin >> x;
-                    s[i][j] = s[i - 1][j] + s[i][j - 1] - s[i - 1][j - 1] + x;
-                }
-            }
-            int l = 0, r = s[n][m]; 
-            while (r - l > 1) {
-                int mid = l + (r - l) / 2;
-                if (check(mid)) {
-                    l = mid;
-                } else {
-                    r = mid;
-                }
-            }
-            cout << l << endl;
-            return 0;
-        }
+???+note "[CF 1918 D. Blocking Elements](https://codeforces.com/contest/1918/problem/D)"
+	給一個長度為 $a$ 的序列，你需要刪除一些數，使數組被分為若干段，設這些段的和的最大值為 $x$，刪除的數的和為 $y$。問 $\max(x,y)$ 的最小值。
+	
+	$\sum n \le 10^5, 1\le a_i \le 10^9$
+	
+	??? note "思路"
+		我們使用二分，假設當前已經確定答案不超過 $t$，那麼有：
+	
+	    1. 兩個點間的最大間隔不超過 $t$。
+	    2. 點權之和不超過 $t$。
+	
+	    因為剛好都是兩個點之間的轉移，我們不妨考慮 dp，令 dp[i] 表示選第 i 個數作為斷點時，前 i 個數最小的斷點和。我們可以列出轉移式
+	
+	    $$dp_i = \min_{s_{i-1} - s_{j} \leq x}\{dp_{j}\} + a_i$$
+	
+	    其中 $s$ 為前綴和數組。轉移區間的左右端點都單增，也就類似我們的 sliding window，所以可以單調隊列優化。
+	
+	    在代碼 check 函數的 $dp_{n+1}$ 即為答案，若 $dp_{n+1} \leq x$，則表示答案可以 $\leq \max$，因為我們最後一段事實上可以看成是切在 n + 1，所以為了方便，在實作上我們新增了 a[n + 1] = 0。時間複雜度 $O(n\log C)$。
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <iostream>
+	    #include <queue>
+	    #define int long long
+	    using namespace std;
+	
+	    int n, a[100010], dp[100010], ps[100010];
+	
+	    bool check(int t) {
+	        deque<int> dq;
+	        dq.push_back(0);
+	        for (int i = 1; i <= n + 1; i++) {
+	            while (ps[i - 1] - ps[dq.front()] > t) {
+	                dq.pop_front();
+	            }
+	            dp[i] = dp[dq.front()] + a[i];
+	            while (dq.size() && dp[dq.back()] > dp[i]) {
+	                dq.pop_back();
+	            }
+	            dq.push_back(i);
+	        }
+	        return dp[n + 1] <= t;
+	    }
+	
+	    signed main() {
+	        int test;
+	        cin >> test;
+	        while (test--) {
+	            cin >> n;
+	            for (int i = 1; i <= n; i++) {
+	                cin >> a[i];
+	            }
+	            a[n + 1] = 0;
+	            for (int i = 1; i <= n + 1; i++) {
+	                ps[i] = ps[i - 1] + a[i];
+	            }
+	            int l = 1, r = 1e18;
+	            while (l != r) {
+	                int mid = (l + r) / 2;
+	                if (check(mid)) {
+	                    r = mid;
+	                } else {
+	                    l = mid + 1;
+	                }
+	            }
+	            cout << l << endl;
+	        }
+	    }
 		```
 
 ## 細節

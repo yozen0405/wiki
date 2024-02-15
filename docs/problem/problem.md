@@ -211,7 +211,7 @@
 		把某條燈飾複製後，各自可以再延伸 ⇒ 類似 Tree 的結構
 		
 		用 1. 2. 3. 操作讀進來後建立完 tree 後，建 lca，對於 4. O(log n) 回答
-		
+
 ???+note "[CF 1644 E. Expand the Path](https://codeforces.com/problemset/problem/1644/E)"
 	有一個 n * n 的 Grid，給一個字串 s，包含 D, R，代表當前行走的路徑。可任意次的將 s 的某一項複製，但 s 不能超界，問能走到的 distinct 格子數量
 	
@@ -221,67 +221,67 @@
 		【套路】: 對於每一個 s 的走過的位置，計算對全局的貢獻
 		
 		首先，我們按照給定的操作序列執行，到達目標格子 (x, y)。然後，計算在該位置最多可以向橫向或縱向移動多少格，以達到目標位置 (n, m)。設需要向右移動 x 格，向下移動 y 格。
-
-        在接下來的分析中，為方便起見，我們將格子與格子之間的操作轉化為格子內部的操作。例如，如果當前在 (1, 1)，需要向右移動，則我們將該格子標記為右移。當然，這樣做可能會漏掉一個格子，但後面會進行補充。
-
-        考慮計算答案。對於每個格子，我們最多可以向相對方向（例如，如果格子是向右的，則考慮向下移動）移動 x 或 y 格。由於移動一定是向右或向下的，擴展過程不會超出邊界或與其他格子重疊，因此我們可以直接將這些貢獻添加到答案中。
-
-        需要注意的是，只有在第一次轉向及以後才能執行這樣的操作（因為沒有辦法複製另一種方向的操作）。
-
-        然後，考慮最後一個格子。不難發現，從右下角開始的 n * m 個格子都可以到達，我們直接將其添加到答案中。
+	
+	    在接下來的分析中，為方便起見，我們將格子與格子之間的操作轉化為格子內部的操作。例如，如果當前在 (1, 1)，需要向右移動，則我們將該格子標記為右移。當然，這樣做可能會漏掉一個格子，但後面會進行補充。
+	
+	    考慮計算答案。對於每個格子，我們最多可以向相對方向（例如，如果格子是向右的，則考慮向下移動）移動 x 或 y 格。由於移動一定是向右或向下的，擴展過程不會超出邊界或與其他格子重疊，因此我們可以直接將這些貢獻添加到答案中。
+	
+	    需要注意的是，只有在第一次轉向及以後才能執行這樣的操作（因為沒有辦法複製另一種方向的操作）。
+	
+	    然後，考慮最後一個格子。不難發現，從右下角開始的 n * m 個格子都可以到達，我們直接將其添加到答案中。
 		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
+	    #define int long long
+	    using namespace std;
+	
+	    const int N = 2e5 + 5;
+	    char s[N];
+	    int n, ans;
+	
+	    void work() {
+	        bool flag = 1;
+	        cin >> n >> s + 1;
+	        int x = 1, y = 1;
+	        for (int i = 1; s[i]; i++) {
+	            if (s[i] == 'R') {
+	                x++;
+	            } else {
+	                y++;
+	            }
+	            if (s[i] != s[i - 1] && i != 1) flag = 0;
+	        }
+	        if (flag == 1) {
+	            cout << n << '\n';
+	            return;
+	        }
+	        x = n - x, y = n - y;
+	        int i = 2;
+	        ans = 1;
+	        while (s[i] == s[i - 1]) {
+	            ans++;
+	            i++;
+	        }
+	        for (i; s[i]; i++) {
+	            ans++;
+	            if (s[i] == 'R') {
+	                ans += y;
+	            } else {
+	                ans += x;
+	            }
+	            if (s[i + 1] == 0) ans += (x + 1) * (y + 1);
+	        }
+	        cout << ans << '\n';
+	    }
+	
+	    int main() {
+	        int t;
+	        cin >> t;
+	        while (t--) work();
+	    }
+	    ```
 
-        const int N = 2e5 + 5;
-        char s[N];
-        int n, ans;
-
-        void work() {
-            bool flag = 1;
-            cin >> n >> s + 1;
-            int x = 1, y = 1;
-            for (int i = 1; s[i]; i++) {
-                if (s[i] == 'R') {
-                    x++;
-                } else {
-                    y++;
-                }
-                if (s[i] != s[i - 1] && i != 1) flag = 0;
-            }
-            if (flag == 1) {
-                cout << n << '\n';
-                return;
-            }
-            x = n - x, y = n - y;
-            int i = 2;
-            ans = 1;
-            while (s[i] == s[i - 1]) {
-                ans++;
-                i++;
-            }
-            for (i; s[i]; i++) {
-                ans++;
-                if (s[i] == 'R') {
-                    ans += y;
-                } else {
-                    ans += x;
-                }
-                if (s[i + 1] == 0) ans += (x + 1) * (y + 1);
-            }
-            cout << ans << '\n';
-        }
-
-        int main() {
-            int t;
-            cin >> t;
-            while (t--) work();
-        }
-        ```
-        
 ???+note "[CF 1644 D. Cross Coloring](https://codeforces.com/contest/1644/problem/D)"
 	給一個 n * m 的 grid，每格最初都是白色的。有 q 筆操作:
 	
@@ -301,48 +301,66 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
+	    #define int long long
+	
+	    using namespace std;
+	
+	    const int MAXN = 2e5 + 5;
+	    const int mod = 998244353;
+	    bool row[MAXN], col[MAXN];
+	    int x[MAXN], y[MAXN];
+	
+	    int fpow(int a, int b) {
+	        int res = 1;
+	        while (b) {
+	            if (b & 1) res = res * a % mod;
+	            a = a * a % mod;
+	            b >>= 1;
+	        }
+	        return res;
+	    }
+	
+	    int main() {
+	        int t;
+	        cin >> t;
+	        while (t--) {
+	            memset(row, 0, sizeof(row));
+	            memset(col, 0, sizeof(col));
+	            int n, m, k, q;
+	            cin >> n >> m >> k >> q;
+	            for (int i = 1; i <= q; i++) {
+	                cin >> x[i] >> y[i];
+	            }
+	            int cnt = 0, crow = 0, ccol = 0;
+	            for (int i = q; i >= 1; i--) {
+	                bool ok = 0;
+	                if (crow < n && ccol < m && !row[x[i]]) {
+	                    row[x[i]] = 1, crow++, ok = 1;
+	                }
+	                if (crow < n && ccol < m && !col[y[i]]) {
+	                    col[y[i]] = 1, ccol++, ok = 1;
+	                }
+	                if (ok) cnt++;
+	            }
+	            cout << fpow(k, cnt) << '\n';
+	        }
+	    }
+	    ```
+	    
+???+note "[CF 1928 D. Lonely Mountain Dungeons](https://www.luogu.com.cn/problem/CF1928D)"
+	有 $n$ 類人，第 $i$ 類人有 $c_i$ 個。你需要 $x\cdot(k-1)$ 的代價把他們分成 $k$ 組。在一種分組下，每兩個同類的人被分到不同的組，會產生 $b$ 的貢獻。問最大收益。
 
-        using namespace std;
-
-        const int MAXN = 2e5 + 5;
-        const int mod = 998244353;
-        bool row[MAXN], col[MAXN];
-        int x[MAXN], y[MAXN];
-
-        int fpow(int a, int b) {
-            int res = 1;
-            while (b) {
-                if (b & 1) res = res * a % mod;
-                a = a * a % mod;
-                b >>= 1;
-            }
-            return res;
-        }
-
-        int main() {
-            int t;
-            cin >> t;
-            while (t--) {
-                memset(row, 0, sizeof(row));
-                memset(col, 0, sizeof(col));
-                int n, m, k, q;
-                cin >> n >> m >> k >> q;
-                for (int i = 1; i <= q; i++) {
-                    cin >> x[i] >> y[i];
-                }
-                int cnt = 0, crow = 0, ccol = 0;
-                for (int i = q; i >= 1; i--) {
-                    bool ok = 0;
-                    if (crow < n && ccol < m && !row[x[i]]) {
-                        row[x[i]] = 1, crow++, ok = 1;
-                    }
-                    if (crow < n && ccol < m && !col[y[i]]) {
-                        col[y[i]] = 1, ccol++, ok = 1;
-                    }
-                    if (ok) cnt++;
-                }
-                cout << fpow(k, cnt) << '\n';
-            }
-        }
-        ```
+	$n\leq 2\times 10^5, 1\leq c_i \leq 2\times 10^5, b\leq 10^6, x\leq 10^9, \sum c_i \leq 2\times 10^5$
+	
+	??? note "思路"
+		設 f(n, m) 是將 n 個同種族的人放到 m 組中可以獲得的貢獻。可以發現在同組的人不能互相產生貢獻，所以盡可能平均分配是最優的。設 p = (n / m), q = n % m，則有 m - q 的隊伍有 p 人，q 個隊伍有 p + 1 人，所以貢獻是
+		
+		$$
+		f(n, m)  =\dfrac{n(n+1)}{2}-(m-q)\times\dfrac{p(p+1)}{2}-q\times\dfrac{(p+1)(p+2)}{2}
+		$$
+		
+		一種想法是因為 $\sum c_i \le 2\times 10^5$，所以 distinct 的 $c_i$ 總共也就 $\sqrt{2\times 10^5}$ 種，所以我們枚舉分成幾組，然後枚舉每種種族的人， 將他們的 f(n, m) 算進去答案，最後取 max 就好，複雜度 $O(n \sqrt{\sum c_i})$。
+		
+		另一種想法是對於一個種族，直接枚舉 $m=1\ldots c_i$ 代表要分成 $m$ 組能產生的貢獻，利用前綴和單點加值的想法，對於 $m=1\ldots c_i$ 我們就直接套上面 f(n, m) 分別計算就好，而 $m>c_i$ 就相當於 f(c[i], c[i])，複雜度 $O(\sum c_i)$。
+		
+		> 參考自: <https://www.cnblogs.com/int-R/p/18013982/CF1928D>

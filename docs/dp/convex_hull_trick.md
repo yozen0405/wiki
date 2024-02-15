@@ -1,5 +1,9 @@
 見 <https://drive.google.com/file/d/1w4Lnxy5OuNN1rJ8nz9nBqakPGhS40g6B/view>
 
+<figure markdown>
+  ![Image title](./images/44.png){ width="600" }
+</figure>
+
 ## 介紹
 
 $$\large dp(i)=\max\limits_{0\le j < i} \{ a(j) \times f(i) + b(j) \}$$
@@ -53,10 +57,17 @@ $L_1$ 表示當前斜率次大的直線，$L_2$ 表示當前斜率次大的直�
 ???+note "code"
 	```cpp linenums="1"
     bool check(Line l1, Line l2, Line l3) {
-		return (l2.b - l3.b) * (l1.a - l2.a) <= (l2.b - l1.b) * (l3.a - l2.a);
+		return (l2.b - l1.b) * (l2.a - l3.a) >= (l3.b - l2.b) * (l1.a - l2.a);
     }
     ```	
-
+    
+??? note "當斜率一樣時，會發生什麼事?"
+	<figure markdown>
+      ![Image title](./images/45.png){ width="500" }
+    </figure>
+    
+    若斜率相同時，b 較大的應該要留下來，b 較小的需被淘汰
+	
 ### 查詢 x = f(i)
 
 我們從 deque 的 front 每次看最前面的兩條線，若發現代入斜率大（藍色）的會比代入斜率小（紅色）的還大代表要往右，否則左邊的就是答案
@@ -107,7 +118,7 @@ $L_1$ 表示當前斜率次大的直線，$L_2$ 表示當前斜率次大的直�
 	    };
 	
 	    bool check(Line l1, Line l2, Line l3) {
-	        return (l2.b - l3.b) * (l1.a - l2.a) <= (l2.b - l1.b) * (l3.a - l2.a);
+	        return (l2.b - l1.b) * (l2.a - l3.a) >= (l3.b - l2.b) * (l1.a - l2.a);
 	    }
 	
 	    void solve() {

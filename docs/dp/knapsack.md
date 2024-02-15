@@ -1102,6 +1102,99 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 	
 		最終答案就是 $dp(m, j)\ge n \times k$ 且 $j\ge \sum a_i$ 的最小的 $j$
 
+???+note "[CF 1928 E. Modular Sequence](https://www.luogu.com.cn/problem/CF1928E)"
+	給定兩個整數 $x$ 和 $y$，以及一個整數 $s$。定義一個長度為$n$ 的數列 $a$ 是好的當且僅當 $a_1 = x$ 且 $a_{i+1} = a_i + y$ 或 $a_{i+1} \equiv a_i \pmod {y}$。問是否存在長度為 $n$ 的好序列，其元素總和等於 $s$。如果存在，需要找出任一個這樣的序列。
+	
+	$\sum n, \sum s \le 2\times 10^5$
+	
+	??? note "思路"
+		觀察到對任意的 $i$ 都有 \(a_i \equiv x \pmod{y}\)，因此可以先給 $s$ 減去 $n \times (x \bmod y)$，剩下的部分一定是非負的 $y$ 的倍數，否則顯然不合法。
+
+		令 $s = \dfrac{s - n \times (x \bmod y)}{y}, a_1 = \left\lfloor\dfrac{x}{y}\right\rfloor$，於是問題轉化為：求一個數列，滿足第一項為新的 $a_1$，和為新的 $s$，能否由若干個公差為 $1$，起始向為 $0$ 的等差數列拼起來。
+		
+		<figure markdown>
+          ![Image title](./images/43.png){ width="400" }
+        </figure>
+		
+		直接考慮每個位置做 DP 最少也要 2D 的狀態（位置，上一個的值），但是觀察等差數列最大的長度也就 $O(\sqrt{s})$，因為需滿足 $\dfrac{i(i - 1)}{2}\le s$，於是不妨交換狀態和答案，設 $dp(i)$ 表示得到和為 $i$ 的數列所需要的最小長度。由於可以在後面補 $0$，所以有解的充要條件為 $dp(s) \le n$。這個我們就可以用無線背包來做轉移，複雜度為物品種類 $\times$ 背包大小，也就是 $O(s\sqrt{s})$。
+
+		由於第一個等差數列的首項比較特別，但是僅有它一個特別的，於是我們可以先建完 dp 後，先暴力枚舉第一段等差數列的長度，然後看剩下的總和是否能用剛剛的 dp 湊出來。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        using namespace std;
+
+        int n, x, y, s, dp[200005], pre[200005];
+
+        void print(int sum) {
+            if (sum == 0) return;
+            print(sum - pre[sum] * (pre[sum] + 1) / 2);
+            // 等差數列從 0 開始
+            for (int i = 0; i <= pre[sum]; i++) {
+                cout << i * y + (x % y) << '\n';
+            }
+        }
+
+        int main() {
+            // 預處理 dp
+            dp[0] = 0;
+            for (int i = 1; i <= 200000; i++) {
+                dp[i] = 0x3f3f3f3f;
+                for (int j = 1; j * (j + 1) / 2 <= i; j++) {
+                    if (dp[i - j * (j + 1) / 2] + j + 1 < dp[i]) {
+                        dp[i] = dp[i - j * (j + 1) / 2] + j + 1;
+                        pre[i] = j;
+                    }
+                }
+            }
+            int t;
+            cin >> t;
+            while (t--) {
+                cin >> n >> x >> y >> s;
+                // 判斷 s 合不合法
+                if (s < 1ll * (x % y) * n) {
+                    cout << "NO\n";
+                    continue;
+                }
+                s -= (x % y) * n;
+                if (s % y) {
+                    cout << "NO\n";
+                    continue;
+                }
+                s /= y;
+                int sum = 0;
+                bool fl = 0;
+                int first = (x / y);
+                for (int i = 1; i <= n; i++) {
+                    sum += first;
+                    first++;
+                    if (sum > s) break;
+                    if (dp[s - sum] <= n - i) {
+                        fl = 1;
+                        cout << "YES\n";
+                        // 第一個等差數列
+                        for (int j = 1; j <= i; j++) {
+                            cout << ((x / y) + j - 1) * y + (x % y) << '\n';
+                        }
+                        // backtracking 後面的等差數列
+                        print(s - sum);
+                        // 長度還是不夠的話再補 0
+                        for (int j = 1; j <= n - (dp[s - sum] + i); j++) {
+                            cout << (x % y) << '\n';
+                        }
+                        cout << '\n';
+                        break;
+                    }
+                }
+                if (!fl) {
+                    cout << "NO\n";
+                }
+            }
+            return 0;
+        }
+		```
+	
 ---
 
 ## 參考資料
