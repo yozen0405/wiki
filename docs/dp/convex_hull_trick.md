@@ -6,6 +6,8 @@
 
 ## 介紹
 
+斜率最佳化是一類利用決策單調性來最佳化DP轉移的最佳化方式。因為其原理中一部分形似斜率，故名為斜率最佳化。能用斜率優化的題目的轉移式一般來說如下：
+
 $$\large dp(i)=\max\limits_{0\le j < i} \{ a(j) \times f(i) + b(j) \}$$
 
 轉移 $dp(i)$ 時想像成二維平面上有一堆直線 $y = a(j) \times x + b(j)$。要找到這些直線和 $x = f(i)$ 的所有交點中，$y$ 座標最大的數值。
@@ -14,7 +16,7 @@ $$\large dp(i)=\max\limits_{0\le j < i} \{ a(j) \times f(i) + b(j) \}$$
   ![Image title](./images/1.png){ width="400" }
 </figure>
 
-觀察這些直線可以發現，這些直線所形成的下凸包，會是轉移答案的位置。有些線段(虛線) 不在下凸包的上，可以從轉移名單上淘汰。
+觀察這些直線可以發現，這些直線所形成的下凸包，會是轉移答案的位置。有些線段（虛線）不在下凸包的上，可以從轉移名單上淘汰。
 
 <figure markdown>
   ![Image title](./images/2.png){ width="400" }
@@ -26,6 +28,8 @@ $$\large dp(i)=\max\limits_{0\le j < i} \{ a(j) \times f(i) + b(j) \}$$
 
 2. 加入新直線後如何維護這個凸包
 
+以下，我們針對斜率與查詢的單調性分別討論幾種情況的處理方式。
+
 ## 斜率與查詢單調
 
 - 性質 1 : 函數 $a$ 單調遞增
@@ -34,16 +38,10 @@ $$\large dp(i)=\max\limits_{0\le j < i} \{ a(j) \times f(i) + b(j) \}$$
 
 ### 加入新直線
 
-$L_1$ 表示當前斜率次大的直線，$L_2$ 表示當前斜率次大的直線，$L_3$ 表示當前要加入的直線
+$L_1$ 表示當前斜率次大的直線，$L_2$ 表示當前斜率次大的直線，$L_3$ 表示當前要加入的直線，有 $L_1.a \le L_2.a \le L_3.a$。
 
 <figure markdown>
-  ![Image title](./images/3.png){ width="500" }
-  <figcaption>加入的直線沒有淘汰任何直線</figcaption>
-</figure>
-
-<figure markdown>
-  ![Image title](./images/4.png){ width="500" }
-  <figcaption>加入的直線使得原本存在的直線被淘汰</figcaption>
+  ![Image title](./images/47.png){ width="500" }
 </figure>
 
 可以觀察到若 $L_2,L_3$ 的交點（紅色）在  $L_1,L_2$ 的交點（藍色）的左側，$L_2$ 將會被刪掉。實作上使用一個 deque 按照斜率小到大儲存在凸包上的直線，加入新直線時查看 deque 尾端直線是否會被淘汰。
@@ -52,7 +50,7 @@ $L_1$ 表示當前斜率次大的直線，$L_2$ 表示當前斜率次大的直�
   ![Image title](./images/5.png){ width="500" }
 </figure>
 
-將式子列出來後，我們就可以寫出 check$(L_1,L_2,L_3)$ 的代碼 :
+如果上面的圖片還是無法理解，這裡是<a href="/wiki/dp/images/1.gif" target="_blank">網路上的動圖</a>。將式子列出來後，我們就可以寫出 check$(L_1,L_2,L_3)$ 的代碼 :
 
 ???+note "code"
 	```cpp linenums="1"
@@ -60,27 +58,43 @@ $L_1$ 表示當前斜率次大的直線，$L_2$ 表示當前斜率次大的直�
 		return (l2.b - l1.b) * (l2.a - l3.a) >= (l3.b - l2.b) * (l1.a - l2.a);
     }
     ```	
-    
-??? note "當斜率一樣時，會發生什麼事?"
-	<figure markdown>
-      ![Image title](./images/45.png){ width="500" }
-    </figure>
-    
-    若斜率相同時，b 較大的應該要留下來，b 較小的需被淘汰
-	
+
 ### 查詢 x = f(i)
 
 我們從 deque 的 front 每次看最前面的兩條線，若發現代入斜率大（藍色）的會比代入斜率小（紅色）的還大代表要往右，否則左邊的就是答案
 
 <figure markdown>
-  ![Image title](./images/6.png){ width="600" }
+  ![Image title](./images/46.png){ width="600" }
 </figure>
 
 因為詢問的位置 $x$ 只會越來越大，因此被淘汰的直線必不會是後面的詢問的答案，所以我們可以 pop_front 直到屬於找到當前代入 $x=f(i)$ 最大的那條線
 
 ### 總結
 
-維護一個 `deque<pair<int, int>>` 代表直線 $a(j)$ 和 $b(j)$。先找 $x=f(i)$ 的答案 $dp(i)$，所以我們一直去判斷最前面的值是否為最大值 （和第二個比較），若不是則持續 pop_front。然後即可求出當前新直線的 $a(j),b(j)$。然後我們就要加入這條新直線，用  check$(L_1,L_2,L_3)$ 一直去判斷尾端直線是否要被 pop_back。架構等價於單調隊列，轉移總複雜度均攤為 $O(n)$。實作見下面 CSES Monster Game I 的 code。
+維護一個 `deque<pair<int, int>>` 代表直線的 (a, b)。先找 x = f(i) 的答案 dp(i)，所以我們一直去判斷最前面的值是否為最大值 （和第二個比較），若不是則持續 pop_front。然後即可求出當前新直線的 a, b。然後我們就要加入這條新直線，用 check$(L_1,L_2,L_3)$ 一直去判斷尾端直線是否要被 pop_back。架構等價於單調隊列，轉移總複雜度均攤為 $O(n)$。實作見下面 CSES Monster Game I 的 code。
+
+??? question "當斜率一樣時，會發生什麼事?"
+	<figure markdown>
+      ![Image title](./images/45.png){ width="500" }
+    </figure>
+    
+    若斜率相同時，b 較大的應該要留下來，b 較小的需被淘汰。因此我下面的寫法當新的線加入後，會先特判斜率是否與 deque 的尾端相同，是的話就只留下 b 大的。但在 CSES - Monster Game I 這題很多人是沒有特判的，而是直接使用以下代碼來看是否淘汰尾端：
+    
+    ```cpp linenums="1"
+    bool check(Line l1, Line l2, Line l3) {
+    	return (l3.b - l2.b) * (l1.a - l2.a) <= (l2.b - l1.b) * (l2.a - l3.a);
+    }
+    ```	
+    
+    這個式子是將我們的不等式移向得到的，但注意到任兩條直線斜率相同時，我們未移向的不等式的分母會是 0，那移向後是否還具有正確性?
+    
+    <figure markdown>
+      ![Image title](./images/5.png){ width="500" }
+    </figure>
+    
+    我們就分三種情況討論 $L_1, L_2$ 斜率相同，$L_2, L_3$ 斜率相同，$L_1, L_2, L_3$ 斜率相同。前兩種情況我們會發現，移向過後的式子其中一側變為 0，所以關鍵是在另一側，也就是看兩條線的節距是正是負。以 $L_2, L_3$ 斜率相同來說，右側會變為 0，所以只剩下 (l3.b - l2.b) * (l1.a - l2.a) <= 0，又 (l1.a - l2.a) 必為負數，所以不等式的成立一切取決於 (l3.b - l2.b) 的正負性。而三條線斜率都相同情況我們的式子一定都是 0 <= 0，所以會成立，這時若 l1.b, l2.b, l3.b 非遞增的話，維護就會出現問題。但在 CSES - Monster Game I 內，b = dp(j)，恰好 dp(j) 又是單調遞增的（這是因為 s 遞增），因此才會 AC，若今天 b 沒有限制的話就會出問題。
+    
+    總結來說，把斜率相同的情況特判掉是比較安全的處理方式。
 
 ### 題目
 
