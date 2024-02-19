@@ -85,14 +85,14 @@
 		我們可以列出轉移式，$G(n)=\text{mex}\{G(n-1),\ldots ,G(n-5) \}$，我們將表格列出來
 		
 		$$
-        \begin{array}{c|ccccccccccccc}
-            n & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12\\
-            \hline
-            G(n) & 0 & 1 & 2 & 3 & 4 & 5 & 0 & 1 & 2 & 3 & 4 & 5 & 0\\
-        \end{array}
-        $$
-        
-        可以發現在這個題目 G(n) = n % 6
+	    \begin{array}{c|ccccccccccccc}
+	        n & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12\\
+	        \hline
+	        G(n) & 0 & 1 & 2 & 3 & 4 & 5 & 0 & 1 & 2 & 3 & 4 & 5 & 0\\
+	    \end{array}
+	    $$
+	    
+	    可以發現在這個題目 G(n) = n % 6
 
 ## Sprague–Grundy theorem
 
@@ -134,9 +134,9 @@ $$
     有 $n$ 堆石頭，分別有 $a_1, \ldots , a_n$ 個，Alice, Bob 輪流玩一個 game，輪到自己時可以選其中一堆，拿 1...3 個石頭，不能拿就輸。問誰贏
 
 	$1\le n \le 2\times 10^5,1\le a_i \le 10^9$
-    
-    ??? note "思路"
-    	先把每一堆想成一個單獨的 game, 計算 G(x) = x % 4，利用 SG 定理將他們 xor 起來
+	
+	??? note "思路"
+		先把每一堆想成一個單獨的 game, 計算 G(x) = x % 4，利用 SG 定理將他們 xor 起來
 
 ???+note "例題"
 	有 $n$ 堆石頭，分別有 $a_1, \ldots , a_n$ 個，Alice, Bob 輪流玩一個 game，每次可以做其中一個操作 
@@ -172,16 +172,16 @@ $$
     	- SG(x) =
     	
             - mex{ SG(x-1) } if x != k(k+1)/2
-
+    
             - mex{ SG(x-1), SG(1) $\oplus$ SG(2)$\oplus$ ... $\oplus$ SG(k) } if x = k(k+1)/2
-
+    
         - x = k(k+1)/2 的狀態不會太多，只有 O( sqrt(C) ) 個
-
+    
         - 假設 SG( k * (k+1)/2 ) = 2, 如何計算 SG( (k+1) * (k+2)/2 )?
             - if x $\in$ [ k * (k+1)/2 + 1, (k+1) * (k+2)/2 - 1], SG(x) = 0 → SG(x+1) = 1
-
-			- 0, 1 交替，可以從上一個 k * (k + 1) / 2 很快的推出來
-
+    
+    		- 0, 1 交替，可以從上一個 k * (k + 1) / 2 很快的推出來
+    
         - 實作上把 x = k(k+1)/2 都建表算好，過程中可以用一個只會單調遞增的 pointer 紀錄 k 算到哪裡，每個 a[i] binary search 找到小於 a[i] 的第一個 k * (k+1)/2 的地方，即可推出是 0 還是 1
 
 ## Tree
@@ -334,7 +334,7 @@ $$
 	
 	??? note "思路"
 		觀察到若 $n > 2000$ 時先手必勝，$n\le 2000$ 暴力跑，$>2000$ 直接輸出 first
-		
+
 ???+note "[CSES - Another Game](https://cses.fi/problemset/task/2208)"
 	有 $n$ 堆石頭，分別有 $a_1, \ldots , a_n$ 個，Alice, Bob 輪流玩一個 game，輪到自己時可以選其中好幾堆，每堆拿至少一個石頭，不能拿就輸，問誰贏
 	
@@ -346,7 +346,7 @@ $$
 		【證明】:
 		
 		- 「$a_i$ 有一些奇數」的狀態，存在一個走法走到「$a_i$ 都是偶數」的狀態
-
+	
 		- 「$a_i$ 都是偶數」的狀態，不管怎麼走都是走到「$a_i$ 有一些奇數」的狀態
 
 ???+note "[2016 全國賽 p3. 拈 (Nim)](https://tioj.ck.tp.edu.tw/problems/1940)"
@@ -366,33 +366,33 @@ $$
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        int f(int n) {
-            if (n == 0) return 0;
-            if (n == 1) return 1;
-            if (n == 2) return 0;
-            if (n % 2 == 0) return n / 2;
-            else return f(n / 2);
-        }
-
-        signed main() {
-            int n, k;
-            cin >> k >> n;
-            if (k == 1) {
-                cout << n << '\n';
-            } else {
-                cout << f(n) << '\n';
-            }
-        } 
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    int f(int n) {
+	        if (n == 0) return 0;
+	        if (n == 1) return 1;
+	        if (n == 2) return 0;
+	        if (n % 2 == 0) return n / 2;
+	        else return f(n / 2);
+	    }
+	
+	    signed main() {
+	        int n, k;
+	        cin >> k >> n;
+	        if (k == 1) {
+	            cout << n << '\n';
+	        } else {
+	            cout << f(n) << '\n';
+	        }
+	    } 
 		```
 
 ???+note "Wythoff's game [洛谷 P2252 [SHOI2002] 取石子游戏|【模板】威佐夫博弈](https://www.luogu.com.cn/problem/P2252)"
@@ -442,6 +442,56 @@ $$
             }
         } 
     	```
+
+???+note "[TOI 2021 二模 p1. 石頭（Stone）](https://drive.google.com/file/d/1_mpY6D95d8Da7zR8YMabTMvCJIlNWBg6/view)"
+	有 $n$ 堆石頭，第 $i$ 堆 $a_i$ 個，Alice, Bob 進行 Nim，但每次拿的石頭數量單調遞減，且第一步不能拿超過 $r$ 個石頭，問第一步有幾種可能的拿取方式
+
+	$1 \le n \le 10^5, 1 \le r, a_i \le 10^9$
+	
+	??? note "思路"
+	    【subtask 1: 1 <= n <= 3, 1 <= r, a[i] <= 100】
+	
+	    令 dp(A, B, C, r) 為這一輪拿 r 個，是否會贏。可以令 S(A, B, C, r) = S(A, B, C, r-1) or dp(A, B, C, r)，使用 prefix or 優化。	
+	
+	    <center>
+	    dp(A, B, C, r) = {dp(A-r, B, C, 1~r) or dp(A, B-r, C, 1~r) or dp(A, B, C-r, 1~r) }
+	    </center>
+	    
+	    【subtask 3: n = 1】
+	
+	    令 dp(A, B, C, r) 為目前最多拿 r 個，我們分別考慮 r = 1, 2, 3 的轉移:
+	
+	    r = 1 時我們只需要考慮 A 的奇偶性，所以列出：
+	
+	    dp(A, r = 1) = max{ 1-dp(A-1, r = 1) } = A % 2。
+	
+	    r = 2 我們可以拿一個或兩個，所以 dp(A, r = 2) = max{ 1-dp(A-2, r = 2), 1-dp(A-1, r = 1) }，可以發現 1-dp(A-1, r = 1) 恰好是上面 dp(A, r = 1) 的狀態，所以我們又可以列出
+	
+	    dp(A, r = 2) = max{ 1-dp(A-2, r = 2), dp(A, r = 1) }
+	
+	    同理， r = 3 時列出
+	
+	    dp(A, r = 3) = max{ 1-dp(A-3, r = 3), 1-dp(A-2, r = 2), 1-dp(A-1, r = 1) }<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= max{ 1-dp(A-3, r = 3), dp(A, r=2) }
+	
+	    如果打表的話會發現恰好是以 0111... 的循環節出現，例如若 r = 1，循環節為 01，長度為 2；若 r = 2 ~ 3，循環節為 0111，長度為 4；若 r = 4 ~ 7，循環節為 01111111，長度為 8。所以我們可以總結出 dp(A, r) 就是 [A % r 以下最大的二的冪次] % 4 != 0，例如說 r = 2 就是 [A % 4] != 0。
+	
+	    <figure markdown>
+	      ![Image title](./images/55.png){ width="500" }
+	    </figure>
+	
+	    用分析的角度想，就是我們可以發現每格都是上面那格與 1 - 前面那格取 max，所以在跑 r 的時候幾乎可以把 r - 1 那一個 row 給抄下來，看 0 的地方的前 r 格是不是 0，是的話這格就是 1。我們發現 r = 2 與 r = 3 是一模一樣的，因為 r = 3 在 r = 2 為 0 的地方往前 3 格並沒有碰到 0（手不夠長），但到 r = 4 時就剛好可以摸到了，然後要一直到 r = 8 才能使連續的 1 再變的更長。
+	
+	    <figure markdown>
+	      ![Image title](./images/54.png){ width="400" }
+	    </figure>
+	
+	    【subtask 2: r = 1, r = 2】
+	
+	    我們用程式將 dp(A, B, C, r = 2) 都打表出來，會發現我們完全找不到規律，所以我們就先把是位置 (A, B, C) 給印出來，考慮賽局理論常常用 xor，我們試著將 A xor B xor C，結果發現他們都剛剛好是 2 的倍數，也就是 % 2 = 0，因為我們上面的子題有推理過會每 r 個循環一次，所以我們可以列出如果 dp(A, B, C, r) 是 0 iff (A ^ B ^ C) % 2 == 0 。
+	
+	    【subtask all】
+	
+	    我們一樣用程式去檢查 dp(A, B, C, r) 在 r = 1, 2, 4, 8 會不會像上面一樣具有讓循環節變長，且恰好是 2 的冪次的跡象，也就是例如  dp(A, B, C, 2) 需要去等於 dp(A, B, C, 3)。我們發現是確實的，所以我們可以得出最後的結論：ans = 0 iff xor{ a[i] } % d == 0，其中 d 為 r 以下最大的二的冪次。
 
 ???+note "[CF 1194 D. 1-2-K Game](https://codeforces.com/contest/1194/problem/D)"
 	有 $n$ 個石頭，每次拿 $1$ 個, $2$ 個, **或** $k$ 個，A, B 輪流拿，不能拿石頭的人就輸了。問誰贏
