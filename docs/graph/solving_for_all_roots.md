@@ -26,11 +26,11 @@
 	        int dp_ch[maxn], dp_fa[maxn], sec[maxn], ans[maxn];
 	        vector<int> G[maxn];
 	
-	        void dfs_ch (int u, int par) {
+	        void dfs_ch(int u, int par) {
 	            for (auto v : G[u]) {
 	                if (v == par) continue;
 	
-	                dfs_ch (v, u);
+	                dfs_ch(v, u);
 	
 	                if (dp_ch[v] + 1 > dp_ch[u]) {
 	                    sec[u] = dp_ch[u];
@@ -42,18 +42,18 @@
 	            }
 	        }
 	
-	        void dfs_fa (int u, int par) {
+	        void dfs_fa(int u, int par) {
 	            for (auto v : G[u]) {
 	                if (v == par) continue;
 	
 	                if (dp_ch[v] + 1 == dp_ch[u]) {
 	                    dp_fa[v] = max(sec[u], dp_fa[u]) + 1;
 	
-	                    dfs_fa (v, u);
+	                    dfs_fa(v, u);
 	                }
 	                else {
 	                    dp_fa[v] = max(dp_ch[u], dp_fa[u]) + 1;
-	                    dfs_fa (v, u);
+	                    dfs_fa(v, u);
 	                }
 	            }
 	        }
@@ -69,11 +69,11 @@
 	                G[v].push_back(u);
 	            }
 	
-	            dfs_ch (1, 0);
-	            dfs_fa (1, 0);
+	            dfs_ch(1, 0);
+	            dfs_fa(1, 0);
 	
 	            for (int i = 1; i <= n; i++) {
-	                cout << max (dp_ch[i], dp_fa[i]) << " ";
+	                cout << max(dp_ch[i], dp_fa[i]) << " ";
 	            }
 	        }
 	        ```
@@ -148,7 +148,6 @@
 	    #define ALL(x) x.begin(), x.end()
 	
 	    using namespace std;
-	    using PQ = priority_queue<int, vector<int>, greater<int>>;
 	
 	    const int INF = 2e18;
 	    const int maxn = 3e5 + 5;
@@ -159,46 +158,46 @@
 	    int dp1[maxn], dp2[maxn], sum[maxn];
 	    vector<int> G[maxn];
 	
-	    void dfs1 (int u, int par) {
+	    void dfs1(int u, int par) {
 	        for (auto v : G[u]) {
 	            if (v == par) continue;
-	            dfs1 (v, u);
+	            dfs1(v, u);
 	
 	            sum[u] += sum[v] + a[v];
 	            dp1[u] += dp1[v] + sum[v] + a[v];
 	        } 
 	    }
 	
-	    void dfs2 (int u, int par) {
+	    void dfs2(int u, int par) {
 	        for (auto v : G[u]) {
 	            if (v == par) continue;
 	
 	            dp2[v] = (dp2[u] - (dp1[v] + sum[v]) - a[v] + tot - sum[v] - a[v]) + dp1[v];
-	            dfs2 (v, u);
+	            dfs2(v, u);
 	        }
 	    }
 	
-	    void init () {
+	    void init() {
 	        cin >> n;
 	        for (int i = 1; i <= n; i++) cin >> a[i], tot += a[i];
 	        int u, v;
 	
 	        for (int i = 1; i <= n - 1; i++) {
 	            cin >> u >> v;
-	            G[u].pb (v);
-	            G[v].pb (u);
+	            G[u].pb(v);
+	            G[v].pb(u);
 	        }
 	    }
 	
-	    void solve () {
-	        dfs1 (1, 0);
+	    void solve() {
+	        dfs1(1, 0);
 	        dp2[1] = dp1[1];
 	
-	        dfs2 (1, 0);
+	        dfs2(1, 0);
 	
 	        int ans = -INF;
 	        for (int i = 1; i <= n; i++) {
-	            ans = max (ans, dp2[i]);
+	            ans = max(ans, dp2[i]);
 	        }
 	
 	        cout << ans << "\n";
@@ -279,23 +278,23 @@
 	    vector<int> G[maxn];
 	    int dp_ch[maxn][2],dp_fa[maxn][2];
 	
-	    void dfs_ch (int u, int par) {
+	    void dfs_ch(int u, int par) {
 	        dp_ch[u][1] = dp_ch[u][0] = 1;
 	        for (auto v : G[u]) {
 	            if (v == par) continue;
-	            dfs_ch (v, u);
+	            dfs_ch(v, u);
 	
 	            dp_ch[u][1] = dp_ch[u][1] * (dp_ch[v][0] + dp_ch[v][1]);
 	            dp_ch[u][1] %= M;
 	        }
 	    }
 	
-	    void dfs_fa (int u, int par) {
+	    void dfs_fa(int u, int par) {
 	        dp_fa[u][0] = 1;
 	        int sz = G[u].size ();
 	
-	        vector<int> pre (sz + 1, 1);
-	        vector<int> suf (sz + 2, 1);
+	        vector<int> pre(sz + 1, 1);
+	        vector<int> suf(sz + 2, 1);
 	
 	        for (int i = 1; i <= sz; i++) {
 	            int v = G[u][i - 1];
@@ -327,26 +326,26 @@
 	
 	        for (auto v : G[u]) {
 	            if (v == par) continue;
-	            dfs_fa (v, u);
+	            dfs_fa(v, u);
 	        }
 	    }
 	
-	    void init () {
+	    void init() {
 	        cin >> n >> M;
 	
 	        int u, v;
 	        for (int i = 1; i <= n - 1; i++) {
 	            cin >> u >> v;
-	            G[u].pb (v);
-	            G[v].pb (u);
+	            G[u].pb(v);
+	            G[v].pb(u);
 	        }
 	    }
 	
-	    void solve () {
-	        dfs_ch (1, -1);
+	    void solve() {
+	        dfs_ch(1, -1);
 	
 	        dp_fa[1][1] = 1;
-	        dfs_fa (1, -1);
+	        dfs_fa(1, -1);
 	
 	        for (int i = 1; i <= n; i++) {
 	            cout << (dp_ch[i][1] * dp_fa[i][1]) % M << "\n";
@@ -371,29 +370,28 @@
 	$n\le 4\times 10^5$
 	
 	??? note "思路"
+		重心給出的定義是所有的子樹大小都小於等於 $\left\lfloor \frac{n}{2} \right\rfloor$ 的節點，所以說，如果一個節點不是重心，就表示這個節點有一個子樹的大小超出了 $\left\lfloor \frac{n}{2} \right\rfloor$（而且只有一個），因為我們只能斷一條邊，所以我們只需要在這個超出了 $\left\lfloor \frac{n}{2} \right\rfloor$ 的子樹中挑選一個更小子樹斷掉他然後連到當前節點上來。
+
+		問題是，這個大小超出 $\left\lfloor \frac{n}{2} \right\rfloor$ 的子樹中有沒有這種斷掉之後可以使得其大小減小到 $\left\lfloor \frac{n}{2} \right\rfloor$ 以下的這種小子樹呢？
+		
+		針對節點 u，維護兩個值：一個是從其子樹中尋找且不超過 $n/2$ 的最大子樹大小；另一個是將以節點 u 為根的子樹移除後，剩下的樹中能找到的最大且不超過 $n/2$ 的子樹大小。我們令第一種是 dp_ch(u)，第二種是 dp_fa(u)。
+		
+	    第一種情況轉移式顯然，為 
+	    
+	    $$
+	    dp_{\text{ch}}(u) = \max \begin{cases} sz(v) &\text{ if}\space sz(v) \le n/2 \\ dp_{\text{ch}}(v)  &\text{otherwise} \end{cases}
+	    $$
+	    
+	    第二種情況假設目前是從 u 為根轉移到 v 為根，可能 u 的整塊的子樹都 <= n/2，那就 dp_fa(v) 就直接是 n - sz(v)，否則就是 u 的小孩裡面，除了 v 以外 dp_ch(v) 最大的，這個可以用前綴最大值與後綴最大值算出來，或者是 u 的 father 的連通塊的答案，也就是 dp_fa(u)。
+		
+		$$
+	    dp_{\text{fa}}(v) = \max \begin{cases} n - sz(v) &\text{ if}\space n - sz(v) \le n/2 \\ \max \{ dp_{\text{fa}}(u), dp_{\text{ch}}(v') \space v'\neq v  \} &\text{otherwise} \end{cases}
+	    $$
+		
+	    最後對於節點 u，找到以 u 為根時有最大子樹大小的兒子，減去 max{ dp_ch(u), dp_fa(u) } 看是否小於 n / 2 就可以判斷了。
 	
-        以 u 為根的話，最多只會有一個 subtree 的 size > n/2
+	    > 參考 : [CSDN 題解](https://blog.csdn.net/Miracle_ma/article/details/52317440?spm=1001.2101.3001.6650.13&utm_medium=distribute.wap_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-13-52317440-blog-121302860.237%5Ev3%5Ewap_relevant_t0_download&depth_1-utm_source=distribute.wap_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-13-52317440-blog-121302860.237%5Ev3%5Ewap_relevant_t0_download)
 
-        所以我們進行換根 dp，分別考慮 subtree 在 v 下面(含 v)，與上面
-
-        在下面的 case 只要看有沒有 v(含 v) 下面的 subtree 的 size ≤ n / 2，我們取最大的，叫做 max_sz[u]
-
-        若有 sz[v] ≥ n / 2，看看有沒有符合 sz[v] - max_sz[v] ≤ n / 2
-
-        max_sz[u]: u 下面 size ≤ n / 2 且最大的
-
-        當 dfs(u → v) 的時候，上面的就有分兩種 case:
-
-        - case1: 把連著 u 的整塊都拔掉
-            - n - sz[v]
-
-        - case2: 將除了 u 以外，u 以下的拔掉
-            - n - sz[v] - max(pre[i - 1], suf[i + 1])
-
-        最後就檢查是否上，下都合法即可
-
-        > 參考 : [CSDN 題解](https://blog.csdn.net/Miracle_ma/article/details/52317440?spm=1001.2101.3001.6650.13&utm_medium=distribute.wap_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-13-52317440-blog-121302860.237%5Ev3%5Ewap_relevant_t0_download&depth_1-utm_source=distribute.wap_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-13-52317440-blog-121302860.237%5Ev3%5Ewap_relevant_t0_download)
-        
 ## 其餘的題單
 
 - CF 1187 E. Tree Painting

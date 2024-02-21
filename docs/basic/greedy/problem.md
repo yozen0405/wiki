@@ -770,36 +770,108 @@
 		那為什麼排序相減就最小呢？因為任意交換同數組 (s[i], t[j]) 必會使結果增大 
 		
 		<figure markdown>
-          ![Image title](./images/18.png){ width="400" }
-        </figure>
+	      ![Image title](./images/18.png){ width="400" }
+	    </figure>
 		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
+	    #define int long long
+	    using namespace std;
+	
+	    const int maxn = 1e5 + 5;
+	    int n, m;
+	    int ans, s[maxn], t[maxn];
+	
+	    signed main() {
+	        cin >> n >> m;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> s[i] >> t[i];
+	            ans += abs(s[i] - t[i]);
+	        }
+	        s[0] = m;
+	        t[0] = 0;
+	        sort(s, s + n + 1);
+	        sort(t, t + n + 1);
+	        for (int i = 0; i <= n; i++)
+	            ans += abs(s[i] - t[i]);
+	        cout << ans << '\n';
+	        return 0;
+	    }
+	    ```
+
+???+note "[POI 2015 LAS](https://www.luogu.com.cn/problem/P3584)"
+	$n$ 個人圍成一圈，每個人的左邊和右邊都有一個食物，第 $i$ 分熱量 $a_i$，每個人可以吃掉他左邊或者右邊的食物，假如有 $2$ 個人同時選擇了一個食物，則平分熱量。現在需要每一個人吃到的熱量是位於自己左邊食物的熱量和右邊食物的熱量的最大值，你需要給出每個人吃食物的方案。若無解，則輸出 NIE。
+	
+	$2\le n\le 10^6, 1\le a_i\le 10^9$
+	
+	??? note "思路"
+		為了方便解釋，我把食物當成點，人當成邊來看，我們觀察到若出現相鄰的兩個點 $(x,y)$ 滿足 $2a_x < a_y$ 或$a_x > 2a_y$，表示 $(x,y)$ 這個人所要指的方向是已經固定的，也就是一定會選擇 $a$ 值較大的那一個，因為就算有人跟他搶食物他也能吃到熱量較高的那個。
+		
+		我們可以把這些已經固定的邊給拔掉，然後把這些人所選擇的食物熱量去掉一半。之後，在這些以固定的人相鄰的人中，可能又會出現新的滿足條件的人。故而我們採用一個廣搜的思想，把新的人也給加入一個隊列進行拓展。
+		
+		一直進行上述步驟直到該固定的邊都固定，剩下的人都沒有人滿足條件時，就代表此時每條邊當選了一側的食物後，那一側的食物就變爛了（因為不符合大於兩倍的那個條件，所以一旦選了，價格砍半了，另一側一定更優）。所以我們對於沒有指定食物的所有人貪心地選擇他相鄰兩個食物中熱量較高的那個即可，具體來說，因為若 $x$ 選了食物 $x+1$，那麼 $x+1$ 就一定不會選食物 $x+1$，因為 $\frac{a_{x+1}}{2} \leq a_{x+2}$。故兩個沒有指定食物的人不可能選到同一食物，所以每個人的決策互不干擾，貪心正確性得以保證。
+		
+		為了防止出現浮點數，在程式碼中把每個 $a_i$ 都乘上了 2。這樣是不影響答案的。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
         using namespace std;
 
-        const int maxn = 1e5 + 5;
-        int n, m;
-        int ans, s[maxn], t[maxn];
+        const int N = 1e6 + 10;
+        int n, a[N], b[N], ans[N];
+        queue<pair<int, int>> q; // edge(x, y)
 
-        signed main() {
-            cin >> n >> m;
-            for (int i = 1; i <= n; i++) {
-                cin >> s[i] >> t[i];
-                ans += abs(s[i] - t[i]);
+        int pre(int i) {
+            return (i - 1 + n) % n;
+        }
+        int nxt(int i) {
+            return (i + 1) % n;
+        }
+        void psh(int i) {
+            if (!~ans[i] && b[i] >= b[nxt(i)] * 2ll) {
+                q.emplace(i, i);
+                b[ans[i] = i] -= a[i];
             }
-            s[0] = m;
-            t[0] = 0;
-            sort(s, s + n + 1);
-            sort(t, t + n + 1);
-            for (int i = 0; i <= n; i++)
-                ans += abs(s[i] - t[i]);
-            cout << ans << '\n';
+            if (!~ans[i] && b[nxt(i)] >= b[i] * 2ll) {
+                q.emplace(i, nxt(i));
+                b[ans[i] = nxt(i)] -= a[nxt(i)];
+            }
+        }
+        int main() {
+            cin >> n;
+            fill(ans, ans + n, -1);
+            for (int i = 0; i <= n - 1; i++) {
+                cin >> a[i];
+                b[i] = a[i] * 2;
+            }
+            for (int i = 0; i <= n - 1; i++) {
+                psh(i);
+            }
+            while (!q.empty()) {
+                auto u = q.front();
+                q.pop();
+                psh(pre(u.second));
+                psh(u.second);
+            }
+            for (int i = 0; i <= n - 1; i++) {
+                if (~ans[i]) {
+                    cout << ans[i] + 1 << ' ';
+                } else {
+                    if (b[i] > b[nxt(i)]) {
+                        cout << i + 1 << ' ';
+                        b[i] -= a[i];
+                    } else {
+                        cout << nxt(i) + 1 << ' ';
+                        b[nxt(i)] -= a[nxt(i)];
+                    } 
+                }
+            }
             return 0;
         }
-        ```
-		
+		```
+
 ---
 
 ## 參考資料

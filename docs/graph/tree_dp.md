@@ -104,9 +104,13 @@
 	$2\le n\le 5000$
 	
 	??? note "思路"
-		對於定根 $u$，我們會想讓下面每顆子樹的 $a_i$ 都恰好是連續的一段，因為這樣下面的點可以對 $u$ 造成貢獻，又可以對 $v$ 造成貢獻。然後因為是連續的一段，可以遞迴下去變子問題。
+		考慮局部貪心，假設我們現在在節點 $u$，我們希望 $u$ 不同子樹中的 $(v,w),\ a_v < a_u < a_w$ 的對數盡量多。
+
+		我們實際上只關心子樹內 $a_u$ 的相對大小關係，不關心它們具體是什麼。如果 $u$ 只有兩個兒子 $v$ 和 $w$，我們可以讓 $v$ 子樹內的 $a$ 全部小於 $w$ 子樹內的 $a$，這樣 $u$ 作為 $LCA$ 的貢獻是 $sz_v \times sz_w$，是最大的。備註: 在多個小孩的時候，他們每個子樹都是一個獨立的子問題，也就是以 $u$ 為根的話他們每個子樹內的 $a$ 的值域都是一個連續的區間，例如 $a_u=6$，$v_1$ 子樹內的 $a=1,2$，$v_2$ 子樹內的 $a=3,4,5$，$v_3=7,8$，不過這個對問題的影響不大，因為在 $u$ 看來只關心他們與 $a_u$ 的大小，並且每個子樹都是一個子問題。
 		
-		接下來要考慮對於定根 $u$，有那些 $v$ 的 $a_i$ 會小於他，有那些 $v$ 的 $a_i$ 會大於他，然後就只要把小於他跟大於他的數量相乘即是對答案的貢獻。這邊就可以使用類似 01 背包的 dp，dp[w] 代表是否能取一些 v 使得 sum(dp[v]) = w，最後我們對每個有可能取到的 w 算 w * (sz[u] - w - 1) 的最大值，將 ans 加上他即可
+		那麼對於節點 $u$ 有多個兒子的情況，推廣可知相當於把 $u$ 的兒子分成 $S$ 和 $T$ 兩個集合，最大化 $\sum_{v \in S} \sum_{w \in T} sz_v \times sz_w$。考慮做一個 $sz_v$ 的 01 背包，若能把 $sz_v$ 分成大小為 $x$ 的集合，$u$ 對答案的貢獻是 $x \times (sz_u - 1 - x)$。對於可能的 $x$，取 $x \times (sz_u - 1 - x)$ 的最大值即可。
+
+		01 背包暴力做即可，所以時間複雜度 $O(n^2)$。
 		
 	??? note "code"
 		```cpp linenums="1"
@@ -278,66 +282,66 @@
 		所以我們需要區分這兩種狀態，令：
 		
 		- dp(i, 0): 以 i 為根的子樹有選的點「不存在祖孫關係」的合法方法數
-
+	
 		- dp(i, 1): 以 i 為根的子樹有選的點「恰有祖孫關係」的合法方法數
-
+	
 		考慮 v 與他的父親 u 的轉移，dp(u, 0) 由於不能有祖孫關係，所以當 u 點要選時，下面的點都不能選，為 1 種方法數，如果不選 u，則就是下面的每顆子樹的 dp(v, 0) 相乘起來。dp(u, 1) 由於一定要有祖孫關係，但又要合法，所以當 u 選的時候，下面只能挑一顆沒有祖孫關係的子樹，也就是將每顆子樹 dp(v, 0) 扣 1 樹加起來，扣 1 的原因是要扣除什麼都沒挑的情況，當 u 不選的時候，就是枚舉哪顆子樹要有祖孫關係，其他的子樹什麼都不能選，也就是 dp(v, 1) 加起來。我們統整一下，轉移式為： 
 		
-        - $dp(u, 0) = 1 + \prod dp(v, 0)$
-
-        - $dp(u, 1) = \sum(dp(v, 0) - 1) + \sum dp(v, 1)$
-
-        最後的答案就是根節點的 「沒有祖孫關係的方法數」 + 「有祖孫關係的方法數」，也就是 dp(root, 0) +  dp(root, 1)。
-
+	    - $dp(u, 0) = 1 + \prod dp(v, 0)$
+	
+	    - $dp(u, 1) = \sum(dp(v, 0) - 1) + \sum dp(v, 1)$
+	
+	    最後的答案就是根節點的 「沒有祖孫關係的方法數」 + 「有祖孫關係的方法數」，也就是 dp(root, 0) +  dp(root, 1)。
+	
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int MAXN = 2e6 + 5;
-        const int mod = 998244353;
-        vector<int> G[MAXN];
-        int dp[MAXN][2];
-
-        void dfs(int u, int lst) {
-            dp[u][0] = 1; // leaf 有 1 種選法叫做什麼都不選
-            dp[u][1] = 0;
-            for (auto v : G[u]) {
-                if (v == lst) continue;
-                dfs(v, u);
-                dp[u][0] = (dp[v][0]) * dp[u][0] % mod;
-                dp[u][1] = (dp[v][0] - 1 + dp[v][1]+ dp[u][1]) % mod;
-            }
-            dp[u][0]++; // 只選 u
-        }
-
-        void solve() {
-            int n;
-            cin >> n;
-            for (int i = 1; i <= n; i++) {
-                G[i].clear();
-            }
-            for (int i = 0; i < n - 1; i++) {
-                int u, v;
-                cin >> u >> v;
-                G[u].push_back(v);
-                G[v].push_back(u);
-            }
-
-            dfs(1, 0);
-
-            cout << (dp[1][0] + dp[1][1]) % mod << endl;
-        }
-
-        signed main() {
-            int t = 1;
-            cin >> t;
-            while (t--) {
-                solve();
-            }
-        }
-        ```
+	    #define int long long
+	    using namespace std;
+	
+	    const int MAXN = 2e6 + 5;
+	    const int mod = 998244353;
+	    vector<int> G[MAXN];
+	    int dp[MAXN][2];
+	
+	    void dfs(int u, int lst) {
+	        dp[u][0] = 1; // leaf 有 1 種選法叫做什麼都不選
+	        dp[u][1] = 0;
+	        for (auto v : G[u]) {
+	            if (v == lst) continue;
+	            dfs(v, u);
+	            dp[u][0] = (dp[v][0]) * dp[u][0] % mod;
+	            dp[u][1] = (dp[v][0] - 1 + dp[v][1]+ dp[u][1]) % mod;
+	        }
+	        dp[u][0]++; // 只選 u
+	    }
+	
+	    void solve() {
+	        int n;
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) {
+	            G[i].clear();
+	        }
+	        for (int i = 0; i < n - 1; i++) {
+	            int u, v;
+	            cin >> u >> v;
+	            G[u].push_back(v);
+	            G[v].push_back(u);
+	        }
+	
+	        dfs(1, 0);
+	
+	        cout << (dp[1][0] + dp[1][1]) % mod << endl;
+	    }
+	
+	    signed main() {
+	        int t = 1;
+	        cin >> t;
+	        while (t--) {
+	            solve();
+	        }
+	    }
+	    ```
 
 ???+note "[POI 2017 Sabotaż](https://www.luogu.com.cn/problem/P5958)"
 	給一顆 n 個點的有根樹，其中有 1 個點是叛徒，但不知道是誰。對於一個點 u，若 subtree(u) 中叛徒佔的比例超過 x，那 u 也會變成叛徒，且 subtree(u) 內所有點都變叛徒。求出一個最小的 x，使得最壞情況下，叛徒的個數不會超過 k。
@@ -348,128 +352,128 @@
 		第一個想法是二分，若目前 threshold 為 x，我們就是要去 check 是否有辦法讓最壞情況下，叛徒的個數 <= k。我們假設 dp(u) 表示最壞情況下 u 的子樹裡有幾個叛徒，轉移的話我們就去枚舉 u 的小孩 v，看最一開始的那個叛徒要在哪個子樹內才會是最糟糕的情況，也就是看哪個 dp(v) 最大。如果 dp(v) 的比例有到 x 的話就將 dp(u) = size(u)，否則 dp(u) = max{ dp(v) }。這個想法雖然是 O(n log n)，但會 TLE。
 		
 		第二個想法是樹 dp，設 dp(u) 表示節點 u 不叛變，x 最小可以是多小。因為精度問題，dp(u) 也表示節點 u 叛變，x 最大可以是多大。若要使節點 u 能叛變，我們必須得滿足兩個條件：
-
-        1. 它有至少一棵子樹叛變，即 $x \le dp(v)$。
-        2. $x\le \dfrac{sz(v)}{sz(u) - 1}$。
-
+	
+	    1. 它有至少一棵子樹叛變，即 $x \le dp(v)$。
+	    2. $x\le \dfrac{sz(v)}{sz(u) - 1}$。
+	
 		既然我們想找出讓 u 叛變最小的 x，對上述兩者情況取 min 即可。再來，由於我們要的是在最壞情況下的答案（例如若第一個叛徒在某個子樹需要花的 x 很大），所以我們要找最大值，那麼狀態轉移方程式如下：
 		
 		$$dp(u) = \max \limits_{v \in son(u)}\{\min\{ dp(v), \frac{sz(v)}{sz(u) - 1} \} \}$$
 		
-    ??? note "思路1 - code"
+	??? note "思路1 - code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        using namespace std;
-
-        const int N = 5e5 + 5;
-        const double eps = 1e-6;
-
-        vector<int> G[N];
-        int dp[N], sz[N];
-        int n, k;
-
-        void tree_init(int u) {
-            sz[u] = 1;
-            for (int i = 0; i < (int)G[u].size(); i++) {
-                int v = G[u][i];
-                tree_init(v);
-                sz[u] += sz[v];
-            }
-        }
-
-        void tree_dp(int u, double x) {
-            if (G[u].empty()) {
-                dp[u] = 1;
-                return;
-            }
-            int mx = 0;
-            for (int i = 0; i < (int)G[u].size(); i++) {
-                int v = G[u][i];
-                tree_dp(v, x);
-                mx = max(mx, dp[v]);
-            }
-            if (((double)mx / (double)(sz[u] - 1)) > x) {
-                dp[u] = sz[u];
-            } else {
-                dp[u] = mx;
-            }
-        }
-
-        bool check(double x) {
-            memset(dp, 0, sizeof dp);
-            tree_dp(1, x);
-            return dp[1] <= k;
-        }
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            cin >> n >> k;
-            for (int i = 2; i <= n; i++) {
-                int v;
-                cin >> v;
-                G[v].push_back(i);
-            }
-            tree_init(1);
-            double l = 0, r = 1;
-            while (r - l > eps) {
-                double mid = (l + r) / 2;
-                if (check(mid)) {
-                    r = mid;
-                } else {
-                    l = mid;
-                }
-            }
-            cout << fixed << setprecision(10) << r << '\n';
-        }
-        ```
-        
-    ??? note "思路2 - code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        using namespace std;
-
-        int n, k, head[500005], tot, siz[500005];
-        double ans, dp[500005];
-
-        struct edge {
-            int next, to;
-        } e[1000005];
-
-        void add_edge(int u, int v) {
-            e[++tot].next = head[u];
-            e[tot].to = v;
-            head[u] = tot;
-        }
-
-        void dfs(int u, int fa) {
-            siz[u] = 1;
-            for (int i = head[u]; i; i = e[i].next) {
-                dfs(e[i].to, u);
-                siz[u] += siz[e[i].to];
-            }  // 预处理size
-            if (siz[u] == 1) {
-                dp[u] = 1;
-                return;
-            }  // 初始值
-            for (int i = head[u]; i; i = e[i].next) {
-                int v = e[i].to;
-                dp[u] = max(dp[u], min(dp[v], 1.0 * siz[v] / (siz[u] - 1)));  // 重点
-            }
-            if (siz[u] > k)
-                ans = max(ans, dp[u]);  // 更新答案
-        }
-        int main() {
-            scanf("%d%d", &n, &k);
-            for (int i = 2; i <= n; i++) {
-                int x;
-                scanf("%d", &x);
-                add_edge(x, i);
-            }
-            dfs(1, 0);
-            printf("%.10lf", ans);
-        }
-        ```
+	    using namespace std;
+	
+	    const int N = 5e5 + 5;
+	    const double eps = 1e-6;
+	
+	    vector<int> G[N];
+	    int dp[N], sz[N];
+	    int n, k;
+	
+	    void tree_init(int u) {
+	        sz[u] = 1;
+	        for (int i = 0; i < (int)G[u].size(); i++) {
+	            int v = G[u][i];
+	            tree_init(v);
+	            sz[u] += sz[v];
+	        }
+	    }
+	
+	    void tree_dp(int u, double x) {
+	        if (G[u].empty()) {
+	            dp[u] = 1;
+	            return;
+	        }
+	        int mx = 0;
+	        for (int i = 0; i < (int)G[u].size(); i++) {
+	            int v = G[u][i];
+	            tree_dp(v, x);
+	            mx = max(mx, dp[v]);
+	        }
+	        if (((double)mx / (double)(sz[u] - 1)) > x) {
+	            dp[u] = sz[u];
+	        } else {
+	            dp[u] = mx;
+	        }
+	    }
+	
+	    bool check(double x) {
+	        memset(dp, 0, sizeof dp);
+	        tree_dp(1, x);
+	        return dp[1] <= k;
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        cin >> n >> k;
+	        for (int i = 2; i <= n; i++) {
+	            int v;
+	            cin >> v;
+	            G[v].push_back(i);
+	        }
+	        tree_init(1);
+	        double l = 0, r = 1;
+	        while (r - l > eps) {
+	            double mid = (l + r) / 2;
+	            if (check(mid)) {
+	                r = mid;
+	            } else {
+	                l = mid;
+	            }
+	        }
+	        cout << fixed << setprecision(10) << r << '\n';
+	    }
+	    ```
+	    
+	??? note "思路2 - code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    using namespace std;
+	
+	    int n, k, head[500005], tot, siz[500005];
+	    double ans, dp[500005];
+	
+	    struct edge {
+	        int next, to;
+	    } e[1000005];
+	
+	    void add_edge(int u, int v) {
+	        e[++tot].next = head[u];
+	        e[tot].to = v;
+	        head[u] = tot;
+	    }
+	
+	    void dfs(int u, int fa) {
+	        siz[u] = 1;
+	        for (int i = head[u]; i; i = e[i].next) {
+	            dfs(e[i].to, u);
+	            siz[u] += siz[e[i].to];
+	        }  // 预处理size
+	        if (siz[u] == 1) {
+	            dp[u] = 1;
+	            return;
+	        }  // 初始值
+	        for (int i = head[u]; i; i = e[i].next) {
+	            int v = e[i].to;
+	            dp[u] = max(dp[u], min(dp[v], 1.0 * siz[v] / (siz[u] - 1)));  // 重点
+	        }
+	        if (siz[u] > k)
+	            ans = max(ans, dp[u]);  // 更新答案
+	    }
+	    int main() {
+	        scanf("%d%d", &n, &k);
+	        for (int i = 2; i <= n; i++) {
+	            int x;
+	            scanf("%d", &x);
+	            add_edge(x, i);
+	        }
+	        dfs(1, 0);
+	        printf("%.10lf", ans);
+	    }
+	    ```
 ---
 
 ## 參考資料

@@ -317,60 +317,60 @@
 	
 	??? note "思路"
 		
-        我們可以先二分 threshold t，然後在 check(t) 時，枚舉每個 i，當作其中一條分割線，用 lower_bound 找到下個分界線 j，再根據 j 來用 lower_bound 找到下個分界線 k，滿足  sum[i, j] <= t 和 sum[j + 1, k] <= t。
-
-        但我們其實可以用單調性做到 O(n) check。一樣是枚舉分界線 i，再用兩個指針 l, r 維護滿足 sum[l, i] <= t 和 sum[i + 1, r] <= t，其中 l 為 i 左邊滿足條件的最大 index，r 為滿足條件的最小 index，因為 l, r 都單調遞增，所以使用 two pointer 維護即可。
-
-        這樣就可以在 $O(n\log \sum a_i)$ 或 $O(n \log^2 \sum a_i)$ 的時間複雜度內解決該問題。
-        
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        using namespace std;
-        typedef long long ll;
-
-        ll n, sum;
-        int a[100005];
-
-        bool check(ll t) {
-            int l = 0, r = 0;
-            ll sum_l = 0, sum_r = 0;
-            for (int i = 0; i < n; ++i) {
-                sum_l += a[i]; // sum[l, i]
-                sum_r -= a[i]; // sum[i + 1, r]
-                while (l <= i && sum_l - a[l] >= t) {
-                    sum_l -= a[l];
-                    l++;
-                }
-                while (r <= n - 1 && sum_r < t) {
-                    sum_r += a[r];
-                    r++;
-                }
-                if (sum_r < t) return 0;
-                if (sum_l >= t && sum - sum_l - sum_r >= t) return 1;
-            }
-            return 0;
-        }
-
-        signed main() {
-            cin >> n;
-            for (int i = 0; i < n; ++i) {
-                cin >> a[i];
-                sum += a[i];
-            }
-            ll l = 0, r = sum;
-            while (r - l > 1) {
-                ll mid = l + r >> 1;
-                if (check(mid)) {
-                    l = mid;
-                } else {
-                    r = mid;
-                }
-            }
-            cout << l << '\n';
-        }
-        ```
+	    我們可以先二分 threshold t，然後在 check(t) 時，枚舉每個 i，當作其中一條分割線，用 lower_bound 找到下個分界線 j，再根據 j 來用 lower_bound 找到下個分界線 k，滿足  sum[i, j] <= t 和 sum[j + 1, k] <= t。
 	
+	    但我們其實可以用單調性做到 O(n) check。一樣是枚舉分界線 i，再用兩個指針 l, r 維護滿足 sum[l, i] <= t 和 sum[i + 1, r] <= t，其中 l 為 i 左邊滿足條件的最大 index，r 為滿足條件的最小 index，因為 l, r 都單調遞增，所以使用 two pointer 維護即可。
+	
+	    這樣就可以在 $O(n\log \sum a_i)$ 或 $O(n \log^2 \sum a_i)$ 的時間複雜度內解決該問題。
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    using namespace std;
+	    typedef long long ll;
+	
+	    ll n, sum;
+	    int a[100005];
+	
+	    bool check(ll t) {
+	        int l = 0, r = 0;
+	        ll sum_l = 0, sum_r = 0;
+	        for (int i = 0; i < n; ++i) {
+	            sum_l += a[i]; // sum[l, i]
+	            sum_r -= a[i]; // sum[i + 1, r]
+	            while (l <= i && sum_l - a[l] >= t) {
+	                sum_l -= a[l];
+	                l++;
+	            }
+	            while (r <= n - 1 && sum_r < t) {
+	                sum_r += a[r];
+	                r++;
+	            }
+	            if (sum_r < t) return 0;
+	            if (sum_l >= t && sum - sum_l - sum_r >= t) return 1;
+	        }
+	        return 0;
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	        for (int i = 0; i < n; ++i) {
+	            cin >> a[i];
+	            sum += a[i];
+	        }
+	        ll l = 0, r = sum;
+	        while (r - l > 1) {
+	            ll mid = l + r >> 1;
+	            if (check(mid)) {
+	                l = mid;
+	            } else {
+	                r = mid;
+	            }
+	        }
+	        cout << l << '\n';
+	    }
+	    ```
+
 ## 題目
 
 ???+note "[CF 1853 C. Ntarsis' Set](https://codeforces.com/contest/1853/problem/C)"
@@ -805,7 +805,23 @@
 	        }
 	    }
 		```
-
+		
+???+note ""<a href="/wiki/problem/images/2024_TOI_mock1_pD.pdf" target="_blank">2024 TOI 模擬賽 I pD. ⽩板擦數量</a>""
+	給一個 $n\times m$ 的 Grid，每格 $a_{i,j}$ 只會是 0 或 1。一開始這個 Grid 每格都是 1，有一個矩形板擦可以用任意次，每次將一個具矩形區域都變 0，問有幾種矩形板擦能擦出當前的 Grid
+	
+	$1\le n, m\le 500$
+	
+	??? note "思路"
+		跟上面的題目相同，我們考慮枚舉板擦的其中一維（長），將另外一維（寬）使用二分搜看有幾種符合，檢查的部分就用 O(nm) 枚舉每一格，看已這格為左上角是否可以擦，如果可以就擦，最後看擦過的地方是否都是目前 0 的地方，這可以用二維前綴和，二維差分做到。所以這樣做的時間是 $O(n^2 \times m \times \log m)$，可以通過 n = 200。
+		
+		考慮優化，我們觀察到如果我們從大到小枚舉長的話，在不同長之間，寬具有單調性，例如下圖
+		
+		<figure markdown>
+          ![Image title](./images/4.png){ width="400" }
+        </figure>
+        
+        我們依序枚舉 (5, 1) 看可不可以，假設 ok，(5, 2) 看可不可以，假設 ok，(5, 3) 看可不可以，假設不 ok 了，那我們就應該要跳去檢查長為 4 的，此時我們不用從 (4, 1) 開始看，因為 (5, 1) 已經確定 ok，(4, 1) 當然也可以，(4, 2) 同理，所以我們只需要從 (4, 3) 看下去即可，會發現說這樣我們把二分搜拿掉後，使用單調性枚舉剛好是 O(n + m)，所以總時間複雜度差不多是 O(n^3)，可以通過 n = 500。
+	
 ???+note "[JOI 2017 Final JOIOI 王国](https://loj.ac/p/2334)"
 	給一張 $n\times m$ 的 Grid，求讓 $a_{i,j}$ 用以下條件分兩組，同組內的最大差 max 起來最小是多少
 	
