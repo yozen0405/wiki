@@ -493,6 +493,59 @@ $$
 	
 	    我們一樣用程式去檢查 dp(A, B, C, r) 在 r = 1, 2, 4, 8 會不會像上面一樣具有讓循環節變長，且恰好是 2 的冪次的跡象，也就是例如  dp(A, B, C, 2) 需要去等於 dp(A, B, C, 3)。我們發現是確實的，所以我們可以得出最後的結論：ans = 0 iff xor{ a[i] } % d == 0，其中 d 為 r 以下最大的二的冪次。
 
+???+note "[POI2016 Nim z utrudnieniem](https://www.luogu.com.cn/problem/P5970)"
+	有 $n$ 堆石頭，分別有 $a_1, \ldots , a_n$ 個，Alice, Bob 輪流玩一個 game，輪到自己時可以選其中一堆，拿至少一個石頭，不能拿就輸。在遊戲開始前問，B 可以丟掉若干堆石子，但是必須保證丟掉的堆數是 $d$ 的倍數，且不能丟掉所有石子。問 Bob 有幾種丟掉方案，可以讓 Bob 贏
+
+	$1\le n \le 2\times 10^5,1\le a_i \le 10^9$
+	
+	??? note "思路"
+		首先我們要知道一個結論：Bob 必勝當且僅當最初的所有石子數異或和 = 0。這是 Nim 遊戲的結論。我們令 $dp(i, j, k)$ 表示現在看到 $i$，已丟掉的堆數$\mod d = j$，剩下的石堆 xor 起來是 $k$，轉移式為 $dp(i, j , k)=dp(i - 1,j,k) + dp(i-1,j-1,k\oplus a_i)$。這樣的複雜度是 $O(n\times d\times \max \{ a_i \})$，會 TLE。有一個很巧妙的性質是：對於一個任意的數字 $x$，他和比自己小的數字 xor 起來不會超過 $2x$。所以我們可以將 $a$ 數組由小到大排序，這樣掃到第 $i$ 堆的時候我們 $k$ 這維不用枚舉到 $m$，只需要枚舉到 $2a_i$ 就行了，這樣均攤下來會變 $O(d\times (2a_1+2a_2+\ldots +2a_n))$，差不多是 $O(d\times \sum a_i)=O(md)$。空間的部分可能有點大，我們使用滾動數組省略 $i$ 的那維即可。我們採用滾動數組是由 $j$ 大到小去更新，這樣才把新的狀態算過來，但當 $j=0$ 時應該要從 $j=d-1$ 這邊轉移過來，但此時 $j=d-1$ 已經是新的狀態，所以我們這個可能要開個 tmp 陣列另外存一下 $j=d-1$ 的 $dp(j,k)$。最後的答案 xor 出來應該要是 xor{a_i} ^ [刪掉的] 要 = 0，所以 [刪掉的] = xor{a_i}
+		
+	??? note "code"
+		```cpp linenums="1"
+		 #include <bits/stdc++.h>
+         #define int long long
+         using namespace std;
+
+         const int N = 500000 + 5;
+         const int mod = 1e9 + 7;
+
+         int sum, n, d, a[N], dp[11][1 << 20], tmp[1 << 20];
+
+         signed main() {
+             cin >> n >> d;
+             for (int i = 1; i <= n; ++i) {
+                 cin >> a[i];
+                 sum ^= a[i];
+             }
+             sort(a + 1, a + 1 + n);
+             dp[0][0] = 1;
+             for (int i = 1; i <= n; ++i) {
+                 int max = 1;
+                 while (max <= a[i]) {
+                     max <<= 1;
+                 }
+                 for (int k = 0; k < max; ++k) {
+                     tmp[k] = dp[d - 1][k];
+                 }
+                 for (int j = d - 1; j > 0; j--) {
+                     for (int k = 0; k < max; k++) {
+                         dp[j][k] = (dp[j][k] + dp[j - 1][k ^ a[i]]) % mod;
+                     }
+                 }
+                 for (int k = 0; k < max; k++) {
+                     dp[0][k] = (dp[0][k] + tmp[k ^ a[i]]) % mod;
+                 }
+             }
+             if (n % d == 0) {
+                 dp[0][sum] -= 1;
+                 // 扣除所有都選的狀態
+             }
+             cout << (dp[0][sum] + mod) % mod;
+             return 0;
+         }
+		```
+	
 ???+note "[CF 1194 D. 1-2-K Game](https://codeforces.com/contest/1194/problem/D)"
 	有 $n$ 個石頭，每次拿 $1$ 個, $2$ 個, **或** $k$ 個，A, B 輪流拿，不能拿石頭的人就輸了。問誰贏
 	

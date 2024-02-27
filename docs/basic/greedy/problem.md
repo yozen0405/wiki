@@ -603,6 +603,76 @@
 	    }
 	    ```
 
+???+note "[USACO 2016 FEB Circular Barn G](https://www.luogu.com.cn/problem/P6170)"
+	有一個長度為 $n$ 的環，第 $i$ 個位置有 $a_i$ 頭牛，環上總共有 $n$ 頭牛。一頭牛若開始與結束經過了 $d$ 格，則花費 $d^2$。問每個位置恰有 1 頭牛的最小花費是多少。
+	
+	$3\le n\le 10^5$
+	
+	??? note "思路"
+		首先我們像上面的題目一樣，對於每一格求出我們真正需要多少，也就是 a[i] -= 1，再來我們應該去想如何找一個好的起點，確保這個起點開始往後能夠填滿所有空位（精確一點來說就是以這個好的起點順時針繞一圈，任意時刻前綴和都必須 >= 0），因為我們發現如果我們最怕的就是把牛移著移著就不夠了。這其實有點類似<a href="/wiki/graph/sp/#_9" target="_blank">全國賽 2021 pC</a>非負環的性質，就是我們要挑一個最大的 suffix。
+		
+		<figure markdown>
+          ![Image title](./images/19.png){ width="300" }
+        </figure>
+        
+        所以我們現在該想如何移動牛群比較好，我們發現有一個性質：如果有 $1$ 頭奶牛在 $a$ 點，$1$ 頭奶牛在 $b$ 點，還有一個沒有奶牛的 $c$ 點，且 $c > b > a$，要想有一頭奶牛在 $b$ 點，一頭奶牛在 $c$ 點，方案 $a\to b, b\to c$ 比方案 $a\to c$ 好。簡單來說就是要讓越早開始移動的奶牛越快就定位，然後讓在當前位置上新的奶牛開始移動。我們定義目前開始移動，但還沒就定位的奶牛叫做「牽著走」。可以用隊列（queue）儲存所有牽著走的奶牛的 index，到了一個位置時，若這個位置 a[i] = -1，則挑隊列中最早被牽著走的留在該位置，也就是 q.front()，其他的繼續牽著走，往後看；否則我們有一個名額可以讓一頭奶牛就定位（因為一個位置最多只能留下一個），其他的繼續往後遷，此時我們一定會挑隊列中最早被牽著走的，也就是 q.front()，來跟在當前位置上的其中一頭奶牛進行「交換」。而剩下的奶牛就 push 到 queue 裡面，將他們開始牽著走。
+        
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #define int long long 
+        using namespace std;
+
+        int n, cnt[212345], suf[114514];
+
+        int cost(int d) {
+            return d * d;
+        }
+
+        signed main() {
+            cin >> n;
+            for (int i = 0; i < n; i++) {
+                cin >> cnt[i];
+                cnt[i] -= 1;
+            }
+            for (int i = n - 1; i >= 0; i--) { 
+                suf[i] = suf[i + 1] + cnt[i];
+            }
+            int max_suf = 0, start_idx = 0;
+            for (int i = 0; i < n; i++)  {
+                if (suf[i] > max_suf) {
+                    start_idx = i;
+                    max_suf = suf[i];
+                }
+            }
+            for (int i = n; i < n * 2; i++) {
+                cnt[i] = cnt[i - n]; 
+            }
+            int ans = 0;
+            queue<int> q;                                        
+            for (int i = start_idx; i < start_idx + n; i++) {
+                if (cnt[i] >= 0) {
+                	// 交換
+                    if (q.size()) {  
+                        ans += cost(i - q.front());
+                        q.pop();  
+                        q.push(i);
+                    }
+                    // 剩下的牽著走
+                    for (int j = 1; j <= cnt[i]; j++) {
+                        q.push(i);
+                    }
+                    cnt[i] = 0;
+                } else {
+                    ans += cost(i - q.front()); 
+                    q.pop();
+                    cnt[i] = 0;
+                }
+            }	
+            cout << ans << '\n';
+        }
+        ```
+		
 ## 其他題目
 
 ???+note "2023 TOI 1模 pB. 最佳劇照 (stills)"
@@ -817,59 +887,59 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        using namespace std;
-
-        const int N = 1e6 + 10;
-        int n, a[N], b[N], ans[N];
-        queue<pair<int, int>> q; // edge(x, y)
-
-        int pre(int i) {
-            return (i - 1 + n) % n;
-        }
-        int nxt(int i) {
-            return (i + 1) % n;
-        }
-        void psh(int i) {
-            if (!~ans[i] && b[i] >= b[nxt(i)] * 2ll) {
-                q.emplace(i, i);
-                b[ans[i] = i] -= a[i];
-            }
-            if (!~ans[i] && b[nxt(i)] >= b[i] * 2ll) {
-                q.emplace(i, nxt(i));
-                b[ans[i] = nxt(i)] -= a[nxt(i)];
-            }
-        }
-        int main() {
-            cin >> n;
-            fill(ans, ans + n, -1);
-            for (int i = 0; i <= n - 1; i++) {
-                cin >> a[i];
-                b[i] = a[i] * 2;
-            }
-            for (int i = 0; i <= n - 1; i++) {
-                psh(i);
-            }
-            while (!q.empty()) {
-                auto u = q.front();
-                q.pop();
-                psh(pre(u.second));
-                psh(u.second);
-            }
-            for (int i = 0; i <= n - 1; i++) {
-                if (~ans[i]) {
-                    cout << ans[i] + 1 << ' ';
-                } else {
-                    if (b[i] > b[nxt(i)]) {
-                        cout << i + 1 << ' ';
-                        b[i] -= a[i];
-                    } else {
-                        cout << nxt(i) + 1 << ' ';
-                        b[nxt(i)] -= a[nxt(i)];
-                    } 
-                }
-            }
-            return 0;
-        }
+	    using namespace std;
+	
+	    const int N = 1e6 + 10;
+	    int n, a[N], b[N], ans[N];
+	    queue<pair<int, int>> q; // edge(x, y)
+	
+	    int pre(int i) {
+	        return (i - 1 + n) % n;
+	    }
+	    int nxt(int i) {
+	        return (i + 1) % n;
+	    }
+	    void psh(int i) {
+	        if (!~ans[i] && b[i] >= b[nxt(i)] * 2ll) {
+	            q.emplace(i, i);
+	            b[ans[i] = i] -= a[i];
+	        }
+	        if (!~ans[i] && b[nxt(i)] >= b[i] * 2ll) {
+	            q.emplace(i, nxt(i));
+	            b[ans[i] = nxt(i)] -= a[nxt(i)];
+	        }
+	    }
+	    int main() {
+	        cin >> n;
+	        fill(ans, ans + n, -1);
+	        for (int i = 0; i <= n - 1; i++) {
+	            cin >> a[i];
+	            b[i] = a[i] * 2;
+	        }
+	        for (int i = 0; i <= n - 1; i++) {
+	            psh(i);
+	        }
+	        while (!q.empty()) {
+	            auto u = q.front();
+	            q.pop();
+	            psh(pre(u.second));
+	            psh(u.second);
+	        }
+	        for (int i = 0; i <= n - 1; i++) {
+	            if (~ans[i]) {
+	                cout << ans[i] + 1 << ' ';
+	            } else {
+	                if (b[i] > b[nxt(i)]) {
+	                    cout << i + 1 << ' ';
+	                    b[i] -= a[i];
+	                } else {
+	                    cout << nxt(i) + 1 << ' ';
+	                    b[nxt(i)] -= a[nxt(i)];
+	                } 
+	            }
+	        }
+	        return 0;
+	    }
 		```
 
 ---

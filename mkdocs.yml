@@ -143,7 +143,7 @@ nav:
     - 基礎算法:
       - Brute Force: 
         - 折半枚舉: 'basic/brute_force/meet_in_middle.md'
-        - 雙向 BFS: 'basic/brute_force/bidirectional_bfs.md'
+        - 狀態搜索: 'basic/brute_force/state.md'
       - 貪心:
         - 區段問題: 
             - 區間問題: 'basic/greedy/interval.md'

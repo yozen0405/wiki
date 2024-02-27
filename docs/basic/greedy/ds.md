@@ -685,36 +685,36 @@
 	??? note "code"
 		```cpp linenums="1"
 		#pragma GCC optimize("Ofast")
-        #include <bits/stdc++.h>
-
-        using namespace std;
-        const int maxn = 100025;
-        template <typename T> using max_heap = priority_queue<T, vector<T>, less<T>>;
-        int a[maxn];
-        long long pre[maxn];
-        signed main() {
-            int n;
-            cin >> n;
-            for (int i = 1; i <= n; i++) cin >> a[i];
-            for (int i = 1; i <= n; i++) pre[i] = pre[i-1] + a[i];
-
-            max_heap<long long> pq;
-            long long ans = 0;
-            for (int i = 1; i <= n; i++) ans += max(a[i], 0);
-            for (int i = 1; i <= n; i++) {
-                long long lbraceValue = -pre[i-1] - max(a[i], 0);
-                long long rbraceValue = pre[i] - max(a[i], 0);
-                if (!pq.empty() && rbraceValue + pq.top() > 0) {
-                    ans += rbraceValue + pq.top(), pq.pop();
-                    pq.push(lbraceValue);
-                    pq.push(-rbraceValue);
-                } else {
-                    pq.push(lbraceValue);
-                }
-            }
-            cout << ans << '\n';
-        }
-        ```
+	    #include <bits/stdc++.h>
+	
+	    using namespace std;
+	    const int maxn = 100025;
+	    template <typename T> using max_heap = priority_queue<T, vector<T>, less<T>>;
+	    int a[maxn];
+	    long long pre[maxn];
+	    signed main() {
+	        int n;
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) cin >> a[i];
+	        for (int i = 1; i <= n; i++) pre[i] = pre[i-1] + a[i];
+	
+	        max_heap<long long> pq;
+	        long long ans = 0;
+	        for (int i = 1; i <= n; i++) ans += max(a[i], 0);
+	        for (int i = 1; i <= n; i++) {
+	            long long lbraceValue = -pre[i-1] - max(a[i], 0);
+	            long long rbraceValue = pre[i] - max(a[i], 0);
+	            if (!pq.empty() && rbraceValue + pq.top() > 0) {
+	                ans += rbraceValue + pq.top(), pq.pop();
+	                pq.push(lbraceValue);
+	                pq.push(-rbraceValue);
+	            } else {
+	                pq.push(lbraceValue);
+	            }
+	        }
+	        cout << ans << '\n';
+	    }
+	    ```
 
 ???+note "[CF 1821 E. Rearrange Brackets](https://codeforces.com/contest/1821/problem/E)"
 	對於一個合法的括號序列，定義它的「cost」為進行若干次以下操作，將它清空的最小總代價: 選取兩個相鄰的左右括號刪除，並將代價加上原右括號右邊的括號數量。
@@ -914,3 +914,49 @@
 	    }
 	    ```
 
+???+note "[POI 2012 HUR-Warehouse Store](https://www.luogu.com.cn/problem/P3545)"
+	有 $n$ 天，第 $i$ 天先進貨 $a_i$ 個，然後會有要賣出 $b_i$ 個的訂單，問最多可以接多少個訂單
+	
+	$n\le 2.5 \times 10^5, 0\le a_i, b_i\le 10^9$
+	
+	??? note "思路"
+		寫多這種題目大概就會知道他的套路，從第一天開始，如果能賣出去我們就賣，假設我們要賣 $b_i$，不能賣的時候我們可以從之前賣出去的那些訂單挑 $b$ 值最大的，假設是 $b_j$，看如果放棄那個改買我們目前的訂單是否更優，也就是看 $b_j$ 是否 $> b_i$，是的話就放棄 $b_j$，轉買 $b_i$。這個可以用 max heap 來維護。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        int n, ans;
+        int a[300010], b[300010];
+        bool vis[300010];
+        priority_queue<pair<int, int>, vector<pair<int, int> > > q;  // 维护一个大根堆
+
+        signed main() {
+            scanf("%lld", &n);
+            int rest = 0;
+            for (int i = 1; i <= n; i++) scanf("%lld", &a[i]);
+            for (int i = 1; i <= n; i++) scanf("%lld", &b[i]);
+            for (int i = 1; i <= n; i++) {
+                rest += a[i];
+                if (b[i] <= rest) {
+                    ans++;
+                    q.push(make_pair(b[i], i));
+                    rest -= b[i]; 
+                    vis[i] = 1;
+                } else if (!q.empty() && b[i] < q.top().first) {
+                    int j = q.top().second;
+                    q.pop(); 
+                    rest += b[j];
+                    rest -= b[i];
+                    vis[j] = 0, vis[i] = 1; 
+                    q.push(make_pair(b[i], i));
+                }
+            }
+            printf("%lld\n", ans);
+            for (int i = 1; i <= n; i++)
+                if (vis[i]) printf("%d ", i);
+            return 0;
+        }
+        ```

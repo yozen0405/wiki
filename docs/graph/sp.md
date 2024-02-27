@@ -2049,8 +2049,8 @@
     	令一個點 u 他周圍顏色為 c 的 w 總和為 $S_{u,c}$。我們首先可以想到，對於 u 走到 v，若 (u, v) 的顏色 distinct，那我們的花費就是 0；否則，我們有兩種方法:
     	
     	1. 改變 (u, v) 本身的顏色，花費為 $w$
-
-		2. 改變跟 (u, v) 同色的邊，花費為 $S_{u,c}-w$
+    
+    	2. 改變跟 (u, v) 同色的邊，花費為 $S_{u,c}-w$
     	
     	這樣就結束了嗎，不盡如此。我們發現當走了 A 到 B 到 C，滿足 (A, B) 與 (B, C) 的顏色皆相同，且 (A, B) 是走 case 1，而 (B, C) 是走 case 2，那我們中間的邊會重複算。
     	
@@ -2087,21 +2087,21 @@
         using std::cout;
         constexpr int N = 1e5 + 5, M = 5e5 + 5;
         constexpr i64 inf = 1e18;
-
+    
         int n, m, vt;
         std::array<std::map<int, std::vector<std::pair<int, i64> > >, N> vec;
         std::array<std::map<int, i64>, N> sum;
         std::array<std::vector<std::pair<int, i64> >, M> G;
-
+    
         namespace Dij {
         std::array<i64, M> dis;
         std::array<bool, M> vis;
         std::priority_queue<std::pair<i64, int>, std::vector<std::pair<i64, int> >, std::greater<std::pair<i64, int> > > q;
-
+    
         auto dij(int s) {
             std::fill(All(dis, 1, vt), inf);
             q.emplace(0, s), dis[s] = 0;
-
+    
             while (!q.empty()) {
                 auto u = q.top().second;
                 q.pop();
@@ -2117,11 +2117,11 @@
             return (dis[n] == inf ? -1 : dis[n]);
         }
         }
-
+    
         auto main() -> int {
             std::ios::sync_with_stdio(false);
             cin.tie(nullptr), cout.tie(nullptr);
-
+    
             cin >> n >> m, vt = n;
             for (auto i = 1, u = 0, v = 0, w = 0, c = 0; i <= m; ++i) {
                 cin >> u >> v >> c >> w;
@@ -2141,7 +2141,7 @@
                     }
                 }
             }
-
+    
             cout << Dij::dij(1) << "\n";
             return 0;
         }
@@ -2294,7 +2294,121 @@
 	    }
 	    ```
 
+???+note "[JOI 2024 Final 建设工程 2](https://loj.ac/p/4090)"
+    給一張 $n$ 點 $m$ 邊無向圖，第 $i$ 條邊為 $(u_i,v_i)$，邊權 $w_i$。問有幾種 pair$(u,v)$ 滿足 $u < v$ 且在 $u,v$ 之間建一條邊權 $\ell$ 的雙向邊，可以使起點 $s$ 到終點 $t$ 的最短路距離 $\le k$
 
+    $n,m\le 2\times 10^5, 1\le \ell,w_i \le 10^9,1\le k\le 10^{15}$
+    
+    ??? note "思路"
+		首先，若 $\text{dis}(s \rightarrow t)$ 一開始就已經 $\leq k$，那我們的方法數就直接輸出 $\dfrac{n(n - 1)}{2}$。否則，我們的想法就是找到滿足能從 $s \rightarrow u \rightarrow v \rightarrow t$ 的條件數，就是先用 Dijkstra 建出 $\text{dis}(s \rightarrow u)$ 與 $\text{dis}(t \rightarrow v)$，然後再想辦法用枚舉 $u$，$v$ 用二分搜之類的來計算。但此時會不會發生我們能從 $s \rightarrow u \rightarrow v \rightarrow t$ 且能從 $s \rightarrow v \rightarrow u \rightarrow t$ 的 $(u, v)$ 呢? 因為那會導致我們重複計算。我們來先試著列式一下，看這種情況存不存在：
+
+        **<u>證明</u>**：從 $s \rightarrow u \rightarrow v \rightarrow t$ 或 $s \rightarrow v \rightarrow u \rightarrow t$ 皆可是存在的
+        
+        $$
+        \begin{align}
+        &\begin{cases}
+        \text{dis}(s \rightarrow u) + \ell + \text{dis}(v \rightarrow t) \leq k \\
+        \text{dis}(s \rightarrow v) + \ell + \text{dis}(u \rightarrow t) \leq k
+        \end{cases}
+        \\
+        \Rightarrow&\begin{cases}
+        \text{dis}(s \rightarrow u) + \text{dis}(v \rightarrow t) \leq k - \ell \\
+        \text{dis}(s \rightarrow v) + \text{dis}(u \rightarrow t) \leq k - \ell
+        \end{cases}
+        \\
+        \Rightarrow &\space \space\space\text{dis}(s \rightarrow u) + \text{dis}(v \rightarrow t) + \text{dis}(s \rightarrow v) + \text{dis}(u \rightarrow t) \leq 2k - 2\ell
+        \end{align}
+        $$
+
+        由於 $\text{dis}(s \rightarrow t) > k$
+
+        $$
+        \begin{align}
+        &\min\{\text{dis}(s \rightarrow u) + \text{dis}(u \rightarrow t), \text{dis}(s \rightarrow v) + \text{dis}(s \rightarrow t)\} > k
+        \\
+        \Rightarrow & \begin{cases}\text{dis}(s \rightarrow u) + \text{dis}(u \rightarrow t) > k \\ \text{dis}(s \rightarrow v) + \text{dis}(s \rightarrow t) > k\end{cases}
+        \\
+        \Rightarrow &\space \text{dis}(s \rightarrow u) + \text{dis}(u \rightarrow t) + \text{dis}(s \rightarrow v) + \text{dis}(v \rightarrow t) > 2k
+        \\
+        \end{align}
+        $$
+        
+        代表 $2k\le 2k-2\ell$，這只會在 $\ell < 0$ 成立，但我們 $1\le \ell \le 10^9$，所以無法成立，代表結果矛盾的，不存在這種情況。所以我們就只需要算 $s \rightarrow u \rightarrow v \rightarrow t$ 的 $(u, v)$ 數量就好，完全不用考慮重複算的問題。這個有很多種作法，以下提供兩種：
+
+        1. 可以先把 $\text{dis}(t \rightarrow v)$ sort 好，然後固定 $u$，去二分搜滿足條件的 $v$。
+        2. 或是可以先把 $\text{dis}(s \rightarrow u),\text{dis}(t \rightarrow u)$ 都由小到大分別 sort 好，然後因為滿足的 pair 具有單調性，可以用 two pointer 算，具體見代碼。
+
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+        using pii = pair<int, int>;
+
+        const int N = 2e5 + 5;
+        int n, m, s, t, l, k;
+        int ans, ds[N], dt[N];
+        bool vis[N];
+        vector<pii> G[N];
+
+        void dij(int dis[], int s) {
+            priority_queue<pii, vector<pii>, greater<pii>> q;
+            memset(vis, 0, sizeof(vis));
+            dis[s] = 0;
+            q.push({0, s});
+
+            while (!q.empty()) {
+                auto [sum, u] = q.top();
+                q.pop();
+                if (vis[u]) {
+                    continue;
+                }
+                vis[u] = 1;
+                for (auto [v, w] : G[u]) {
+                    if (dis[v] > dis[u] + w) {
+                        dis[v] = dis[u] + w;
+                        q.push({dis[v], v});
+                    }
+                }
+            }
+        }
+
+        signed main() {
+            ios::sync_with_stdio(false);
+            cin.tie(nullptr);
+            cin >> n >> m >> s >> t >> l >> k;
+            for (int i = 1; i <= m; ++i) {
+                int u, v, w;
+                cin >> u >> v >> w;
+                G[u].push_back({v, w});
+                G[v].push_back({u, w});
+            }
+
+            memset(ds, 0x3f, sizeof(ds));
+            memset(dt, 0x3f, sizeof(dt));
+            dij(ds, s), dij(dt, t);
+
+            if (ds[t] <= k) {
+                cout << n * (n - 1) / 2 << '\n';
+                return 0;
+            }
+
+            sort(ds + 1, ds + 1 + n);
+            sort(dt + 1, dt + 1 + n);
+
+            int j = 0;
+            for (int i = n; i >= 1; i--) {
+                while (ds[i] + l + dt[j + 1] <= k && j < n) {
+                    j++;
+                }
+                ans += j;
+            }
+            cout << ans << '\n';
+            return 0;
+        }
+		```
+		
 ### 次短路
 
 第二次跑到某個點的時候就代表那個點的次短路
@@ -2333,7 +2447,7 @@
 	給一張 n 點 m 邊帶權無向圖，問 n 到 1 的嚴格次短路
 	
 	$n\le 5000, m\le 10^5$
-	
+
 ???+note "嚴格次短路方法數 [AcWing - 383.觀光](https://www.acwing.com/problem/content/385/)"
 	給一張 $n$ 點 $m$ 邊有向帶權圖，求 $s\to t$ 的 :
 	
@@ -2351,189 +2465,189 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        #define pii pair<int, int>
-        #define pb push_back
-        #define mk make_pair
-        #define F first
-        #define S second
-        #define ALL(x) x.begin(), x.end()
-
-        using namespace std;
-
-        const int INF = 2e18;
-        const int maxn = 3e5 + 5;
-        const int M = 1e9 + 7;
-
-        struct Edge {
-            int u, v, w;
-        };
-
-        struct Graph {
-            int n, m, s, t;
-            vector<vector<Edge>> G;
-            vector<int> f, g;
-            vector<int> dp_f, dp_g;
-
-            Graph(int _n, int _m) {
-                n = _n, m = _m;
-                f = vector<int>(n, INF);
-                g = vector<int>(n, INF);
-                dp_f = vector<int>(n);
-                dp_g = vector<int>(n);
-                G.resize(n);
-            }
-
-            void add_edge(int u, int v, int w) {
-                G[u].pb({u, v, w});
-            }
-
-            void sec(int u, int x) {
-                if (f[u] < x && g[u] == INF)
-                    g[u] = x;
-                else if (f[u] < x && x < g[u])
-                    g[u] = x;
-            }
-
-            void dijkstra() {
-                priority_queue<pii, vector<pii>, greater<pii>> pq;
-                pq.push({0, s});
-
-                while (pq.size()) {
-                    auto [x, u] = pq.top();
-                    pq.pop();
-
-                    if (f[u] != INF) continue;
-                    f[u] = x;
-
-                    for (auto [u, v, w] : G[u]) {
-                        pq.push({w + f[u], v});
-                    }
-                }
-            }
-
-            int find_second_best() {
-                priority_queue<pii, vector<pii>, greater<pii>> pq;
-                vector<int> vis(n);
-                for (int i = 0; i < n; i++) {
-                    for (auto [u, v, w] : G[i]) {
-                        sec(v, f[i] + w);
-                    }
-                }
-
-                for (int i = 0; i < n; i++) {
-                    pq.push({g[i], i});
-                }
-
-                while (pq.size()) {
-                    auto [x, u] = pq.top();
-                    pq.pop();
-
-                    if (vis[u]) continue;
-                    vis[u] = 1;
-
-                    for (auto [u, v, w] : G[u]) {
-                        sec(v, x + w);
-                        pq.push({g[v], v});
-                    }
-                }
-            }
-
-            void build_DAG(vector<int> &dis, vector<vector<Edge>> &D) {
-                for (int i = 0; i < n; i++) {
-                    for (auto [u, v, w] : G[i]) {
-                        if (dis[u] + w == dis[v]) {
-                            D[u].pb({u, v, w});
-                        }
-                    }
-                }
-            }
-
-            void topo(vector<int> &dp, vector<vector<Edge>> &D) {
-                vector<int> in(n);
-                for (int i = 0; i < n; i++) {
-                    for (auto [u, v, w] : D[i]) {
-                        in[v]++;
-                    }
-                }
-
-                queue<int> q;
-                for (int i = 0; i < n; i++) {
-                    if (in[i] == 0) q.push(i);
-                }
-
-                while (q.size()) {
-                    int u = q.front();
-                    q.pop();
-
-                    for (auto [u, v, w] : D[u]) {
-                        in[v]--;
-                        dp[v] += dp[u];
-                        if (in[v] == 0) q.push(v);
-                    }
-                }
-            }
-
-            int solve() {
-                int res = 0;
-
-                dijkstra();
-                vector<vector<Edge>> Df(n);
-                build_DAG(f, Df);
-                dp_f[s] = 1;
-                topo(dp_f, Df);
-
-                res += dp_f[t];
-                find_second_best();
-                if (g[t] == INF || g[t] != f[t] + 1) return res;
-
-                vector<vector<Edge>> Dg(n);
-                vector<vector<Edge>> Dfg(n);
-
-                build_DAG(g, Dg);
-
-                // f[u] -> w -> g[v]
-                for (int i = 0; i < n; i++) {
-                    for (auto [u, v, w] : G[i]) {
-                        if (f[u] + w == g[v]) {
-                            dp_g[v] += dp_f[u];
-                        }
-                    }
-                }
-                topo(dp_g, Dg);
-
-                res += dp_g[t];
-                return res;
-            }
-        };
-
-        void work() {
-            int n, m, s, t;
-            cin >> n >> m;
-            Graph g(n, m);
-
-            int u, v, w;
-            for (int i = 0; i < m; i++) {
-                cin >> u >> v >> w;
-                u--, v--;
-                g.add_edge(u, v, w);
-            }
-            cin >> s >> t;
-            s--, t--;
-            g.s = s, g.t = t;
-
-            cout << g.solve() << "\n";
-        }
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            int t = 1;
-            cin >> t;
-            while (t--) {
-                work();
-            }
-        }
+	    #define int long long
+	    #define pii pair<int, int>
+	    #define pb push_back
+	    #define mk make_pair
+	    #define F first
+	    #define S second
+	    #define ALL(x) x.begin(), x.end()
+	
+	    using namespace std;
+	
+	    const int INF = 2e18;
+	    const int maxn = 3e5 + 5;
+	    const int M = 1e9 + 7;
+	
+	    struct Edge {
+	        int u, v, w;
+	    };
+	
+	    struct Graph {
+	        int n, m, s, t;
+	        vector<vector<Edge>> G;
+	        vector<int> f, g;
+	        vector<int> dp_f, dp_g;
+	
+	        Graph(int _n, int _m) {
+	            n = _n, m = _m;
+	            f = vector<int>(n, INF);
+	            g = vector<int>(n, INF);
+	            dp_f = vector<int>(n);
+	            dp_g = vector<int>(n);
+	            G.resize(n);
+	        }
+	
+	        void add_edge(int u, int v, int w) {
+	            G[u].pb({u, v, w});
+	        }
+	
+	        void sec(int u, int x) {
+	            if (f[u] < x && g[u] == INF)
+	                g[u] = x;
+	            else if (f[u] < x && x < g[u])
+	                g[u] = x;
+	        }
+	
+	        void dijkstra() {
+	            priority_queue<pii, vector<pii>, greater<pii>> pq;
+	            pq.push({0, s});
+	
+	            while (pq.size()) {
+	                auto [x, u] = pq.top();
+	                pq.pop();
+	
+	                if (f[u] != INF) continue;
+	                f[u] = x;
+	
+	                for (auto [u, v, w] : G[u]) {
+	                    pq.push({w + f[u], v});
+	                }
+	            }
+	        }
+	
+	        int find_second_best() {
+	            priority_queue<pii, vector<pii>, greater<pii>> pq;
+	            vector<int> vis(n);
+	            for (int i = 0; i < n; i++) {
+	                for (auto [u, v, w] : G[i]) {
+	                    sec(v, f[i] + w);
+	                }
+	            }
+	
+	            for (int i = 0; i < n; i++) {
+	                pq.push({g[i], i});
+	            }
+	
+	            while (pq.size()) {
+	                auto [x, u] = pq.top();
+	                pq.pop();
+	
+	                if (vis[u]) continue;
+	                vis[u] = 1;
+	
+	                for (auto [u, v, w] : G[u]) {
+	                    sec(v, x + w);
+	                    pq.push({g[v], v});
+	                }
+	            }
+	        }
+	
+	        void build_DAG(vector<int> &dis, vector<vector<Edge>> &D) {
+	            for (int i = 0; i < n; i++) {
+	                for (auto [u, v, w] : G[i]) {
+	                    if (dis[u] + w == dis[v]) {
+	                        D[u].pb({u, v, w});
+	                    }
+	                }
+	            }
+	        }
+	
+	        void topo(vector<int> &dp, vector<vector<Edge>> &D) {
+	            vector<int> in(n);
+	            for (int i = 0; i < n; i++) {
+	                for (auto [u, v, w] : D[i]) {
+	                    in[v]++;
+	                }
+	            }
+	
+	            queue<int> q;
+	            for (int i = 0; i < n; i++) {
+	                if (in[i] == 0) q.push(i);
+	            }
+	
+	            while (q.size()) {
+	                int u = q.front();
+	                q.pop();
+	
+	                for (auto [u, v, w] : D[u]) {
+	                    in[v]--;
+	                    dp[v] += dp[u];
+	                    if (in[v] == 0) q.push(v);
+	                }
+	            }
+	        }
+	
+	        int solve() {
+	            int res = 0;
+	
+	            dijkstra();
+	            vector<vector<Edge>> Df(n);
+	            build_DAG(f, Df);
+	            dp_f[s] = 1;
+	            topo(dp_f, Df);
+	
+	            res += dp_f[t];
+	            find_second_best();
+	            if (g[t] == INF || g[t] != f[t] + 1) return res;
+	
+	            vector<vector<Edge>> Dg(n);
+	            vector<vector<Edge>> Dfg(n);
+	
+	            build_DAG(g, Dg);
+	
+	            // f[u] -> w -> g[v]
+	            for (int i = 0; i < n; i++) {
+	                for (auto [u, v, w] : G[i]) {
+	                    if (f[u] + w == g[v]) {
+	                        dp_g[v] += dp_f[u];
+	                    }
+	                }
+	            }
+	            topo(dp_g, Dg);
+	
+	            res += dp_g[t];
+	            return res;
+	        }
+	    };
+	
+	    void work() {
+	        int n, m, s, t;
+	        cin >> n >> m;
+	        Graph g(n, m);
+	
+	        int u, v, w;
+	        for (int i = 0; i < m; i++) {
+	            cin >> u >> v >> w;
+	            u--, v--;
+	            g.add_edge(u, v, w);
+	        }
+	        cin >> s >> t;
+	        s--, t--;
+	        g.s = s, g.t = t;
+	
+	        cout << g.solve() << "\n";
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        int t = 1;
+	        cin >> t;
+	        while (t--) {
+	            work();
+	        }
+	    }
 	    ```
 
 ???+note "[TIOJ 2204.交替路徑](https://tioj.ck.tp.edu.tw/contests/81/problems/2204)"
