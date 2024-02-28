@@ -1,5 +1,8 @@
 ## 宣告
 
+??? question "如果要在 set 查詢幾個數字比 x 還小，不能用 st.lower_bound(x) - st.begin() + 1，要用什麼比較好，還是做不到?"
+	答案是做不到的，雖然網路上有寫 distance 函式能做到這件事情，但複雜度是 O(n) 的，會太慢。這種情況下最好還是使用 pbds。
+	
 ???+note "code"
 	```cpp linenums="1"
     // include pbds 套件
@@ -33,11 +36,11 @@
 
         cout << *s.find_by_order(0) << '\n';  // 1   
         cout << s.order_of_key(4) << '\n';  // 1    
-
+    
         s.erase(1);  // {4, 9}    
         cout << *s.find_by_order(0) << '\n';  // 4
     }
-	```
+    ```
 
 ## 例題
 

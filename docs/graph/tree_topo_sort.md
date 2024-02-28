@@ -1,30 +1,19 @@
 ???+note "[2014 全國賽 p4](https://cs.cysh.cy.edu.tw/competition_problem_set/%E5%85%A8%E5%9C%8B103.pdf#page=9)"
-	給一顆邊有權重的樹，選一個連通塊，連通塊內所有的邊權總和不能超過 $L$
-	
-	問所有「沒被選到的點」到「有被選到的點」的最短距離最大的，最少可以是多少
+	給一顆 $n$ 個點，邊有權重的樹，選一個連通塊，連通塊內所有的邊權總和不能超過 $L$，問所有「沒被選到的點」到「有被選到的點」的最短距離最大的，最少可以是多少
 	
 	<figure markdown>
 	  ![Image title](./images/14.png){ width="300" }
 	</figure>
 	
 	$n\le 10^6,L\le 2\times 10^8$
-
-
+	
 	??? note "思路"
-		顯然我們沒辦法去直接維護要選那些邊作為連通塊會是 optimal 的
+		顯然我們沒辦法去直接維護要選那些邊作為 optimal 的連通塊。那不如反著做 ?
 		
-		那不如反著做 ?
-		
-		一開始我們把全部的邊都選起來
-		
-		慢慢從 leaf 開始移除，每次移除時要選擇對答案影響最小的，直到當前未移除的連通塊的邊權總和 $\le L$
-		
-		過程利用 pq 維護
+		一開始我們把全部的邊都選起來，慢慢從 leaf 開始移除，每次移除時要選擇對答案影響最小的，直到當前未移除的連通塊的邊權總和 $\le L$。過程利用 priority queue 維護
 
 ???+note "[2015 全國賽 p5](https://tioj.ck.tp.edu.tw/problems/1915)"
-	給一張 $n$ 點 $m$ 邊無向圖，你要將點由 $1\sim n$ 編號，問 $ans$ 最小可以是多少
-	
-	計算方法如下 :
+	給一張 $n$ 點 $m$ 邊無向圖，你要將點由 $1\sim n$ 編號，問 $ans$ 最小可以是多少。計算方法如下 :
 	
 	$$cost_u = u \space 周圍的點 \space v \space 有幾個編號比他大 $$
 	
@@ -39,7 +28,7 @@
 	
 		考慮二分搜答案，檢查答案是否合法
 		
-		??? code "check function 實作"
+		??? note "check function 實作"
 	        ```cpp linenums="1"
 	        // 檢查只能用 degree <= x 的是否可以達成
 	        bool topo(int x) {
@@ -93,7 +82,7 @@
 		
 		開 $n$ 個 vector，`v[i]` 放所有 degree = i 的點
 		
-		??? code "Data structure"
+		??? note "Data structure"
 			```cpp linenums="1"
 			struct DS {
 	            vector<vector<int>> nodes;

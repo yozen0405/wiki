@@ -1,12 +1,12 @@
 ## 01 背包
 
 ??? note "在某些題目中，要有順序的 dp 才能讓解最優"
-	例如在 Atcoder X. Tower 內我們的物品有載重限制，所以我們將載重小的先轉移，再慢慢轉移載重大的情況，因為如果我們不這麼做後面的東西是放不上去的，例如有一個重量 2 載重 2 一個重量 5 載重 5，若我們先放 5，2 無論如何都無法將 5 堆到自己上面，所以最後的答案就只會是放載重 5 這一個物品，而並非 7。 
+	例如在 Atcoder X. Tower（在 LIS 主題的題目中） 內我們的物品有載重限制，所以我們將載重小的先轉移，再慢慢轉移載重大的情況，因為如果我們不這麼做後面的東西是放不上去的，例如有一個重量 2 載重 2 一個重量 5 載重 5，若我們先放 5，2 無論如何都無法將 5 堆到自己上面，所以最後的答案就只會是放載重 5 這一個物品，而並非 7。 
 	
-	在 CEOI clouding 中，我們若先賣出我們的股票，在這個過程中是沒有辦法轉移的，因為我們沒東西可以賣，在 dp 看來就是 dp[x] = dp[x + w] + v，但此時 dp[x + w] 的狀態都不存在，所以算出來的利潤就會比較小。這就好像你現在很想賣出很多股票，但你手上一張都沒有的概念。
+	在 CEOI 2018 Cloud computing（在下方題目的 section 中）中，我們若先賣出我們的股票，在這個過程中是沒有辦法轉移的，因為我們沒東西可以賣，在 dp 看來就是 dp[x] = dp[x + w] + v，但此時 dp[x + w] 的狀態都不存在，所以算出來的利潤就會比較小。這就好像你現在很想賣出很多股票，但你手上一張都沒有的概念。
 	
 	但在一般沒有限制的 01 背包中，我們用什麼順序去轉移都是 ok 的。
-	
+
 ???+note "[Atcoder DP Contest - Knapsack 1](https://atcoder.jp/contests/dp/tasks/dp_d)"
 	給 $n$ 種物品的重量 $w_i$ 與價值 $v_i$，背包容量上限是 $W$。每種物品只有一個。選擇一些物品，使得重量總和不超過容量，請問最大價值總和為何 ?
 	
@@ -1201,6 +1201,145 @@ g(i, j) = f(i, j) - g(i, j - w[i])
 	        return 0;
 	    }
 		```
+
+???+note "[CSES - Coin Combinations I](https://cses.fi/problemset/task/1635/)"
+    給 $n$ 個物品，第 $i$ 個物品重量 $c_i$，每個物品有無限個。問要湊出 $x$ 的方案數，放的先後順序不同視為**不同**的方案。
+
+    $n\le 100,1\le x, c_i\le 10^6$
+    
+    ??? note "思路"
+        我們定義 dp(i, j) 是考慮物品 1...i，湊出 j 的方案數，但由於要考慮先後順序，所以我們先枚舉每個重量，對於這個重量我們去考慮當前要用哪個物品去轉移，這樣就可以做到先放 a，再放 b 跟先放 b 再放 a 都會算到的情況了。
+    
+        ```cpp
+        dp[0] = 1;
+        for (int j = 1; j <= x; j++) {
+            for (int i = 1; i <= n; i++) {
+                if (j >= a[i]) {
+                    dp[j] += dp[j - a[i]];
+                    if (dp[j] >= M) dp[j] -= M; 
+                }
+            }
+        }
+        ```
+
+???+note "[CSES - Coin Combinations II](https://cses.fi/problemset/task/1636)"
+    給 $n$ 個物品，第 $i$ 個物品重量 $c_i$，每個物品有無限個。問要湊出 $x$ 的方案數，放的先後順序不同視為**相同**的方案。
+
+    $n\le 100,1\le x, c_i\le 10^6$
+    
+    ??? note "思路"
+        由於不用考慮先後順序，所以我們讓物品按照一定的順序放進去，就不會發現先放 a，再放 b 跟先放 b 再放 a 都發生的情況了。
+    
+        ```cpp
+        dp[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= x; j++) {
+                if (j >= a[i]) {
+                    dp[j] += dp[j - a[i]];
+                    if (dp[j] >= M) dp[j] -= M; 
+                }
+            }
+        }
+        ```
+
+???+note "<a href="/wiki/dp/images/2024_TOI_mock2_pD.pdf" target="_blank">2024 TOI 第二場 pD. 跳躍數</a>"
+    給 $n$ 個物品，重量分別是 $0\ldots n$，每個物品有無限個。問湊出 $m$ 的所有方案的物品重量和的總合，但要滿足相鄰兩次取的數字的差的絕對值都要大於等於 $d$，且第一個不能取 $0$。
+
+    $2\le d <n\le 2000,1\le m\le 2000$
+
+ 
+
+    ??? note "思路"
+        有點類似背包問題的變化題。可能有些人一開始會想定義 dp(i, j, k) 表示目前填到第 i 項，總合為 j，最後填的是 k 的所有方案權值總和，然後利用前綴和優化做。但依照上面 CSES - Coin Combinations 系列來看，我們也並不用紀錄說他填到哪一項，背包問題也是一樣，除非今天題目有限制能放的長度，那才需要紀錄填到第幾項。所以我們定義 dp(i, j) 表示目前填得總和是 i，最後填的是 j 的所有方案權值總和。考慮轉移，假設我們現在要在後面放一個 k，就會是 
+        <center>
+            dp(i + k, k) = dp(i, j) * B + 最後一項放 k 的方案數 * k
+        </center>
+    
+    	<figure markdown>
+          ![Image title](./images/50.png){ width="300" }
+        </figure>
+    
+        所以我們再記錄一個 cnt(i, j) 表示目前填得總和是 i，最後填的是 j 的方案數即可。
+    
+        因為我們是要考慮數字的相對順序的，所以在轉移時，先枚舉總和，再枚舉當前要放的數字。用前綴和優化轉移，複雜度是 O(nm) * O(1) = O(nm)。
+
+???+note "[CEOI 2018 Cloud computing](https://www.luogu.com.cn/problem/P6359)"
+	有 n 個賣家，第 i 個賣 c1[i] 個貨物，權重 f1[i]，價格 v1[i]。有 m 個買家，第 i 個想買 c2[i] 個貨物，只買權重至少 f2[i] 的，價格 v2[i]。挑一些買家，賣家，問利潤最大可以是多少
+
+    $1 \le n, m \le 2000, 1 \le c_1[i], c_2[i] \le 50, 1 \le f_1[i], f_2[i], v_1[i], v_2[i] \le 10^9$
+    
+    ??? note "思路"
+    	先考慮 f1[i], f2[i] 都是 1 的情況，這麼一來就有點類似背包問題的感覺，可是有兩種不同的「物體」，一個是買，一個是賣，顯然不能分兩次做。怎麼辦呢？其實買進和賣出的資料可以存到同一個陣列裡面，我們把買的 v2[i] 當成是 -v2[i]，將兩個物品的 v 作為價值，c 當成重量，做背包問題，因為 v[i] 一個是負的，一個是正的，所以轉移也要由所不同。注意到我們一定要有夠的儲量才能賣，不然還沒買進就要賣出了，結果顯然偏小，所以我們事先將物品們按照買在前，賣在後來 sort。
+    	
+    	```cpp
+    	sort(a, cmp);
+    	for (int i = 0; i < n + m; i++) {
+    		if (a[i].v < 0) {
+    			for(int j = cnt; j >= 0; j--) {
+    				dp[j + a[i].c] = max(dp[j + a[i].c], dp[j] + a[i].v);
+    			}
+    		} else {
+    			// 乍看之下會以為是無限背包轉移
+    			// 實際上都是倒序
+                for (int j = 0; j <= cnt - a[i].c; j++) {
+                    dp[j] = max(dp[j], dp[j + a[i].c] + a[i].v);
+            	}
+            }
+    	}
+    	```
+    	
+    	最後，若加上要考慮 f[i]，我們就將物品先按照 f[i] 大到小排序，讓 f[i] 大的物品先買進來，之後賣出去時 f[i] 會比較小，可以賣，對於 f[i] 相同的，按照買的先，賣的後排序即可。
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        int n, m, tot, dp[1000005], ans, sum;
+
+        inline int read() {
+            int a;
+            scanf("%lld", &a);
+            return a;
+        }
+
+        struct node {
+            int a, b, c;
+            bool p;
+            bool operator<(const node &t) const {
+                if (b == t.b)
+                    return p < t.p;
+                return b > t.b;
+            }
+        } p[4005];
+
+        signed main() {
+            scanf("%lld", &n);
+            for (int i = 1; i <= n; i++)
+                p[i] = node({read(), read(), read(), 0});
+            scanf("%lld", &m);
+            for (int i = 1; i <= m; i++)
+                p[i + n] = node({read(), read(), read(), 1});
+            sort(p + 1, p + n + m + 1);
+            memset(dp, -0x3f, sizeof(dp));
+            dp[0] = 0;
+            for (int i = 1; i <= m + n; i++) {
+                if (p[i].p) {
+                    for (int j = 0; j <= sum - p[i].a; j++)
+                        dp[j] = max(dp[j], dp[j + p[i].a] + p[i].c);
+                } else {
+                    for (int j = sum; j >= 0; j--)
+                        dp[j + p[i].a] = max(dp[j + p[i].a], dp[j] - p[i].c);
+                    sum += p[i].a;
+                } 
+            }
+            for (int i = 0; i <= sum; i++)
+                ans = max(ans, dp[i]);
+            printf("%lld\n", ans);
+            return 0;
+        }
+        ```
 
 ---
 

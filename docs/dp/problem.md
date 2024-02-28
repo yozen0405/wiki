@@ -1392,7 +1392,7 @@
 		
 		---
 		
-		第二種方法是建圖，用 Dinic 流 Maximum Flow
+		<a href="/wiki/dp/images/49.png" target="_blank">Dinic O(m sqrt(n)) 作法(TLE)</a>
 		
 	??? note "code"
 		```cpp linenums="1"
