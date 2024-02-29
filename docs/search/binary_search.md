@@ -1080,7 +1080,21 @@
 	        }
 	    }
 		```
+		
+???+note "[CF 1923 D. Slimes](https://codeforces.com/contest/1923/problem/D)"
+	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，一次操作可以合併相鄰的數字，且要滿足兩數不相等，問對於 $1\le i\le n$，$a_i$ 最快幾次操作就會被合併
+	
+	$n\le 3\times 10^5, 1\le a_i\le 10^9$
+	
+	??? note "思路"
+		對於一個 a[i]，左邊/右邊能合併他的區間需要滿足：
 
+        - 總和要比 a[i] 大。
+
+        - 區間裡面的數不是都相等的。
+
+        所以我們使用二分搜查找即可。
+	
 ## 細節
 
 - check(x) 的 x 太大的時候，有些情況會造成 cnt overflow

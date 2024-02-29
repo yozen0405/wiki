@@ -1,6 +1,6 @@
 ## 引入
 
-啟發式合併的英文叫 small to large method，樹上啟發式合併的話是 dsu on tree
+啟發式合併作為一種思想，表示我們在合併兩個集合時，優先將小集合合併到大集合中去。這樣就能夠確保合併的總時間複雜度控制在 n log n 以內。
 
 ## Disjoint set
 
@@ -46,9 +46,7 @@
     （補充 : 如果從 $\texttt{root}$ 來看的話，子節點越多也代表深度會越淺，雖然 $\texttt{root}$ 會跑到較多輕兒子，但輕兒子被跑到的次數也相對會較少）
 
 ???+note "[CSES Distinct Colors](https://cses.fi/problemset/task/1139/)"
-	給出一棵 $n$ 個節點以 $1$ 為根的樹，節點 $u$ 的顏色為 $c_u$
-	
-	現在對於每個點 $u$ 問 $u$ 的子樹裡一共出現了多少種不同的顏色。
+	給出一棵 $n$ 個節點以 $1$ 為根的樹，節點 $u$ 的顏色為 $c_u$，現在對於每個點 $u$ 問 $u$ 的子樹裡一共出現了多少種不同的顏色。
 	
 	$n\le 2\times 10^5$
 	
@@ -129,9 +127,7 @@
 	    ```
 
 ???+note "[CF 600E Lomsat gelral](https://codeforces.com/problemset/problem/600/E)"
-	給一顆大小為 $n$ 的有根樹，每個節點 $i$ 的顏色是 $c_i$
-	
-	對於每個子樹，求出其出現次數最多的顏色，如果有幾個出現次數一樣的顏色，把他們加起來
+	給一顆大小為 $n$ 的有根樹，每個節點 $i$ 的顏色是 $c_i$，對於每個子樹，求出其出現次數最多的顏色。如果有幾個出現次數一樣的顏色，把他們加起來
 	
 	$c_i\le n \le 10^5$
 
@@ -231,13 +227,7 @@
 		至於要怎麼看非 Tree edge 會不會變合法，可以用 Disjoint set 在維護有碰到該連通塊的非 Tree edge 的 set/vector，在 Disjoint set Merge 的時候使用啟發式合併即可，複雜度 $O((n + m) \log (n + m))$
 
 ???+note "[USACO 2020 Open Gold p2. Favorite Colors](http://www.usaco.org/index.php?page=viewproblem2&cpid=1042)"
-	給一張 $N$ 點 $M$ 邊有向圖，點編號為 $1\ldots N$，每種顏色也可以用 $1\ldots N$ 中的一個整數表示
-	
-	若 $u\to \{v_1,v_2,\ldots, v_k \}$ 的話 $\{v_1,v_2,\ldots, v_k \}$ 的顏色都要一樣
-	
-	求 $i=1\ldots N$ 的顏色分配，使得 distinct color 最大
-	
-	若有多組解，輸出字典序最小的
+	給一張 $N$ 點 $M$ 邊有向圖，點編號為 $1\ldots N$，每種顏色也可以用 $1\ldots N$ 中的一個整數表示，若 $u\to \{v_1,v_2,\ldots, v_k \}$ 的話 $\{v_1,v_2,\ldots, v_k \}$ 的顏色都要一樣。求 $i=1\ldots N$ 的顏色分配，使得 distinct color 最大，若有多組解，輸出字典序最小的
 	
 	$N,M\le 2\times 10^5$
 	
@@ -333,59 +323,216 @@
 	??? note "思路"
 		最暴力的想法，刪掉一個點直接暴力模擬，該連邊的全都一個個連上，很明顯，這個複雜度是 O(n^3) 的。
 		
-        考慮優化，我們發現，在暴力連邊時，慢慢的，很多很多邊已經連好了，如果我們大費周章去操作連過的邊，將會浪費大量的時間。觀察到整道題的處理有順序，從小到大，那我們思考能不能找到一個點先**暫時**記錄下以後要連的邊，然後隨著操作的進行，每條邊都慢慢連好了。
-        
-        那就是目前與 i 相連的點中編號最小的點 j，我們把與 i 相連的點都向它連邊，完全圖就可以一步步連好了。考慮正確性，首先，在與 i 相連的點中，最先處理到的肯定是 j，這時，比 j 小的點都已經去旅遊了，比 j 大的點都還在，也都記錄下來了。
+	    考慮優化，我們發現，在暴力連邊時，慢慢的，很多很多邊已經連好了，如果我們大費周章去操作連過的邊，將會浪費大量的時間。觀察到整道題的處理有順序，從小到大，那我們思考能不能找到一個點先**暫時**記錄下以後要連的邊，然後隨著操作的進行，每條邊都慢慢連好了。
+	    
+	    那就是目前與 i 相連的點中編號最小的點 j，我們把與 i 相連的點都向它連邊，完全圖就可以一步步連好了。考慮正確性，首先，在與 i 相連的點中，最先處理到的肯定是 j，這時，比 j 小的點都已經去旅遊了，比 j 大的點都還在，也都記錄下來了。
 		
 		【具體實現】:
+	
+	    我們使用 set，因為方便合併，求最小點也快，還可以防止有重邊。我們發現只有 i 連向比自己編號大的點才可能被算貢獻，所以 set 只記錄比自己大的點，比自己小的點都會在自己之前被刪掉，沒有貢獻。合併的時候，採用啟發式合併，兩個中小的那個 set 併入大的 set 裡面，複雜度多個 $\log n$，總複雜度 $O(n\log^2 n)$。答案計算只需要累加目前 i 點的邊數減去一開始的，求變化量就好了。
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    typedef long long ll;
+	    using namespace std;
+	
+	    const int N = 2e5 + 5;
+	    int n, m, x, y, org[N], p;
+	    set<int> G[N];
+	    ll s;
+	
+	    void merge(int x, int y) {
+	        if (G[x].size() < G[y].size())
+	            swap(G[x], G[y]);
+	        while (G[y].size()) {
+	            G[x].insert(*G[y].begin());
+	            G[y].erase(G[y].begin());
+	        }
+	        return;
+	    }
+	
+	    int main() {
+	        cin >> n >> m;
+	        for (int i = 1; i <= m; ++i) {
+	            cin >> x >> y;
+	            if (x > y) {
+	                swap(x, y);
+	            }
+	            G[x].insert(y);
+	        }
+	        for (int i = 1; i <= n; ++i)
+	            org[i] = G[i].size();
+	        for (int i = 1; i <= n; ++i) {
+	            if (!G[i].size())
+	                continue;
+	            while (*G[i].begin() <= i)  // 刪除已刪掉的點
+	                G[i].erase(G[i].begin());
+	            s = s + G[i].size() - org[i];
+	            if (G[i].size() <= 1)
+	                continue;
+	            p = *G[i].begin();
+	            G[i].erase(G[i].begin());  // 不要加入自己
+	            merge(p, i);               
+	        }
+	        cout << s << '\n';
+	        return 0;
+	    }
+		```
+		
+???+note "[CF 1923 E. Count Paths](https://codeforces.com/contest/1923/problem/E)"
+	給一顆 $n$ 個點的樹，第 $i$ 個點有顏色 $c_i$，問有幾條 path 滿足：
+	
+	- path 的兩端是同一種顏色
 
-        我們使用 set，因為方便合併，求最小點也快，還可以防止有重邊。我們發現只有 i 連向比自己編號大的點才可能被算貢獻，所以 set 只記錄比自己大的點，比自己小的點都會在自己之前被刪掉，沒有貢獻。合併的時候，採用啟發式合併，兩個中小的那個 set 併入大的 set 裡面，複雜度多個 $\log n$，總複雜度 $O(n\log^2 n)$。答案計算只需要累加目前 i 點的邊數減去一開始的，求變化量就好了。
-        
-    ??? note "code"
-    	```cpp linenums="1"
-    	#include <bits/stdc++.h>
-        typedef long long ll;
+	- path 上其他節點的顏色都跟兩端不同
+
+	$1\le c_i\le n\le 2\times 10^5$
+	
+	??? note "思路"
+		因為我們發現有很多種顏色要記錄，不能單純使用樹 dp，我們改成使用啟發式合併，紀錄以 u 為根，每種連到 u，且合法的 path 的各種端點的顏色，與他們的數量。在合併的時候記得不要合併跟當前節點顏色一樣的端點，因為他們是連不到更上面的（最多連到 u）。
+	
+		其實這題也存在線性時間解，我們考慮將 path(s, t) 的貢獻在 s, t 其中一端來計算，具體來說，假設當前我們已經算完子樹之外的各個顏色的個數，我們存在 col 陣列內，當我們目前進入到一個點 u 的時候，以他為「閉合」的一端（也就是另一端在 u 的子樹枝外）的方案數就是 col[c[u]]，接著，我們要去遞迴 u 的小孩來解子問題，但不同的是 u 的小孩要將 path 連上來時若顏色恰為 c[u]，那依照題目最多就只能連到 c[u]，所以此時將 col[c[u]] 設為 1。
+		
+		<figure markdown>
+          ![Image title](./images/146.png){ width="300" }
+        </figure>
+	
+	??? note "code1"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+
         using namespace std;
 
-        const int N = 2e5 + 5;
-        int n, m, x, y, org[N], p;
-        set<int> G[N];
-        ll s;
+        vector<int> c;
+        vector<vector<int>> G;
+        vector<map<int, int>> cnt;
+        int ans = 0;
 
-        void merge(int x, int y) {
-            if (G[x].size() < G[y].size())
-                swap(G[x], G[y]);
-            while (G[y].size()) {
-                G[x].insert(*G[y].begin());
-                G[y].erase(G[y].begin());
-            }
-            return;
-        }
-
-        int main() {
-            cin >> n >> m;
-            for (int i = 1; i <= m; ++i) {
-                cin >> x >> y;
-                if (x > y) {
-                    swap(x, y);
+        void dfs(int u, int p) {
+            int bst = -1;
+            for (int v : G[u]) {
+                if (v == p) {
+                    continue;
                 }
-                G[x].insert(y);
+                dfs(v, u);
+                if (bst == -1 || cnt[bst].size() < cnt[v].size()) {
+                    bst = v;
+                }
             }
-            for (int i = 1; i <= n; ++i)
-                org[i] = G[i].size();
-            for (int i = 1; i <= n; ++i) {
-                if (!G[i].size())
+            for (int v : G[u]) {
+                if (v == p || v == bst) {
                     continue;
-                while (*G[i].begin() <= i)  // 刪除已刪掉的點
-                    G[i].erase(G[i].begin());
-                s = s + G[i].size() - org[i];
-                if (G[i].size() <= 1)
-                    continue;
-                p = *G[i].begin();
-                G[i].erase(G[i].begin());  // 不要加入自己
-                merge(p, i);               
+                }
+                for (auto it : cnt[v]) {
+                    int x = it.first, y = it.second;
+                    if (x != c[u]) {
+                        // 兩端在不同 subtree 的
+                        ans += cnt[bst][x] * 1ll * y;
+                    }
+                    // x == c[u] 還是要記錄，下面會用到
+                    cnt[bst][x] += y;
+                }
             }
-            cout << s << '\n';
-            return 0;
+            if (bst != -1) {
+                swap(cnt[bst], cnt[u]);
+            }
+            // 以 u 作為一端的
+            ans += cnt[u][c[u]];
+            // reset
+            cnt[u][c[u]] = 1;
         }
-    	```
+
+        void solve() {
+            int n;
+            cin >> n;
+            c = vector<int>(n);
+            G = vector<vector<int>>(n);
+            for (int i = 0; i < n; i++) {
+                cin >> c[i];
+            }
+            for (int i = 0; i < n - 1; i++) {
+                int a, b;
+                cin >> a >> b;
+                a--;
+                b--;
+                G[a].push_back(b);
+                G[b].push_back(a);
+            }
+            ans = 0;
+            cnt.assign(n, {});
+            dfs(0, -1);
+            cout << ans << '\n';
+        }
+
+        signed main() {
+            ios_base::sync_with_stdio(false);
+            cin.tie(0);
+            int t;
+            cin >> t;
+            while (t--) {
+                solve();
+            }
+        }
+		```
+		
+	??? note "code2"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        vector<int> c;
+        vector<vector<int>> G;
+        int res = 0;
+        int col[200001];
+
+        void dfs(int u, int pre) {
+            res += col[c[u]];
+            int nb = col[c[u]];
+            for (int v : G[u]) {
+                if (v == pre) {
+                    continue;
+                }
+                col[c[u]] = 1;
+                dfs(v, u);
+            }
+            col[c[u]] = nb + 1;
+        }
+
+        void solve() {
+            int n;
+            cin >> n;
+            c = vector<int>(n);
+            G = vector<vector<int>>(n);
+            for (int i = 0; i < n; i++) {
+                cin >> c[i];
+            }
+            for (int i = 0; i < n - 1; i++) {
+                int a, b;
+                cin >> a >> b;
+                a--;
+                b--;
+                G[a].push_back(b);
+                G[b].push_back(a);
+            }
+            res = 0;
+            for (int i = 1; i <= n; i++) {
+                col[i] = 0;
+            }
+            dfs(0, -1);
+            cout << res << '\n';
+        }
+
+        signed main() {
+            ios_base::sync_with_stdio(false);
+            cin.tie(0);
+            int t;
+            cin >> t;
+            while (t--) {
+                solve();
+            }
+        }
+        ```

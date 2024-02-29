@@ -284,6 +284,8 @@
 ???+ note "[2023 成大初賽 pC. 大富翁](https://codeforces.com/gym/437848/problem/C)"
 	給 $a_1\sim a_n$，$a_i$ 表示第 $i$ 天的收入，給 $b_1\sim b_n$，$b_i$ 表示第 $i$ 天的花費上限，另外每天花完錢後餘額不能是負數。給指定的 $k$ 天，這 $k$ 天結束的時候，身上剩下的錢要剛好是 0 元。目標是有花錢的天數要愈少愈好。
 	
+	$1\le k\le n\le 10^6, 1\le a_i, b_i\le 10^9$
+	
 	??? note "思路"
 		- $a_n$ 的收入，只能在 $b_n$ 花掉
 		
@@ -388,8 +390,10 @@
 	    */
 	    ```
 
-???+ note "[d053: Q-4-8. 先到先服務 (*)](https://judge.tcfsh.tc.edu.tw/ShowProblem?problemid=d053)"
+???+ note "[TCIRC d053: Q-4-8. 先到先服務 (*)](https://judge.tcfsh.tc.edu.tw/ShowProblem?problemid=d053)"
 	有 $n$ 個人要依次分配到 $m$ 個櫃台被服務，第 $i$ 個人占用 $t_i$ 的時間。求最短時間完成所有人的服務
+	
+	$n,m\le 2\times 10^5,t_i\le 10^4$
 	
 	??? note "code"
 	    ```cpp linenums="1"
@@ -419,7 +423,9 @@
 	    ```
 
 ???+note "[洛谷 P3419 [POI2005]SAM-Toy Cars](https://www.luogu.com.cn/problem/P3419)"
-	Jasio 有 $n$ 個不同的玩具，而地上只能放最多 $k$ 個玩具。如果玩具不在地上，則他媽媽要幫他從架子上拿，如果此時地板上的玩具已經達到了 $k$ 個，則還要拿一個玩具放回架子。Jasio 依次想玩編號為 $p_1,\ldots,p_n$ 的玩具，求一種安排方式使得媽媽從架子上拿玩具的次數最少。
+	有 $n$ 個不同的玩具，而地上只能放最多 $k$ 個玩具。如果玩具不在地上，則要從架子上拿，如果此時地板上的玩具已經達到了 $k$ 個，則還要拿一個玩具放回架子。依次想拿編號為 $a_1,\ldots,a_m$ 的玩具，求一種安排方式使從架子上拿玩具的次數最少。
+	
+	$1\le k, n, m\le 10^5, 1\le a_i \le n$
 	
 	??? note "思路"
 		貪心的用 pq 去維護下次出現的 index，越後面才出現的 toy 可以先放上去
@@ -461,9 +467,9 @@
 	    ```
 
 ???+note "[2021 TOI pB. 掃地機器人 30%](https://tioj.ck.tp.edu.tw/problems/2194)"
-	$n$ 間教室，一開始你在第一間，給你 $T$ 分鐘的打掃時間每間教室第一分鐘可以吸到 $s[i]$ 的灰塵，每分鐘遞減 $d[i]$ 個灰塵，從第 $i$ 間教室移動到第 $i+1$ 間教室花 $t[i]$ 的時間，問這 $T$ 分鐘最多可以掃到多少灰塵
+	$n$ 間教室，一開始你在第一間，給你 $T$ 分鐘的打掃時間每間教室第一分鐘可以吸到 $s_i$ 的灰塵，每分鐘遞減 $d_i$ 個灰塵，從第 $i$ 間教室移動到第 $i+1$ 間教室花 $t_i$ 的時間，問這 $T$ 分鐘最多可以掃到多少灰塵
 	
-	$n\le 1000, m\le 1000,0\le t[i], d[i] \le 10^9, 1\le s[i] \le 10^9$
+	$n\le 1000, m\le 1000,0\le t_i, d_i \le 10^9, 1\le s_i \le 10^9$
 	
 	??? note "思路 1 (from APCSC)"
 		反悔法，時間如果夠就都掃，再靠反悔堆把之前的決策反悔掉
@@ -542,6 +548,8 @@
 
 ???+ note "[Zerojudge c835. 背包問題](https://zerojudge.tw/ShowProblem?problemid=c835)"
 	給你 $n$ 個物品，背包重量限制為 $2^W$，每個物品的重量是 $2^{w_i}$，價值是 $v_i$，求能放到背包內的最大價值和
+	
+	$n\le 10^6, W, w_i\le 20, v_i\le 10^9$
 	
 	??? note "思路"
 	    - 想法 $2^{n-1}+2^{n-1} \le 2^n$
@@ -925,38 +933,217 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
+	    #define int long long
+	    using namespace std;
+	
+	    int n, ans;
+	    int a[300010], b[300010];
+	    bool vis[300010];
+	    priority_queue<pair<int, int>, vector<pair<int, int> > > q;  // 维护一个大根堆
+	
+	    signed main() {
+	        scanf("%lld", &n);
+	        int rest = 0;
+	        for (int i = 1; i <= n; i++) scanf("%lld", &a[i]);
+	        for (int i = 1; i <= n; i++) scanf("%lld", &b[i]);
+	        for (int i = 1; i <= n; i++) {
+	            rest += a[i];
+	            if (b[i] <= rest) {
+	                ans++;
+	                q.push(make_pair(b[i], i));
+	                rest -= b[i]; 
+	                vis[i] = 1;
+	            } else if (!q.empty() && b[i] < q.top().first) {
+	                int j = q.top().second;
+	                q.pop(); 
+	                rest += b[j];
+	                rest -= b[i];
+	                vis[j] = 0, vis[i] = 1; 
+	                q.push(make_pair(b[i], i));
+	            }
+	        }
+	        printf("%lld\n", ans);
+	        for (int i = 1; i <= n; i++)
+	            if (vis[i]) printf("%d ", i);
+	        return 0;
+	    }
+	    ```
+
+???+note "[USACO 2016 OPEN Landscaping P](https://www.luogu.com.cn/problem/solution/P2748)"
+	有 $n$ 個花壇，第 $i$ 個花壇目前有 $a_i$ 單位的泥土，需要 $b_i$ 單位的泥土。可以做以下操作，問最小花費是多少：
+	
+	- 將指定的花壇的泥土加一單位，花費 $x$ 
+	
+	- 將指定的花壇的泥土移走一單位，花費 $y$ 
+	
+	- 從第 $i$ 個花壇運一單位的泥土到第 $j$ 個花壇，花費 $z|i-j|$
+	
+	$n\le 10^5, 0\le a_i, b_i\le 10, 0\le x,y\le 10^8, 0\le z\le 1000$
+	
+	??? note "思路"
+		由於增加、刪除和移動泥土的操作都是基於單個單位的泥土進行的，而且泥土範圍 $1 \leq a_i, b_i \leq 10$ 非常小，我們簡化問題，單獨考慮每一個泥土單位：
+	
+	    對於每單位泥土在第 $i$ 個位置上，設處理該單位泥土的花費為 $v_i$ 費用，答案就是 $\sum v_i$。對於第 $i$ 個花壇，如果它現在缺土（$a_i < b_i$），則可以直接購進一個單位的泥土，花費為 $x$，或是若第 $j < i$ 個花壇多了土，可以從它那裡拿一份過來，花費為 $v_i=z|i - j| - v_j$，其中 $v_j$ 是花壇 $j$ 那份土的花費，需要減掉避免算多（反悔）；最終花費為 $v_i=\min\{ x, z\left| i - j \right| - v_j \}$；
+	
+	    同理，若第 $i$ 個花壇現在多土（$a_i > b_i$），則可以直接刪除一個單位的泥土，花費為 $y$，或是若第 $j < i$ 個花壇缺了土，可以移一份給它，花費為 $v_i=z \left| i - j \right| - v_j$；最終花費為 $v_i=\min\{ y, z\left| i - j \right| - v_j\}$。
+	
+	    我們考慮化簡移土花費：
+	
+	    $$\begin{align*} v_i & = z \left| i - j \right| - v_j \space (i > j) \\ & = zi - zj - v_j \\ & = zi + (-zj - v_j) \end{align*}$$
+	
+	    注意到 $(-zj - v_j)$ 是只關於之前位置泥土的信息，且 $(-zj - v_j)$ 越小，總花費越小；所以我們可以給多的泥土和少的泥土分別開一個大根堆記錄這個信息，每次遍歷到新泥土時比較是直接購進、刪除還是和之前的泥土移動便宜，本質上就是反悔貪心，時間複雜度 $O(n \log n)$。具體 heap 內要插入什麼，假設現在已經處理完 $i$，我們就把 $(-iz-v_i)$ 存進堆裡，供後面的答案更新。
+	    
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    using namespace std;
+	
+	    const int N = 1e5 + 5;
+	    int v[N], a[N], b[N];
+	    priority_queue<int, vector<int>, greater<int>> pq1, pq2;
+	
+	    signed main() {
+	        int n, x, y, z;
+	        cin >> n >> x >> y >> z;
+	        int ans = 0;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i] >> b[i];
+	            for (int j = 1; j <= a[i] - b[i]; j++) {
+	                v[i] = y;
+	                if (!pq1.empty()) {
+	                    v[i] = min(v[i], i * z + pq1.top());
+	                    pq1.pop();
+	                }
+	                pq2.push(-v[i] - i * z);
+	                ans += v[i];
+	            }
+	            for (int j = 1; j <= b[i] - a[i]; j++) {
+	                v[i] = x;
+	                if (!pq2.empty()) {
+	                    v[i] = min(v[i], i * z + pq2.top());
+	                    pq2.pop();
+	                }
+	                pq1.push(-v[i] - i * z);
+	                ans += v[i];
+	            }
+	        }
+	        cout << ans << '\n';
+	    }
+	    ```
+
+???+note "老鼠进洞 [2022 全國賽 pB. . 自行車歸位 (bicycle)](https://nhspc2022.twpca.org/release/problems/problems.pdf#page=5) / [UOJ #455. 【UER #8】雪灾与外卖](https://uoj.ac/problem/455)"
+    有 $n$ 隻老鼠，座標分別為 $x_i$，有 $m$ 個洞，有座標 $y_i$，代價 $w_i$，容量 $c_i$。老鼠 $i$ 進洞 $j$ 的代價為 $|x_i-y_i|+w_i$。每隻老鼠必須進洞。
+
+    $2\le n,m\le 10^5, 0\le x_i,y_i,c_i,w_i\le 10^9$
+    
+    ??? note "思路"
+    	- 結論一：配對不會**交叉**。
+    
+    	- 結論二：對於一組匹配，老鼠和洞不會同時反悔。 (由左往右進行匹配，同時反悔會產生交叉)
+    
+    	<figure markdown>
+          ![Image title](./images/20.png){ width="300" }
+        </figure>
+    
+        【加入老鼠，座標 x】
+    
+        在Q1中取出代價最少的，設代價為 $v$，答案為 $w=x+v$（這裡的 $v$ 顯然是負數）
+    
+        老鼠反悔，配對更後面的洞：在Q0中加入 $-w+v$。
+    
+        > 但是此時洞不能反悔因為不然的話當前這個老鼠就無法匹配了。
+    
+        【加入洞，座標 x，代價 cost，容量 c】
+    
+        在容量被耗盡或老鼠的代價不是負數時（這樣的話必然是不優），重複從 Q0 中取出代價最少的老鼠，設這個代價為 $v$。 答案加上 $w=v+x+cost$。
+    
+        - 老鼠反悔，配對更後面的洞: 在 Q0 中加入 $-w+v$ 的老鼠
+    
+        - 洞反悔，配對後的老鼠: 在Q1 中加入 $-w-x+v$ 的洞
+    
+        > 可以洞反悔? 這是因為如果這個時候洞反悔了拋棄了這個老鼠相當於老鼠保持了原來的匹配，依舊能讓每個老鼠都進洞
+    
+         實際上兩種操作在後面不可能都發生，否則匹配相交。注意到 Q0 老鼠進堆的複雜度沒有保障，我們發現老鼠反悔的代價都是 $-w+v=-x-cost$。也就是說每次一個洞都匹配了若干不同的老鼠後，往老鼠堆裡面丟的東西都是等權的，因此只需要丟一次就行了 
+         
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
         using namespace std;
-
-        int n, ans;
-        int a[300010], b[300010];
-        bool vis[300010];
-        priority_queue<pair<int, int>, vector<pair<int, int> > > q;  // 维护一个大根堆
-
-        signed main() {
-            scanf("%lld", &n);
-            int rest = 0;
-            for (int i = 1; i <= n; i++) scanf("%lld", &a[i]);
-            for (int i = 1; i <= n; i++) scanf("%lld", &b[i]);
-            for (int i = 1; i <= n; i++) {
-                rest += a[i];
-                if (b[i] <= rest) {
-                    ans++;
-                    q.push(make_pair(b[i], i));
-                    rest -= b[i]; 
-                    vis[i] = 1;
-                } else if (!q.empty() && b[i] < q.top().first) {
-                    int j = q.top().second;
-                    q.pop(); 
-                    rest += b[j];
-                    rest -= b[i];
-                    vis[j] = 0, vis[i] = 1; 
-                    q.push(make_pair(b[i], i));
-                }
+        #define N 100005
+        #define ll long long
+        #define INF 2000000000
+        int n, m;
+        ll X[N];
+        ll Y[N], W[N], C[N];
+        ll ans;
+    
+        struct info {
+            ll v, cnt;
+        };  
+    
+        bool operator<(info a, info b) {
+            return b.v < a.v;
+        }
+    
+        priority_queue<info> q0, q1;  
+        void ins0(ll x) {
+            info t = q1.top();  
+            q1.pop();
+            ans += x + t.v;
+            if (--t.cnt)  
+                q1.push(t);
+            q0.push((info){-(x + t.v) - x, 1});
+        }
+    
+        void ins1(ll x, ll cost, ll c) {
+            ll s = 0;
+            while (c && !q0.empty()) {
+                info t = q0.top();
+                if (cost + x + t.v >= 0) 
+                    break;
+                q0.pop();
+                ll mn = min(t.cnt, c);
+                ans += (cost + x + t.v) * mn;
+                q1.push((info){-(cost + x + t.v) - x + cost, mn});
+                s += mn;
+                t.cnt -= mn;
+                c -= mn;
+                if (t.cnt)
+                    q0.push(t);
             }
+            if (c) q1.push((info){-x + cost, c});  
+            if (s) q0.push((info){-cost - x, s}); 
+        }
+    
+        int main() {
+            scanf("%d%d", &n, &m);
+            for (int i = 1; i <= n; ++i) scanf("%lld", &X[i]);
+            ll sum = 0;
+            for (int i = 1; i <= m; ++i) scanf("%lld%lld%lld", &Y[i], &W[i], &C[i]), sum += C[i];
+            if (sum < n) {
+                printf("-1\n");
+                return 0;
+            }
+            q1.push((info){INF, INF});
+            int i = 1, j = 1;
+            while (i <= n || j <= m)  // 保证老鼠和窝的相对位置
+                if (i <= n && (j > m || X[i] < Y[j]))
+                    ins0(X[i]), i++;
+                else
+                    ins1(Y[j], W[j], C[j]), j++;
             printf("%lld\n", ans);
-            for (int i = 1; i <= n; i++)
-                if (vis[i]) printf("%d ", i);
             return 0;
         }
         ```
+        
+    ??? note "reference"
+    	- <https://blog.csdn.net/df4516/article/details/102160636>
+
+        - <https://liuyixiang.com/post/55112.html>
+
+        - <https://blog.csdn.net/Dream_Lolita/article/details/85554471>
+
+        - <https://www.cnblogs.com/jz-597/p/14326929.html>
+
+        - <https://www.cnblogs.com/zychh/p/16907855.html>

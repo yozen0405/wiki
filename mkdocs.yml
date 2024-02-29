@@ -230,6 +230,7 @@ nav:
     - 動態規劃:
       - 經典主題:
         - LIS: 'dp/lis.md'
+        - LCS: 'dp/lcs.md'
         - 背包問題: 'dp/knapsack.md'
       - 一般 dp 類型:
         - 區間dp: 'dp/range_dp.md'
