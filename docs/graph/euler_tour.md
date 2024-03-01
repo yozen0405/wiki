@@ -1,20 +1,44 @@
 ## DFS 序
 
-<figure markdown>
-  ![Image title](./images/29.png){ width="200" }
-</figure>
+首先是 DFS 序（Depth-First Search Order）。DFS 序是在深度優先搜索過程中，記錄節點訪問的順序。具體來說，DFS 序是在進入 dfs 的時候與出去 dfs 的時候會將點分別加入 stack 中。
 
-DFS 序是在進入 dfs 的時候與出去 dfs 的時候會分別加入 stack 中，例如說上圖的 DFS 序列為  $[1,2,3,3,2,5,6,6,5,4,4,1]$
+讓我們通過一個示例來理解 DFS 序。考慮下面的樹結構：
+
+<center>
+
+```mermaid
+graph TD;
+    center[ ]
+    A(1)
+    B(2)
+    C(3)
+    D(4)
+    E(5)
+    F(6)
+    A --- B
+    A --- E
+    B --- C
+    B --- D
+    E --- F
+    style center fill:transparent,stroke:none;
+```
+
+dfs 序 = [1, 2, 3, 3, 4, 4, 2, 5, 6, 6, 5, 1]
+
+</center>
+
+
 	
 ## 歐拉序
 
+歐拉序是通過從樹的根節點開始，按照 DFS 遍歷的順序訪問每個節點的方式得到的序列。具體來說，當我們遇到一個節點時，將其加入到序列中；當我們返回右再次遇到這個節點時，也將其加入到序列中，而 dfs order 是只有在要離開一個點時才加入。
+
 <figure markdown>
   ![Image title](./images/84.png){ width="300" }
+  <figcaption> euler tour = [A, B, C, B, D, E, D, F, D, B, G, B, A, H, I, H, A]</figcaption>
 </figure>
 
-歐拉序又稱 euler tour，將 dfs 依序碰到的點都列出來，以上圖來說，euler tour 就是 [A, B, C, B, D, E, D, F, D, B, G, B, A, H, I, H, A]
-
-每條邊走過一次會恰貢獻一個點，而每條邊會走過兩次，所以相當於 $2n-2$ 個點，但還要加上起點，所以歐拉序的長度是 $2n-1$
+歐拉序又稱 euler tour，將 dfs 依序碰到的點都列出來。每條邊走過一次會恰貢獻一個點，而每條邊會走過兩次，所以相當於 $2n-2$ 個點，但還要加上起點，所以歐拉序的長度是 $2n-1$
 
 ??? question "換根後 euler tour 序列 order 不變"
     <figure markdown>

@@ -113,6 +113,7 @@
   --md-font-color: #E9EBFC;
   --md-code-nice-color: #21222C;
   --md-code-size-nice-color: #D2D7F991;
+  --md-mermaid-label-fg-color: #E9EBFC;
 }
 
 :root, [data-md-color-scheme=default] {
@@ -133,6 +134,7 @@
   --md-font-color: #000000;
   --md-code-nice-color: #f5f5f5;
   --md-code-size-nice-color: #0000008A;
+  --md-mermaid-label-fg-color: #000000;
 }
 
 .highlighttable .linenos {

@@ -504,47 +504,110 @@ $$
 	??? note "code"
 		```cpp linenums="1"
 		 #include <bits/stdc++.h>
-         #define int long long
-         using namespace std;
-
-         const int N = 500000 + 5;
-         const int mod = 1e9 + 7;
-
-         int sum, n, d, a[N], dp[11][1 << 20], tmp[1 << 20];
-
-         signed main() {
-             cin >> n >> d;
-             for (int i = 1; i <= n; ++i) {
-                 cin >> a[i];
-                 sum ^= a[i];
-             }
-             sort(a + 1, a + 1 + n);
-             dp[0][0] = 1;
-             for (int i = 1; i <= n; ++i) {
-                 int max = 1;
-                 while (max <= a[i]) {
-                     max <<= 1;
-                 }
-                 for (int k = 0; k < max; ++k) {
-                     tmp[k] = dp[d - 1][k];
-                 }
-                 for (int j = d - 1; j > 0; j--) {
-                     for (int k = 0; k < max; k++) {
-                         dp[j][k] = (dp[j][k] + dp[j - 1][k ^ a[i]]) % mod;
-                     }
-                 }
-                 for (int k = 0; k < max; k++) {
-                     dp[0][k] = (dp[0][k] + tmp[k ^ a[i]]) % mod;
-                 }
-             }
-             if (n % d == 0) {
-                 dp[0][sum] -= 1;
-                 // 扣除所有都選的狀態
-             }
-             cout << (dp[0][sum] + mod) % mod;
-             return 0;
-         }
+	     #define int long long
+	     using namespace std;
+	
+	     const int N = 500000 + 5;
+	     const int mod = 1e9 + 7;
+	
+	     int sum, n, d, a[N], dp[11][1 << 20], tmp[1 << 20];
+	
+	     signed main() {
+	         cin >> n >> d;
+	         for (int i = 1; i <= n; ++i) {
+	             cin >> a[i];
+	             sum ^= a[i];
+	         }
+	         sort(a + 1, a + 1 + n);
+	         dp[0][0] = 1;
+	         for (int i = 1; i <= n; ++i) {
+	             int max = 1;
+	             while (max <= a[i]) {
+	                 max <<= 1;
+	             }
+	             for (int k = 0; k < max; ++k) {
+	                 tmp[k] = dp[d - 1][k];
+	             }
+	             for (int j = d - 1; j > 0; j--) {
+	                 for (int k = 0; k < max; k++) {
+	                     dp[j][k] = (dp[j][k] + dp[j - 1][k ^ a[i]]) % mod;
+	                 }
+	             }
+	             for (int k = 0; k < max; k++) {
+	                 dp[0][k] = (dp[0][k] + tmp[k ^ a[i]]) % mod;
+	             }
+	         }
+	         if (n % d == 0) {
+	             dp[0][sum] -= 1;
+	             // 扣除所有都選的狀態
+	         }
+	         cout << (dp[0][sum] + mod) % mod;
+	         return 0;
+	     }
 		```
+
+???+note "[USACO 2022 DEC Circular Barn S](https://www.luogu.com.cn/problem/P8901)"
+	有 n 堆石子，Alice 跟 Bob 輪流從每一堆依序取走 1 或任意質數枚，先無法操作者敗。給定初始狀態，求勝者。
+	
+	$n\le 2\times 10^5, 1\le a_i\le 5\times 10^6$
+	
+	??? note "思路"
+		先考慮 n = 1，打表可以觀察到，當 a[i] % 4 == 0 時，先手必敗。再考慮到 n > 1 的情況。考慮對於一個房間，那個贏的人必定想縮短操作次數（原因是對於這個房間可以盡快贏，以防止到後面的房間讓輸的人翻盤），輸的人想使操作次數越多越好（原因是這個房間操作次數多了，結束的時間會拖延，以給後面的房間製造機會），所以我們只要按照雙方的策略算出操作次數，取最早結束的那個房間即可。
+		
+		接下來就要想如何快速地算一個房間會操作幾次（一人操作算一次）。我們繼續分類討論：
+		當 a[i] 為必敗點時，也就是 a[i] % 4 == 0，因為不管怎麼樣都是必敗，所以我們要盡量想辦法拖延後手的操作次數，我們發現當我們取奇數顆石頭（例如 1 顆）後，下一步後手可能就有機會一次取好幾顆（例如 7 顆，讓 (1 + 7) % 4 == 0），但如果我們取 2 顆，因為 2 作為唯一的偶質數，取完後後手就只能取 2 顆了，因為只有這樣才能到達 4 的倍數。所以我們可以得到操作次數就是 a[i] / 2 的結論。
+
+		當 a[i] 為必勝點時，也就是 a[i] % 4 != 0，我們要取越大越好讓遊戲盡快結束，而且又要到達先手必敗的狀態，所以令 p 為最大的質數，使 (a[i] - p % 4) == 0，接下來就是 a[i] 為必敗點的子問題。所以操作次數就是 (a[i] - p) / 2 + 1 次。
+		
+		實作上，我們使用篩法先預處理出範圍內的全部質數，順便預處理每個數字的 p。最後就看每個 a[i] 的回合數的最小值是哪一個，然後再去看該 a[i] 是對應到誰贏即可。注意到回合數是操作次數的一半，因為一回合是有兩次操作的，所以例如三次操作與四次操作實際上都是第二回合。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        using namespace std;
+        const int N = 1e5 + 10, M = 5e6;
+        int T, n, x, cnt, ans, mx[4], v[M + 10], vis[M + 10], prime[M];
+
+        void get_prime(int n) {
+            vis[1] = 1;
+            mx[1] = 1;
+            v[1] = 1;
+            for (int i = 2; i <= n; i++) {
+                if (!vis[i]) {
+                    prime[++cnt] = i;
+                    mx[i % 4] = i;
+                }
+                for (int j = 1; j <= cnt && i * prime[j] <= n; j++) {
+                    vis[i * prime[j]] = 1;
+                    if (!(i % prime[j])) {
+                        break;
+                    }
+                }
+                v[i] = !(i % 4) ? i / 2 : (i - mx[i % 4]) / 2 + 1;
+            }
+        }
+
+        int main() {
+            scanf("%d", &T);
+            get_prime(M);
+            while (T--) {
+                scanf("%d", &n);
+                ans = 1e9;
+                for (int i = 1; i <= n; i++) {
+                    scanf("%d", &x);
+                    if (v[x] / 2 < ans / 2)
+                        ans = v[x];
+                }
+                if (ans & 1) {
+                    puts("Farmer John");
+                } else {
+                    puts("Farmer Nhoj");
+                }
+            }
+            return 0;
+        }
+        ```
+
 	
 ???+note "[CF 1194 D. 1-2-K Game](https://codeforces.com/contest/1194/problem/D)"
 	有 $n$ 個石頭，每次拿 $1$ 個, $2$ 個, **或** $k$ 個，A, B 輪流拿，不能拿石頭的人就輸了。問誰贏
@@ -562,7 +625,7 @@ $$
 	
 	??? note "思路"
 		如果數字>1，那可以都視為2，因為(x>1) x就可以決定要一次拿全部或者拿到剩1個，除了1,1,...1,x 和 1,1,1,1,1 都是1/2 ，1,11..x如果位數是偶數那是1/2,奇數是 (x/2+1)/x
-
+	
 ---
 
 ## 參考資料
