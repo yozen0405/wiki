@@ -456,7 +456,68 @@
 	    }
 		```
 
+???+note "[USACO 2017 DEC Greedy Gift Takers P](https://www.luogu.com.cn/problem/P4090)"
+	有 $n$ 頭牛排成一排，編號從 1 到 n，每次隊首的牛會拿到禮物，假設他是編號第 $i$ 頭牛，則拿了禮物後會被放到倒數第 $c_i$ 的位置（0-base），問有幾頭牛當拿不到禮物
 
+	$n\le 10^5, 0\le c_i\le n - 1$
+	
+	??? note "思路"
+		我們先考慮什麼樣的牛拿不到禮物。拿不到禮物代表它前面所有的牛形成了一個循環（這邊說的循環不一定是真正的環，可能就只是<a href="/wiki/search/images/8.png" target="_blank">某幾項在循環</a>而以，不過這不影響我們的做法），將它擋住了。而他後面的牛也不可能得到，因為相對順序不變。所以這給了我們二分的條件，我們可以去二分循環區段的最末端 t，看 t 是否也是循環的一部分。
+	
+	如果一個牛是有機會拿到禮物的，那代表前面的牛在一次又一次的循環中會把一頭頭的牛往 t 後面丟，最後讓 t 跑到最前面。而最容易實現讓「本來在 t 前面的牛都跑到他後面」的辦法，就是讓 t 前面的牛按照 $c_i$ 小到大插入。所以我們可以用這種方法來貪心。具體來說，我們讓 t 前面的牛按照 $c_i$ 小到大插入，如果是插入到 t 後面，那 t 就可以往前進一格，也就是 t--，但如果插入到了 t 的前面，那麼 t 就不可能獲得禮物了。最後，如果所有牛都插入到了 t 的位置之後，表示此牛 t 能拿到禮物。
+	
+	<figure markdown>
+      ![Image title](./images/7.png){ width="400" }
+    </figure>
+
+	因為題目給出的位置是從後往前數的，所以代碼的位置都是以從最後一個向前的若干個的形式表示。
+	
+	---
+	
+	怎麼樣會形成一個死循環呢？如果出現在前i個位置的牛多於i個，則這i個牛就會一直卡在這前i個位置，我們預處理出小於二分值位置的數量，判斷每個位置i的牛是否多於i個，如果多於，證明二分答案大了，需要縮小有區間，反之則縮小左區間，直到找到答案位置為止。
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        using namespace std;
+
+        const int N = 1e5 + 5;
+        int a[N], b[N], n;
+
+        bool check(int t) {
+            // 循環區間 [1, t)
+            for (int i = 1; i < t; i++) {
+                b[i] = a[i];
+            }
+            sort(b + 1, b + t);
+            int pos = n - now;
+            for (int i = 1; i < t; i++) {
+                if (b[i] > pos) return 0;
+                pos++;
+            }
+            return 1;
+        }
+
+        signed main() {
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+            }
+            int l = 1, r = n;
+            while (l <= r) {
+                int mid = (l + r) / 2;
+                if (check(mid)) {
+                    l = mid + 1;
+                } else {
+                    r = mid - 1;
+                }
+            }
+            cout << n - r << '\n';
+
+            return 0;
+        }
+        ```
+	
 ???+note "[CF 1856 C. To Become Max](https://codeforces.com/contest/1856/problem/C)"
 	給一個長度為 $n$ 的序列 $a$，你能做以下操作至多 $k$ 次，並輸出 $\max(a_1, a_2, \ldots a_n)$ 最大能到多少 :
 	
@@ -1080,7 +1141,7 @@
 	        }
 	    }
 		```
-		
+
 ???+note "[CF 1923 D. Slimes](https://codeforces.com/contest/1923/problem/D)"
 	給一個長度為 $n$ 的序列 $a_1, \ldots ,a_n$，一次操作可以合併相鄰的數字，且要滿足兩數不相等，問對於 $1\le i\le n$，$a_i$ 最快幾次操作就會被合併
 	
@@ -1088,13 +1149,13 @@
 	
 	??? note "思路"
 		對於一個 a[i]，左邊/右邊能合併他的區間需要滿足：
-
-        - 總和要比 a[i] 大。
-
-        - 區間裡面的數不是都相等的。
-
-        所以我們使用二分搜查找即可。
 	
+	    - 總和要比 a[i] 大。
+	
+	    - 區間裡面的數不是都相等的。
+	
+	    所以我們使用二分搜查找即可。
+
 ## 細節
 
 - check(x) 的 x 太大的時候，有些情況會造成 cnt overflow
