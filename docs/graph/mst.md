@@ -1741,14 +1741,14 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
             max_val = _max_val;
             pq = vector<vector<node>>(max_val + 1);
         }
-
+    
         void push(pii x) {  // pair<dis, u>
             pq[max(threshold, x.first)].pb(x);
         }
-
+    
         pii get_value() {
             while (threshold <= max_val && pq[threshold].size() == 0) threshold++;
-
+    
             if (threshold <= max_val && pq[threshold].size() > 0) {
                 pii ret = pq[threshold].back();
                 pq[threshold].pop_back();
@@ -1759,19 +1759,19 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
                 
         }
     } pq;
-
+    
     int Prim(int s, int t) {
         vector<int> vis(n);
         pq.init(max_edge);
         pq.push({0, s});
-
+    
         while (pq.size()) {
             auto [d, u] = pq.get_value();
-
+    
             if (u == t) break;
             if (vis[u]) continue;
             vis[u] = true;
-
+    
             for (auto [v, w] : G[u]) {
                 pq.push({w, v});
             }
@@ -2062,5 +2062,132 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
             else cout << ans << "\n";
         }
         ```
+
+???+note "<a href="/wiki/graph/images/2024_toi_mock3_pA.pdf" target="_blank">2024 TOI 模擬賽第三場 pA. 最⼩⽣成樹建構</a>"
+	構造一個 n 點 m 邊的圖，第 i 條邊權重為 i，滿足最小生成樹權值為 k。
+	
+	$n,m\le 2\times 10^5, k\le 2\times 10^{10}$
+	
+	??? note "思路"
+		我們假設生成樹連接的恰好是 (1, 2), (2, 3), (3, 4), ...。最小的情況就是生成樹的權重 = 1, 2, 3, 4,...，若連這樣 k 都比他小那直接輸出無解，否則，我們就來考慮每條生成樹邊能讓他變得多大。令最小生成樹上權重第 i 大的邊權重 w[i]，我們思考它的上下界是多少：
+		
+		1. 至少還有 i - 1 條邊比這條邊大，所以 w[i] <= m - (i - 1)
+	
+		2. w[i] 多大取決於比他小的邊的數量，又因為他是樹上權重第 i 大，代表比他小的邊是連接著一個 n - i 個點的圖，n - i 個點的圖最多只有 $\binom{n - i}{2}$ 條邊，所以可以列出 w[i] - 1（n - i 個點的圖真正的邊的數量） <= binom(n - i, 2)（n - i 個點的圖最大的邊的數量）。如果還是不太懂可以看下面的圖片。
+	
+		3. 由於它是生成樹上權重第 i 小的邊，所以 w[i] >= n - i
+	
+		<figure markdown>
+	      ![Image title](./images/147.png){ width="300" }
+	      <figcaption>w[2] 能多大取決於紅色框起來的範圍內的邊的數量</figcaption>
+	    </figure>
+	    
+	    所以我們有 n - i <= w[i] <= min{m + 1 - i, binom(n - i, 2) + 1}。我們知道了上下界後，就能去調整每個 w[i]，讓 sum(w[i]) = k。
+	    
+	    ---
+		
+		可以先想最 general 的 case，也就是當 m = n - 1 時，我們假設生成樹連接的恰好是 (1, 2), (2, 3), (3, 4), ...，這樣比較方便思考。
+		
+		<figure markdown>
+	      ![Image title](./images/148.png){ width="300" }
+	    </figure>
+	    
+	    依照題目的意思，我們能得到的邊權總和也就只有 (1 + 2 + ... + n)，所以如果 k 小於這個數字那就是無解。我們繼續往 m = n, m = n + 1 的 case 思考
+	    
+	    <figure markdown>
+	      ![Image title](./images/149.png){ width="600" }
+	    </figure>
+	    
+	    我們發現其實對於一條非 MST 的邊的連接，它可以讓右端的某能的 suffix +1。
+	    
+	    <figure markdown>
+	      ![Image title](./images/154.png){ width="400" }
+	    </figure>
+	    
+	    但這樣這題就算知道這些性質還是不好做。我們考慮讓 suffix 拆成一個又一個單獨的貢獻（例如 [1, 3] 都 +1 變成 [1, 1] +1, [2, 2] +1, [3, 3] + 1），這樣我們可以從後面開始，對於每一條邊，看有幾邊所促成的 suffix 可以讓當前這條邊 +1，由於越前面能給出貢獻的 suffix 會越來越少（前面能連的邊越來越少），自然對答案的貢獻也就沒辦法那麼大，所以我們會 greedy 的從後面的邊開始讓他 +1，能加就加。
+	    
+	    <figure markdown>
+	      ![Image title](./images/150.png){ width="400" }
+	    </figure>
+	    
+	    這邊是一個實際的例子：
+	    
+	    <figure markdown>
+	      ![Image title](./images/151.png){ width="400" }
+	    </figure>
+	    
+	    我們先考慮當前最右邊那條邊最多能加到多少，最好的情況就是前面都連邊，但我們會發現這樣我們總共的邊才 10 條，這邊就建了 11 條，太多，所以考慮拔掉一條（我們會拔掉右端點離我們越近的越好，但這其實不用實作，我們只要決定好每條 MST 上的邊權重應該要是多少即可，剩下的邊等等我們會說）。這樣我們的還需要的就是 need = 9 - 5 = 4。
+	    
+	    <figure markdown>
+	      ![Image title](./images/152.png){ width="400" }
+	    </figure>	
+	    
+	    再來我們考慮右邊屬過來第二條邊，一樣看是否前面都連邊，發現是 ok 的，邊不會不夠用，所以我們 need = 4 - 3 = 1。同理，到右邊屬過來第三條邊時，need = 0，此時就配完了。如果配到最左邊的邊還發現 need 還有剩，那麼就是無解。
+	    
+	    <figure markdown>
+	      ![Image title](./images/153.png){ width="400" }
+	    </figure>	
+	    
+	    我們目前手上只有 MST 上的邊，並不知道非 MST 邊具體的情況是如何，所以我們這邊要來思考。因為 MST 的性質（權重越小的，連到越後面，會造成他先被 MST 選到），我們必須從最左邊開始連非 MST 的邊，我們枚舉值域 i = [1, m]，若 i 這個值域不在 MST 上，則建邊，建邊的方式一律是先枚舉右端點從左到右（因為右端點越小，能影響到的 suffix 越多），再枚舉左端點從右到左（也可以左到右，這個沒有限制）。
+
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+	    #define int long long
+	    using namespace std;
+	
+	    int C2(int n) {
+	        return n * (n - 1) / 2;
+	    }
+	
+	    struct Edge {
+	        int x, y;
+	    };
+	
+	    signed main() {
+	        cin.tie(0);
+	        ios_base::sync_with_stdio(false);
+	        int n, m, ans;
+	        cin >> n >> m >> ans;
+	        int base = C2(n);
+	        // 最小的情況是 n - 1 條邊(tree 的 case)
+	        if (ans < base) {
+	            // 若連最小的情況都答不到則無解
+	            cout << "-1\n";
+	            return;
+	        }
+	        int need = ans - base; // 還需要多少
+	        vector<Edge> e(m + 1);
+	        // 連好所有生成樹的邊
+	        for (int i = 1; i < n; i++) {
+	            int upper_bound = min(m + 1ll - i, C2(n - i) + 1ll);
+	            int now = n - i;
+	            // inc: 這條邊可以貢獻多少到答案
+	            int inc = min(need, (int)upper_bound - now);
+	            need -= inc;
+	            e[now + inc] = {i, i + 1};
+	        }
+	        if (need > 0) {
+	            cout << "-1\n";
+	            return;
+	        }
+	        // 連好生成樹以外的邊
+	        // 至少相隔 2，不然會有重邊
+	        int l = n - 2, r = n;
+	        for (int i = 1; i <= m; i++) {
+	            if (!e[i].x) {
+	                e[i] = {l, r};
+	                // 大到小枚舉 l, r 從 l 開始往右枚舉
+	                if (r < n) {
+	                    r++;
+	                } else {
+	                    l--;
+	                    r = l + 2;
+	                }
+	            }
+	            cout << e[i].x << ' ' << e[i].y << '\n';
+	        }
+	    }
+		```
 
 [^1]: $1\sim n$ 每個因數的因數數量總和是 $n\log n$（篩法），所以平均一個數的因數數量是 $\displaystyle \frac{n\log n}{n}=\log n$

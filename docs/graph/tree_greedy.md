@@ -582,9 +582,10 @@
 ### 題目1
 
 ???+note "樹上匹配問題 題目1"
-	給定 $n$ 個點的樹，其中 $n$ 為偶數，我們要將所有頂點兩兩配對，其中點 $u$ 和點 $v$ 配對的權值為 $dis(u,v)$。現在要求將所有點兩兩配對，且要求計算最大權重總和
+	給定 $n$ 個點的樹，其中 $n$ 為偶數，我們要將所有頂點兩兩配對，其中點 $u$ 和點 $v$ 配對的權值為 $dis(u,v)$。現在要求將所有點兩兩配對，且要求計算最小/最大權重總和
 	
 	??? note "思路"
+		【最小】
 		
 		$$
 		\begin{aligned}
@@ -599,6 +600,10 @@
 		我們可以對樹從 root 往下進行 DFS，並儘可能在當前的點 $u$ 將以 $v_1,v_2,\ldots, v_k$ 為 root 的子樹進行配對，也就是一直將兩個不同的子樹 $\texttt{tree}(v_i),\texttt{tree}(v_j)$ 裡面的點以 $\text{lca}=u$ 進行配對。
 		
 		所以這時以 $u$ 為 LCA 的答案貢獻就會是「配對數量 $\times \text{depth}(u)$」。
+		
+		【最大】
+		
+		可以在 dfs 的時候，盡量將 LCA 設定為目前遍歷的頂點，也就是從上面 dfs 下來的過程中能配就配，而求最小是從下面 dfs 回來時能配就配。
 		
 		> 另法 : 樹重心
 		
@@ -633,86 +638,78 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        using namespace std;
-
-        const int SIZE = 2e5 + 5;
-        const int TSIZ = 20 * SIZE;
-
-        int n, q, sum;
-        long long ans;
-        int a[SIZE];
-        int siz, cnt[TSIZ], to[TSIZ][2], e[TSIZ];
-        // siz : stamp, cnt[] : 子樹大小總和
-        // to[][0/1] : 紀錄 01Trie 每個點的編號
-        // e[] : Trie 上的某個點上有幾個數字
-
-        void ins(string s, int add) {
-            int pos = 0;
-            cnt[0] += add;
-            sum += add * ((int)s.size());
-            for (char c : s) {
-                int b = c - '0';
-                if (!to[pos][b]) to[pos][b] = ++siz;
-                pos = to[pos][b];
-                cnt[pos] += add;
-            }
-            e[pos] += add;
-        }
-
-        int que() {
-            int re = sum;
-            int pos = 0, dep = 0, all = 2 * n;
-            for (int i = 20; i >= 0 && all; i--) {
-                dep++;
-                int c0 = to[pos][0] ? cnt[to[pos][0]] : 0;
-                int c1 = to[pos][1] ? cnt[to[pos][1]] : 0;
-                int ce = e[pos];
-                int mn = min({c0 + ce, c1 + ce, all / 2});
-                re -= 2 * (dep - 1) * mn;
-                all -= 2 * mn; 
-                if (c0 <= c1) pos = to[pos][1];
-                else pos = to[pos][0];
-                if (!pos) return re;
-            }
-            return re;
-        }
-
-        string f(int x) {
-            string t;
-            while (x) {
-                if (x & 1) t += "1";
-                else t += "0";
-                x >>= 1;
-            }
-            reverse(t.begin(), t.end());
-            return t;
-        }
-
-        signed main() {
-            cin >> n;
-            for (int i = 1; i <= 2 * n; i++) {
-                cin >> a[i];
-                ins(f(a[i]), 1);
-            }
-            cin >> q;
-            while (q--) {
-                int p, x;
-                cin >> p >> x;
-                ins(f(a[p]), -1);
-                a[p] = x;
-                ins(f(a[p]), 1);
-                cout << que() << '\n';
-            }
-        }
-		```
-
-### 題目2
-
-???+note "樹上匹配問題 題目2"
-	給定 $n$ 個點的樹，其中 $n$ 為偶數，我們要將所有頂點兩兩配對，其中點 $u$ 和點 $v$ 配對的權值為 $dis(u,v)$。現在要求將所有點兩兩配對，且要求計算最小的可能權重
+	    using namespace std;
 	
-	??? note "思路"
-		跟上一題差不多，只是變成從 leaf 往 root 的方向做上去，子樹內的優先配對
+	    const int SIZE = 2e5 + 5;
+	    const int TSIZ = 20 * SIZE;
+	
+	    int n, q, sum;
+	    long long ans;
+	    int a[SIZE];
+	    int siz, cnt[TSIZ], to[TSIZ][2], e[TSIZ];
+	    // siz : stamp, cnt[] : 子樹大小總和
+	    // to[][0/1] : 紀錄 01Trie 每個點的編號
+	    // e[] : Trie 上的某個點上有幾個數字
+	
+	    void ins(string s, int add) {
+	        int pos = 0;
+	        cnt[0] += add;
+	        sum += add * ((int)s.size());
+	        for (char c : s) {
+	            int b = c - '0';
+	            if (!to[pos][b]) to[pos][b] = ++siz;
+	            pos = to[pos][b];
+	            cnt[pos] += add;
+	        }
+	        e[pos] += add;
+	    }
+	
+	    int que() {
+	        int re = sum;
+	        int pos = 0, dep = 0, all = 2 * n;
+	        for (int i = 20; i >= 0 && all; i--) {
+	            dep++;
+	            int c0 = to[pos][0] ? cnt[to[pos][0]] : 0;
+	            int c1 = to[pos][1] ? cnt[to[pos][1]] : 0;
+	            int ce = e[pos];
+	            int mn = min({c0 + ce, c1 + ce, all / 2});
+	            re -= 2 * (dep - 1) * mn;
+	            all -= 2 * mn; 
+	            if (c0 <= c1) pos = to[pos][1];
+	            else pos = to[pos][0];
+	            if (!pos) return re;
+	        }
+	        return re;
+	    }
+	
+	    string f(int x) {
+	        string t;
+	        while (x) {
+	            if (x & 1) t += "1";
+	            else t += "0";
+	            x >>= 1;
+	        }
+	        reverse(t.begin(), t.end());
+	        return t;
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	        for (int i = 1; i <= 2 * n; i++) {
+	            cin >> a[i];
+	            ins(f(a[i]), 1);
+	        }
+	        cin >> q;
+	        while (q--) {
+	            int p, x;
+	            cin >> p >> x;
+	            ins(f(a[p]), -1);
+	            a[p] = x;
+	            ins(f(a[p]), 1);
+	            cout << que() << '\n';
+	        }
+	    }
+		```
 
 ???+note "[洛谷 P4556 [Vani有约会] 雨天的尾巴](http://www.luogu.com.cn/problem/P4556)"
 	給一顆 $n$ 個點的樹，每個點上都有一個背包，一開始是空的。有 $q$ 筆操作:
@@ -731,7 +728,7 @@
         </figure>
         
         Tree 的 case 考慮樹鏈剖分，將一次 add 變成在 $\log n$ 條 path 的 case 即可，複雜度 $O(q\log ^2 n)$
-        
+
 ???+note "[CF 1919 D. 01 Tree](https://www.luogu.com.cn/problem/CF1919D)"
 	給你一顆完全二元樹，與兒子相連的兩條邊權恰好一個是 0，一個是 1。目前不知道樹的形態。但已知，依照 dfs 序，葉子結點的權重恰好是長度為 n 的序列 a。權重定義為 root 到 node 的邊權總和。
 	
@@ -755,61 +752,61 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <iostream>
-        #include <list>
-        #include <vector>
-        using namespace std;
+	    #include <list>
+	    #include <vector>
+	    using namespace std;
+	
+	    vector<list<int>::iterator> v[200005];
+	
+	    bool solve() {
+	        int n;
+	        list<int> a;
+	        cin >> n;
+	        for (int i = 0; i < n; i++) {
+	            v[i].clear();
+	        }
+	        for (int i = 0, x; i < n; i++) {
+	            cin >> x;
+	            a.push_back(x);
+	            v[x].push_back(--a.end());
+	        }
+	        for (int i = n - 1; i >= 1; i--) {
+	            for (auto &it : v[i]) {
+	                if ((it != a.begin() && *prev(it) == i - 1) || (it != --a.end() && *next(it) == i - 1)) {
+	                    a.erase(it);
+	                    it = a.end();
+	                } else if (it == --a.end() || *next(it) != i) {
+	                    return false;
+	                }
+	            }
+	            for (auto &it : v[i]) {
+	                if (it != a.end()) {
+	                    a.erase(it);
+	                }
+	            }
+	        }
+	        return a.size() == 1 && a.back() == 0;
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(false);
+	        cin.tie(0), cout.tie(0);
+	        int t;
+	        cin >> t;
+	        while (t--) {
+	            cout << (solve() ? "Yes\n" : "No\n");
+	        }
+	        return 0;
+	    }
+	    ```
 
-        vector<list<int>::iterator> v[200005];
-
-        bool solve() {
-            int n;
-            list<int> a;
-            cin >> n;
-            for (int i = 0; i < n; i++) {
-                v[i].clear();
-            }
-            for (int i = 0, x; i < n; i++) {
-                cin >> x;
-                a.push_back(x);
-                v[x].push_back(--a.end());
-            }
-            for (int i = n - 1; i >= 1; i--) {
-                for (auto &it : v[i]) {
-                    if ((it != a.begin() && *prev(it) == i - 1) || (it != --a.end() && *next(it) == i - 1)) {
-                        a.erase(it);
-                        it = a.end();
-                    } else if (it == --a.end() || *next(it) != i) {
-                        return false;
-                    }
-                }
-                for (auto &it : v[i]) {
-                    if (it != a.end()) {
-                        a.erase(it);
-                    }
-                }
-            }
-            return a.size() == 1 && a.back() == 0;
-        }
-
-        signed main() {
-            ios::sync_with_stdio(false);
-            cin.tie(0), cout.tie(0);
-            int t;
-            cin >> t;
-            while (t--) {
-                cout << (solve() ? "Yes\n" : "No\n");
-            }
-            return 0;
-        }
-        ```
-        
 ???+note "[TOI 2023 三模 p3. 最穩定的薪水 (Salary)](https://drive.google.com/file/d/1N5fByr6BaZSbs63N8JggtMqwzCiWkHME/view)"
 	給一棵 $n$ 個點的樹，第 $i$ 個節點可能有兩種狀況：**已開發**或**未開發**，對**已開發**的城市，薪水為 $x_i$，而對於**未開發**的城市，薪水一開始為 $x_i = 0$，而這些城市會不斷的（同時或不同時）調漲員工薪水，對這些城市而言，定義 $N(i)$ 是該點的鄰居集合而 $c_i$ 為加碼的常數，那這次薪水的調漲將會是
 
     $$x_i \leftarrow \max\left\{x_i, c_i + \frac 1 {|N(i)|}\sum_{j\in N(i)}x_j\right\}$$
-
+    
     已知在任意次的調整後所有城市的薪資都會達到一個固定的數值，對所有**未開發**的城市輸出這個最終固定的 $x_i$
-
+    
     $1 \leq n \leq 10^6, 0 \leq,$ 初始的 $x_i,c_i \leq 10^6$
      
     ??? note "思路"
@@ -834,5 +831,6 @@
           ![Image title](./images/140.png){ width="500" }
           <figcaption>假設 5 這個節點是已開發的（讓讀者知道已開發的點的情況）</figcaption>
         </figure>
-    
-     	
+
+
+​     	

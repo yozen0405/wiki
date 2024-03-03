@@ -467,57 +467,97 @@
 	如果一個牛是有機會拿到禮物的，那代表前面的牛在一次又一次的循環中會把一頭頭的牛往 t 後面丟，最後讓 t 跑到最前面。而最容易實現讓「本來在 t 前面的牛都跑到他後面」的辦法，就是讓 t 前面的牛按照 $c_i$ 小到大插入。所以我們可以用這種方法來貪心。具體來說，我們讓 t 前面的牛按照 $c_i$ 小到大插入，如果是插入到 t 後面，那 t 就可以往前進一格，也就是 t--，但如果插入到了 t 的前面，那麼 t 就不可能獲得禮物了。最後，如果所有牛都插入到了 t 的位置之後，表示此牛 t 能拿到禮物。
 	
 	<figure markdown>
-      ![Image title](./images/7.png){ width="400" }
-    </figure>
-
+	  ![Image title](./images/7.png){ width="400" }
+	</figure>
+	
 	因為題目給出的位置是從後往前數的，所以代碼的位置都是以從最後一個向前的若干個的形式表示。
 	
 	---
 	
-	怎麼樣會形成一個死循環呢？如果出現在前i個位置的牛多於i個，則這i個牛就會一直卡在這前i個位置，我們預處理出小於二分值位置的數量，判斷每個位置i的牛是否多於i個，如果多於，證明二分答案大了，需要縮小有區間，反之則縮小左區間，直到找到答案位置為止。
+	令 a[i] = n - c[i]。假設有某一項在最後經過無限次的循環後，他停留在第 k 個，代表他前面的東西的不會跳超過 k，也就是說對於前面的數量 k - 1 的這些東西，他們的 a[i] 都是 <= k - 1。
 	
-	??? note "code"
+	所以這個分析能引領我們到一個 greedy 的作法：如果 a[i] <= k 的牛多於 k 個，則這k 個牛就會一直卡在這前 k 個位置。我們可以先二分分界線 t，枚舉 k = [1, t)，看循環區段 a[i] <= k 的牛是否多於 k 個，如果多於，證明二分答案大了，需要縮小有區間，反之則縮小左區間，直到找到答案位置為止。
+	
+	??? note "code1"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
+	    using namespace std;
+	
+	    const int N = 1e5 + 5;
+	    int a[N], b[N], n;
+	
+	    bool check(int t) {
+	        // 循環區間 [1, t)
+	        for (int i = 1; i < t; i++) {
+	            b[i] = a[i];
+	        }
+	        sort(b + 1, b + t);
+	        int pos = n - now;
+	        for (int i = 1; i < t; i++) {
+	            if (b[i] > pos) return 0;
+	            pos++;
+	        }
+	        return 1;
+	    }
+	
+	    signed main() {
+	        cin >> n;
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	        }
+	        int l = 1, r = n;
+	        while (l <= r) {
+	            int mid = (l + r) / 2;
+	            if (check(mid)) {
+	                l = mid + 1;
+	            } else {
+	                r = mid - 1;
+	            }
+	        }
+	        cout << n - r << '\n';
+	
+	        return 0;
+	    }
+	    ```
+	    
+	??? note "code2"
+		```cpp linenums="1"
+		#include <algorithm>
+        #include <cstring>
+        #include <iostream>
         using namespace std;
 
-        const int N = 1e5 + 5;
-        int a[N], b[N], n;
+        const int N = 100010;
+        int a[N];
+        int n;
 
         bool check(int t) {
-            // 循環區間 [1, t)
+            int s[N] = {0}, sum = 0;
             for (int i = 1; i < t; i++) {
-                b[i] = a[i];
+                s[a[i]]++;
             }
-            sort(b + 1, b + t);
-            int pos = n - now;
             for (int i = 1; i < t; i++) {
-                if (b[i] > pos) return 0;
-                pos++;
+                sum += s[i];
+                if (sum >= i) return true;
             }
-            return 1;
+            return false;
         }
 
-        signed main() {
+        int main() {
             cin >> n;
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-            }
-            int l = 1, r = n;
-            while (l <= r) {
-                int mid = (l + r) / 2;
-                if (check(mid)) {
+            for (int i = 1; i <= n; i++) cin >> a[i], a[i] = n - a[i];
+            int l = 0, r = n;
+            while (l < r) {
+                int mid = l + r >> 1;
+                if (check(mid))
+                    r = mid;
+                else
                     l = mid + 1;
-                } else {
-                    r = mid - 1;
-                }
             }
-            cout << n - r << '\n';
-
-            return 0;
+            cout << n - r + 1 << endl;
         }
         ```
-	
+
 ???+note "[CF 1856 C. To Become Max](https://codeforces.com/contest/1856/problem/C)"
 	給一個長度為 $n$ 的序列 $a$，你能做以下操作至多 $k$ 次，並輸出 $\max(a_1, a_2, \ldots a_n)$ 最大能到多少 :
 	
