@@ -165,7 +165,7 @@
 	        return 0;
 	    }
 	    ```
-	    
+
 ???+note "[USACO 2013 JAN Cow Lineup G](https://www.luogu.com.cn/problem/P3069)"
 	有 n 頭牛排成一列，其中第 i 個的品種是 a[i]。只能刪掉至多 k 種品種的情況下，問品種相同的連續段的最大長度
 	
@@ -179,39 +179,94 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <iostream>
-        #include <map>
+	    #include <map>
+	
+	    using namespace std;
+	
+	    const int N = 100005;
+	
+	    int a[N];
+	
+	    int main() {
+	        int n, k;
+	        cin >> n >> k;
+	
+	        for (int i = 1; i <= n; ++i) {
+	            cin >> a[i];
+	        }
+	
+	        map<int, int> mp;
+	        int ans = 0;
+	        int l = 1;
+	        for (int r = 1; r <= n; ++r) {
+	            ++mp[a[r]];
+	
+	            while (mp.size() > k + 1) {
+	                --mp[a[l]];
+	                if (mp[a[l]] == 0) {
+	                    mp.erase(a[l]);
+	                }
+	                ++l;
+	            }
+	
+	            ans = max(ans, mp[a[r]]);
+	        }
+	
+	        cout << ans;
+	    }
+		```
+		
+???+note "[USACO 2019 FEB Sleepy Cow Herding S](https://www.luogu.com.cn/problem/P5541)"
+	一維數線上有 n 頭牛，每次只能挪動 edge point（最右邊或最左邊）的牛到任意位置，不過不能使他移動後還是在 edge point，問讓這些牛完全相鄰的最少和最多挪動次數。
 
+	$n\le 10^5$
+	
+	??? note "思路"
+		對於第一個問題求最小操作次數，由於每一步操作都在佔領空位，而最終狀態為一段包含連續 $n$ 個位置的區間，所以可以從結果出發，用 two pointer，枚舉這個最終區間的左端點 $a_i$，找到右端點長度 $a_j$，使 $a_j-a_i+1\le n$，這段區間的答案就會是 n - 區間內的牛的數量（將外面的牛都移進來這個區間內），即 n - (i - j + 1)。可以看一下下圖的移動方式。
+		
+		<figure markdown>
+          ![Image title](./images/9.png){ width="300" }
+        </figure>
+
+        因為我們 edge point 移動過去之所以合法是因為我們能找到中間的空格，或者是另一端也有 edge point，可以讓牛安心的過去另一端 edge point 的旁邊。如果兩者都沒有，就會是以下兩種特殊情況。如果前 $n-1$ 個位置緊鄰，而最後一個位置離倒數第二個位置距離大於 $2$，比如 $1,2,3,4,7$，答案應為 $2$。同理，如果後 $n-1$ 個位置緊鄰，而第一個位置離第二個位置距離大於 $2$，答案也應為 $2$。
+
+        <figure markdown>
+          ![Image title](./images/10.png){ width="400" }
+        </figure>
+
+        因為不能從 edge point 還到 edge point ，所以會比較類似一個區間一直在縮小（一個大的區間縮小成為一個長度為 n 的區間）。由於要讓移動次數越大越好，所以我們要盡量慢慢移動，而收攏的區間一定是越大越好，所以我們可以朝最左邊慢慢收攏過去，或是朝最右邊慢慢收攏過去。假如現在是朝最左邊慢慢收攏過去，我們一開始先將第 n 頭牛移動到區間 [a[1], a[n - 1]] 的最右邊的空格，這樣才不會讓他成為 edge point，然後再來我們就只要計算 [a[1], a[n - 1]] 內空格的數量，就可以得知接下來的操作次數。假如區間是 [l, r]（在這邊 l = a[1], r = a[n - 1]），答案也就是區間長度 - 區間內的牛的數量 + 一開始第 n 頭牛移過去的一次操作 = (r - l + 1) - n + 1。同理朝最右邊慢慢收攏過去就是 l = a[2], r = a[n]。
+        
+        <figure markdown>
+          ![Image title](./images/11.png){ width="300" }
+        </figure>
+		
+	??? note "code"
+        ```cpp linenums="1"
+        #include <bits/stdc++.h>
         using namespace std;
 
-        const int N = 100005;
-
-        int a[N];
+        int n, a[100005], ans, ans2;
 
         int main() {
-            int n, k;
-            cin >> n >> k;
-
-            for (int i = 1; i <= n; ++i) {
+            cin >> n;
+            for (int i = 1; i <= n; i++) {
                 cin >> a[i];
             }
-
-            map<int, int> mp;
-            int ans = 0;
-            int l = 1;
-            for (int r = 1; r <= n; ++r) {
-                ++mp[a[r]];
-
-                while (mp.size() > k + 1) {
-                    --mp[a[l]];
-                    if (mp[a[l]] == 0) {
-                        mp.erase(a[l]);
+            sort(a + 1, a + n + 1);
+            if ((a[n - 1] - a[1] == n - 2 && a[n] - a[n - 1] > 2) || (a[n] - a[2] == n - 2 && a[2] - a[1] > 2)) {
+                ans = 2;  // 特判
+            } else {
+                int j = 1, res = 0;
+                for (int i = 1; i <= n; i++) {
+                    while (j < n && a[j + 1] - a[i] + 1 <= n) {
+                        j++;
                     }
-                    ++l;
+                    res = max(res, j - i + 1);
                 }
-
-                ans = max(ans, mp[a[r]]);
+                ans = n - res;
             }
-
-            cout << ans;
+            cout << ans << '\n';
+            cout << max(a[n - 1] - a[1], a[n] - a[2]) - n + 2 << '\n';
+            return 0;
         }
-		```
+        ```

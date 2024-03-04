@@ -1,8 +1,20 @@
-???+note "[2021 附中模競 II 惡地之路](https://drive.google.com/file/d/1ISO-o4DrQmbuqVVAgxeVQEO3ifMvcy01/view)"
-	給一張 $n$ 點 $m$ 邊無向圖，令 $s$ 到節點 $i$ 走 $k$ 步的最短距離是 $d(i,k)$
-	
+## 雜項主題紀錄 
 
-	對於每個 $i$ 求 $\min \{ d(i,k) \times k \}$
+### 一、縮點
+
+縮點有以下兩種方法：
+
+1. 自己還是自己的編號，但用 disjoint set 模擬縮點
+2. 接續 1.，但把縮完的點都用新的編號
+
+第一種方法其實也沒有真正寫一個函式去進行縮點，他的概念就是每次要去看一個點時，直接去他的 disjoint set 裡面 find 他的組別是什麼，那個組別的 leader 就是他縮點後的點的編號。平常要將兩個點合併一樣用 disjoint set 的 union 就好了。例題有 [CF 160 D. Edges in MST](https://codeforces.com/contest/160/problem/D)（在 MST 主題內）。
+
+第二種方法接續第一種作法，但每次我們要縮點的時候就會特別跑進去一個函式，對於每個縮點之後的點我們都會賦予他一個新的編號，然後將目前每個 disjoint set 內同一個集合點的都重新編號成新的編號，然後我們就完全放棄以前的編號，都用新的編號去做事情。例如 [Atcoder AGC002 D - Stamp Rally](https://atcoder.jp/contests/agc002/tasks/agc002_d)（在整體二分主題內），大概念的想法就是縮點後，將不重要的點都刪掉。具體來說，平常的時候我們就會用 disjoint set 的 union 先把需要在同一組的點都給維護好，我們會把之後會需要用到的 edges 還有 queries 都考慮進去，用一個 need 數組，存這些需要用到的點，他們的當前的集合，之後就是把 need 裡面有用到的都賦予新的編號，然後再去 edges 和 queries 幫他們每一項都改成現在新的編號。
+
+## 題目
+
+???+note "[2021 附中模競 II 惡地之路](https://drive.google.com/file/d/1ISO-o4DrQmbuqVVAgxeVQEO3ifMvcy01/view)"
+	給一張 $n$ 點 $m$ 邊無向圖，令 $s$ 到節點 $i$ 走 $k$ 步的最短距離是 $d(i,k)$，對於每個 $i$ 求 $\min \{ d(i,k) \times k \}$
 	
 	$n\le 2000,m\le 3\times 10^4$
 	
@@ -13,7 +25,7 @@
 		
 		$O(n(n+m))$ DP
 		
-		??? code "虛擬碼"
+		???+note "虛擬碼"
 			```cpp linenums="1"
 	        for k = 1 ~ n :
 	        	for u = 1 ~ n :
@@ -22,7 +34,7 @@
 	                    ans = min (dp[v][k] * k)
 	        ```
 		
-	??? note "code (by wiwiho)"
+	??? note "code(wiwiho)"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
 	    #define StarBurstStream ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
@@ -142,13 +154,7 @@
 	    ```
 
 ???+note "[LOJ #2780. 「BalticOI 2016 Day1」上司们](https://loj.ac/p/2780)"
-	給一顆 $n$ 個點的樹
-	
-	每個點給定大小為 $k_i$ 的一些點表示第 $i$ 個點可選的父節點，每個點有一個權重 $a_i$ 
-	
-	對於 $u=1\sim n$，若 $u$ 的小孩是 $v$，則須滿足 : $\sum a_v < a_u$
-	
-	輸出 $\sum\limits_{i=1}^n a_i$ 最小可以是多少
+	給一顆 $n$ 個點的樹，每個點給定大小為 $k_i$ 的一些點表示第 $i$ 個點可選的父節點，每個點有一個權重 $a_i$。對於 $u=1\sim n$，若 $u$ 的小孩是 $v$，則須滿足 : $\sum a_v < a_u$。輸出 $\sum\limits_{i=1}^n a_i$ 最小可以是多少
 	
 	$n\le 5000, \sum\limits_{i=1}^n k_i \le 10^4$
 	
@@ -335,9 +341,7 @@
 		所以答案就是 $\sum \limits_{i=1}^{\text{depth}}\min \{2k, \text{num}_i\}$ 其中 $\text{num}_i$ 是第 $i$ 層的節點數量
 
 ???+note "[洛谷 P8384 [POI2004] SZN](https://www.luogu.com.cn/problem/P8384)"
-	給一顆 $n$ 個點的樹
-	
-	問至少要用幾條不重疊的 path 才能將圖覆蓋，並且這些 path 裡面長度最長的最少可以是多少
+	給一顆 $n$ 個點的樹，問至少要用幾條不重疊的 path 才能將圖覆蓋，並且這些 path 裡面長度最長的最少可以是多少
 	
 	$n\le 10^4$
 	
@@ -390,7 +394,6 @@
 	    #define ALL(x) x.begin(), x.end()
 	
 	    using namespace std;
-	    using PQ = priority_queue<int, vector<int>, greater<int>>;
 	
 	    const int INF = 2e18;
 	    const int maxn = 3e5 + 5;
@@ -400,7 +403,7 @@
 	    vector<int> G[maxn];
 	    int deg[maxn], f[maxn], g[maxn];
 	
-	    int check (int x) {
+	    int check(int x) {
 	        for (int l = 1, r = cnt; l < r; l++, r--) {
 	            if (l == x) l++;
 	            if (r == x) r--;
@@ -409,28 +412,28 @@
 	        return true;
 	    }
 	
-	    int dfs (int u, int par) {
+	    int dfs(int u, int par) {
 	        for (auto v : G[u]) {
 	            if (v == par) continue;
-	            if (dfs (v, u) == 0) return 0;
+	            if (dfs(v, u) == 0) return 0;
 	        }
 	        cnt = 0;
 	        for (auto v : G[u]) {
 	            if (v == par) continue;
 	            g[++cnt] = f[v];
 	        }
-	        sort (g + 1, g + cnt + 1);
+	        sort(g + 1, g + cnt + 1);
 	        if (u == 1) {
 	            if (cnt & 1) {
 	                cnt--;
-	                return check (0);
+	                return check(0);
 	            }
 	            else {
-	                return check (0);
+	                return check(0);
 	            }
 	        }
 	        if (cnt % 2 == 0) {
-	            if (check (0)) {
+	            if (check(0)) {
 	                f[u] = 1;
 	                return 1;
 	            }
@@ -440,7 +443,7 @@
 	        int l = 1, r = cnt + 1;
 	        while (l < r) {
 	            int mid = (l + r) / 2;
-	            if (check (mid)) r = mid;
+	            if (check(mid)) r = mid;
 	            else l = mid + 1;
 	        }
 	        if (l == cnt + 1) return 0;
@@ -553,13 +556,11 @@
 	    兩個點 merge 起來用啟發式合併，但要注意可能會算到已算過的節點，所以在 pop 的時候檢查此編號是否已經在同一個 DSU 內
 
 ???+note "[CF 1586 E. Moment of Bloom](https://codeforces.com/contest/1586/problem/E)"
-	給一張 $n$ 點 $m$ 邊的無向連通圖，$q$ 次操作，一開始邊權皆為 $0$
+	給一張 $n$ 點 $m$ 邊的無向連通圖，一開始邊權皆為 $0$。有 $q$ 次操作:
 	
 	- 對簡單路徑 $u\to \ldots \to v$ 經過的所有邊權 $+1$ 
 	
-	判斷能否使得所有邊權都為偶數，如果可以，請輸出所有操作的路徑上的點
-	
-	如果不行，輸出至少還需要多少操作才能使得上述結果
+	判斷能否使得所有邊權都為偶數，如果可以，請輸出所有操作的路徑上的點，如果不行，輸出至少還需要多少操作才能使得上述結果。
 	
 	$n,m,q\le 3\times 10^5,n\times q\le 3\times 10^5,L\le 10^9$
 	
@@ -593,13 +594,7 @@
 		這些點一定是偶數個，我們只需將這些邊隨便兩兩相連即可，故答案為這些點的數量除 2
 
 ???+note "[2014 全國賽 p3](https://cs.cysh.cy.edu.tw/competition_problem_set/%E5%85%A8%E5%9C%8B103.pdf#page=7)"
-	給 $n$ 個關卡，跟一個集合點
-	
-	關卡 $i$ 有一條有向邊連接著關卡 $i+1$，邊權是 $c_i$
-	
-	集合點與每個關卡 $i$ 之間都有一條雙向邊，邊權是 $d_i$
-	
-	每個關卡上都有價值 $p_i$，拿過了就會消失
+	給 $n$ 個關卡，跟一個集合點，關卡 $i$ 有一條有向邊連接著關卡 $i+1$，邊權是 $c_i$，集合點與每個關卡 $i$ 之間都有一條雙向邊，邊權是 $d_i$，每個關卡上都有價值 $p_i$，拿過了就會消失。
 	
 	<figure markdown>
 	  ![Image title](./images/13.png){ width="300" }
@@ -729,4 +724,4 @@
 	
 	??? note "思路"
 		見 <https://www.acwing.com/file_system/file/content/whole/index/content/3177876/>
-		
+

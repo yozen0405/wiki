@@ -64,13 +64,7 @@
 
 ### Boruvka
 
-對於**目前選到**的每個集合，選他**周圍的**最小邊
-
-對於這種邊數很多，但是很多邊用不到的東西，Boruvka 比較容易快速省略掉不需要的邊（只找需要的出來）
-
-每次對於每個連通塊選延伸出去最小的邊，然後縮點
-
-這樣每次點的數量都至少會少一半，所以只需要 $\log n$ 輪，每次 $O(m)$，複雜度 $O(m\log n)$
+對於**目前選到**的每個集合，選他**周圍的**最小邊。對於這種邊數很多，但是很多邊用不到的東西，Boruvka 比較容易快速省略掉不需要的邊（只找需要的出來）。實作上每次對於每個連通塊選延伸出去最小的邊，然後縮點，這樣每次點的數量都至少會少一半，所以只需要 $\log n$ 輪，每次 $O(m)$，複雜度 $O(m\log n)$。
 
 ??? note "pseudocode"
 	```linenums="1"
@@ -1132,9 +1126,122 @@
     $n,m\le 10^5$
     
     ??? note "思路"
-    	![](https://cdn.discordapp.com/attachments/972879937180692551/1014553797806272583/858cfd42763fb554.png)
-    	
-        code 可以參考[這篇博客](https://blog.csdn.net/m0_56280274/article/details/123765300?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1-123765300-blog-101834844.topnsimilarv1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EOPENSEARCH%7ERate-1-123765300-blog-101834844.topnsimilarv1&utm_relevant_index=2)
+    	首先我們根據 Kruskal 演算法求最小生成樹 (MST) 的思路，將邊權從小到大排序。容易發現：若一條邊的兩個端點在之前就被比它邊權更小的邊所聯通，則這條邊一定不會出現在 MST 中。
+
+        根據該思路，我們對同一邊權的邊分別進行處理。首先，我們去除掉剛才說的顯然不存在的邊，然後把其他的邊加入到原圖（重邊無影響）中。那麼顯然，圖中的割邊就是一定會出現在所有 MST 中的邊。
+
+        舉個例子，假設當前處理到邊權為 $x$。那麼我們先把所有小於 $x$ 的邊加進去。根據上述思路可知，這兩個邊的集合一定不連通，否則這條邊顯然不存在。這個時候兩個集合之間可能會有若干個權值為 $x$ 的邊，而連接這兩個集合的一定是這些權值為 $x$ 的邊，不可能更大，這一點由 Kruskal 演算法的貪心性質可知。而此時，從這些 $x$ 中我們只需選出一條即可，所以這些 $x$ 至少存在於一個 MST 中，而如果只有一個 $x$，則它一定是橋，則必然出現於所有 MST 中。
+
+        由於我們在考慮當前權值時，並不關心圖的其他部分，所以我們在處理一類邊權時，對當前圖進行縮點，可以做到時間的最佳化。這邊縮點的方法是採用並查集（也就是每次在看一個點的時候都先在並查集內 find(u)，詳見代碼）。縮點後找橋的過程中，我們只需要初始化所有新邊兩端點的 dfn 為 0，不必要全部初始化，因為對於其他點是沒有影響的。
+
+        複雜度的部分因為每個點被 tarjan 算法跑過一次後就會縮點起來，總時間複雜度就是 sort $O(m\log m)$ + tarjan $O(n + m)$ 所以是 $O(m\log m)$。
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include<cstdio>
+        #include<vector>
+        #include<algorithm>
+        using std::sort;
+
+        int n, m, f[100010], ans[100010];
+
+        namespace graph {
+            using std::min;
+            using std::vector;
+
+            struct node {
+                int to, id;
+            };
+            static int nowtime, dfn[100010], low[100010];
+            vector < node > e[100010];
+            struct node1 {
+                int from, to, v, id;
+                bool operator < (const node1 & a) const {
+                    return v < a.v;
+                }
+            }
+            edge[100010];
+
+            inline void addedge(int from, int to, int id) { //加边
+                e[from].push_back(node{to, id}),
+                e[to].push_back(node{from, id});
+            }
+
+            void tarjan(int now, int faid) { // faid 為目前轉移到 now 這個點的邊的編號
+                low[now] = dfn[now] = nowtime++;
+                for (register int i = 0; i < (int) e[now].size(); ++i) {
+                    if (e[now][i].id == faid)
+                        continue;
+                    if (!dfn[e[now][i].to]) {
+                        tarjan(e[now][i].to, e[now][i].id);
+                        low[now] = min(low[now], low[e[now][i].to]);
+                        if (low[e[now][i].to] > dfn[now]) {
+                            ans[e[now][i].id] = 1;
+                        }
+                    } else {
+                        low[now] = min(low[now], dfn[e[now][i].to]);
+                    }
+                }
+            }
+        }
+
+        inline int getf(int x) {
+            return f[x] = x == f[x] ? x : getf(f[x]);
+        }
+
+        inline void init() {
+            scanf("%d%d", & n, & m);
+            for (register int i = 1; i <= n; ++i)
+                f[i] = i;
+            for (register int i = 1; i <= m; ++i)
+                scanf("%d%d%d", & graph::edge[i].from, & graph::edge[i].to, & graph::edge[i].v),
+                graph::edge[i].id = i;
+            sort(graph::edge + 1, graph::edge + m + 1);
+        }
+
+        inline void work() {
+            int j;
+            for (register int i = 1; i <= m; i = j) {
+                j = i + 1;
+                while (j <= m && graph::edge[i].v == graph::edge[j].v) // 尋找相同邊權的邊的範圍[左閉右開區間)
+                    ++j;
+                for (register int l = i; l < j; ++l) {
+                    int x = getf(graph::edge[l].from), y = getf(graph::edge[l].to);
+                    if (x == y) {
+                        continue;  // 已經在之前就被比它邊權更小的邊聯通了
+                    }
+                    graph::addedge(x, y, graph::edge[l].id), // 加邊
+                    graph::dfn[x] = graph::dfn[y] = 0, // 初始化兩端的 dfn 為 0
+                    ans[graph::edge[l].id] = -1; // at least one
+                }
+                for (register int l = i; l < j; ++l) {
+                    int x = getf(graph::edge[l].from), y = getf(graph::edge[l].to);
+                    if (x == y || graph::dfn[x]) // 如果再之前的 Tarjan 裡已經遍歷過了就不用再求橋了
+                        continue;
+                    graph::nowtime = 0,
+                    graph::tarjan(x, -1); // Tarjan 求橋
+                }
+                for (register int l = i; l < j; ++l) {
+                    int x = getf(graph::edge[l].from), y = getf(graph::edge[l].to);
+                    if (x == y)
+                        continue;
+                    graph::e[x].clear(), // 縮點，即把它周圍的邊全部去掉
+                    graph::e[y].clear(),
+                    f[x] = y;
+                }
+            }
+        }
+
+        int main(void) {
+            init();
+            work();
+            for (register int i = 1; i <= m; ++i)
+                if (ans[i] == 1) puts("any");
+                else if (ans[i] == 0) puts("none");
+                else puts("at least one");
+            return 0;
+        }
+        ```
 
 ???+note "[CF 891 C.Envy](https://codeforces.com/contest/891/problem/C)"
 	給一張 $n$ 點 $m$ 邊的連通圖，有 $q$ 筆詢問，每次給一個集合，包含 $k_i$ 條圖上的邊，求存不存在一棵最小生成樹包含集合內所有的邊
@@ -1454,24 +1561,20 @@
     
     $n, q\le 10^5$
 
-### 法1 : Greedy
+【法1：Greedy】
 
-從小到大枚舉 => Kruskal 最大生成樹
+從小到大枚舉 => 相當於用 Kruskal 找最大生成樹，複雜度 $O(m\log m)$
 
-複雜度 $O(m\log m)$
+【法2：二分搜】
 
-### 法2 : 二分搜
+DFS/BFS check 只選邊權 $\le x$ 的是否能連通，複雜度 $O(m\log m)$
 
-DFS/BFS check 只選邊權 $\le x$ 的是否能連通
-
-複雜度 $O(m\log m)$
-
-### 法 3
+【法 3】
 
 每次取 $x=$ 剩餘的 $\text{edge}$ 的中位數，檢查圖有沒有連通
 
-- 如果連通 :  $>x$ 的 $\text{edge}$ 都用不到 (刪掉) $\rightarrow \begin{cases} \text{edge} \space少一半 \\ \text{vertex} \space不變 \end{cases}$
-- 如果連通 :   $\le x$ 的連通塊縮點 $\rightarrow \begin{cases} \text{edge} \space少一半 \\ \text{vertex} \space變少 \end{cases}$
+- 如果沒連通：$>x$ 的 $\text{edge}$ 都用不到 (刪掉) $\rightarrow \begin{cases} \text{edge} \space少一半 \\ \text{vertex} \space不變 \end{cases}$
+- 如果連通：$\le x$ 的連通塊縮點 $\rightarrow \begin{cases} \text{edge} \space少一半 \\ \text{vertex} \space變少 \end{cases}$
 
 那麼時間複雜度 ?
 
@@ -1479,9 +1582,7 @@ $$
 T(n,m)=T(n,\frac{m}{2})+O(n+m)
 $$
 
-若 $m < n$ 的話那一定是 $\texttt{IMPOSIIBLE}$
-
-所以時間複雜度只需考慮 $m$ 
+若 $m < n$ 的話那一定是無解，所以時間複雜度只需考慮 $m$。
 
 $$
 \begin{align} T (m) &= T(\frac{m}{2}) + O(m) \\ &= O(m) \end{align}
@@ -2129,7 +2230,7 @@ Prim 複雜度的瓶頸在於使用著資料結構（`priority_queue`）。若�
 	    </figure>	
 	    
 	    我們目前手上只有 MST 上的邊，並不知道非 MST 邊具體的情況是如何，所以我們這邊要來思考。因為 MST 的性質（權重越小的，連到越後面，會造成他先被 MST 選到），我們必須從最左邊開始連非 MST 的邊，我們枚舉值域 i = [1, m]，若 i 這個值域不在 MST 上，則建邊，建邊的方式一律是先枚舉右端點從左到右（因為右端點越小，能影響到的 suffix 越多），再枚舉左端點從右到左（也可以左到右，這個沒有限制）。
-
+	
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
