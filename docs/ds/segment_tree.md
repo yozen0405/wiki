@@ -13,6 +13,232 @@
 	
 	這時就會是為多一層的 full binary tree，節點數量為 2n + n + n/2 + n/4 + … + 1 = 4n - 1。
 
+??? note "Node 資訊"
+	```cpp linenums="1"
+	struct Node {
+        Node* lc = nullptr;
+        Node* rc = nullptr;
+        int l, r;
+        int sum;
+
+        Node(int l, int r) : l(l), r(r) {
+            sum = 0;
+        }
+        void pull() { // 合併左節點與右節點的值
+            sum = lc->sum + rc->sum;
+        }
+    };
+    ```
+	
+??? note "build"
+	```cpp linenums="1"
+	Node* build(int l, int r) {
+        Node* root = new Node(l, r);
+        if (l == r) {
+            root->sum = a[l];
+            return root;
+        }
+        int mid = (l + r) / 2;
+        root->lc = build(l, mid);
+        root->rc = build(mid + 1, r);
+        root->pull();
+        return root;
+    }
+    ```
+    
+??? note "query"
+	```cpp linenums="1"
+	int query(Node* root, int ql, int qr) {
+        if (qr < root->l || root->r < ql) {
+            return 0;
+        }
+        if (ql <= root->l && root->r <= qr) {
+            return root->sum;
+        }
+        return query(root->lc, ql, qr) + query(root->rc, ql, qr);
+    }
+    ```
+    
+??? note "update"
+	```cpp linenums="1"
+	void update(Node* root, int pos, int val) {
+        if (root->l == root->r) {
+            root->sum = val;
+            return;
+        }
+        if (pos <= root->lc->r) {
+            update(root->lc, pos, val);
+        } else {
+            update(root->rc, pos, val);
+        }
+        root->pull();
+    }
+    ```
+	
+## 懶人標記
+
+??? info "區間修改時，盡量不要讓 0 設為未改動的狀態"
+	若 chg != 0 才會改動，那麼如果要將一個區間都設為 0 就不會跑到了，所以最好還是將 chg 未改動的狀態設為 INF。
+
+可以觀察到多個區間操作中有很多重疊的區域，重疊多次的地方可以將操作先整理起來，再一起更新，沒有必要細化到每個葉子結點，只要修改到該區間所對應的那些節點
+
+??? note "Node 資訊 & push"
+	```cpp linenums="1"
+	struct Node {
+        Node* lc = nullptr;
+        Node* rc = nullptr;
+        int l, r;
+        int chg, sum;
+
+        Node(int l, int r) : l(l), r(r) {
+            chg = INF;
+            sum = 0;
+        }
+        void push() {
+            if (chg != INF) {
+                lc->chg = chg;
+                lc->sum = (lc->r - lc->l + 1) * chg;
+                rc->chg = chg;
+                rc->sum = (rc->r - rc->l + 1) * chg;
+                chg = INF;
+            } 
+        }
+        void pull() {
+            sum = lc->sum + rc->sum;
+        }
+    };
+    ```
+    
+??? note "區間改值"
+	```cpp linenums="1"
+	void update(Node* root, int ml, int mr, int val) {
+        if (mr < root->l || root->r < ml) {
+            return;
+        }
+        if (ml <= root->l && root->r <= mr) {
+            root->sum = (root->r - root->l + 1) * val;
+            root->chg = val;
+            return;
+        }
+        root->push();
+        update(root->lc, ml, mr, val);
+        update(root->rc, ml, mr, val);
+        root->pull();
+    }
+    ```
+
+??? note "區間查詢總和"
+	```cpp linenums="1"
+	int query(Node* root, int ql, int qr) {
+        if (qr < root->l || root->r < ql) {
+            return 0;
+        }
+        if (ql <= root->l && root->r <= qr) {
+            return root->sum;
+        }
+        root->push();
+        return query(root->lc, ql, qr) + query(root->rc, ql, qr);
+    }
+    ```
+	
+## 線段樹 walk
+
+??? note "code"
+	```cpp linenums="1"
+	#include <bits/stdc++.h>
+    #define int long long
+    #define pb push_back
+
+    using namespace std;
+
+    const int MAXN = 2e5 + 5;
+
+    struct Node {
+        Node* lc = nullptr;
+        Node* rc = nullptr;
+        int l, r;
+        long long sum;
+
+        Node(int l, int r) : l(l), r(r) {
+            sum = 0;
+        }
+        void pull() {
+            sum = lc->sum + rc->sum;
+        }
+    };
+
+    int n, q;
+    int a[MAXN];
+
+    Node* build(int l, int r) {
+        Node* root = new Node(l, r);
+        if (l == r) {
+            root->sum = a[l];
+            return root;
+        }
+        int mid = (l + r) / 2;
+        root->lc = build(l, mid);
+        root->rc = build(mid + 1, r);
+        root->pull();
+        return root;
+    }
+
+    void update(Node* root, int pos, int val) {
+        if (root->l == root->r) {
+            root->sum = val;
+            return;
+        }
+        if (pos <= root->lc->r) {
+            update(root->lc, pos, val);
+        } else {
+            update(root->rc, pos, val);
+        }
+        root->pull();
+    }
+
+    int walk(Node* root, int k) {
+        if (root->l == root->r) {
+            return root->l;
+        }
+        if (k <= root->lc->sum) {
+            return walk(root->lc, k);
+        } else {
+            return walk(root->rc, k - root->lc->sum);
+        }
+    }
+
+    signed main() {
+        cin >> n >> q;
+        for (int i = 0; i < n; i++) {
+            cin >> a[i];
+        }
+        Node* root = build(0, n - 1);
+        while (q--) {
+            int op;
+            cin >> op;
+            if (op == 1) {
+                int pos;
+                cin >> pos;
+                a[pos] ^= 1;
+                update(root, pos, a[pos]);
+            } else if (op == 2) {
+                int k;
+                cin >> k;
+                k++;
+                cout << walk(root, k) << '\n';
+            }
+        }
+    }
+    ```
+	
+???+note "CSES - List Removals"
+	給一個長度為 n 的陣列 a[1], a[2], … , a[n]，有 q 筆操作，給 k，將從左數過去第 k 個數移除，並輸出被移除的數字是多少
+	
+	$1\le n, q\le 2\times 10^5$
+	
+	??? note "思路"
+		問在哪個 index 的 prefix sum 恰好超過 k。也就是在線段樹上「二分搜」。具體來說，看左子樹的 sum 是否足夠 k，是的話就往左走，不是的話就往右走，並將 k -= lc.sum
+	
 ## 矩形覆蓋相關問題
 
 ???+note "不用離散化版 [CSES - Area of Rectangles](https://cses.fi/problemset/task/1741)"
@@ -1215,20 +1441,20 @@ v[i]: 存當前掃描線的 y = i 被多少矩形 cover。對於每一個 x，�
     	現在考慮對一個區間進行取最大值操作。用一塊自下而上的上推鋼板推這個區間，會有什麼變化呢？如果原來的下界鋼板低於 $t$，當然會被推到 $t$ 位置，否則不變；上界同理。因此，這個操作對這個區間的變化是 $l=\max(l,t)$，$r=\max(r,t)$。
     
     	再考慮取最小值操作，類似地，$l=\min(l,t)$，$r=\min(r,t)$。加上 lazy tag 維護即可。
-    	
+
 ???+note "[Atcoder abc342 G. Retroactive Range Chmax](https://atcoder.jp/contests/abc342/tasks/abc342_g)"
 	給定長度為 $n$ 的序列 $a_1, \ldots ,a_n$，有 $q$ 次操作：
 
     - $\max(l,r,x):$ 對區間 $[l,r]$ 中的所有元素與 $x$ 取最大值。
-
+    
     - $\text{rollback}(i):$ 撤銷第 $i$ 次 max 操作
-
-	- $\text{query}(i):$ 輸出 $a_i$ 的值
+    
+    - $\text{query}(i):$ 輸出 $a_i$ 的值
     
     $n,q \leq 2\times 10^5, 1\le x,a_i\le 10^9$
     
     ??? note "思路"
-		線段樹上每個節點維護一個 multiset，每次區間 max 時，就往 multiset 裡加數，每次撤銷就是刪除數。每次查詢操作則是尋找根到該點路徑上所有 multiset 中的最大值的最大值。
+    	線段樹上每個節點維護一個 multiset，每次區間 max 時，就往 multiset 裡加數，每次撤銷就是刪除數。每次查詢操作則是尋找根到該點路徑上所有 multiset 中的最大值的最大值。
 
 ---
 
