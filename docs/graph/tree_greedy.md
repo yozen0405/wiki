@@ -46,17 +46,9 @@
 	
 	??? note "思路"
 	  
-		我們其實可以把交換想成一個連接 $u\leftrightarrow v$ 的一個 path，cost 就是 $2\times \text{dis}(u,v)$，盡量讓 path 跟 path 之間的邊不要有交集
+		我們其實可以把交換想成一個連接 $u\leftrightarrow v$ 的一個 path，cost 就是 $2\times \text{dis}(u,v)$，盡量讓 path 跟 path 之間的邊不要有交集。問題就變成，我需要將點兩兩連 path，目標是讓大家都至少在一個 path 上的「兩端」
 		
-		問題就變成，我需要將點兩兩連 path，目標是讓大家都至少在一個 path 上的「兩端」
-		
-		性質 : 能在同一個子樹內配對就在同一個子樹內配對
-		
-		每個子樹最多只會剩下 1 個點沒配對到
-		
-		假設 $u$ 的 child 是 $v_1,v_2,v_3$ 他們都分別剩一個節點沒配對到
-		
-		那就 $v_1\leftrightarrow v_2$，$v_3\leftrightarrow u$ 
+		性質 : 能在同一個子樹內配對就在同一個子樹內配對，每個子樹最多只會剩下 1 個點沒配對到，假設 $u$ 的 child 是 $v_1,v_2,v_3$ 他們都分別剩一個節點沒配對到，那就用 $v_1\leftrightarrow v_2$，$v_3\leftrightarrow u$ 配對。
 		
 		<figure markdown>
 		    ![Image title](./images/20.png){ width="250" }
@@ -68,15 +60,7 @@
 		  
 		  把題目的移動看成是兩點在做多個「交換」
 		
-		先考慮 leaf，leaf 一定至少需要跟他的父親交換，不然他沒其他方可交換了
-		
-		而交換完後在這個 leaf 的數值也就固定了
-		
-		也相當於我們可以直接把這個 leaf 刪掉，接下來就是子問題
-		
-		所以我們得到了一個 greedy 的作法
-		
-		每次找當前的 leaf
+		先考慮 leaf，leaf 一定至少需要跟他的父親交換，不然他沒其他方可交換了，而交換完後在這個 leaf 的數值也就固定了，也相當於我們可以直接把這個 leaf 刪掉，接下來就是子問題。所以我們得到了一個 greedy 的作法，每次找當前的 leaf
 		
 		- 如果沒有交換過，就和父節點交換，並將該 leaf 刪除，ans += 2
 		
@@ -85,13 +69,11 @@
 		這樣最後有可能還剩一個，隨便找一個相鄰結點再交換一次就好，一樣 ans += 2
 		
 		<figure markdown>
-		    ![Image title](./images/19.png){ width="450" }
-		    <figcaption>最後還剩一個的例子<caption>
-		  </figure>
+            ![Image title](./images/19.png){ width="450" }
+            <figcaption>最後還剩一個的例子<caption>
+          </figure>
 	  	
-		實作方面不需要真的移除 leaf，利用 dfs 讓他從 leaf 開始往上處理即可
-		
-		詳見代碼
+		實作方面不需要真的移除 leaf，利用 dfs 讓他從 leaf 開始往上處理即可，詳見代碼
 		
 		> 參考自 : [hackmd](https://hackmd.io/@E-5gxTGiSByBOKpvsaKa_g/HJDNb1Aev)
 
@@ -136,6 +118,75 @@
         }
         ```
 
+???+note "<a href="/wiki/graph/images/2024_toi_mock3_pB.pdf" target="_blank">2024 TOI 模擬賽第三場 pB. YKP 組隊任務</a>"
+	給 n 個點，第 i 個點有 a[i] 個人。若兩個點要分在一組必須移動到同一個點上，現在兩兩配對剛好會落單一個人。對於 $1 \le i\le n$，若在 i 點多放一個人，那麼兩兩配對的距離總和最小是多少
+	
+	$n\le 2\times 10^5$
+	
+	??? note "思路"
+		每個點能配對的話就先配對，剩下的我們從 leaf 開始讓子樹內的優先配對。接著我們使用換根 dp，計算每個點上面的人要配對的距離總和是多少。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+
+        const int MAXN = 2e5 + 5;
+        int n, m, root;
+        vector<int> G[MAXN];
+        int a[MAXN];
+        int dp1[MAXN], dp2[MAXN], cnt[MAXN], sum;
+        // dp1[u]: subtree(u) 每個點都集合的總時間
+        // dp2[u]: subtree(u) 以外每個點都集合的總時間
+        // cnt[v]: subtree(v) 還沒配對的有多少個
+
+        void dfs1(int u, int par) {
+            int ret = 0; // 多少個從 v 跑到 u 的人
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                dfs1(v, u); 
+                ret += cnt[v];
+                dp1[u] += dp1[v];
+            }
+            dp1[u] += ret;
+            cnt[u] = (ret + a[u]) % 2; // 分組
+        }
+
+        void dfs2(int u, int par) {
+            for (auto v : G[u]) {
+                if (v == par) continue;
+                dp2[v] += dp1[u] - dp1[v] - cnt[v] + dp2[u] + (sum - cnt[v]) % 2;
+                // (sum - cnt[v]) % 2: 上面有落單的要從 u 跑過來 v 做集合
+                dfs2(v, u);
+            }
+        }
+
+        signed main() {
+            cin >> n >> m;
+            for (int i = 2; i <= n; i++) {
+                int parent;
+                cin >> parent;
+                G[i].push_back(parent);
+                G[parent].push_back(i);
+            }
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+                a[i] %= 2;
+                sum += a[i];
+            }
+            root = 1;
+            if (m == 2) {
+                dfs1(root, 0);
+                dfs2(root, 0);
+                for (int i = 1; i <= n; i++) {
+                    cout << dp1[i] + dp2[i] << '\n';
+                }
+            }
+        }
+        ```
+	
 ### NPSC 真島與莉可麗絲
 
 ???+note "[2022 NPSC 高中組決賽 pE. 真島與莉可麗絲](https://tioj.ck.tp.edu.tw/problems/2309)"

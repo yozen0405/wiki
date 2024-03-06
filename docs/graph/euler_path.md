@@ -402,13 +402,13 @@ void dfs(int u) {
 
 De Bruijn sequence 是由 k 種不同符號組成，且其所有長度為 n 之連續子序列恰為 k 種符號組成長度為 n 的所有排列。
 
-我們可以將其建圖，將每個長度為 n - 1 的頭刪掉後，將尾接上，連到其他點去，這張圖會有恰 $k^n$ 條邊，每個點的 in degree 與 out degree 皆為 k - 1，符合歐拉迴路的條件。例如 n = 3, k = 2 時，000 將頭刪除，後面接上 1 後變 001，故 00 會連接到 01，邊上的數字為 1 :
+這個問題的精神是在於將本來要用漢米頓路徑跑的圖，轉換成用歐拉路徑跑的圖，讓效率增快了許多。我們可以將其建圖，將每個長度為 n - 1 的頭刪掉後，將尾接上，連到其他點去，這張圖會有恰 $k^n$ 條邊，每個點的 in degree 與 out degree 皆為 k - 1，符合歐拉迴路的條件。例如 n = 3, k = 2 時，000 將頭刪除，後面接上 1 後變 001，故 00 會連接到 01，邊上的數字為 1 :
 
 <figure markdown>
   ![Image title](./images/58.png){ width="300" }
 </figure>
 
-可以看到恰可形成一個歐拉迴路
+可以看到恰可形成一個歐拉路徑
 
 > 詳細可以參考 : [CSES Hand Book](https://cses.fi/book/book.pdf#page=178)
 
@@ -476,8 +476,6 @@ De Bruijn sequence 是由 k 種不同符號組成，且其所有長度為 n 之�
 	    } 
 	    ```
 
-### 習題
-
 ???+note "[CF 508 D. Tanya and Password](https://codeforces.com/problemset/problem/508/D)"
 	有一個長度 n + 2 的字串 s，給你它每個長度為 3 的子字串，請輸出任意一種 s。
 	
@@ -489,7 +487,19 @@ De Bruijn sequence 是由 k 種不同符號組成，且其所有長度為 n 之�
 		最後的答案就是 (開頭的 substring) + (歐拉迴路邊上字元所組成的序列)
 		
 		令 a…z, A…z, 1…9 共是 m 種數字。每個點的 degree 最多是 m，所以 edge 最多 n * m 條。點是由兩個數字接起來，所以最多 m * m 個。總複雜度 O(n * m) = O(61 * n)
-
+		
+???+note "<a href="/wiki/graph/images/2024_TOI_mock1_pE.pdf" target="_blank">2024 TOI 模擬賽第一場 pE. 蚯蚓亂序重排</a>"
+	給 n 張 8 * 8 的 grid，每個 grid 上有 d 格分別是 0, 1, ..., d - 1，差 1 相鄰的數字必相鄰，代表一隻蚯蚓在某個時刻的位置。相鄰時刻的兩個 grid 會滿足 0 是相鄰的，而 i 對應到 i - 1 的位置。將這些 grid 重新排列使得整體看起來是連貫的
+	
+	$n\le 10^5, 3\le d \le 10$
+	
+	??? note "思路"
+		假設現在的數字是 0~9，依照上面 De Bruijn sequences 的想法，我們可以建立點，代表現在 1~9 的位置，而我們連出去的邊就代表現在 0 要放在哪裡。這樣的意義是當我們從某個節點往一條邊走的時候，相當於變成該個狀態，這樣我們的目標就是將所有邊都繞過一次，也就是歐拉路徑。
+		
+		<figure markdown>
+          ![Image title](./images/156.png){ width="300" }
+        </figure>
+		
 ---
 
 ## 參考資料

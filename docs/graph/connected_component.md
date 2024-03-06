@@ -14,6 +14,22 @@
   ![Image title](./images/67.png){ width="450" }
 </figure>
 
+???+note "無向圖 tree edge, back edge 判斷實現"
+	```cpp linenums="1"
+	void dfs(int u, int par) {
+        instk[u] = vis[u] = true;
+        for (auto v : G[u]) {
+            if (v == par) continue;
+            if (vis[v] == false) {
+                dfs(v, u);
+            } else if (instk[v]) {
+                // cycle: v → … → u
+            }
+        }
+        instk[u] = false;
+    }
+    ```
+    
 ## low 函數
 
 low(u) : u 的子樹內的 back edge 可以到達到最小時間
@@ -84,7 +100,7 @@ low(u) : u 的子樹內的 back edge 可以到達到最小時間
 		只存在一條簡單路徑 iff 路徑上的邊都是 bridge
 		
 		我們可以先用 tarjan 找出所有 bridge，然後用一個 dsu 將 bridge 兩端的點 merge 起來，這樣在 query 時只要看兩點是否在 dsu 的同一組即可，複雜度 $O(n\alpha (n))$
-	
+
 ## Tarjan 邊 BCC
 
 如果把所有的 bridge 移除，那每一個連通塊在原圖上就稱為「邊雙連通分量」（bridge-connected component，簡稱 BCC）。
