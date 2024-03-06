@@ -69,9 +69,9 @@
 		這樣最後有可能還剩一個，隨便找一個相鄰結點再交換一次就好，一樣 ans += 2
 		
 		<figure markdown>
-            ![Image title](./images/19.png){ width="450" }
-            <figcaption>最後還剩一個的例子<caption>
-          </figure>
+	        ![Image title](./images/19.png){ width="450" }
+	        <figcaption>最後還剩一個的例子<caption>
+	      </figure>
 	  	
 		實作方面不需要真的移除 leaf，利用 dfs 讓他從 leaf 開始往上處理即可，詳見代碼
 		
@@ -129,64 +129,64 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-
-        using namespace std;
-
-        const int MAXN = 2e5 + 5;
-        int n, m, root;
-        vector<int> G[MAXN];
-        int a[MAXN];
-        int dp1[MAXN], dp2[MAXN], cnt[MAXN], sum;
-        // dp1[u]: subtree(u) 每個點都集合的總時間
-        // dp2[u]: subtree(u) 以外每個點都集合的總時間
-        // cnt[v]: subtree(v) 還沒配對的有多少個
-
-        void dfs1(int u, int par) {
-            int ret = 0; // 多少個從 v 跑到 u 的人
-            for (auto v : G[u]) {
-                if (v == par) continue;
-                dfs1(v, u); 
-                ret += cnt[v];
-                dp1[u] += dp1[v];
-            }
-            dp1[u] += ret;
-            cnt[u] = (ret + a[u]) % 2; // 分組
-        }
-
-        void dfs2(int u, int par) {
-            for (auto v : G[u]) {
-                if (v == par) continue;
-                dp2[v] += dp1[u] - dp1[v] - cnt[v] + dp2[u] + (sum - cnt[v]) % 2;
-                // (sum - cnt[v]) % 2: 上面有落單的要從 u 跑過來 v 做集合
-                dfs2(v, u);
-            }
-        }
-
-        signed main() {
-            cin >> n >> m;
-            for (int i = 2; i <= n; i++) {
-                int parent;
-                cin >> parent;
-                G[i].push_back(parent);
-                G[parent].push_back(i);
-            }
-            for (int i = 1; i <= n; i++) {
-                cin >> a[i];
-                a[i] %= 2;
-                sum += a[i];
-            }
-            root = 1;
-            if (m == 2) {
-                dfs1(root, 0);
-                dfs2(root, 0);
-                for (int i = 1; i <= n; i++) {
-                    cout << dp1[i] + dp2[i] << '\n';
-                }
-            }
-        }
-        ```
+	    #define int long long
 	
+	    using namespace std;
+	
+	    const int MAXN = 2e5 + 5;
+	    int n, m, root;
+	    vector<int> G[MAXN];
+	    int a[MAXN];
+	    int dp1[MAXN], dp2[MAXN], cnt[MAXN], sum;
+	    // dp1[u]: subtree(u) 每個點都集合的總時間
+	    // dp2[u]: subtree(u) 以外每個點都集合的總時間
+	    // cnt[v]: subtree(v) 還沒配對的有多少個
+	
+	    void dfs1(int u, int par) {
+	        int ret = 0; // 多少個從 v 跑到 u 的人
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            dfs1(v, u); 
+	            ret += cnt[v];
+	            dp1[u] += dp1[v];
+	        }
+	        dp1[u] += ret;
+	        cnt[u] = (ret + a[u]) % 2; // 分組
+	    }
+	
+	    void dfs2(int u, int par) {
+	        for (auto v : G[u]) {
+	            if (v == par) continue;
+	            dp2[v] += dp1[u] - dp1[v] - cnt[v] + dp2[u] + (sum - cnt[v]) % 2;
+	            // (sum - cnt[v]) % 2: 上面有落單的要從 u 跑過來 v 做集合
+	            dfs2(v, u);
+	        }
+	    }
+	
+	    signed main() {
+	        cin >> n >> m;
+	        for (int i = 2; i <= n; i++) {
+	            int parent;
+	            cin >> parent;
+	            G[i].push_back(parent);
+	            G[parent].push_back(i);
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            cin >> a[i];
+	            a[i] %= 2;
+	            sum += a[i];
+	        }
+	        root = 1;
+	        if (m == 2) {
+	            dfs1(root, 0);
+	            dfs2(root, 0);
+	            for (int i = 1; i <= n; i++) {
+	                cout << dp1[i] + dp2[i] << '\n';
+	            }
+	        }
+	    }
+	    ```
+
 ### NPSC 真島與莉可麗絲
 
 ???+note "[2022 NPSC 高中組決賽 pE. 真島與莉可麗絲](https://tioj.ck.tp.edu.tw/problems/2309)"
@@ -515,61 +515,53 @@
 	$n \le 2\times 10^5$
 	
 	??? note "思路"
-		分配村民時存在兩種情況
-		
-		1. 如果存在一個兒子 $v$，使得就算不給 $v$ 分配一個居民，最後還是 $v$ 子樹內的葉子節點居民最大，那麼就把問題規模縮小成以 $v$ 為根的子樹了（其他兒子就沒用了） 
-		
-		2. 如果不存在這種兒子 $v$，就存在一種分配方式使得所有葉子節點盡量平均
-		
-		遞迴下去，最終所有的情況一最後都變成了情況二（worst case 到情況 1一直從根到 leaf，但 leaf 上的村民跑不走了）
+		也就是最小化所有葉節點中的最大權值。令 dp[u] 為以 u 為根的子樹中最大葉子節點的最小值。假如我們先不瓜分 a[u] 的權值，一定有 $dp[u] = \max \limits_{v \in son(u)} dp[v]$。假設 u 子樹內的權值合為 sum[u]，葉子數量是 leaf[u]，理想狀態下（均分）以 u 為根的子樹中最大葉節點的最小值為 $\lceil \dfrac{\text{sum}_u}{\text{leaf}_u}\rceil$。不過理想狀態不一定是達的到的（例如有一顆子樹他左邊的權值特別大，但葉子數量特別小），如果 $\max \limits_{v \in son(u)} dp[v] > \lceil \dfrac{\text{sum}_u}{\text{leaf}_u}\rceil$ 的話，dp[u] 還是只能取 $\max \limits_{v \in son(u)} dp[v]$，反之就可以均分，即 $dp[u] = \lceil \dfrac{\text{sum}_u}{\text{leaf}_u}\rceil$
 	
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-	    using namespace std;
-	    #define int long long
-	    #define pb push_back
-	
-	    const int maxn = 2e5 + 10;
-	
-	    vector<int> G[maxn];
-	    int a[maxn], leaf_cnt[maxn], sum[maxn];
-	    int ans = 0;
-	
-	    void dfs(int u) {
-	        sum[u] = a[u];
-	
-	        for (auto &v : G[u]) {
-	            dfs(v);
-	            leaf_cnt[u] += leaf_cnt[v];
-	            sum[u] += sum[v];
-	        }
-	
-	        if (!G[u].size()) leaf_cnt[u] = 1;
-	
-	        int left = (sum[u] % leaf_cnt[u]) == 0 ? 0 : 1;
-	        ans = max(ans, sum[u] / leaf_cnt[u] + left);
-	    }
-	
-	    signed main() {
-	        ios::sync_with_stdio(false);
-	        cin.tie(0);
-	        int n;
-	        cin >> n;
-	
-	        for (int i = 2; i <= n; i++) {
-	            int x;
-	            cin >> x;
-	            G[x].pb(i);
-	        }
-	
-	        for (int i = 1; i <= n; i++) {
-	            cin >> a[i];
-	        }
-	
-	        dfs(1);
-	        cout << ans << '\n';
-	    }
+        using namespace std;
+        #define int long long
+        #define pb push_back
+
+        const int maxn = 2e5 + 10;
+
+        vector<int> G[maxn];
+        int a[maxn], leaf_cnt[maxn], sum[maxn], dp[maxn];
+
+        void dfs(int u) {
+            sum[u] = a[u];
+            if (!G[u].size()) {
+                leaf_cnt[u] = 1;
+            }
+            for (auto v : G[u]) {
+                dfs(v);
+            }
+            for (auto v : G[u]) {
+                dp[u] = max(dp[u], dp[v]);
+                leaf_cnt[u] += leaf_cnt[v];
+                sum[u] += sum[v];
+            }
+            dp[u] = max(dp[u], (sum[u] + leaf_cnt[u] - 1) / leaf_cnt[u]);
+            // 向上取整
+        }
+
+        signed main() {
+            ios::sync_with_stdio(false);
+            cin.tie(0);
+            int n;
+            cin >> n;
+            for (int i = 2; i <= n; i++) {
+                int x;
+                cin >> x;
+                G[x].pb(i);
+            }
+            for (int i = 1; i <= n; i++) {
+                cin >> a[i];
+            }
+            dfs(1);
+            cout << dp[1] << '\n';
+        }
 	    ```
 
 ## CF 982 C
