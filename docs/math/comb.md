@@ -547,6 +547,27 @@ $m^n-C^{m}_{1} \times (m-1)^{n}+C^{m}_{2} \times (m-2)^{n}+\ldots+C^{m}_{m} \tim
 	??? note "思路"
 		若考慮對於每一項要選什麼，會發現很難做。我們逆向思考，變成看 $1\ldots k$ 每個要選那些 index，更具體來說，有 $k$ 個不同箱子，要放入 $n$ 個不同的球，每箱至少放一個有多少種放法。這個就可以用我們上面講到的排容原理來實現。
 
+???+note "[CF 1935 D. Exam in MAC](https://codeforces.com/contest/1935/problem/D)"
+	給一個大小為 n 的集合 s，問有幾組 $0\le x\le y\le c$ 的 $(x,y)$ 滿足 $x+y$ 不在集合內且 $y-x$ 不在集合內
+	
+	$n\le 3\times 10^5, 1\le c\le 10^9$
+	
+	??? note "思路"
+		因為直接去計算會發現有難度，所以我們考慮逆向計算，也就是利用排容原理，全部的方案數扣掉不合法的方案，問題的答案將是：
+		
+		<center>
+		「全部的 (x, y) 方案數」-「x+y 在集合內」-「y-x 在集合內」+「x+y 與 y-x 都在集合內」
+		</center>
+		
+		以下分別計算每個值。
+
+        1. 對於所有可能的 $x,y$，若 x = 0，y 可以是 [0, c]，若 x = 1，y 可以是 [1, c]，...。所以事實上枚舉 x，滿足的 y 的總和就是一個等差數列。也就是 $(c+1)\cdot (c+2)/2$ 個。
+        2. 滿足 $x+y\in s$ 的配對數量。我們遍歷 $s_i$，令 $x+y=s_i$，那麼對於 $0\le x\le \lfloor \dfrac{s_i}{2}\rfloor$，會對應到正好一個 $y$，即具有此總和的配對數量為 $\lfloor \dfrac{s_i}{2} \rfloor+1$。
+        3. 滿足 $y−x\in s$ 的配對數量。我們遍歷差值 $s_i$，令 $y−x=s_i$，移向為 $x = y - s_i$，那麼對於 $s_i\le y\le c$，會對應到正好一個 $x$，即具有此差值的配對數量為 $c−s_i+1$。
+        4. 滿足 $x+y$ 和 $y−x$ 同時在 $s$ 中的配對數量。令 $x+y=s_i$，$y−x=s_j$，那麼 $x=\dfrac{s_i−s_j}{2}$，$y=\dfrac{s_i+s_j}{2}$。只有 $x+y,y-x$ 是奇數和奇數或偶數和偶數時，解出來的 $x,y$ 才會是整數。假設我們計算 $s$ 中偶數和奇數數量分別為 even 和 odd。因此，此類配對的數量是  $\dfrac{\text{even}\cdot (\text{even}+1)}{2}+\dfrac{\text{odd}\cdot (\text{odd}+1)}{2}$。
+
+        總時間複雜度是 $O(n)$。
+	
 ### 錯排
 
 ???+note "[CSES - Christmas Party](https://cses.fi/problemset/task/1717)"

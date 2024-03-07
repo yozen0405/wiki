@@ -1489,6 +1489,71 @@
 	    }
 	    ```
 
+???+note "[CF 1935 C. Messenger in MAC](https://codeforces.com/contest/1935/problem/C)"
+	給一個長度為 n 的序列，第 i 項有權值 $a_i, b_i$，從中選一些項 $p_1, \ldots ,p_k$ 使得
+	
+	$$
+	\sum_{i=1}^{k} a_{p_i} + \sum_{i=1}^{k - 1} |b_{p_i} - b_{p_{i+1}}| \le t
+	$$
+	
+	問最多能選幾項
+	
+	$n\le 2000, 1\le t, a_i, b_i\le 10^9$
+	
+	??? note "思路"
+		因為絕對值有大小之分，我們將 b[i] 先小到大排序。用 dp(i, j) 表示在前 i 項裡面，選了 j 項，cost 最小是多少，但這裡有個細節就是這裡的 dp(i, j) 涵蓋最後的 - b[i]（因為這樣在轉移時才能完整的表示絕對值內的值）。所以轉移式為 dp(i, j) = dp(i - 1, j - 1) + a[i] + b[i]。在做完這個之後記得將 dp(i, j) = min{dp(i - 1, j), dp(i, j) - b[i]}。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        struct Node {
+            int a, b;
+            bool operator<(const Node &rhs) const {
+                return b < rhs.b;
+            }
+        };
+
+        const int inf = 1e9;
+        signed main() {
+            int T;
+            cin >> T;
+            while (T--) {
+                int n, t;
+                cin >> n >> t;
+                vector<Node> v(n);
+                for (int i = 0; i < n; i++) {
+                    int a, b;
+                    cin >> a >> b;
+                    v[i] = {a, b};
+                }
+                sort(v.begin(), v.end());
+                vector<vector<int>> dp(n, vector<int>(n + 1, inf));
+                int ans = 0;
+                for (int i = 0; i < n; i++) {
+                    if (t >= v[i].a) {
+                        ans = max(ans, 1ll);
+                    }
+                }
+                dp[0][1] = v[0].a - v[0].b;
+                for (int i = 1; i < n; i++) {
+                    // 0-base, consider [0, i]
+                    dp[i][1] = min(dp[i - 1][1], v[i].a - v[i].b);
+                    for (int j = 2; j <= i + 1; j++) {
+                        dp[i][j] = dp[i - 1][j - 1] + v[i].a + v[i].b;
+                        if (t >= dp[i][j]) {
+                            ans = max(ans, j);
+                        }
+                        dp[i][j] = min(dp[i - 1][j], dp[i][j] - v[i].b);
+                    }
+                }
+                cout << ans << '\n';
+            }
+        }
+        ```
+		
 ---
 
 ## 資料
