@@ -1066,7 +1066,7 @@
 ???+note "OI Wiki 并查集应用 - pE"
 	給三個長度為 $n$ 的序列 $a, b, c$，枚舉 $1\le i < j \le n$，求
 	
-	$$a_i\cdot b_i \cdot \min_{i\le k\le j}c_k$$
+	$$a_i\cdot b_j \cdot \min_{i\le k\le j}c_k$$
 	
 	的最大值
 	
@@ -1080,7 +1080,9 @@
 	
 	2. 在滿足第一個條件的情況下，段數盡可能多
 	
-	3. 在滿足前兩個條件的情況下，問 $k$ 最小能是多少
+	問 $k$ 最小能是多少
+	
+	$n\le 10^5, 1\le a_i\le 10^9$
 	
 	??? note "思路"
 		枚舉 threshold，用 DSU 維護組別。

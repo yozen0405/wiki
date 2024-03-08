@@ -296,20 +296,14 @@
 ## 霍夫曼編碼
 
 ???+note "問題"
-    給定每種字元的出現頻率 $freq_i$，目標是找到一種 Prefix Code 讓 
-    
-    $$WPL=\sum |s_i| \times freq_i$$
-    
-    最小化。Prefix Code: 每種字元用一個 0/1 字串 $s_i$ 表達，互相不是 prefix
+    有好幾種字元，給定每種字元的出現頻率 freq[i]，給每個字元定義一個 prefix code $s_i$，讓 WPL $=\sum |s_i| \times freq_i$ 最小化。其中 prefix code 的定義是每種字元用一個 0/1 字串來表達，且互相不是 prefix
 
-作法: 每次合併兩個頻率最小的字元
+作法: 每次合併兩個頻率最小的字元，想成是一顆 binary tree，其中葉節點就是我們的字元，這正好符合了「互相不是 prefix」的條件（不能是祖先關係）
 
-例如說有 4 個點（字元）a、b、c、d，他們的 freq 分別為 7、5、2、4
-
-構樹過程: 
+例如說有 4 個點（字元）a、b、c、d，他們的 freq 分別為 7、5、2、4。則我們的構樹過程如下: 
 
 <figure markdown>
-  ![Image title](./images/11.png){ width="400" }
+  ![Image title](./images/11.png){ width="500" }
 </figure>
 
 若需要構造的話，從 root 開始，往左分配 0 的編碼，往右分配 1 的編碼，每個 leaf 的編碼就是從 root 到自己的編碼串起來。
@@ -327,7 +321,7 @@
     	當 $k=2$ 時，就是 Huffman Code 裸題。$k>2$ 的 case，若直接 Greedy 的合併，在最後一次的循環時，Heap 的大小在 $2\ldots k-1$（不足以取出 $k$ 個），那麼整個 Huffman Tree 的 root 的節點個數就會小於 $k$，此時若將一些深度最大的 leaf 拔掉，接到 root 的下方，會使答案變小（若不取深度最大的，則將深度最大的拔起來接到空出來的位置更優）。所以最後的 Huffman Tree 就長成: 所有點的小孩都是滿的，除了最深的一個 internal node 會空出一些位置。具體做法有兩種
     
         1. 我們可以先將 $2+(n-2)\% (k-1)$ 個節點合併（即形成最深的 internal node），剩下的每次合併 $k$ 個節點即可
-        2. 我們補一些額外 $w_i=0$ 的點，這樣這些點就會填滿空出的位置，而且又不影響答案。
+        2. 我們補一些額外 $w_i=0$ 的點，這樣這些點就會填滿空出的位置，而且又不影響答案。因為每次會合併 k 個點，形成一個點，所以相當於一次少 k - 1 個點，經過多次的合併後我們希望剩下一個點（例如 n = 5, k = 5，一次合併後少了 5 個點，但多了 1 個點，所以是 ok 的），所以得到 n % (k - 1) = 1 時可以完整的合併，我們也就是要補點直到 n % (k - 1) = 1。
     
         那麼第二個答案其實就直接看樹的高度即可。如果有一個點可以移動到比較小的深度（也就是讓樹的高度變小），那麼字串長度總和也會跟著變小，跟最佳解條件矛盾。
         
@@ -405,17 +399,17 @@
 	??? note "思路"
 		令 a 為要取的 odd 項，b 為要取的 even 項。例如陣列是 a..b.bab...b..a..b，我們可以先取最後的 a，這樣後面的 b 就會變 odd，再由後往前取，然後重複這個步驟，就可以取完。但可能會有一個 case 例如 .b.b.bab...b，這樣最前面的三個 b 無論如何都是沒辦法取的，必須捨棄，我們必須在前面再取一個才能讓這三個 b 取到。
 		
-		所以我們得到了一個 greedy 的結論，將 $i$-th 移除，我們可以得到 $\sum\limits_{j>i} \max (0, a_j)$，所以枚舉第一個選的，然後將 ans 與他的答案取 max
+		所以我們得到了一個 greedy 的結論，將 $i$-th 移除，我們可以得到 $\sum\limits_{j>i} \max (0, a_j)$，若 i 為 odd 可以再加上 a[i]。所以枚舉第一個選的，然後將 ans 與他的答案取 max
 		
 	??? note "code"
 		```cpp linenums="1"
-		scanf("%d",&n);
-		for(int i = 1; i <= n; i++) {
-			scanf("%d",&a[i]);
+		cin >> n;
+		for (int i = 1; i <= n; i++) {
+			cin >> a[i];
 		}
-		long long s=0;
+		long long s = 0;
 		for (int i = n; i >= 1; i--) {
-			if(i&1) {
+			if (i & 1) {
 				ans = max(ans, s + a[i]);
 			} else {
 				ans = max(ans, s);
@@ -426,12 +420,87 @@
 		```
 
 ???+note "[CSES - Programmers and Artists](https://cses.fi/problemset/task/2426)"
-	給你 $n$ 個 pair$(x_i,y_i)$，要你選這些 pair 裡面的 $a$ 個 $x$ 跟 $b$ 個 $y$，且同一個 pair 中的 $x$ 和 $y$ 不能同時挑
+	給你 $n$ 個 pair$(x_i,y_i)$，要你選這些 pair 裡面的 $a$ 個 $x$ 跟 $b$ 個 $y$，且同一個 pair 中的 $x$ 和 $y$ 不能同時挑，問總和最大是多少
 	
 	$n\le 2\times 10^5$
 	
 	??? note "思路"	
-		<https://github.com/yozen0405/c-projects/blob/main/markdown/2426.md>
+		先考慮 $a+b=n$ 的情況，這等同於假設我們把所有的 $x$ 都選，我們再選前 $b$ 大的 $(y-x)$。也就是說我們拋棄掉了 $b$ 個 $x$ 但得到了 $b$ 個 $y$ 而且賺最多。
+
+    	回歸問題，我們把這些 pair 用 $x$ 大到小拿去 sort，在最佳解的情況時，一定會存一條分界線，使左邊每一項都選 x 或 y，然後右邊只選 y。左邊的部分就是我們上面提到的問題，枚舉 pre[i] 代表前 $i$ 個選 $a$ 個 $x$ 剩下選 $y$。suf[i] 則代表 pre[i - 1] 選完後再繼續選 $y_i\sim y_n$ 的 $y$，直到 $y$ 有 $b$ 個。
+    	
+    	<figure markdown>
+          ![Image title](./images/21.png){ width="400" }
+        </figure>
+
+		> ref: [my github](https://github.com/yozen0405/c-projects/blob/main/markdown/2426.md)
+        
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
+        #define int long long
+        #define x first
+        #define y second
+
+        using namespace std;
+
+        const int MAXN = 3e5 + 5;
+        int n;
+        int a, b;
+        int pre[MAXN], suf[MAXN];
+
+        struct Node {
+            int x, y;
+            bool operator<(const Node &rhs) const {
+                return x > rhs.x;
+            }
+        };
+
+        void build_pre(vector<Node> &v) {
+            priority_queue<int> pq;
+            int sum = 0;
+            for (int i = 1; i <= a; i++) {
+                pq.push(v[i].y - v[i].x);
+                sum += v[i].x;
+                pre[i] = sum;
+            }
+            for (int i = a + 1; i <= a + b; i++) {
+                pq.push(v[i].y - v[i].x);
+                sum += pq.top();
+                pq.pop();
+                sum += v[i].x;
+                pre[i] = sum;
+            }
+        }
+        void build_suf(vector<Node> &v) {
+            priority_queue<int> pq;
+            int sum = 0;
+            for (int i = n; i > a + b; i--) {
+                pq.push(v[i].y);
+            }
+            for (int i = a + b; i >= a + 1; i--) {
+                pq.push(v[i].y);
+                sum += pq.top();
+                pq.pop();
+                suf[i] = sum;
+            }
+        }
+        signed main() {
+            cin >> a >> b >> n;
+            vector<Node> v(n + 1);
+            for (int i = 1; i <= n; i++) {
+                cin >> v[i].x >> v[i].y;
+            }
+            sort(v.begin() + 1, v.end());
+            build_pre(v);
+            build_suf(v);
+            int ans = 0;
+            for (int i = a; i <= a + b; i++) {
+                ans = max(ans, pre[i] + suf[i + 1]);
+            }
+            cout << ans << '\n';
+        }
+        ```
 
 ???+note "[JOI Final 2022 選舉](https://loj.ac/p/3664)"
 	有 $n$ 個州，若在第 $i$ 個州演講 $a_i$ 小時可獲得一張選票，若演講 $b_i$ 小時可獲得一位協作者。多一個協作者就可讓時間加速兩倍，問要獲得 $k$ 張選票的最小耗時
@@ -946,23 +1015,23 @@
 	給定長度為 $n$ 的正整數數列 $a$，問能否構造出另一個**正整數**數列 $b$，滿足：
 
     - 對於 $1 \leq i \leq n$，$a_i \neq b_i$。
-
+    
     - $\sum_{i=1}^{n} a_i = \sum_{i=1}^{n} b_i$。
-
-	$n\le 10^5, 1\le a_i \le 10^9$
-	
-	??? note "思路"
-		當 $a_i=1$ 時，$b_i$ 一定只能是 2 或者是更大的數字，代表我們會多算，而這個只能用 $a_i\neq 1$ 的項來扣，具體來說，一個非 1 的 $a_i$ 最多只能填補 $a_i-1$（因為扣到 $a_i=1$ 就不能再扣了），所以最後我們就只要判斷 $a_i-1$ 的總和是否足夠讓 $a_i=1$ 的數量扣即可。
-		
-		> 區間版本: <https://codeforces.com/contest/1923/problem/C>
-		
-	??? note "code"
-		```cpp linenums="1"
-		#include <iostream>
+    
+    $n\le 10^5, 1\le a_i \le 10^9$
+    
+    ??? note "思路"
+    	當 $a_i=1$ 時，$b_i$ 一定只能是 2 或者是更大的數字，代表我們會多算，而這個只能用 $a_i\neq 1$ 的項來扣，具體來說，一個非 1 的 $a_i$ 最多只能填補 $a_i-1$（因為扣到 $a_i=1$ 就不能再扣了），所以最後我們就只要判斷 $a_i-1$ 的總和是否足夠讓 $a_i=1$ 的數量扣即可。
+    	
+    	> 區間版本: <https://codeforces.com/contest/1923/problem/C>
+    	
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <iostream>
         using namespace std;
-
+    
         long long n, i, t, a, sum;
-
+    
         int main() {
             cin >> t;
             while (t--) {
@@ -983,8 +1052,8 @@
             }
             return 0;
         }
-		```
-		
+    	```
+
 ---
 
 ## 參考資料

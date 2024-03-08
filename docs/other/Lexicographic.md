@@ -45,11 +45,11 @@ while (k > 0) {
 	假如我們要求字串 "abc" 的第 5 小的 permutation，也就是要跳過 k = 4 項
 	
 	<figure markdown>
-      ![Image title](./images/6.png){ width="300" }
-    </figure>
-    
-    我們看以 a 開頭的 permutation 有幾個，發現是 2 個，但 k >= 2，所以我們必須繼續找這一位要放什麼，並將 k -= 2，所以目前 k = 2。以 b 開頭的 permutation 也有 2 個，我們發現 k = 2，所以我們必須跳過 2 個，也就是將 b 開頭的這 2 個 permutation 給跳過，然後繼續找這一位要放什麼，並將 k -= 2，所以目前 k = 0。c 開頭數量也是 2 個，而此時 k < 2，代表我們已經確定這一位要放 c，可以往下一位繼續考慮，以 ca 為開頭的數量是 1 個，而此時 k = 0，又 k < 2，代表我們確定了以 ca 為開頭，繼續坐下去後最後就得到了 cab 
+	  ![Image title](./images/6.png){ width="300" }
+	</figure>
 	
+	我們看以 a 開頭的 permutation 有幾個，發現是 2 個，但 k >= 2，所以我們必須繼續找這一位要放什麼，並將 k -= 2，所以目前 k = 2。以 b 開頭的 permutation 也有 2 個，我們發現 k = 2，所以我們必須跳過 2 個，也就是將 b 開頭的這 2 個 permutation 給跳過，然後繼續找這一位要放什麼，並將 k -= 2，所以目前 k = 0。c 開頭數量也是 2 個，而此時 k < 2，代表我們已經確定這一位要放 c，可以往下一位繼續考慮，以 ca 為開頭的數量是 1 個，而此時 k = 0，又 k < 2，代表我們確定了以 ca 為開頭，繼續坐下去後最後就得到了 cab 
+
 ???+note "[Leetcode 440.K-th Smallest in Lexicographical Order](https://leetcode.com/problems/k-th-smallest-in-lexicographical-order/)"
 	將 [1, n] 內的元素按照字典序小到大排序後，問第 k 項（1-base）是多少
 	
@@ -59,46 +59,46 @@ while (k > 0) {
 		我們先將答案的第一位確定下來，再確定第二位，第三位，...。例如說以 1 開頭的不足 k，k -= 1 開頭的數量，我們就要考慮 2，如果這時夠了，就先將 k -= 1（扣掉單純是 2 ），我們下一位就是要確定 2 後面要放什麼，可能是 0~9，所以我們再看 20 開頭的數量夠不夠 k，...。
 		
 		<figure markdown>
-          ![Image title](./images/7.png){ width="450" }
-        </figure>
+	      ![Image title](./images/7.png){ width="450" }
+	    </figure>
 		
 		如果還是不懂得話，這邊有[bilibili的影片](https://m.bilibili.com/video/BV1944y1N7ha)可以參考
 	
-    ??? note "code"
-    	```cpp linenums="1"
-    	class Solution {
-        public:
-            int f(int cur, long long n) {
-            	// return 以 cur 開頭的數字數量
-                long long le = cur, ri = cur;
-                int ans = 0;
-                while (le <= n) {
-                    ans += min(ri, n) - le + 1;
-                    le = le * 10;
-                    ri = ri * 10 + 9;
-                }
-                return ans;
-            }
-            int findKthNumber(int n, int k) {
-                int cur = 1;
-                k--;
-                while (k > 0) {
-                    int num = f(cur, n);
-                    if (k >= num) {
-                    	// 改變當前位的數字
-                        k -= num;
-                        cur++;
-                    } else {
-                    	// 確定了當前位，之後換成考慮下一位
-                        k -= 1;
-                        cur = cur * 10;
-                    }
-                }
-                return cur;
-            }
-        };
-        ```
-	
+	??? note "code"
+		```cpp linenums="1"
+		class Solution {
+	    public:
+	        int f(int cur, long long n) {
+	        	// return 以 cur 開頭的數字數量
+	            long long le = cur, ri = cur;
+	            int ans = 0;
+	            while (le <= n) {
+	                ans += min(ri, n) - le + 1;
+	                le = le * 10;
+	                ri = ri * 10 + 9;
+	            }
+	            return ans;
+	        }
+	        int findKthNumber(int n, int k) {
+	            int cur = 1;
+	            k--;
+	            while (k > 0) {
+	                int num = f(cur, n);
+	                if (k >= num) {
+	                	// 改變當前位的數字
+	                    k -= num;
+	                    cur++;
+	                } else {
+	                	// 確定了當前位，之後換成考慮下一位
+	                    k -= 1;
+	                    cur = cur * 10;
+	                }
+	            }
+	            return cur;
+	        }
+	    };
+	    ```
+
 ???+note "[2018 TOI 初選 pB. 排列第幾個？（Permutation）](https://tioj.ck.tp.edu.tw/problems/2052)"
 	給一個字串 s，問這是字典序幾小的排列
 	
@@ -110,80 +110,80 @@ while (k > 0) {
 	??? note "code"	
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-
-        using namespace std;
-
-        const int MAXN = 1200 + 5;
-
-        int n, M;
-        string s;
-        int C[MAXN][MAXN];
-
-        void build() {
-            C[0][0] = 1;
-            for (int i = 1; i <= n; i++) {
-                for (int j = 0; j <= i; j++) {
-                    if (j == 0) {
-                        C[i][j] = 1;
-                    } else {
-                        C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) % M;
-                    }
-                }
-            }
-        }
-
-        map<int, int> mp;
-
-        int get(int i) {
-            int cnt = n - i;
-            int res = 1;
-            for (auto [u, v] : mp) {
-                if (v > 0) {
-                    res = (res * C[cnt][v]) % M;
-                    cnt -= v;
-                }
-            }
-            return res;
-        }
-
-        int convert(char c) {
-            if ('a' <= c && c <= 'z') {
-                return c - 'a' + 1 + 26;
-            } else if ('A' <= c && c <= 'Z') {
-                return c - 'A' + 1;
-            }
-        }
-
-        signed main() {
-            cin >> M >> s;
-            n = s.size();
-            s = "$" + s;
-            for (int i = 1; i <= n; i++) {
-                mp[convert(s[i])]++;
-            }
-
-            build();
-            int k = 0;
-            for (int i = 1; i <= n; i++) {
-            	// 計算以當前位字典序小於 s[i] 時的 permutation 數量
-                for (auto [u, v] : mp) {
-                    if (convert(s[i]) == u) {
-                        mp[u]--;
-                        break;
-                    }
-                    if (v > 0) {
-                        mp[u]--;
-                        k += get(i);
-                        k %= M;
-                        mp[u]++;
-                    }
-                }
-            }
-            cout << k << '\n';
-        }
+	    #define int long long
+	
+	    using namespace std;
+	
+	    const int MAXN = 1200 + 5;
+	
+	    int n, M;
+	    string s;
+	    int C[MAXN][MAXN];
+	
+	    void build() {
+	        C[0][0] = 1;
+	        for (int i = 1; i <= n; i++) {
+	            for (int j = 0; j <= i; j++) {
+	                if (j == 0) {
+	                    C[i][j] = 1;
+	                } else {
+	                    C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) % M;
+	                }
+	            }
+	        }
+	    }
+	
+	    map<int, int> mp;
+	
+	    int get(int i) {
+	        int cnt = n - i;
+	        int res = 1;
+	        for (auto [u, v] : mp) {
+	            if (v > 0) {
+	                res = (res * C[cnt][v]) % M;
+	                cnt -= v;
+	            }
+	        }
+	        return res;
+	    }
+	
+	    int convert(char c) {
+	        if ('a' <= c && c <= 'z') {
+	            return c - 'a' + 1 + 26;
+	        } else if ('A' <= c && c <= 'Z') {
+	            return c - 'A' + 1;
+	        }
+	    }
+	
+	    signed main() {
+	        cin >> M >> s;
+	        n = s.size();
+	        s = "$" + s;
+	        for (int i = 1; i <= n; i++) {
+	            mp[convert(s[i])]++;
+	        }
+	
+	        build();
+	        int k = 0;
+	        for (int i = 1; i <= n; i++) {
+	        	// 計算以當前位字典序小於 s[i] 時的 permutation 數量
+	            for (auto [u, v] : mp) {
+	                if (convert(s[i]) == u) {
+	                    mp[u]--;
+	                    break;
+	                }
+	                if (v > 0) {
+	                    mp[u]--;
+	                    k += get(i);
+	                    k %= M;
+	                    mp[u]++;
+	                }
+	            }
+	        }
+	        cout << k << '\n';
+	    }
 		```
-		
+
 ???+note "[全國賽 2022 pG](https://sorahisa-rank.github.io/nhspc-fin/2022/problems.pdf#page=21)"
 	設 $T$ 為一棵有 $n$ 個節點的樹，節點編號 $1, 2, \ldots , n$，已知 $T$ 每個節點的 degree 為 $d_1,d_2,\ldots ,d_n$，其中 $d_i$ 為點 $i$ 的 degree，求出 $T$ 所有可能的 Prüfer 序列中，字典序第 $k$ 小的，如果沒有輸出 $-1$
 	
@@ -331,4 +331,22 @@ while (k > 0) {
 	    }
 	    ```
 
+???+note "<a href="/wiki/cp/contest/images/TOI-2023-3.pdf" target="_blank">2023 TOI 模擬賽決賽 pB. TOI 也會出字串題？</a>"
+	給 n 個點，$\dfrac{n(n-1)/2}$ 的 DAG，滿足任意 $1\le i< j\le n$ 都存在 $i$ 到 $j$ 的有向邊。每個點都是一個字元。有 $q$ 筆詢問如下：
 	
+	- $\text{query}(s, t):$ 輸出 $s$ 到 $t$ 的字典序最小路徑（路徑上所有字元按照順序拼起來的字串字典序最小）
+
+	$2\le n\le 800$
+	
+	??? note "思路"
+		【subtask】
+	
+		我們要去進行轉移，但轉移要有正確的順序。令 $s_1, s_2$ 是字串，$c$ 是字元，$s_1$ 的字典序比 $s_2$ 小**不代表**$s_1+c<s_2+c$。例如說 $s_1=$a,$s_2=$aa,$c=$c。所以我們可以得到一個引理：點 x 到點 y 的字典序最小路徑一定是 x 走恰一條邊至某個點 i，再從點 i 走字典序最小路至點 y（如果改成「點 x 到點 y 的字典序最小路徑一定是 x 走字典序最小路到某個點 i，再從點 i 走恰一條邊至 y」依照上面提到的性質，就會發現是錯的）。
+		
+		所以我們可以令 dp(i, j) 代表點 i 至點 j 路徑上字典序最小字串，根據引裡可列出轉移式：
+		
+		$$
+		dp(i, j) = \min\limits_{k=i+1}^j{s(i, k)+dp(k, j)}
+		$$
+		
+		時間複雜度為 $O(n^4)$。

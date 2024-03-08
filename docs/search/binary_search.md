@@ -1195,6 +1195,77 @@
 	
 	    所以我們使用二分搜查找即可。
 
+???+note "[TIOJ 1598. 希爾伯特的房客](https://tioj.ck.tp.edu.tw/problems/1598)"
+	有無限多個人，目前有 n 個人有鬆餅，第 i 個人有 a[i] 的鬆餅，每分鐘可將一塊鬆餅吃掉，或分給另一個人。總共最多只能分 m 次，問最少幾分鐘可吃完
+	
+	$n \le 10^5, m, a_i \le 10^6$
+	
+	??? note "思路"
+		我們可以去二分搜吃的時間 t，然後看看每一項是否能在 t 這個時間內吃完。對於檢查的部分，我們發現分鬆餅的過程有點像<a href="/wiki/basic/greedy/problem/#_3">霍夫曼編碼</a>的感覺（每次一個 node 都將自己拆成兩半），可以看成一顆 Full Binary Tree，其中每個 internal node 都代表著一次分配。
+		
+		對應到剛剛的條件，Full Binary Tree 的葉節點上面的數字應該要小於 t 減掉葉節點的深度，而每一項 a[i] 的 Full Binary Tree 的 internal node 的數量總和要 <= m。我們發現無法確定 internal node 的數量要是多少比較好，但我們又希望在合法的情況下越少越好，於是我們可以試著再做一個二分搜分幾次，假設二分搜到了 k，就變成說要判斷分 k 次的時候能不能在 t 的時間內吃完，那我們可以使我們的 Full Binary Tree 的葉節點上面的數字盡量大，再看看這些葉節點的權值總和是否大於等於 a[i]。因為深度關係到葉節點上面的數字，所以我們盡量讓 Full Binary Tree 的深度越小越好，所以我們可以先填出一個 Perfect Binary Tree（代表著 internal node，然後要使得點的數量 <= k），下面可能還會有不完整的一層（也是 internal node），然後填完後這些點下面能連的地方我們都當作是葉節點。再看看所有葉節點他們最大的權值總和是否 >= a[i] 即可。
+		
+		<figure markdown>
+          ![Image title](./images/14.png){ width="400" }
+        </figure>
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+        using namespace std;
+
+        int n, m;
+        int a[1000010];
+
+        int cal(int k, int t) {
+            int dep = -1, sz = 0;
+            while (sz + (1ll << (dep + 1)) <= k) {
+                dep++;
+                sz += 1ll << dep;
+            }
+            int extra_internal = k - sz;
+            int extra_leaf = (1ll << (dep + 1)) - extra_internal;
+            return extra_internal * 2 * (t - (dep + 2)) + extra_leaf * (t - (dep + 1));
+        }
+
+        bool check(int t) {
+            int cnt = 0;
+            for (int i = 0; i < n; i++) {
+                if (a[i] > t) {
+                    int l = 1, r = t;
+                    while (l != r) {
+                        int mid = (l + r) / 2;
+                        if (cal(mid, t) >= a[i]) {
+                            r = mid;
+                        } else {
+                            l = mid + 1;
+                        }
+                    }
+                    cnt += l;
+                }
+            }
+            return cnt <= m;
+        }
+
+        signed main() {
+            cin >> n >> m;
+            for (int i = 0; i < n; i++) {
+                cin >> a[i];
+            }
+            int l = 0, r = 1000000;
+            while (l != r) {
+                int mid = (l + r) / 2;
+                if (check(mid)) {
+                    r = mid;
+                } else {
+                    l = mid + 1;
+                }
+            }
+            cout << l << '\n';
+        }
+        ```
+	
 ## 細節
 
 - check(x) 的 x 太大的時候，有些情況會造成 cnt overflow
