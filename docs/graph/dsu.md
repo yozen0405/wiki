@@ -874,64 +874,64 @@
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        const int MAXN = 5e5 + 5;
-        int n, m;
-        int par[MAXN];
-
-        void dsu_init() {
-            for (int i = 1; i <= 2 * n; i++) {
-                par[i] = i;
-            }
-        }
-
-        int find(int x) {
-            if (par[x] == x) {
-                return x;
-            } else {
-                return par[x] = find(par[x]);
-            }
-        }
-
-        void merge(int a, int b) {
-            int x = find(a);
-            int y = find(b);
-            if (x == y) return;
-            par[x] = y;
-        }
-
-        signed main() {
-            ios::sync_with_stdio(0);
-            cin.tie(0);
-            while (cin >> n >> m) {
-                if (n == 0 && m == 0) {
-                    break;
-                }
-                dsu_init();
-                vector<pair<int, int>> edges;
-                int u, v;
-                for (int i = 0; i < m; i++) {
-                    cin >> u >> v;
-                    edges.push_back({u, v});
-                }
-                bool flag = true;
-                for (auto [u, v] : edges) {
-                    if (find(u) == find(v)) {
-                        cout << "No\n";
-                        flag = false;
-                        break;
-                    } else {
-                        merge(u, v + n);
-                        merge(v, u + n);
-                    }
-                }
-                if (flag) {
-                    cout << "Yes\n";
-                }
-            }
-        }
+	    #define int long long
+	    using namespace std;
+	
+	    const int MAXN = 5e5 + 5;
+	    int n, m;
+	    int par[MAXN];
+	
+	    void dsu_init() {
+	        for (int i = 1; i <= 2 * n; i++) {
+	            par[i] = i;
+	        }
+	    }
+	
+	    int find(int x) {
+	        if (par[x] == x) {
+	            return x;
+	        } else {
+	            return par[x] = find(par[x]);
+	        }
+	    }
+	
+	    void merge(int a, int b) {
+	        int x = find(a);
+	        int y = find(b);
+	        if (x == y) return;
+	        par[x] = y;
+	    }
+	
+	    signed main() {
+	        ios::sync_with_stdio(0);
+	        cin.tie(0);
+	        while (cin >> n >> m) {
+	            if (n == 0 && m == 0) {
+	                break;
+	            }
+	            dsu_init();
+	            vector<pair<int, int>> edges;
+	            int u, v;
+	            for (int i = 0; i < m; i++) {
+	                cin >> u >> v;
+	                edges.push_back({u, v});
+	            }
+	            bool flag = true;
+	            for (auto [u, v] : edges) {
+	                if (find(u) == find(v)) {
+	                    cout << "No\n";
+	                    flag = false;
+	                    break;
+	                } else {
+	                    merge(u, v + n);
+	                    merge(v, u + n);
+	                }
+	            }
+	            if (flag) {
+	                cout << "Yes\n";
+	            }
+	        }
+	    }
 	    ```
 
 ???+note "[洛谷 P2024 [NOI2001] 食物链](https://www.luogu.com.cn/problem/P2024)"
@@ -1072,7 +1072,7 @@
 	
 	??? note "思路"
 		從權值大到小考慮 $c_k$，在 $k$ 上加入一個點，然後將 $k-1$ 和 $k+1$ 位置上的點所在的連通塊與之合併（如果這兩個位置上有點的話），連通塊上紀錄 $a$ 的最大值與 $b$ 的最大值，即在合併時更新答案，時間複雜度 $O(n \log n)$
-	
+
 ???+note "序列上的 DSU [CF 982 D. Shark](https://codeforces.com/contest/982/problem/D)"
 	給大小為 $n$ 的序列 $a_1,\ldots, a_n$。刪除大於等於 $k$ 的數字，使得其滿足以下條件： 
 	
@@ -1160,6 +1160,108 @@
 	    }
 		```
 
+???+note "[USACO 2018 FEB Snow Boots G](https://www.luogu.com.cn/problem/P4269)"
+    有 $n$ 塊雪堆，第 $i$ 塊上有高度為 $f_i$ 的雪，其中 $f_1$ 和 $f_n=0$。有 $q$ 筆查詢：
+
+    - $\text{query}(s,d):$ 鞋子一次最大能跨 $d$ 格，只能在高度為 $s$ 以下的雪堆著地，能否從 $1$ 到 $n$
+
+    $n,q\le 10^5, 0\le f_i,s\le 10^9, 1\le d\le n - 1$
+	
+	??? note "思路"
+        【並查集】
+
+        首先考慮問題本質。問題是一雙靴子能不能走到終點，這雙靴子最大跨度為 $d$，最大高度為 $s$。因為跨度最多為 $d$，如果高度比 $s$ 大的雪堆連續有 $d$ 堆，那麼我的靴子就跨不過去，也就到達不了終點。這麼一分析，問題變成了連續的高度比 $s$ 大的雪堆的數量是不是比 $d$ 小，如果比 $d$ 小，靴子就能走過去，否則就不能。再來看一個問題：
+
+        現在有 $a$，$b$ 兩雙靴子，$s_a$ 比 $s_b$ 大，那麼是靴子 $a$ 不能走的雪堆多，還是靴子 $b$ 不能走的雪堆多？
+
+        答案是靴子 $b$ 不能走的雪堆多。那麼我們可以把靴子按照 $s$ 從大到小排序，這樣前面的靴子走不過的路，後面的靴子也都不能走。同樣的，因為高度大的雪堆會影響到的鞋子只會越來越多，所以我們可以把雪堆按照高度從大到小排序。但是有的人就問了：排了序我們怎麼統計連續的個數呢？我們每次加入一個雪堆可以為他打上標記，表示他已經進來了。而他每次進來都要檢查他的兩邊，如果有哪個雪堆有標記，那麼他們連起來變成一串大雪堆。他們每次要合並，合並的話什麼最快呢？並查集。我們要求的就是目前在並查集內，連續的雪堆的最大的大小。每次合併兩個雪堆，我們都要統計連通塊大小的最大值，然後拿最大值與靴子的跨度 $d$ 比較就行了。
+
+        【鏈表】
+
+        假設目前的靴子高度為 $h$，先預處理出只經過 $f_i\leq h$ 的點，至少每一步需要跨多大距離。把所有 $f_i$ 從小到大排序，依次加入一個資料結構中，需要查詢相鄰兩點距離的最大值。用兩個 set 就可以維護（或者一個 set 一個可刪除堆），先在第一個 set 中找到左邊右邊的點，刪除這兩點間距離，加入新點到左邊右邊的點的距離，再查詢最大值。對每個詢問，假如能走的距離 $d$ 大於等於只走 $\leq s$ 的最小距離就可行，否則不可行。
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        using namespace std;
+
+        int n, b, num[100010], mx;
+        bool vis[100010];
+        int ans[100010];
+
+        struct Node {
+            int h, id;
+        } nodes[100005];
+
+        struct point {
+            int h, w, id;
+        } q[100005];
+
+        bool cmp1(const Node &a, const Node &b) { 
+            return a.h > b.h;
+        }
+
+        bool cmp2(const point &a, const point &b) { 
+            return a.h > b.h;
+        }
+
+        int fa[100005];
+
+        int find(int x) {
+            if (fa[x] == x) {
+                return x;
+            }
+            return fa[x] = find(fa[x]);
+        }
+
+        void merge(int x, int y) {
+            int fx = find(x);
+            int fy = find(y);
+            if (fx == fy) {
+                return;
+            }
+            fa[fx] = fy;            
+            num[fy] += num[fx];     
+            mx = max(mx, num[fy]); 
+            return;
+        }
+
+        int main() {
+            scanf("%d%d", &n, &b);
+            for (int i = 1; i <= n; i++) {
+                fa[i] = i; 
+                nodes[i].id = i;
+                scanf("%d", &nodes[i].h);
+            }
+            for (int i = 1; i <= b; i++) {
+                q[i].id = i;
+                scanf("%d%d", &q[i].h, &q[i].w);
+            }
+            sort(nodes + 2, nodes + n, cmp1);  // 按照高度從大到小排序，這裡注意，首尾雪堆不需要排序！
+            sort(q + 1, q + 1 + b, cmp2);
+            int j = 2;                                
+            for (int i = 1; i <= b; i++) {            
+                while (q[i].h < nodes[j].h) {  // 判斷這雙靴子是不是不能走過目前的雪堆
+                    vis[nodes[j].id] = true;            
+                    num[nodes[j].id] = 1;                  
+                    if (vis[nodes[j].id - 1]) {            
+                        merge(nodes[j].id - 1, nodes[j].id); 
+                    }
+                    if (vis[nodes[j].id + 1]) {          
+                        merge(nodes[j].id + 1, nodes[j].id);
+                    }
+                    j++; // 目前雪堆靴走不過去了，枚舉下一個雪堆
+                    mx = max(mx, 1);  // 如果暫時沒有合併，MAX就是1個節點
+                }
+                ans[q[i].id] = (q[i].w > mx); 
+            }
+            for (int i = 1; i <= b; i++) {
+                printf("%d\n", ans[i]);
+            }
+            return 0;
+        } 
+        ```
+	
 ### 線段樹分治
 
 ???+note "動態維護連通性"
