@@ -43,7 +43,7 @@
 
 ??? note "code"
 	```cpp linenums="1"
-	void Prim (int start) {
+	void prim(int start) {
         vector<int> dis(n, INF);
         priority_queue<pii, vector<pii>, greater<pii>> pq;
         pq.push({0, start});
@@ -92,16 +92,16 @@
         vector<int> par, sz;
         vector<set<int>> S;
     
-        DSU (int n = 0) : cc(n), par(n), sz(n, 1), S(n) {
+        DSU(int n = 0) : cc(n), par(n), sz(n, 1), S(n) {
             for (int i = 0; i < n; i++) {
                 par[i] = i;
             }
         }
-        int find (int x) {
+        int find(int x) {
             if (par[x] == x) return x;
             return par[x] = find(par[x]);
         }
-        bool merge (int u, int v) {
+        bool merge(int u, int v) {
             u = find(u), v = find(v);
             if (u == v) return false;
             if (sz[u] < sz[v]) swap(u, v);
@@ -171,7 +171,7 @@
         for (int i = 0; i < m; i++) {
             cin >> u >> v >> w;
             u--, v--;
-            edges.push_back ({u, v, w});
+            edges.push_back({u, v, w});
         }
     
         cout << MST(n, edges) << "\n";
@@ -179,11 +179,7 @@
     ```
 
 ???+note "[2020 花中一模 E. 道路建設 (Road)](https://codeforces.com/group/GG44hyrVLY/contest/297533/problem/E)"
-	給 $n$ 個點，點有權值 $a_i$，$i,j$ 加邊的花費為 $a_i+a_j$
-	
-	另外給 $m$ 條特殊邊 : 表示對 $u,v$ 加邊，花費**只能**為 $w$，而非 $a_u+a_v$
-	
-	要求將這些點連起來形成樹的最小花費代價
+	給 $n$ 個點，點有權值 $a_i$，$i,j$ 加邊的花費為 $a_i+a_j$。另外給 $m$ 條特殊邊 $(u, v, w)$，表示對 $u,v$ 加邊，花費**只能**為 $w$，而非 $a_u+a_v$。問這些點連起來形成樹的最小花費
 	
 	$n,m\le 10^5,a_i,w\le 10^{7}$
 	
@@ -1127,13 +1123,13 @@
     
     ??? note "思路"
     	首先我們根據 Kruskal 演算法求最小生成樹 (MST) 的思路，將邊權從小到大排序。容易發現：若一條邊的兩個端點在之前就被比它邊權更小的邊所聯通，則這條邊一定不會出現在 MST 中。
-
+    
         根據該思路，我們對同一邊權的邊分別進行處理。首先，我們去除掉剛才說的顯然不存在的邊，然後把其他的邊加入到原圖（重邊無影響）中。那麼顯然，圖中的割邊就是一定會出現在所有 MST 中的邊。
-
+    
         舉個例子，假設當前處理到邊權為 $x$。那麼我們先把所有小於 $x$ 的邊加進去。根據上述思路可知，這兩個邊的集合一定不連通，否則這條邊顯然不存在。這個時候兩個集合之間可能會有若干個權值為 $x$ 的邊，而連接這兩個集合的一定是這些權值為 $x$ 的邊，不可能更大，這一點由 Kruskal 演算法的貪心性質可知。而此時，從這些 $x$ 中我們只需選出一條即可，所以這些 $x$ 至少存在於一個 MST 中，而如果只有一個 $x$，則它一定是橋，則必然出現於所有 MST 中。
-
+    
         由於我們在考慮當前權值時，並不關心圖的其他部分，所以我們在處理一類邊權時，對當前圖進行縮點，可以做到時間的最佳化。這邊縮點的方法是採用並查集（也就是每次在看一個點的時候都先在並查集內 find(u)，詳見代碼）。縮點後找橋的過程中，我們只需要初始化所有新邊兩端點的 dfn 為 0，不必要全部初始化，因為對於其他點是沒有影響的。
-
+    
         複雜度的部分因為每個點被 tarjan 算法跑過一次後就會縮點起來，總時間複雜度就是 sort $O(m\log m)$ + tarjan $O(n + m)$ 所以是 $O(m\log m)$。
     
     ??? note "code"
@@ -1142,13 +1138,13 @@
         #include<vector>
         #include<algorithm>
         using std::sort;
-
+    
         int n, m, f[100010], ans[100010];
-
+    
         namespace graph {
             using std::min;
             using std::vector;
-
+    
             struct node {
                 int to, id;
             };
@@ -1161,12 +1157,12 @@
                 }
             }
             edge[100010];
-
+    
             inline void addedge(int from, int to, int id) { //加边
                 e[from].push_back(node{to, id}),
                 e[to].push_back(node{from, id});
             }
-
+    
             void tarjan(int now, int faid) { // faid 為目前轉移到 now 這個點的邊的編號
                 low[now] = dfn[now] = nowtime++;
                 for (register int i = 0; i < (int) e[now].size(); ++i) {
@@ -1184,11 +1180,11 @@
                 }
             }
         }
-
+    
         inline int getf(int x) {
             return f[x] = x == f[x] ? x : getf(f[x]);
         }
-
+    
         inline void init() {
             scanf("%d%d", & n, & m);
             for (register int i = 1; i <= n; ++i)
@@ -1198,7 +1194,7 @@
                 graph::edge[i].id = i;
             sort(graph::edge + 1, graph::edge + m + 1);
         }
-
+    
         inline void work() {
             int j;
             for (register int i = 1; i <= m; i = j) {
@@ -1231,7 +1227,7 @@
                 }
             }
         }
-
+    
         int main(void) {
             init();
             work();

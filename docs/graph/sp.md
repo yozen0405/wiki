@@ -2300,8 +2300,8 @@
     $n,m\le 2\times 10^5, 1\le \ell,w_i \le 10^9,1\le k\le 10^{15}$
     
     ??? note "思路"
-		首先，若 $\text{dis}(s \rightarrow t)$ 一開始就已經 $\leq k$，那我們的方法數就直接輸出 $\dfrac{n(n - 1)}{2}$。否則，我們的想法就是找到滿足能從 $s \rightarrow u \rightarrow v \rightarrow t$ 的條件數，就是先用 Dijkstra 建出 $\text{dis}(s \rightarrow u)$ 與 $\text{dis}(t \rightarrow v)$，然後再想辦法用枚舉 $u$，$v$ 用二分搜之類的來計算。但此時會不會發生我們能從 $s \rightarrow u \rightarrow v \rightarrow t$ 且能從 $s \rightarrow v \rightarrow u \rightarrow t$ 的 $(u, v)$ 呢? 因為那會導致我們重複計算。我們來先試著列式一下，看這種情況存不存在：
-
+    	首先，若 $\text{dis}(s \rightarrow t)$ 一開始就已經 $\leq k$，那我們的方法數就直接輸出 $\dfrac{n(n - 1)}{2}$。否則，我們的想法就是找到滿足能從 $s \rightarrow u \rightarrow v \rightarrow t$ 的條件數，就是先用 Dijkstra 建出 $\text{dis}(s \rightarrow u)$ 與 $\text{dis}(t \rightarrow v)$，然後再想辦法用枚舉 $u$，$v$ 用二分搜之類的來計算。但此時會不會發生我們能從 $s \rightarrow u \rightarrow v \rightarrow t$ 且能從 $s \rightarrow v \rightarrow u \rightarrow t$ 的 $(u, v)$ 呢? 因為那會導致我們重複計算。我們來先試著列式一下，看這種情況存不存在：
+    
         **<u>證明</u>**：從 $s \rightarrow u \rightarrow v \rightarrow t$ 或 $s \rightarrow v \rightarrow u \rightarrow t$ 皆可是存在的
         
         $$
@@ -2319,9 +2319,9 @@
         \Rightarrow &\space \space\space\text{dis}(s \rightarrow u) + \text{dis}(v \rightarrow t) + \text{dis}(s \rightarrow v) + \text{dis}(u \rightarrow t) \leq 2k - 2\ell
         \end{align}
         $$
-
+    
         由於 $\text{dis}(s \rightarrow t) > k$
-
+    
         $$
         \begin{align}
         &\min\{\text{dis}(s \rightarrow u) + \text{dis}(u \rightarrow t), \text{dis}(s \rightarrow v) + \text{dis}(s \rightarrow t)\} > k
@@ -2334,30 +2334,30 @@
         $$
         
         代表 $2k\le 2k-2\ell$，這只會在 $\ell < 0$ 成立，但我們 $1\le \ell \le 10^9$，所以無法成立，代表結果矛盾的，不存在這種情況。所以我們就只需要算 $s \rightarrow u \rightarrow v \rightarrow t$ 的 $(u, v)$ 數量就好，完全不用考慮重複算的問題。這個有很多種作法，以下提供兩種：
-
+    
         1. 可以先把 $\text{dis}(t \rightarrow v)$ sort 好，然後固定 $u$，去二分搜滿足條件的 $v$。
         2. 或是可以先把 $\text{dis}(s \rightarrow u),\text{dis}(t \rightarrow u)$ 都由小到大分別 sort 好，然後因為滿足的 pair 具有單調性，可以用 two pointer 算，具體見代碼。
-
-	??? note "code"
-		```cpp linenums="1"
-		#include <bits/stdc++.h>
+    
+    ??? note "code"
+    	```cpp linenums="1"
+    	#include <bits/stdc++.h>
         #define int long long
-
+    
         using namespace std;
         using pii = pair<int, int>;
-
+    
         const int N = 2e5 + 5;
         int n, m, s, t, l, k;
         int ans, ds[N], dt[N];
         bool vis[N];
         vector<pii> G[N];
-
+    
         void dij(int dis[], int s) {
             priority_queue<pii, vector<pii>, greater<pii>> q;
             memset(vis, 0, sizeof(vis));
             dis[s] = 0;
             q.push({0, s});
-
+    
             while (!q.empty()) {
                 auto [sum, u] = q.top();
                 q.pop();
@@ -2373,7 +2373,7 @@
                 }
             }
         }
-
+    
         signed main() {
             ios::sync_with_stdio(false);
             cin.tie(nullptr);
@@ -2384,19 +2384,19 @@
                 G[u].push_back({v, w});
                 G[v].push_back({u, w});
             }
-
+    
             memset(ds, 0x3f, sizeof(ds));
             memset(dt, 0x3f, sizeof(dt));
             dij(ds, s), dij(dt, t);
-
+    
             if (ds[t] <= k) {
                 cout << n * (n - 1) / 2 << '\n';
                 return 0;
             }
-
+    
             sort(ds + 1, ds + 1 + n);
             sort(dt + 1, dt + 1 + n);
-
+    
             int j = 0;
             for (int i = n; i >= 1; i--) {
                 while (ds[i] + l + dt[j + 1] <= k && j < n) {
@@ -2407,8 +2407,8 @@
             cout << ans << '\n';
             return 0;
         }
-		```
-		
+    	```
+
 ### 次短路
 
 第二次跑到某個點的時候就代表那個點的次短路
@@ -3061,7 +3061,7 @@
 	??? note "思路"
 		最小的解就是 $w_{p_1}=1,w_{p_2}=2,\ldots$，我們二分搜一個 threshold $t$，滿足使用邊權 $\le t$ 的邊恰能使 $s\to t$ 的最短路 $\le d$，若全部的邊都用上 $d$ 還是小於最短路 $L$，就輸出無解。
 		
-		因為到 $w_i=t$ 恰好連通，所以 $w_i=t$ 一定在最短路徑上，所以我們可以將 $w_i$ 改成 $t+d-L$，使得最短路加起來恰好變成 $L$，剩下 $< t$ 的邊就是 $1, 2, \ldots$，$>t$ 的邊就設為 $d+1, d+2, \ldots$ 即可
+		接下來我們要來調整，讓最短路變成恰好 $d$。因為到 $w_i=t$ 才恰好形成 <= d 的最短路，所以 $w_i=t$ 一定在最短路徑上，而在這之前，最短路是 > d 的。如果我們將 $w_i$ 改成 $t+d-L$，可以使得最短路加起來恰好變成 $d$（因為沒有 $w_i$ 這條邊的路徑，權值一定 > d）。至於剩下的邊我們要使他們不會干預我們的最短路徑。$< t$ 的邊維持不變，因為上面的有最短路徑的圖就有涵蓋這些邊，也就是 $1, 2, \ldots$；$>t$ 的邊要保證不會出現在最短路徑上，就要設為 $d+1, d+2, \ldots$。
 
 ???+note "[CF 1307 D. Cow and Fields](https://codeforces.com/problemset/problem/1307/D)"
 	給定一個 $n$ 個點 $m$ 邊無向圖，$n$ 個點中有 $k$ 個是特殊點，可以在這 $k$ 個點中找兩個點連一條無向邊。每條邊的距離都是 $1$。問從 $1$ 到 $n$ 的最短路最大是多少。
@@ -3119,19 +3119,11 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 
 #### 介紹
 
-全名 Shortest Path Finding Algorithm
-
-單源最短路，為 Bellman Ford 的優化版本，每回合只更新「前一回合有被鬆弛」的點相鄰的邊，實作上類似 dijkstra
-
-如果要做很多次最短路，圖每次都變化，就可以用 SPFA，例如 MCMF
-
-平均 $O(n+m)$，worst case $O(nm)$，含運氣成分
+全名為 Shortest Path Finding Algorithm。屬於單源最短路，為 Bellman Ford 的優化版本，每回合只更新「前一回合有被鬆弛」的點相鄰的邊，實作上類似 dijkstra。如果要做很多次最短路，圖每次都變化，就可以用 SPFA，例如 MCMF，複雜度平均 $O(n+m)$，worst case $O(nm)$，含運氣成分
 
 #### 概念(BFS)
 
-如果上一輪某一個點的距離沒有更新,那這一輪也沒必要 relax 他。把距離有更新的節點丟進 queue 裡,然後一直拿 queue 裡的節點出來 relax。
-
-由於 BFS 處理環能力較弱，若遇到負環可能 TLE
+如果上一輪某一個點的距離沒有更新,那這一輪也沒必要 relax 他。把距離有更新的節點丟進 queue 裡,然後一直拿 queue 裡的節點出來 relax。由於 BFS 處理環能力較弱，若遇到負環可能 TLE
 
 ??? note "SPFA BFS code"
 	```cpp linenums="1"

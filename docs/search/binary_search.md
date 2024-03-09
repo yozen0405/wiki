@@ -303,6 +303,50 @@
     ??? note "思路"
     	見<a href="/wiki/search/images/CS Academy - Farey Sequence 題解.html" target="_blank">此處</a>
 
+## 分數規劃
+
+???+note "[USACO 2018 OPEN Talent Show G](https://www.luogu.com.cn/problem/P4377)"
+	給 n 個物品，每個物品有重量 w[i] 和價值 v[i]，選一些物品使得重量和至少為 W，且價值和與重量和的比值越大越好，問這個比值
+	
+	$n\le 250, 1\le W\le 1000, 1\le w_i\le 10^6, 1\le t_i\le 10^3$
+	
+	??? note "思路"
+		【01 分數規劃】
+		
+		$\begin{align}&\frac{\sum v_i}{\sum w_i} \ge t \\ \Rightarrow &\sum v_i - t \cdot \sum w_i\ge 0 \\ \Rightarrow &\sum (v_i - t \cdot w_i)\ge 0 \end{align}$
+		
+		去二分 threshold t 後，我們只要做一個背包 dp，使得 $(v_i - t \cdot w_i)$ 當作價值，$w_i$ 作為重量，看 dp[W] 是否大於等於 0 即可（把重量大於 W 的都記錄在 dp[W]）。
+		
+		```cpp linenums="1"
+		bool check(double t) {
+	        for (int i = 1; i <= n; i++) {
+	            c[i] = (double)v[i] - t * w[i];
+	        }
+	        for (int i = 1; i <= W; i++) {
+	            dp[i] = -INF;
+	        }
+	        for (int i = 1; i <= n; i++) {
+	            for (int j = W; j >= 0; j--) {
+	            	int new_j = min(j + w[i], W);
+	                dp[new_j] = max(dp[new_j], dp[j] + c[i]);
+	            }
+	        }
+	        return dp[W] >= 0;
+	    }
+	    ```
+		
+		---
+		
+		【另解】
+		
+		一種比較暴力的思想：我們直接做背包，$dp_{i,j}$ 表示前 $i$ 個奶牛總重量為 $j$ 下最大價值。時間複雜度瓶頸是什麼？我們發現總重量和可能很大，所以背包很慢。
+	
+	    有一個定理，俗話叫[糖水定理](https://baike.baidu.hk/item/%E7%B3%96%E6%B0%B4%E4%B8%8D%E7%AD%89%E5%BC%8F/8704996)，就是 $\max(\dfrac{a}{b}, \dfrac{c}{d}) \geq \dfrac{a+c}{b+d}$。這給了我們什麼啟發呢？我們發現加上一個物品只會讓比值變的更小。
+	
+	    所以說我們在處理背包時，加到滿足重量限制條件的時候就停止結算。比如，當前重量為 $x$ 的物品嘗試用 dp(i - 1, j) 更新 dp(i, j + x) 時，發現 $j+x\geq W$，那麼我們就直接結算這種可能，更新答案。
+	
+	    注意我們需要排序把比較輕的物品放在前面，不然重量大物品結算了，我們會沒考慮到一些重量小的物品的填充空間，例如 $\dfrac{1}{3}$ 跟 $\dfrac{1}{7}$，假設重量至少要是 7，那麼如果先轉移 $\dfrac{1}{7}$，我們 $\dfrac{1}{3}$ 就無從轉移了（因為 $\dfrac{1}{7}$ 就直接轉移到界外了，$\dfrac{1}{3}$ 沒辦法從界外再繼續轉移，只能從界內），但若我們先讓輕的 $\dfrac{1}{3}$ 先轉移，因為還在重量限制內，所以 $\dfrac{1}{7}$ 可以直接再從 $\dfrac{1}{3}$ 往後轉移。感性理解就是重量大的先轉移會一下就到界外，使得重量小的根本就放不進來。時間複雜度為 $O(nm)$。
+
 ## 雙層二分搜
 
 ???+note "[Google Code Jam 2020 Round2 P1. Incremental House of Pancakes](https://www.acmicpc.net/problem/27811)"
@@ -1047,14 +1091,6 @@
 	??? note "思路"
 		對於一個區間 [l, r]，若 A[i] * sum(B[l...r]) ≠ 0，則毒藥在 [l, r] 中。其中 sum(B[l...r]) 可以靠預處理前綴和快速求出，所以只需要做 O(log n) 次內積極可
 
-???+note "[2023 全國賽模擬賽 pG. 吃午餐 (lunch)](https://codeforces.com/gym/104830/attachments/download/23302/zh_TW.pdf#page=19)"
-	給兩個長度為 n 的序列 a, b，將兩兩分成一組，定義 cost 為每組的 max(a[i], a[j]) + max(b[i], b[j]) 取 max，問 cost 最小是多少
-	
-	$n \le 10^5, 1 \le a, b \le 10^8$
-	
-	??? note "思路"
-		二分搜 thresthold t，然後我們考慮 check(t)。我們規定 i 是從 a 大到小來取，那問題就變成我們要怎麼取 j。可以發現目前唯一有關係的就是 b 了，因為 t - a[i] 只會越來越大，能取的 b[j] 自然也會變多，所以我們當前取 b[j] <= t - a[i] 最大的 b[j] 即是最好的。
-
 ???+note "[USACO 2011 MAR Brownie Slicing G](https://www.luogu.com.cn/problem/P3017)"
 	有一個 $n \times m$ 的矩陣，每一個點有一個點權 $a_{i,j}$。要求將這個矩陣先水平切 $r$ 刀，再將每一塊子矩形垂直切成 $c$ 刀。目標最大化所有子矩形總和的最小值，並輸出。
 	
@@ -1206,66 +1242,66 @@
 		對應到剛剛的條件，Full Binary Tree 的葉節點上面的數字應該要小於 t 減掉葉節點的深度，而每一項 a[i] 的 Full Binary Tree 的 internal node 的數量總和要 <= m。我們發現無法確定 internal node 的數量要是多少比較好，但我們又希望在合法的情況下越少越好，於是我們可以試著再做一個二分搜分幾次，假設二分搜到了 k，就變成說要判斷分 k 次的時候能不能在 t 的時間內吃完，那我們可以使我們的 Full Binary Tree 的葉節點上面的數字盡量大，再看看這些葉節點的權值總和是否大於等於 a[i]。因為深度關係到葉節點上面的數字，所以我們盡量讓 Full Binary Tree 的深度越小越好，所以我們可以先填出一個 Perfect Binary Tree（代表著 internal node，然後要使得點的數量 <= k），下面可能還會有不完整的一層（也是 internal node），然後填完後這些點下面能連的地方我們都當作是葉節點。再看看所有葉節點他們最大的權值總和是否 >= a[i] 即可。
 		
 		<figure markdown>
-          ![Image title](./images/14.png){ width="400" }
-        </figure>
+	      ![Image title](./images/14.png){ width="400" }
+	    </figure>
 		
 	??? note "code"
 		```cpp linenums="1"
 		#include <bits/stdc++.h>
-        #define int long long
-        using namespace std;
-
-        int n, m;
-        int a[1000010];
-
-        int cal(int k, int t) {
-            int dep = -1, sz = 0;
-            while (sz + (1ll << (dep + 1)) <= k) {
-                dep++;
-                sz += 1ll << dep;
-            }
-            int extra_internal = k - sz;
-            int extra_leaf = (1ll << (dep + 1)) - extra_internal;
-            return extra_internal * 2 * (t - (dep + 2)) + extra_leaf * (t - (dep + 1));
-        }
-
-        bool check(int t) {
-            int cnt = 0;
-            for (int i = 0; i < n; i++) {
-                if (a[i] > t) {
-                    int l = 1, r = t;
-                    while (l != r) {
-                        int mid = (l + r) / 2;
-                        if (cal(mid, t) >= a[i]) {
-                            r = mid;
-                        } else {
-                            l = mid + 1;
-                        }
-                    }
-                    cnt += l;
-                }
-            }
-            return cnt <= m;
-        }
-
-        signed main() {
-            cin >> n >> m;
-            for (int i = 0; i < n; i++) {
-                cin >> a[i];
-            }
-            int l = 0, r = 1000000;
-            while (l != r) {
-                int mid = (l + r) / 2;
-                if (check(mid)) {
-                    r = mid;
-                } else {
-                    l = mid + 1;
-                }
-            }
-            cout << l << '\n';
-        }
-        ```
+	    #define int long long
+	    using namespace std;
 	
+	    int n, m;
+	    int a[1000010];
+	
+	    int cal(int k, int t) {
+	        int dep = -1, sz = 0;
+	        while (sz + (1ll << (dep + 1)) <= k) {
+	            dep++;
+	            sz += 1ll << dep;
+	        }
+	        int extra_internal = k - sz;
+	        int extra_leaf = (1ll << (dep + 1)) - extra_internal;
+	        return extra_internal * 2 * (t - (dep + 2)) + extra_leaf * (t - (dep + 1));
+	    }
+	
+	    bool check(int t) {
+	        int cnt = 0;
+	        for (int i = 0; i < n; i++) {
+	            if (a[i] > t) {
+	                int l = 1, r = t;
+	                while (l != r) {
+	                    int mid = (l + r) / 2;
+	                    if (cal(mid, t) >= a[i]) {
+	                        r = mid;
+	                    } else {
+	                        l = mid + 1;
+	                    }
+	                }
+	                cnt += l;
+	            }
+	        }
+	        return cnt <= m;
+	    }
+	
+	    signed main() {
+	        cin >> n >> m;
+	        for (int i = 0; i < n; i++) {
+	            cin >> a[i];
+	        }
+	        int l = 0, r = 1000000;
+	        while (l != r) {
+	            int mid = (l + r) / 2;
+	            if (check(mid)) {
+	                r = mid;
+	            } else {
+	                l = mid + 1;
+	            }
+	        }
+	        cout << l << '\n';
+	    }
+	    ```
+
 ## 細節
 
 - check(x) 的 x 太大的時候，有些情況會造成 cnt overflow
