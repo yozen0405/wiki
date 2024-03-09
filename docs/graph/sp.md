@@ -62,7 +62,7 @@
     
     - get_value() 得到當前最小的 distance (相當於 pq.top())
     
-    因為 distance 具有單調性，故 threshold 只會遞增。類似的技巧也應用在 [TIOJ 1915](https://tioj.ck.tp.edu.tw/problems/1915), [2023 一模 pD](/wiki/graph/SP/#_2)
+    因為 distance 具有單調性，故 threshold 只會遞增。類似的技巧也應用在 [TIOJ 1915](https://tioj.ck.tp.edu.tw/problems/1915), [2023 一模 pD](/wiki/graph/wiki/graph/mst/#incremental)
 
 ??? note "為何 dijkstra 不能在有負邊的圖上跑 ?"
 	簡單來說就是因為單調性。
@@ -3586,15 +3586,134 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 		建表，對於每筆 query 枚舉中間點即可
 
 ???+note "[2021 一模 pA.挑選路徑(Shortcut)](https://drive.google.com/file/d/1iqPCeaaj49-CSO4BnjggvVCgDlsNt-dZ/view)"
-	定義一張圖的總花費是所有點對之間的最短距離總和。
+	定義一張圖的總花費是所有點對之間的最短距離總和。給定一張 $n$ 點 $m$ 邊的簡單無向連通圖，在你可以加一條邊的情況下，和原圖相比最多可以減少多少總花費？又有幾種加邊的方式可以減少那麼多花費？
 	
-	給定一張 $n$ 點 $m$ 邊的簡單無向連通圖，在你可以加一條邊的情況下，和原圖相比最多可以減少多少總花費？又有幾種加邊的方式可以減少那麼多花費？
-	
-	$3 \leq n \leq 500,n-1 \leq m \leq \frac{n(n-1)}{2}-1$
+	$3 \leq n \leq 500,n-1 \leq m \leq \dfrac{n(n-1)}{2}-1$
 	
 	??? note "思路"
-		<https://omeletwithoutegg.github.io/2021/09/22/toi-2021-sols/#p1-shortcut>
+		【暴力作法: ${O}(n^5)$】
 
+        ${O}(n^2)$ 枚舉要加的邊，每次重新做 $n$ 次 BFS（一次 ${O}(n+m)$ ）或是 Floyd-Warshall
+
+        【列算式，預處理: ${O}(n^4)$】
+
+        每次枚舉要加的邊 $(u,v)$ 時，計算每個點對的距離減少了多少，也就是 $\sum \limits_{i < j} \max\{0, \text{dis}(i,j) - (\text{dis}(i,u)+1+\text{dis}(v,j)), \text{dis}(i,j)-(\text{dis}(i,v)+1+\text{dis}(u,j))\}$，其中 $\text{dis}(i,j)$ 是原圖中 $i$ 與 $j$ 的最短距離，可以 ${O}(n^3)$ 預處理。
+
+        【滿分解: ${O}(n^3)$】
+
+        我們來證明看看是否從兩邊過來的路徑都存在（仿造 2024 JOI pB），假設 $\text{dis}(i\rightarrow j) = k$：
+
+         **<u>證明</u>**：從 $i \rightarrow u \rightarrow v \rightarrow j$ 或 $i \rightarrow v \rightarrow u \rightarrow j$ 皆存在更短的路徑
+
+        $$
+        \begin{align}
+        &\begin{cases}
+        \text{dis}(i \rightarrow u) + \ell + \text{dis}(v \rightarrow j) \leq k \\
+        \text{dis}(i \rightarrow v) + \ell + \text{dis}(u \rightarrow j) \leq k
+        \end{cases}
+        \\
+        \Rightarrow&\begin{cases}
+        \text{dis}(i \rightarrow u) + \text{dis}(v \rightarrow j) \leq k - \ell \\
+        \text{dis}(i \rightarrow v) + \text{dis}(u \rightarrow j) \leq k - \ell
+        \end{cases}
+        \\
+        \Rightarrow &\space \space\space\text{dis}(i \rightarrow u) + \text{dis}(v \rightarrow j) + \text{dis}(i \rightarrow v) + \text{dis}(u \rightarrow j) \leq 2k - 2\ell
+        \end{align}
+        $$
+
+        而 $\text{dis}(i \rightarrow u) + \text{dis}(u \rightarrow j)$ 或 $\text{dis}(i \rightarrow v) + \text{dis}(v \rightarrow j)$ 至少都會大於等於 $k$（因為 $i$ 到 $j$ 的最短路是 $k$），假設是 $\text{dis}(i \rightarrow u) + \text{dis}(u \rightarrow j)\ge k$，這樣的話另外一條  $\text{dis}(i \rightarrow v) + \text{dis}(v \rightarrow j)$ 一定 $\le k-2\ell$，因為這題 $\ell =1$，我們發現最短路居然更短了，矛盾，所以只會存在一條。
+
+        也就是說，我們在算總花費減少多少的時候可以改為計算 $\sum \limits_{i,j}\max\{ 0,\text{dis}(i,j)-(\text{dis}(i,u)+1+\text{dis}(v,j))\}$，注意這裡的 $(i,j)$ 是無序的。這種要枚舉好幾個變數的我們會想要試著枚舉其中幾個，另外一個使用類似資料結構優化。考慮固定 $i,v$，那麼 $j,u$ 之間是獨立的，我們可以拆成 $\max\{ 0,(\text{dis}(i,j)-\text{dis}(v,j)-1) - \text{dis}(i,u)\}$。問題就變成，對於每個 $a_u$，求 $\sum \limits_{j} \max\{ 0,b_j-a_u\}$ 的總和。這可以用 counting sort + two pointer 在線性時間內解決，具體來說，就是用一個 bucket 先預處理好對於每個數字 $t$，$b_j\ge t$ 的 $b_j$ 總和，與有幾個符合的 $b_j$，對於 $a_u$ 就是去看 $\text{sum}(t)-\text{cnt}(t)\cdot a_u$。總複雜度是枚舉所有 $i,v$ 所需的 ${O}(n^2)$，接著 $O(n)$ 枚舉 $j$ 去預處理 bucket，然後在預處理好後再 $O(n)$ 對於每個 $u$ 查表計算，所以整體複雜度就是 ${O}(n^2\cdot (n + n))=O(n^3)$。
+        
+		> 參考: <https://omeletwithoutegg.github.io/2021/09/22/toi-2021-sols/#p1-shortcut>
+	
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+        #define int long long
+
+        using namespace std;
+        const int MAXN = 505, inf = 1e9;
+
+        int dis[MAXN][MAXN];
+        int ans[MAXN][MAXN];
+        int sum[MAXN];
+        int cnt[MAXN];
+        int n, m;
+
+        signed main() {
+            ios_base::sync_with_stdio(0), cin.tie(0);
+            cin >> n >> m;
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (i != j) {
+                        dis[i][j] = inf;
+                    }
+                }
+            }
+            for (int i = 0; i < m; i++) {
+                int u, v;
+                cin >> u >> v;
+                u--, v--;
+                dis[u][v] = dis[v][u] = 1;
+            }
+            for (int k = 0; k < n; k++) {
+                for (int i = 0; i < n; i++) {
+                    for (int j = 0; j < n; j++) {
+                        dis[i][j] = min(dis[i][j], dis[i][k] + dis[k][j]);
+                    }
+                }
+            }
+            for (int i = 0; i < n; i++) {
+                for (int v = 0; v < n; v++) {
+                    for (int j = 0; j < n; j++) {
+                        sum[j] = cnt[j] = 0;
+                    }
+                    for (int j = 0; j < n; j++) {
+                        int d = dis[i][j] - dis[v][j] - 1;
+                        if (d < 0) continue;
+                        cnt[d] += 1;
+                        sum[d] += d;
+                    }
+                    for (int j = n - 1; j >= 0; j--) {
+                        sum[j] += sum[j + 1], cnt[j] += cnt[j + 1];
+                    }
+                    for (int u = 0; u < v; u++) {
+                        int d = dis[i][u];
+                        ans[u][v] += sum[d] - cnt[d] * d;
+                    }
+                }
+            }
+
+            int mx = -1;
+            int cnt = 0;
+            for (int i = 0; i < n; i++) {
+                for (int j = i + 1; j < n; j++) {
+                    if (ans[i][j] == mx) {
+                        cnt++;
+                    } else if (ans[i][j] > mx) {
+                        mx = ans[i][j], cnt = 1;
+                    }
+                }
+            }
+            cout << cnt << ' ' << mx << '\n';
+        }
+        /*
+        5 4
+        1 2
+        2 3
+        3 4
+        2 5
+
+        5 5
+        1 2
+        2 3
+        3 4
+        4 5
+        5 1
+        */
+        ```
+	
 ---
 
 ## 參考資料

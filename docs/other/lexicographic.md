@@ -9,14 +9,46 @@ string $a$ 比 string $b$ 字典序還小符合以下條件之一
 利用 c++ string operator `<` 可以判斷兩個字串的字典序，複雜度 O(n)
 
 ???+note "性質應用 [CF 1886 C. Decreasing String](https://codeforces.com/contest/1886/problem/C)"
-	給一個字串 $s$，每次會將 $s$ 移除一個字元，使剩下的 $s$ 字典序最小。將這個過程的 $s$ 併起來，問第 $k$ 項是多少
+	給一個字串 $s$，每次會將 $s$ 移除一個字元，使剩下的 $s$ 字典序最小。將這個過程的 $s$ 併起來變成一個大字串，問第 $k$ 項是多少
 	
 	$1\le |s| \le 10^6,s$ 為 a-z
 	
 	??? note "思路"
-		我們先求最後一個併起來的 $s$ 的長度會是多少
-	
-		依照字典序的定義 : 存在一個最小的 index $i$ 滿足 $a_i<b_i$，我們現在從左往右看，若發現當前的元素都是遞增的，那麼我們將最後一個元素刪除會是最好的，因為如果刪除其他元素會使大的被往前推 ; 若發現當前元素有一個突然遞減，那我們盡量將這個元素移往開頭會是最好的，所以這個過程可用單調 stack 來維護
+		我們先來思考要怎麼刪除比較好，依照字典序的定義，他是從左往右看，直到看到一個 i 滿足 $a_i<b_i$。我們也是一樣從左往右看，若發現當前元素滿足 $s_{i} > s_{i+1}$，那我們得刪除 $s_i$，然後盡量將 $s_{i+1}$ 移往開頭（也就是 pop 到前面是第一個比 $s_{i+1}$ 小的）會是最好的，這個過程其實就是可用單調 stack 來維護。若發現當前整個序列 $s$ 都是遞增的，那麼我們將最後一個元素刪除會是最好的，因為如果刪除其他元素會使大的被往前推。
+		
+		所以我們可以用上面那種方式模擬，然後每次模擬出一個字串後（刪掉一個元素後），讓 k 減掉當前序列的長度，直到無法再減即模擬到我們要的答案所在的字串 $s$。
+		
+	??? note "code"
+		```cpp linenums="1"
+		#include <bits/stdc++.h>
+
+        using namespace std;
+
+        int t;
+        long long p, n;
+        string s;
+
+        int main() {
+            cin >> t;
+            while (t--) {
+                cin >> s >> p;
+                n = s.length();
+                s = " " + s + " ";
+                vector<char> stk;
+                bool done = (p <= n);
+                for (int i = 1; i <= s.length() + 1; ++i) {
+                    while ((!done) && (!stk.empty()) && (stk.back() > s[i])) {
+                        stk.pop_back();
+                        p -= (n--);
+                        done = (p <= n);
+                    }
+                    stk.push_back(s[i]);
+                }
+                cout << stk[p - 1];
+            }
+            return 0;
+        }
+        ```
 
 ## 字典序第 k 小
 
@@ -184,7 +216,7 @@ while (k > 0) {
 	    }
 		```
 
-???+note "[全國賽 2022 pG](https://sorahisa-rank.github.io/nhspc-fin/2022/problems.pdf#page=21)"
+???+note "[2022 全國賽 pG. 算樹 (tree)](https://sorahisa-rank.github.io/nhspc-fin/2022/problems.pdf#page=21)"
 	設 $T$ 為一棵有 $n$ 個節點的樹，節點編號 $1, 2, \ldots , n$，已知 $T$ 每個節點的 degree 為 $d_1,d_2,\ldots ,d_n$，其中 $d_i$ 為點 $i$ 的 degree，求出 $T$ 所有可能的 Prüfer 序列中，字典序第 $k$ 小的，如果沒有輸出 $-1$
 	
 	$3<n\le 10^3,1\le k\le 10^9$
@@ -192,29 +224,21 @@ while (k > 0) {
 	??? note "思路"
 		根據上面 Prüfer 序列的性質 2，題目就變成 :
 		
-		有一個陣列，第 $i$ 個數字出現 $d_i-1$ 次，求字典序第 $k$ 小的
-		
-		至於要怎麼求字典序第 $k$ 小，要先會寫 [TIOJ 2052](https://tioj.ck.tp.edu.tw/problems/2052)
-		
-		我們填 $i$，填完剩 $d_i-1$ 個 $i$，還剩 $n$ 個空格可以填
+		有一個陣列，第 $i$ 個數字出現 $d_i-1$ 次，求字典序第 $k$ 小的，至於要怎麼求字典序第 $k$ 小，我們可以沿用上面提到的技巧。我們一位一位填，然後枚舉當前這位要填的數字，假設當前還剩 $n$ 個空格可以填，我們的方法數就可以表示成：
 		
 		$$\frac{n!}{a!\times b!\times c! \times d!}$$
 		
-		我們可以用取 $\log$ 的方法來估計「大概」的答案，同時也用 $C^n_k\pmod{10^9+7}$ 的方法算出「精確」的答案。
+		我們可以用取 $\log$ 的方法來估計「大概」的答案，同時也用 $C^n_k\pmod{10^9+7}$ 的方法算出「精確」的答案。$\log$ 的方法是因為 $\frac{n!}{a!\times b!\times c! \times d!}=\log n!-\log a!-\log b! - \log c! - \log d!$。可以先預處裡 $\log n!=\sum_{i=1}^n \log i$，因為最後的答案 $\le 10^9$，依照**模逆元的正確性**，將 $\frac{n!}{a!\times b!\times c! \times d!}$ 直接算出來再 $\pmod{10^9+7}$ 跟 $\frac{n!}{a!\times b!\times c! \times d!}$ 利用組合數 + 模逆元的方法算出來是相同的。
 		
-		$\log$ 的方法是因為 $\frac{n!}{a!\times b!\times c! \times d!}=\log n!-\log a!-\log b! - \log c! - \log d!$。可以先預處裡 $\log n!=\sum_{i=1}^n \log i$
-		
-		因為最後的答案 $\le 10^9$，依照**模逆元的正確性**，將 $\frac{n!}{a!\times b!\times c! \times d!}$ 直接算出來再 $\pmod{10^9+7}$ 跟 $\frac{n!}{a!\times b!\times c! \times d!}$ 利用組合數 + 模逆元的方法算出來是相同的
-		
-		那麼換選另一個數的時候 :
+		以下我們給出具體的例子，以下圖來說，當我們換選另一個數的時候：
 		
 		<figure markdown>
 	      ![Image title](./images/8.png){ width="300" }
 	    </figure>
 		
-		$\log$ 的計算 : $-\log(a-1)! + \log a! - \log b! + \log (a-1)!$
+		$\log$ 的計算將會需要加上: $-\log(a-1)! + \log a! - \log (b-1)! + \log b!$
 		
-		$C^n_k\pmod{10^9+7}$ 的計算 : $\times b \times \text{inv}(a)$
+		$C^n_k\pmod{10^9+7}$ 的計算會需要乘上: $\times b \times \text{inv}(a)$
 	
 	??? note "code"
 		```cpp linenums="1"
@@ -332,10 +356,10 @@ while (k > 0) {
 	    ```
 
 ???+note "<a href="/wiki/cp/contest/images/TOI-2023-3.pdf" target="_blank">2023 TOI 模擬賽決賽 pB. TOI 也會出字串題？</a>"
-	給 n 個點，$\dfrac{n(n-1)/2}$ 的 DAG，滿足任意 $1\le i< j\le n$ 都存在 $i$ 到 $j$ 的有向邊。每個點都是一個字元。有 $q$ 筆詢問如下：
+	給 n 個點 $\dfrac{n(n-1)}{2}$ 條邊的 DAG，滿足任意 $1\le i< j\le n$ 都存在 $i$ 到 $j$ 的有向邊。每個點都是一個字元。有 $q$ 筆詢問如下：
 	
 	- $\text{query}(s, t):$ 輸出 $s$ 到 $t$ 的字典序最小路徑（路徑上所有字元按照順序拼起來的字串字典序最小）
-
+	
 	$2\le n\le 800$
 	
 	??? note "思路"
