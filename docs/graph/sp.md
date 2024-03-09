@@ -3062,6 +3062,11 @@
 		最小的解就是 $w_{p_1}=1,w_{p_2}=2,\ldots$，我們二分搜一個 threshold $t$，滿足使用邊權 $\le t$ 的邊恰能使 $s\to t$ 的最短路 $\le d$，若全部的邊都用上 $d$ 還是小於最短路 $L$，就輸出無解。
 		
 		接下來我們要來調整，讓最短路變成恰好 $d$。因為到 $w_i=t$ 才恰好形成 <= d 的最短路，所以 $w_i=t$ 一定在最短路徑上，而在這之前，最短路是 > d 的。如果我們將 $w_i$ 改成 $t+d-L$，可以使得最短路加起來恰好變成 $d$（因為沒有 $w_i$ 這條邊的路徑，權值一定 > d）。至於剩下的邊我們要使他們不會干預我們的最短路徑。$< t$ 的邊維持不變，因為上面的有最短路徑的圖就有涵蓋這些邊，也就是 $1, 2, \ldots$；$>t$ 的邊要保證不會出現在最短路徑上，就要設為 $d+1, d+2, \ldots$。
+		
+		<figure markdown>
+          ![Image title](./images/23.png){ width="300" }
+          <figcaption>d = 7</figcaption>
+        </figure>
 
 ???+note "[CF 1307 D. Cow and Fields](https://codeforces.com/problemset/problem/1307/D)"
 	給定一個 $n$ 個點 $m$ 邊無向圖，$n$ 個點中有 $k$ 個是特殊點，可以在這 $k$ 個點中找兩個點連一條無向邊。每條邊的距離都是 $1$。問從 $1$ 到 $n$ 的最短路最大是多少。
@@ -3071,27 +3076,6 @@
 	??? note "思路"
 		現在有兩個點 $i$ 和 $j$ ，如果其建邊的話，最短路可能是 $1 \to i \to j \to n$ 或者 $1 \to j \to i \to n$。這樣代表的距離也就是 $dis(1\to i)+dis(j\to n)+1$ 和 $dis(1\to j)+dis(i\to n)+1$ 了。我們要取最小的，因此 $dis(1\to i)+dis(j\to n)+1<dis(1\to j)+dis(i\to n)+1$  時，才符合最短路的條件。移項後變為 $dis(1\to i) - dis(i\to n) < dis(1\to j)-dis(j\to n)$。依據 exchange argument，按照這個條件由小到大排序後，枚舉位於後面的點 $j$，然後找到點 $j$ 前面的 $dis(1\to i)$ 的最大值，這樣可以保證相加之和是最大的。最大就是之前的最短路了。最後與原圖最短路比較一下就可以了。
 
-### 難題
-
-???+danger "[TIOJ 2049.龜兔賽跑](https://tioj.ck.tp.edu.tw/problems/2049)"
-	給 $n$ 點 $m$ 邊無向圖，求若拔掉一個點後，$s\to t$ 的最短路徑最大會是多少
-	
-	$n,m\le 3\times 10^5$
-
-???+danger "[JOI #3490. 「JOISC 2021 Day2」逃跑路线](https://loj.ac/p/3490)"
-	有一張 $N$ 點 $M$ 邊無向圖，每天的長度是 $S$，第 $i$ 條邊連接 $A_i,B_i$，在那一天的時間小於等於 $L_i$ 的時候可以行走，費時 $C_i$（也就是要在 $L_i-C_i$ 當下或之前出發），有 $Q$ 筆詢問，第 $j$ 筆問從第一天的時間點 $T_j$ 開始，從 $U_i$ 走到 $V_i$ 要多久
-	
-	- $2 \leq N \leq 90,\,M \leq \frac{N(N-1)}{2}$
-	
-	- $2 \leq S \leq 10^{15},\,1 \leq L_i \leq C_i < S$
-	
-	- $1 \leq Q \leq 3 \times 10^6,\,0 \leq T_j < S$
-	
-	- 圖是連通、沒有自環也沒有重邊的
-	
-	??? danger "思路"
-		<https://littlecube8152.github.io/posts/joisc-2021-escape-route/>
-
 ## Bellman Ford/SPFA
 
 ### Bellman Ford
@@ -3099,19 +3083,88 @@
 Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原因是最短路徑最多只經過 $n − 1$ 條邊
 
 ???+note "模板 [CSES - Cycle Finding](https://cses.fi/problemset/task/1197)"
-	給一張 $n$ 點 $m$ 邊有向圖，求上面是否有負環
+	給一張 $n$ 點 $m$ 邊有向圖，求上面是否有負環，如果有的話輸出任意負環
 	
 	$n \le 2500、m \le 5000$
 
 ??? note "算法實作"
 	```cpp linenums="1"
-    void solve () {
-        vector<int> d(n, INF);
-        d[v] = 0;
-        for (int i = 0; i < n - 1; ++i)
-            for (Edge e : edges)
-                if (d[e.a] < INF)
-                    d[e.b] = min(d[e.b], d[e.a] + e.cost);
+	int x; // 看第 n 輪是否會 relax
+	for (int i = 0; i < n; ++i) {
+        x = -1; // 沒 relax
+        for (auto &e: edges) {
+            if (distances[e.v] > distances[e.u] + e.w) {
+                distances[e.v] = distances[e.u] + e.w;
+                parents[e.v] = e.u;
+                x = e.v; // 有 relax
+            }
+        }
+    }
+    ```
+	
+??? note "code"
+	```cpp linenums="1"
+    #include <bits/stdc++.h>
+    #define int long long
+    using namespace std;
+
+    struct Edge {
+        int u, v, w;
+    };
+
+    int n, m;
+    vector<Edge> edges;
+    vector<int> distances;
+    vector<int> parents;
+
+    vector<int> construct_answer(int x) {
+        for (int i = 0; i < n; ++i) {
+            x = parents[x];
+        }
+
+        vector<int> ans;
+        int y = x;
+        do {
+            ans.push_back(y);
+            y = parents[y];
+        } while (x != y);
+
+        ans.push_back(x);
+        reverse(ans.begin(), ans.end());
+
+        return ans;
+    }
+
+    signed main() {
+        cin >> n >> m;
+        for (int i = 0; i < m; ++i) {
+            int u, v, w;
+            cin >> u >> v >> w;
+            u--, v--;
+            edges.push_back({u, v, w});
+        }
+        parents = vector<int>(n);
+        distances = vector<int>(n);
+        int x; // 看第 n 輪是否會 relax
+        for (int i = 0; i < n; ++i) {
+            x = -1; // 沒 relax
+            for (auto &e: edges) {
+                if (distances[e.v] > distances[e.u] + e.w) {
+                    distances[e.v] = distances[e.u] + e.w;
+                    parents[e.v] = e.u;
+                    x = e.v; // 有 relax
+                }
+            }
+        }
+        if (x != -1) {
+            auto ans = construct_answer(x);
+            cout << "YES" << '\n';
+            for (int i = 0; i < ans.size(); ++i) {
+                cout << ans[i] + 1 << ' ';
+            }
+        } else {
+            cout << "NO" << '\n';
+        }
     }
     ```
 
@@ -3298,7 +3351,7 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 	        }
 	
 	        double l = -1e7, r = 1e7;
-	        while(r - l > EPS) {
+	        while (r - l > EPS) {
 	            double mid = (l + r) / 2;
 	            if (check(mid)) r = mid;
 	            else l = mid;
@@ -3403,7 +3456,7 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
 	for (int k = 1; k <= n; k++) {
 	    for (int i = 1; i <= n; i++) {
 	        for (int j = 1; j <= n; j++) {
-	            dis[i][j] = min (dis[i][j], dis[i][k] + dis[k][j]);
+	            dis[i][j] = min(dis[i][j], dis[i][k] + dis[k][j]);
 	        }
 	    }
 	}
@@ -3443,7 +3496,7 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
     int adj[maxn][maxn];
     int dis[maxn][maxn];
     
-    int solve () {
+    int solve() {
         for (int i = 1; i <= n; i++) {
             for (int j = 1; j <= n; j++) {
                 if (i == j) dis[i][j] = 0;
@@ -3464,7 +3517,7 @@ Bellman-Ford 就是把所有節點都 relax，做 $n − 1$ 次，會對的原�
     
             for (int i = 1; i <= n; i++) {
                 for (int j = 1; j <= n; j++) {
-                    dis[i][j] = min (dis[i][j], dis[i][k] + dis[k][j]);
+                    dis[i][j] = min(dis[i][j], dis[i][k] + dis[k][j]);
                 }
             }
         }
