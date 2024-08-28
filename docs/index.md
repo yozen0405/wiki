@@ -46,11 +46,3 @@
 	
 - 字串
 	- <a href="/wiki/string/hashing" target="_blank">hash</a>
-
-
-## 作者
-
-- yozen0405
-
-- Rah（2023 TOI 女保）
-

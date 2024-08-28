@@ -4,8 +4,6 @@
 
 - [twpca](https://github.com/twpca)
 
-- [TOI 邪惡表格](https://docs.google.com/spreadsheets/d/15wk-ahKKEDJTHlHolr5GoQiCsdj2GBDvgTDzJ00uuW8/edit)
-
 - [google drive 題本](https://drive.google.com/drive/folders/1dqC9RmkRz-_Tb6EaRLmR3B0V-V6bzhBy)
 
 ## 目錄
